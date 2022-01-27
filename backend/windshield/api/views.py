@@ -39,4 +39,4 @@ class Category(generics.ListCreateAPIView):
     queryset = models.Category.objects.all()
 
     def perform_create(self, serializer):
-        serializer.save(id='CAT' + str(uuid4())[:10] + self.request.data['id'])
+        serializer.save( id ='CAT' + str(uuid4())[:10] + self.request.data['id'])
