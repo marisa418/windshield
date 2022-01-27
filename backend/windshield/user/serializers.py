@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 from user.models import NewUser
-from api.models import Province
+from user.models import Province
 
 class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,20 +10,12 @@ class ProvinceSerializer(serializers.ModelSerializer):
 
 class RegisterUserSerializer(serializers.ModelSerializer):
     user_id = serializers.CharField(required=True)
-    name = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
-    pin = serializers.CharField(required=True)
-    tel = serializers.CharField(required=True)
-    occu_type = serializers.CharField(required=True)
-    age = serializers.IntegerField(required=True)
-    family = serializers.IntegerField(required=True)
-    points = serializers.IntegerField(required=True)
     password = serializers.CharField(required=True, write_only=True)
-    # province = ProvinceSerializer(required=True)
 
     class Meta:
         model = NewUser
-        fields = ('user_id', 'name', 'email', 'pin', 'tel', 'occu_type', 'age', 'family', 'points', 'password')
+        fields = ('user_id', 'email', 'password', 'tel')
         extra_kwargs = {'password' : {'write_only': True}}
 
     def create(self, validated_data):
@@ -33,3 +25,19 @@ class RegisterUserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
+class UserSerializer(serializers.ModelSerializer):
+    # user_id = serializers.CharField()
+    # email = serializers.EmailField()
+    # pin = serializers.CharField()
+    # tel = serializers.CharField()
+    # occu_type = serializers.CharField()
+    # status = serializers.CharField() 
+    # age = serializers.IntegerField()
+    # province = serializers.IntegerField()
+    # family = serializers.IntegerField()
+    # points = serializers.IntegerField()
+
+    class Meta:
+        model = NewUser
+        exclude = ('password',)

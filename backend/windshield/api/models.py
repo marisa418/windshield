@@ -74,7 +74,7 @@ class Category(models.Model):
     ftype = models.ForeignKey(FinancialType, on_delete=CASCADE)
     user_id = models.ForeignKey(NewUser, on_delete = CASCADE)
     used_count = models.PositiveIntegerField(default=0)
-    icon = models.FilePathField()
+    # icon = models.FilePathField()
 
     class Meta:
         db_table = 'category'
@@ -129,15 +129,15 @@ class FinancialStatementPlan(models.Model):
     owner_id = models.ForeignKey(NewUser, on_delete = CASCADE)
     name = models.CharField(max_length=30)
     chosen = models.BooleanField()
-    start = models.DateTimeField()
-    end = models.DateTimeField()
+    start = models.DateField()
+    end = models.DateField()
     month = models.ForeignKey(Month, on_delete=CASCADE)
 
     class Meta:
         db_table = 'financial_statement_plan'
 
     def __str__(self):
-        return self.owner_id
+        return self.id
 
 class Budget(models.Model):
     freq_choices = [
@@ -179,7 +179,7 @@ class DailyFlow(models.Model):
     value = models.PositiveIntegerField()
     #method =
     detail = models.TextField()
-    photo = models.FilePathField()
+    # photo = models.FilePathField()
 
     class Meta:
         db_table = 'daily_flow'
@@ -258,7 +258,7 @@ class Suggestion(models.Model):
     id = models.CharField(max_length=5, primary_key=True)
     name = models.CharField(max_length=30)
     detail = models.TextField()
-    image = models.FilePathField()
+    # image = models.FilePathField()
     like = models.PositiveIntegerField()
     recomm_count = models.PositiveIntegerField()
     creator = models.ForeignKey(NewUser, on_delete=CASCADE)
@@ -286,7 +286,7 @@ class KnowledgeArticle(models.Model):
     topic = models.CharField(max_length=30)
     # subject = ArrayField(models.CharField(), size=10)
     detail = models.TextField()
-    body = models.FilePathField()
+    # body = models.FilePathField()
     like = models.PositiveIntegerField()
     view = models.PositiveIntegerField()
     creator = models.ForeignKey(NewUser, on_delete=CASCADE)

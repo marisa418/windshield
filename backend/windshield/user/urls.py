@@ -1,8 +1,10 @@
 from django.urls import path
-from .views import CustomUserCreate
+from . import views
 
 app_name = 'user'
 
+#all of these paths start with '/user/' already
 urlpatterns = [
-    path('register/', CustomUserCreate.as_view(), name="register_user"),
+    path('register/', views.CustomUserCreate.as_view(), name="register_user"),
+    path('<str:pk>/', views.User.as_view(), name='user_detail'),
 ]

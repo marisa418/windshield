@@ -2,7 +2,6 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-# from api.models import Province
 from django.db.models.deletion import CASCADE
 import uuid
 
@@ -20,21 +19,18 @@ class Province(models.Model):
 
 class CustomAccountManager(BaseUserManager):
 
-    def create_user(self, user_id, password, name, email, pin, tel, **other_fields):
+    def create_user(self, user_id, password, email, **other_fields):
         email = self.normalize_email(email)
         user = self.model(
             user_id=user_id, 
-            name=name, 
             email=email,
-            pin=pin,
-            tel=tel,
             **other_fields
         )
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, user_id, password, name, email, pin, tel, **other_fields):
+    def create_superuser(self, user_id, password, email, **other_fields):
         other_fields.setdefault('is_staff', True)
         other_fields.setdefault('is_superuser', True)
         other_fields.setdefault('is_active', True)
@@ -44,21 +40,38 @@ class CustomAccountManager(BaseUserManager):
         if other_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must be assigned to is_superser=True.')
 
-        return self.create_user(user_id, password, name, email, pin, tel, **other_fields)
+        return self.create_user(user_id, password, email, **other_fields)
+
+status_chocies = [
+    ('SIN', 'Single'),
+    ('PAR', 'Partner'),
+    ('MAR', 'Married'),
+    ('DIV', 'Divorced'),
+]
+
+occu_choices = [
+    ('GOV', 'Government'),
+    ('COM', 'Company'),
+    ('DLY', 'Daily'),
+    ('FRL', 'Freelance'),
+    ('BUS', 'Business'),
+    ('LES', 'Jobless')
+]
 
 class NewUser(AbstractBaseUser, PermissionsMixin):
-
     user_id = models.CharField(max_length=21, unique=True)
-    name = models.CharField(max_length=30)
     email = models.EmailField()
-    pin = models.CharField(max_length=6)
-    tel = models.CharField(max_length=10)
+    pin = models.CharField(max_length=6, null=True)
+    tel = models.CharField(max_length=10, null=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # Might be choice field later
-    occu_type = models.CharField(max_length=10)
+    occu_type = models.CharField(max_length=3, choices=occu_choices, null=True)
+    status = models.CharField(max_length=3, choices=status_chocies, null=True) 
+    #
+
     age = models.PositiveSmallIntegerField(null=True)
     province = models.ForeignKey(Province, on_delete=CASCADE, null=True)
     family = models.PositiveSmallIntegerField(null=True)
@@ -67,8 +80,8 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomAccountManager()
 
     USERNAME_FIELD = 'user_id'
-    REQUIRED_FIELDS = ['name', 'email', 'pin', 'tel']
+    REQUIRED_FIELDS = ['email']
 
     def __str__(self):
-        return self.name
+        return self.user_id
 

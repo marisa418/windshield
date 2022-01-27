@@ -8,14 +8,14 @@ from django.apps import apps
 
 class UserAdminConfig(UserAdmin):
     model = NewUser
-    search_fields = ('user_id', 'name')
-    list_filter = ('user_id', 'name', 'is_active', 'is_staff')
+    search_fields = ('user_id', 'uuid')
+    list_filter = ('user_id', 'is_active', 'is_staff')
     ordering = ('user_id',)
-    list_display = ('user_id', 'uuid', 'name', 'is_active', 'is_staff')
+    list_display = ('user_id', 'uuid', 'is_active', 'is_staff')
     fieldsets = (
         (None, {'fields': ('user_id',)}),
         ('Permissions', {'fields': ('is_staff', 'is_active')}),
-        ('Personal', {'fields': ('name', 'email', 'pin', 'tel')}),
+        ('Personal', {'fields': ('email', 'pin', 'tel', 'occu_type', 'status', 'province', 'family')}),
     )
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 20, 'cols': 60})},
@@ -23,7 +23,7 @@ class UserAdminConfig(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('user_id', 'password1', 'password2', 'name', 'email', 'pin', 'tel')}
+            'fields': ('user_id', 'password1', 'password2', 'email', 'pin', 'tel')}
          ),
     )
 
