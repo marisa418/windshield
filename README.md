@@ -1,5 +1,2 @@
-# windshield
-Financial management mobile app (Flutter + Django)
-
-# SUBJECT
+# Subject
 Software Engineering 
