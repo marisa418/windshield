@@ -20,10 +20,9 @@ class StatementList(generics.ListCreateAPIView):
     # queryset = models.FinancialStatementPlan.objects.all()
 
     def get_queryset(self):
-        queryset = models.FinancialStatementPlan.objects.all()
-        uuid = self.request.query_params.get('uuid')
+        uuid = self.request.user.uuid
         if uuid is not None:
-            queryset = queryset.filter(owner_id=uuid)
+            queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
             return queryset
         else :
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -36,7 +35,22 @@ class Statement(generics.RetrieveUpdateDestroyAPIView):
 class Category(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.CategorySerializer
-    queryset = models.Category.objects.all()
 
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is not None: 
+            queryset = models.Category.objects.filter(user_id=uuid).order_by("used_count")
+            return queryset
+        else :
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    
     def perform_create(self, serializer):
-        serializer.save( id ='CAT' + str(uuid4())[:10] + self.request.data['id'])
+        uuid = self.request.user.uuid
+        if uuid is not None:
+            owner = models.NewUser.objects.get(uuid=uuid)
+            cat_id = models.Category.objects.filter(user_id=uuid).count()
+            serializer.save( id ='CAT' + str(uuid)[:10] + str("0" + str(cat_id))[-2:], 
+                            user_id = owner
+                            )
+        else :
+            return Response(status=status.HTTP_400_BAD_REQUEST)

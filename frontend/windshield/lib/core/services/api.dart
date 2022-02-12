@@ -108,47 +108,6 @@ class Api extends ChangeNotifier {
         },
       );
       final res = await login(username, password);
-      await createCategory('00', 'เงินเดือน', 1);
-      await createCategory('01', 'ค่าจ้าง', 1);
-      await createCategory('02', 'ค่าล่วงเวลา', 1);
-      await createCategory('03', 'โบนัส', 1);
-      await createCategory('04', 'ค่าคอมมิชชั่น', 1);
-      await createCategory('05', 'กำไรจากธุรกิจ', 1);
-      await createCategory('06', 'ดอกเบี้ย', 2);
-      await createCategory('07', 'เงินปันผล', 2);
-      await createCategory('08', 'ค่าเช่า', 2);
-      await createCategory('09', 'ขายสินทรัพย์', 2);
-      await createCategory('10', 'เงินรางวัล', 3);
-      await createCategory('11', 'ค่าเลี้ยงดู', 3);
-
-      await createCategory('12', 'อาหาร/เครื่่องดื่ม', 4);
-      await createCategory('13', 'ภายในครัวเรือน', 4);
-      await createCategory('14', 'ความบันเทิง/ความสุขส่วนบุคคล', 4);
-      await createCategory('15', 'สาธารณูปโภค', 4);
-      await createCategory('16', 'ดูแลตัวเอง', 4);
-      await createCategory('17', 'ค่าเดินทาง', 4);
-      await createCategory('18', 'รักษาพยาบาล', 4);
-      await createCategory('19', 'ดูแลบุพการี', 4);
-      await createCategory('20', 'ดูแลบุตร', 4);
-      await createCategory('21', 'ภาษี', 4);
-      await createCategory('22', 'ชำระหนี้', 4);
-      await createCategory('23', 'เสี่ยงดวง', 4);
-      await createCategory('24', 'กิจกรรมทางศาสนา ', 4);
-
-      await createCategory('25', 'เช่าบ้าน', 5);
-      await createCategory('26', 'หนี้ กยศ. กองทุน กยศ.', 5);
-      await createCategory('27', 'ผ่อนรถ', 5);
-      await createCategory('28', 'ผ่อนสินค้า', 5);
-      await createCategory('29', 'ผ่อนหนี้นอกระบบ', 5);
-      await createCategory('30', 'ผ่อนสินเชื่อส่วนบุคคล', 5);
-
-      await createCategory('31', 'ประกันสังคม', 6);
-      await createCategory('32', 'กองทุนสำรองเลี้ยงชีพ', 6);
-      await createCategory('33', 'กอนทุน กบข.', 6);
-      await createCategory('34', 'สหกรณ์ออมทรัพย์', 6);
-      await createCategory('35', 'เงินออม', 6);
-      await createCategory('36', 'เงินลงทุน', 6);
-
       if (!res) return false;
       return true;
     } catch (e) {

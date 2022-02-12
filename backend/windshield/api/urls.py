@@ -11,5 +11,5 @@ urlpatterns = [
     path('statement/', views.StatementList.as_view(), name='statement'),
 
     #CATEGORY
-    path('category/', views.Category.as_view(), name='category'),
+    path('category/', views.Category.as_view(), name='category')
 ]
