@@ -104,7 +104,7 @@ class Debt(models.Model):
     interest = models.DecimalField(decimal_places=2, max_digits=5, null=True)
     debt_term = models.PositiveIntegerField()
     minimum = models.PositiveIntegerField(null=True)
-    settlement = models.PositiveIntegerField(null=True)
+    suspend = models.PositiveIntegerField(null=True)
     imp_ranking = models.IntegerField()
     
     class Meta:
