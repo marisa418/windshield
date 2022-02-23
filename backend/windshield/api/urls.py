@@ -11,5 +11,8 @@ urlpatterns = [
     path('statement/', views.StatementList.as_view(), name='statement'),
 
     #CATEGORY
-    path('category/', views.Category.as_view(), name='category')
+    path('categories/', views.Category.as_view(), name='categories_list'),
+    
+    #BALANCE SHEET
+    path('balance_sheet/', views.BalanceSheet.as_view(), name='balance_sheet')
 ]

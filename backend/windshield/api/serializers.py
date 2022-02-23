@@ -6,7 +6,8 @@ class StatementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.FinancialStatementPlan
-        fields = '__all__'
+        exclude = ["owner_id"]
+        read_only_fields = ['id']
 
 class CategorySerializer(serializers.ModelSerializer):
     
@@ -14,3 +15,9 @@ class CategorySerializer(serializers.ModelSerializer):
         model = models.Category
         exclude = ["user_id"]
         read_only_fields = ["id"]
+        
+class BalanceSheetSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.BalanceSheet
+        fields = '__all__'

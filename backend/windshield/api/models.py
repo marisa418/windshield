@@ -31,7 +31,7 @@ class BalanceSheet(models.Model):
         db_table = 'balance_sheet'
 
     def __str__(self):
-        return self.owner_id
+        return self.id
 
 class BalanceSheetLog(models.Model):
     id = models.AutoField(primary_key=True)
@@ -69,12 +69,12 @@ class FinancialType(models.Model):
 
 class Category(models.Model):
     id = models.CharField(max_length=15, primary_key=True)
-    name = models.CharField(max_length=30,)
+    name = models.CharField(max_length=30)
     # status = 
     ftype = models.ForeignKey(FinancialType, on_delete=CASCADE)
     user_id = models.ForeignKey(NewUser, on_delete = CASCADE)
     used_count = models.PositiveIntegerField(default=0)
-    # icon = models.FilePathField()
+    icon = models.CharField(max_length=30, default="shield-alt")
 
     class Meta:
         db_table = 'category'
