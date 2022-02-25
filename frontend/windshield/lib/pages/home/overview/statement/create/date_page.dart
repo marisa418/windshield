@@ -16,8 +16,9 @@ class DatePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     SchedulerBinding.instance?.addPostFrameCallback(
       (timeStamp) {
-        ref.read(providerStatement).setStartDate(DateTime.now().toString());
-        ref.read(providerStatement).setEndDate(DateTime.now().toString());
+        final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
+        ref.read(providerStatement).setStartDate(dateNow);
+        ref.read(providerStatement).setEndDate(dateNow);
         showDialog<void>(
           context: context,
           builder: (BuildContext context) => AlertDialog(
@@ -51,6 +52,8 @@ class Date extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final statement = ref.watch(providerStatement);
+    final dateRange = statement.getDateDiff();
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -65,18 +68,64 @@ class Date extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          Flexible(
-            flex: 1,
-            child: Text(
-              'ระยะเวลา ${ref.watch(providerStatement).getDateDiff().toString()} วัน',
-              style: Theme.of(context)
-                  .textTheme
-                  .headline2!
-                  .merge(const TextStyle(color: Colors.white)),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text(
+                  'ระยะเวลา ${dateRange.toString()} วัน',
+                  style: Theme.of(context).textTheme.headline2!.merge(
+                        TextStyle(
+                          color: dateRange <= 20 ? Colors.red : Colors.green,
+                        ),
+                      ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          'เริ่มต้นงบ',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText2!
+                              .merge(const TextStyle(color: Colors.white)),
+                        ),
+                        Text(
+                          statement.startDate,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1!
+                              .merge(const TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          'สิ้นสุดงบ',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText2!
+                              .merge(const TextStyle(color: Colors.white)),
+                        ),
+                        Text(
+                          statement.endDate,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1!
+                              .merge(const TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+              ],
             ),
           ),
           const Flexible(
-            flex: 9,
+            flex: 7,
             child: DatePicker(),
           ),
         ],
@@ -97,7 +146,6 @@ class DatePicker extends ConsumerWidget {
       selectionRadius: 20,
       allowViewNavigation: false,
       headerHeight: 100,
-      enablePastDates: false,
       minDate: DateTime.now(),
       maxDate: DateTime(DateTime.now().year, DateTime.now().month + 2, 0),
       headerStyle: DateRangePickerHeaderStyle(

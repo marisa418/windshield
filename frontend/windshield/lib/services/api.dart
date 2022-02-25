@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
 
@@ -200,7 +201,7 @@ class Api extends ChangeNotifier {
 
   Future<List<Category>> getAllCategories() async {
     try {
-      final res = await dio.get('/api/category/',
+      final res = await dio.get('/api/categories/',
           options: Options(
             responseType: ResponseType.plain,
           ));
@@ -216,22 +217,33 @@ class Api extends ChangeNotifier {
 
   Future<bool> createStatement(String start, String end) async {
     try {
-      final monthString = start[5] + start[6];
-      _placeholderId++;
+      DateTime now = DateTime.now();
+      DateTime startTemp = DateFormat('y-MM-dd').parse(start);
+      DateTime endOfMonth = DateTime(now.year, now.month + 1, 0);
+      int month = startTemp.month;
+      if (endOfMonth.difference(startTemp).inDays + 1 <= 7) {
+        month++;
+      }
+
       final res = await dio.post(
         '/api/statement/',
         data: {
-          "id": _placeholderId.toString(),
-          "name": "แผน$_placeholderId | เดือน $monthString",
+          "name": "แผนที่ 1",
           "chosen": true,
           "start": start,
           "end": end,
-          "owner_id": _user?.uuid,
-          "month": int.parse(monthString)
+          "month": month
         },
       );
       print(res);
-
+      final res2 = await dio.post('/api/budget/', data: {
+        "id": "CATd8d61c61-037",
+        "fplan": res.data['id'],
+        "balance": 0,
+        "total_budget": 1,
+        "budget_per_period": 2,
+      });
+      print(res2);
       // notifyListeners();
       return true;
     } catch (e) {
@@ -253,6 +265,17 @@ class Api extends ChangeNotifier {
           "user_id": _user?.uuid,
         },
       );
+      print(res);
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
+  Future<bool> getBalanceSheet() async {
+    try {
+      final res = await dio.get('/api/balance-sheet');
       print(res);
       return true;
     } catch (e) {

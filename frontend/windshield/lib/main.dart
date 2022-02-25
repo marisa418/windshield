@@ -8,11 +8,13 @@ import 'styles/theme.dart';
 import 'services/api.dart';
 import 'providers/statement_provider.dart';
 import 'models/statement.dart';
+import 'providers/category_provider.dart';
+import 'models/category.dart';
 
 final apiProvider = ChangeNotifierProvider<Api>((ref) => Api());
 
-final providerStatement =
-    ChangeNotifierProvider<StatementProvider>((ref) => StatementProvider());
+final providerStatement = ChangeNotifierProvider.autoDispose<StatementProvider>(
+    (ref) => StatementProvider());
 
 final providerStatementApi =
     FutureProvider.autoDispose<List<Statement>>((ref) async {
@@ -31,6 +33,19 @@ final providerStatementApi =
   ref.read(providerStatement).setStatementList(data);
   ref.read(providerStatement).setExistedMonth(data);
   ref.read(providerStatement).setExistedStatements();
+  return data;
+});
+
+final providerCategory =
+    ChangeNotifierProvider<CategoryProvider>((ref) => CategoryProvider());
+
+final providerCategoryApi =
+    FutureProvider.autoDispose<List<Category>>((ref) async {
+  final data = await ref.read(apiProvider).getAllCategories();
+  await ref.read(apiProvider).getBalanceSheet();
+  ref.read(providerCategory).setCategoryList(data);
+  ref.read(providerCategory).setCategoryTypes();
+  ref.read(providerCategory).setCategoryTypeTabs();
   return data;
 });
 

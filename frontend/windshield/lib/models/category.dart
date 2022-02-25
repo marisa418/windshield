@@ -4,6 +4,7 @@ class Category {
   int usedCount;
   String ftype;
   String userId;
+  String icon;
 
   Category({
     required this.id,
@@ -11,6 +12,7 @@ class Category {
     required this.usedCount,
     required this.ftype,
     required this.userId,
+    required this.icon,
   });
 
   factory Category.fromJson(Map<String, dynamic> json) => Category(
@@ -19,6 +21,7 @@ class Category {
         usedCount: json['used_count'],
         ftype: json['ftype'],
         userId: json['user_id'],
+        icon: json['icon'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -27,5 +30,6 @@ class Category {
         'used_count': usedCount,
         'ftype': ftype,
         'user_id': userId,
+        'icon': icon,
       };
 }

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:windshield/main.dart';
 import 'date_page.dart';
-import 'choose_cat_page.dart';
+import 'choose_cat/choose_cat_page.dart';
 
 class StatementCreatePage extends ConsumerWidget {
   const StatementCreatePage({Key? key}) : super(key: key);

@@ -1,3 +1,4 @@
+from dataclasses import fields
 from pyexpat import model
 from rest_framework import serializers
 from . import models
@@ -21,3 +22,10 @@ class BalanceSheetSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.BalanceSheet
         fields = '__all__'
+
+class BudgetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Budget
+        fields = '__all__'
+        # fields = ('id', 'fplan', 'balance', 'total_budget', 'budget_per_period', 'frequency')

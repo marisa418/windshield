@@ -16,9 +16,9 @@ class StatementPage extends ConsumerWidget {
       error: (error, stackTrace) => Text('Text : $error'),
       data: (data) {
         if (data.length == 1) {
-          return StatementCreatePage();
+          return const StatementCreatePage();
         } else {
-          return StatementOverviewPage();
+          return const StatementOverviewPage();
         }
       },
     );

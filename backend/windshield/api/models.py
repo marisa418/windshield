@@ -4,25 +4,6 @@ from django.db.models.deletion import CASCADE
 from django.utils.timezone import now
 from user.models import NewUser, Province
 
-# class User(models.Model):
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     username = models.CharField(max_length=21)
-#     email = models.EmailField()
-#     password = models.CharField(max_length=21)
-#     pin = models.IntegerField()
-#     occu_type = models.CharField(max_length=10) # Choice field
-#     age = models.PositiveSmallIntegerField()
-#     province = models.ForeignKey(Province, on_delete=CASCADE)
-#     family = models.PositiveSmallIntegerField()
-#     points = models.PositiveIntegerField()
-#     # config = models.JSONField()
-
-#     class Meta:
-#         db_table = 'users'
-
-#     def __str__(self):
-#         return self.id
-
 class BalanceSheet(models.Model):
     id = models.CharField(max_length=13, primary_key=True)
     owner_id = models.ForeignKey(NewUser, on_delete = CASCADE)
@@ -125,7 +106,7 @@ class Month(models.Model):
         return self.name
 
 class FinancialStatementPlan(models.Model):
-    id = models.CharField(max_length=15, primary_key=True)
+    id = models.CharField(max_length=23, primary_key=True)
     owner_id = models.ForeignKey(NewUser, on_delete = CASCADE)
     name = models.CharField(max_length=30)
     chosen = models.BooleanField()
@@ -158,7 +139,7 @@ class Budget(models.Model):
         db_table = 'budget'
 
     def __str__(self):
-        return self.id
+        return str(self.id)
 
 class DailyFlowSheet(models.Model):
     id = models.CharField(max_length=21, primary_key=True)

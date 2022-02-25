@@ -22,7 +22,7 @@ class MonthList extends ConsumerWidget {
             margin: const EdgeInsets.all(10),
             child: TextButton(
               onPressed: () {
-                AutoRouter.of(context).push(StatementCreateRoute());
+                AutoRouter.of(context).push(const StatementCreateRoute());
               },
               child: const FaIcon(
                 FontAwesomeIcons.plus,

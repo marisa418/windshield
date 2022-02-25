@@ -56,7 +56,7 @@ class Provinces(generics.ListAPIView):
     queryset = Province.objects.all()
     serializer_class = ProvinceSerializer
 
-class StatementList(generics.ListCreateAPIView):
+class Statement(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.StatementSerializer
     filter_backends = [OrderingFilter]
@@ -69,6 +69,24 @@ class StatementList(generics.ListCreateAPIView):
             return queryset
         else :
             return Response(status=status.HTTP_400_BAD_REQUEST, message='uuid not found')
+    
+    def perform_create(self, serializer):
+        uuid = self.request.user.uuid
+        if uuid is not None:
+            startDate = self.request.data['start']
+            month = str(self.request.data.pop("month"))
+            month_instance = models.Month.objects.get(id=month)
+            owner_instance = NewUser.objects.get(uuid=uuid)
+            # -yymmdd-id
+            finan_id = models.FinancialStatementPlan.objects.filter(owner_id=uuid, start=startDate).count()
+            return serializer.save(
+                id = 'FSP' + str(uuid)[:10] + '-' + str(startDate)[2:4] + str(startDate)[5:7] + str(startDate)[-2:] + '-' + str(finan_id)[-1:],
+                owner_id = owner_instance,
+                month = month_instance,
+                **self.request.data
+            )
+        else :
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class BalanceSheet(generics.RetrieveAPIView):
     permissions_classes = [permissions.IsAuthenticated]
@@ -84,12 +102,6 @@ class BalanceSheet(generics.RetrieveAPIView):
                 bsheet = models.BalanceSheet.objects.create(id = "BSH" + str(uuid)[:10],
                                                    owner_id = owner)
         return bsheet
-    
-
-class Statement(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.StatementSerializer(many=True)
-    queryset = models.FinancialStatementPlan.objects.all()
 
 class Category(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -128,3 +140,15 @@ class Category(generics.ListCreateAPIView):
                             )
         else :
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class Budget(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.BudgetSerializer
+    
+    def get_queryset(self):
+        fplan = self.request.data['fplan']
+        if not models.FinancialStatementPlan.objects.filter(id=fplan):
+            return Response(status=status.HTTP_400_BAD_REQUEST) 
+        else:
+            return models.Budget.objects.filter(fplan=fplan)
+        
