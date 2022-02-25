@@ -1,10 +1,11 @@
+from email import message
 from uuid import uuid4
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from . import serializers
 from . import models
-from user.models import Province
+from user.models import Province, NewUser
 from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 
@@ -25,7 +26,7 @@ class StatementList(generics.ListCreateAPIView):
             queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
             return queryset
         else :
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST, message='uuid not found')
 
 class Statement(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -47,7 +48,7 @@ class Category(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         uuid = self.request.user.uuid
         if uuid is not None:
-            owner = models.NewUser.objects.get(uuid=uuid)
+            owner = NewUser.objects.get(uuid=uuid)
             cat_id = models.Category.objects.filter(user_id=uuid).count()
             serializer.save( id ='CAT' + str(uuid)[:10] + str("0" + str(cat_id))[-2:], 
                             user_id = owner
