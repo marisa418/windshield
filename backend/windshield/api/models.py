@@ -1,3 +1,4 @@
+from enum import unique
 from django.db import models
 import uuid
 from django.db.models.deletion import CASCADE
@@ -127,9 +128,10 @@ class Budget(models.Model):
         ('MNY', 'Monthly'),
         ('ANY', 'Annually'),
     ]
-    id = models.OneToOneField(Category, on_delete=CASCADE, primary_key=True)
+    id = models.CharField(max_length=19, primary_key=True)
+    cat_id = models.ForeignKey(Category, on_delete=CASCADE)
     fplan = models.ForeignKey(FinancialStatementPlan, on_delete=CASCADE)
-    balance = models.PositiveIntegerField()
+    balance = models.PositiveIntegerField(default=0)
     total_budget = models.PositiveIntegerField()
     budget_per_period = models.PositiveIntegerField()
     frequency = models.CharField(max_length=3, choices=freq_choices, default=freq_choices[2][0])
@@ -137,7 +139,14 @@ class Budget(models.Model):
 
     class Meta:
         db_table = 'budget'
-
+        unique_together = ("cat_id", "fplan")
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            no_id = Budget.objects.filter(cat_id=self.cat_id).count()
+            self.id = "BUD" + str(self.cat_id)[3:] + str("000" + str(no_id))[-4:]
+        return super(Budget, self).save(*args, **kwargs)
+    
     def __str__(self):
         return str(self.id)
 
