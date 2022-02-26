@@ -3,7 +3,6 @@ class Category {
   String name;
   int usedCount;
   String ftype;
-  String userId;
   String icon;
 
   Category({
@@ -11,7 +10,6 @@ class Category {
     required this.name,
     required this.usedCount,
     required this.ftype,
-    required this.userId,
     required this.icon,
   });
 
@@ -20,7 +18,6 @@ class Category {
         name: json['name'],
         usedCount: json['used_count'],
         ftype: json['ftype'],
-        userId: json['user_id'],
         icon: json['icon'],
       );
 
@@ -29,7 +26,6 @@ class Category {
         'name': name,
         'used_count': usedCount,
         'ftype': ftype,
-        'user_id': userId,
         'icon': icon,
       };
 }

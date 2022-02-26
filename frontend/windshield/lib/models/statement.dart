@@ -4,7 +4,6 @@ class Statement {
   bool chosen;
   String start;
   String end;
-  String ownerId;
   int month;
 
   Statement(
@@ -13,7 +12,6 @@ class Statement {
       required this.chosen,
       required this.start,
       required this.end,
-      required this.ownerId,
       required this.month});
 
   factory Statement.fromJson(Map<String, dynamic> json) => Statement(
@@ -22,7 +20,6 @@ class Statement {
         chosen: json['chosen'],
         start: json['start'],
         end: json['end'],
-        ownerId: json['owner_id'],
         month: json['month'],
       );
 
@@ -32,7 +29,6 @@ class Statement {
         'chosen': chosen,
         'start': start,
         'end': end,
-        'owner_id': ownerId,
         'month': month,
       };
 }

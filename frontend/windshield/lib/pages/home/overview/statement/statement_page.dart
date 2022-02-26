@@ -10,6 +10,10 @@ class StatementPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    //Create a provider first,
+    //so it won't get disposed when it's being called by providerStatementApi.
+    ref.watch(providerStatement.select((value) => value.statementList));
+
     final apiStatement = ref.watch(providerStatementApi);
     return apiStatement.when(
       loading: () => const Center(child: CircularProgressIndicator()),

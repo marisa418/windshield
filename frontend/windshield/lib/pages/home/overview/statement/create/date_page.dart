@@ -16,9 +16,9 @@ class DatePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     SchedulerBinding.instance?.addPostFrameCallback(
       (timeStamp) {
-        final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        ref.read(providerStatement).setStartDate(dateNow);
-        ref.read(providerStatement).setEndDate(dateNow);
+        // final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
+        // ref.read(providerStatement).setStartDate(dateNow);
+        // ref.read(providerStatement).setEndDate(dateNow);
         showDialog<void>(
           context: context,
           builder: (BuildContext context) => AlertDialog(
@@ -209,7 +209,7 @@ class DatePicker extends ConsumerWidget {
       confirmText: 'บันทึก',
       cancelText: 'ย้อนกลับ',
       onSubmit: (value) {
-        if (ref.read(providerStatement).getDateDiff() <= 21) {
+        if (ref.read(providerStatement).getDateDiff() < 21) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(

@@ -1,4 +1,4 @@
-from urllib import response
+from urllib import request, response
 from uuid import uuid4
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
@@ -146,9 +146,17 @@ class Budget(generics.ListCreateAPIView):
     serializer_class = serializers.BudgetSerializer
     
     def get_queryset(self):
-        fplan = self.request.data['fplan']
+        fplan = self.request.data[0]['fplan']
         if not models.FinancialStatementPlan.objects.filter(id=fplan):
             return Response(status=status.HTTP_400_BAD_REQUEST) 
         else:
             return models.Budget.objects.filter(fplan=fplan)
+
+    # def get_serializer_class(self):
+    #     queryset = self.get_queryset()
+    #     if self.request.method == 'POST':
+    #         return  serializers.BudgetSerializer(queryset, many=True)
+    #     elif self.request.method == 'GET':
+    #         return  serializers.BudgetSerializer
+
         

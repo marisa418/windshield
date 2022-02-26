@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:windshield/models/category.dart';
 
 class CategoryProvider extends ChangeNotifier {
+  int _isIncomePage = 0;
+  int get isIncomePage => _isIncomePage;
+
   List<Category> _categoryList = [];
   List<Category> get categoryList => _categoryList;
 
@@ -62,6 +65,11 @@ class CategoryProvider extends ChangeNotifier {
   List<Category> _savingAndInvestTab = [];
   List<Category> get savingAndInvestTab => _savingAndInvestTab;
 
+  void setIsIncomePage(int value) {
+    _isIncomePage = value;
+    notifyListeners();
+  }
+
   void setCategoryList(List<Category> value) {
     _categoryList = value;
   }
@@ -119,11 +127,11 @@ class CategoryProvider extends ChangeNotifier {
         _incomeAssetTab.add(cat);
       } else if (cat.ftype == '3') {
         _incomeOtherTab.add(cat);
-      } else if (cat.ftype == '4' && cat.ftype == '10') {
+      } else if (cat.ftype == '4' || cat.ftype == '10') {
         _expenseInconsistencyTab.add(cat);
-      } else if (cat.ftype == '5' && cat.ftype == '11') {
+      } else if (cat.ftype == '5' || cat.ftype == '11') {
         _expenseConsistencyTab.add(cat);
-      } else if (cat.ftype == '6' && cat.ftype == '12') {
+      } else if (cat.ftype == '6' || cat.ftype == '12') {
         _savingAndInvestTab.add(cat);
       }
     }

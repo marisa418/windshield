@@ -21,9 +21,7 @@ class StatementProvider extends ChangeNotifier {
 
   String _startDate =
       DateFormat('yyyy-MM-dd').format(DateTime.now()).toString();
-  String _endDate = DateFormat('yyyy-MM-dd')
-      .format(DateTime(DateTime.now().year, DateTime.now().month + 2, 0))
-      .toString();
+  String _endDate = DateFormat('yyyy-MM-dd').format(DateTime.now()).toString();
   String get startDate => _startDate;
   String get endDate => _endDate;
 

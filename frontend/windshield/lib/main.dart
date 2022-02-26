@@ -13,22 +13,18 @@ import 'models/category.dart';
 
 final apiProvider = ChangeNotifierProvider<Api>((ref) => Api());
 
-final providerStatement = ChangeNotifierProvider.autoDispose<StatementProvider>(
-    (ref) => StatementProvider());
+final providerStatement =
+    ChangeNotifierProvider.autoDispose<StatementProvider>((ref) {
+  return StatementProvider();
+});
 
 final providerStatementApi =
     FutureProvider.autoDispose<List<Statement>>((ref) async {
   final data = await ref.read(apiProvider).getAllStatements();
   final currentMonth = DateFormat.M().format(DateTime.now());
   ref.read(providerStatement).setSelectedMonth(int.parse(currentMonth));
-  Statement temp = Statement(
-      id: '',
-      name: '',
-      chosen: false,
-      start: '',
-      end: '',
-      ownerId: '',
-      month: 0);
+  Statement temp =
+      Statement(id: '', name: '', chosen: false, start: '', end: '', month: 0);
   data.insert(0, temp);
   ref.read(providerStatement).setStatementList(data);
   ref.read(providerStatement).setExistedMonth(data);
@@ -37,7 +33,9 @@ final providerStatementApi =
 });
 
 final providerCategory =
-    ChangeNotifierProvider<CategoryProvider>((ref) => CategoryProvider());
+    ChangeNotifierProvider.autoDispose<CategoryProvider>((ref) {
+  return CategoryProvider();
+});
 
 final providerCategoryApi =
     FutureProvider.autoDispose<List<Category>>((ref) async {
