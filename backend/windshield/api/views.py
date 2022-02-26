@@ -8,6 +8,8 @@ from . import models
 from user.models import Province, NewUser
 from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
+from datetime import datetime
+from pytz import timezone
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -66,9 +68,13 @@ class Statement(generics.ListCreateAPIView):
         uuid = self.request.user.uuid
         if uuid is not None:
             queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+            date = self.request.query_params.get("date", None)
+            if date is not None:
+                date = datetime.strptime(date, "%Y-%m-%d")
+                queryset = queryset.filter(start__lte=date, end__gte=date)
             return queryset
         else :
-            return Response(status=status.HTTP_400_BAD_REQUEST, message='uuid not found')
+            return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
     
     def perform_create(self, serializer):
         uuid = self.request.user.uuid
@@ -146,9 +152,25 @@ class Budget(generics.ListCreateAPIView):
     serializer_class = serializers.BudgetSerializer
     
     def get_queryset(self):
-        fplan = self.request.data['fplan']
-        if not models.FinancialStatementPlan.objects.filter(id=fplan):
-            return Response(status=status.HTTP_400_BAD_REQUEST) 
-        else:
-            return models.Budget.objects.filter(fplan=fplan)
-        
+        fplan = self.request.query_params.get("fplan", None)
+        fplan_queryset = models.FinancialStatementPlan.objects.filter(owner_id=self.request.user.uuid)
+        if fplan is None:
+            now = datetime.now(tz= timezone('Asia/Bangkok'))
+            fplan_instance = fplan_queryset.get(start__lte=now, end__gte=now, chosen=True)
+        else: 
+            fplan_instance = fplan_queryset.get(id=fplan)
+        queryset = models.Budget.objects.filter(fplan=fplan_instance)
+        return queryset
+    
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        if not isinstance(request.data, list): 
+            fplan = request.data["fplan"]
+        else: 
+            fplan = request.data[0]["fplan"]
+        results = models.Budget.objects.filter(fplan=fplan)
+        output_serializer = serializers.BudgetSerializer(results, many=True)
+        data = output_serializer.data
+        return Response(data)

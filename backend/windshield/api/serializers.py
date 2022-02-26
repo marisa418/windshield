@@ -27,5 +27,6 @@ class BudgetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Budget
-        fields = '__all__'
+        fields = "__all__"
+        read_only_fields = ["id"]
         # fields = ('id', 'fplan', 'balance', 'total_budget', 'budget_per_period', 'frequency')
