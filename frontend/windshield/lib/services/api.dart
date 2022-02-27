@@ -9,6 +9,7 @@ import '../../models/user.dart';
 import '../../models/provinces.dart';
 import '../../models/statement.dart';
 import '../../models/category.dart';
+import '../../models/budget.dart';
 
 class Api extends ChangeNotifier {
   Dio dio = Dio();
@@ -215,13 +216,14 @@ class Api extends ChangeNotifier {
     }
   }
 
-  Future<bool> createStatement(String start, String end) async {
+  Future<bool> createStatement(
+      String start, String end, List<Budget> budgetList) async {
     try {
-      DateTime now = DateTime.now();
       DateTime startTemp = DateFormat('y-MM-dd').parse(start);
-      DateTime endOfMonth = DateTime(now.year, now.month + 1, 0);
+      DateTime endTemp = DateFormat('y-MM-dd').parse(start);
+      DateTime lastDayOfEndTemp = DateTime(endTemp.year, endTemp.month + 1, 0);
       int month = startTemp.month;
-      if (endOfMonth.difference(startTemp).inDays + 1 <= 7) {
+      if (lastDayOfEndTemp.difference(startTemp).inDays + 1 <= 7) {
         month++;
       }
 
@@ -236,13 +238,14 @@ class Api extends ChangeNotifier {
         },
       );
       print(res);
-      final res2 = await dio.post('/api/budget/', data: {
-        "id": "CATd8d61c61-037",
-        "fplan": res.data['id'],
-        "balance": 0,
-        "total_budget": 1,
-        "budget_per_period": 2,
-      });
+      final jsonList = budgetList.map((e) {
+        e.fplan = res.data['id'];
+        return e.toJson();
+      }).toList();
+      final res2 = await dio.post(
+        '/api/budget/',
+        data: jsonList,
+      );
       print(res2);
       // notifyListeners();
       return true;

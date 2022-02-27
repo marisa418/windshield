@@ -4,6 +4,7 @@ class Category {
   int usedCount;
   String ftype;
   String icon;
+  bool? active;
 
   Category({
     required this.id,
@@ -11,6 +12,7 @@ class Category {
     required this.usedCount,
     required this.ftype,
     required this.icon,
+    this.active,
   });
 
   factory Category.fromJson(Map<String, dynamic> json) => Category(

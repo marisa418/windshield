@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:windshield/models/category.dart';
+import 'package:windshield/models/budget.dart';
 
 class CategoryProvider extends ChangeNotifier {
   int _isIncomePage = 0;
@@ -64,6 +65,9 @@ class CategoryProvider extends ChangeNotifier {
   //6 & 12
   List<Category> _savingAndInvestTab = [];
   List<Category> get savingAndInvestTab => _savingAndInvestTab;
+
+  List<Budget> _budgetList = [];
+  List<Budget> get budgetList => _budgetList;
 
   void setIsIncomePage(int value) {
     _isIncomePage = value;
@@ -135,5 +139,73 @@ class CategoryProvider extends ChangeNotifier {
         _savingAndInvestTab.add(cat);
       }
     }
+  }
+
+  void setBudgetList(Category cat) {
+    final catIndex = _categoryList.indexWhere((e) => e.id == cat.id);
+    final isActive = _categoryList[catIndex].active;
+    if (isActive == false || isActive == null) {
+      Budget budget = Budget(
+        catId: cat.id,
+        fplan: '',
+        balance: 0,
+        totalBudget: 1,
+        budgetPerPeriod: 2,
+        frequency: 'MNY',
+        dueDate: '2022-03-31',
+      );
+      _budgetList.add(budget);
+      _categoryList[catIndex].active = true;
+    } else {
+      _budgetList.removeWhere((e) => e.catId == cat.id);
+      _categoryList[catIndex].active = false;
+    }
+    notifyListeners();
+  }
+
+  Color getColorByFtype(String value) {
+    Color color;
+    switch (value) {
+      case '1':
+        color = Colors.amber;
+        break;
+      case '2':
+        color = Colors.lightBlue;
+        break;
+      case '3':
+        color = Colors.deepOrange;
+        break;
+      case '4':
+        color = Colors.deepPurple;
+        break;
+      case '5':
+        color = Colors.green;
+        break;
+      case '6':
+        color = Colors.pink;
+        break;
+      case '7':
+        color = Colors.yellow;
+        break;
+      case '8':
+        color = Colors.teal;
+        break;
+      case '9':
+        color = Colors.blueGrey;
+        break;
+      case '10':
+        color = Colors.red;
+        break;
+      case '11':
+        color = Colors.purple;
+        break;
+      case '12':
+        color = Colors.blue;
+        break;
+      default:
+        color = Colors.black;
+        break;
+    }
+    return color;
   }
 }

@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:windshield/models/statement.dart';
 
 class StatementProvider extends ChangeNotifier {
-  int _selectedMonth = 0;
-  int get selectedMonth => _selectedMonth;
+  int _statementMonthIndex = 0;
+  int get statementMonthIndex => _statementMonthIndex;
 
   List<Statement> _statementList = [];
   List<Statement> get statementList => _statementList;
@@ -19,25 +19,28 @@ class StatementProvider extends ChangeNotifier {
   int _createPageIndex = 0;
   int get createPageIndex => _createPageIndex;
 
-  String _startDate =
-      DateFormat('yyyy-MM-dd').format(DateTime.now()).toString();
-  String _endDate = DateFormat('yyyy-MM-dd').format(DateTime.now()).toString();
+  String _startDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+  String _endDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   String get startDate => _startDate;
   String get endDate => _endDate;
+
+  bool _needUpdated = false;
+  bool get needUpdated => _needUpdated;
+
+  bool _twoMonthLimited = true;
+  bool get twoMonthLimited => _twoMonthLimited;
+
+  bool _skipDatePage = false;
+  bool get skipDatePage => _skipDatePage;
 
   void setStatementList(List<Statement> value) {
     _statementList = value;
     // notifyListeners();
   }
 
-  void setSelectedMonth(int value) {
-    _selectedMonth = value;
-    notifyListeners();
-  }
-
-  void setExistedMonth(List<Statement> value) {
+  void setExistedMonth() {
     List<int> month = [];
-    for (var item in value) {
+    for (var item in _statementList) {
       if (!month.contains(item.month)) {
         month.add(item.month);
       }
@@ -46,13 +49,27 @@ class StatementProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setExistedStatements() {
+  void setStatementMonthIndex(int value) {
+    _statementMonthIndex = value;
+    notifyListeners();
+  }
+
+  void setStatementsInMonth() {
     List<Statement> statements = [];
     for (var item in _statementList) {
-      if (item.month == _selectedMonth) {
+      if (item.month == _existedMonth[_statementMonthIndex]) {
         statements.add(item);
       }
     }
+    Statement temp = Statement(
+      id: '',
+      name: '',
+      chosen: false,
+      start: '',
+      end: '',
+      month: 0,
+    );
+    statements.add(temp);
     _statementsInMonth = statements;
     notifyListeners();
   }
@@ -72,9 +89,22 @@ class StatementProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setTwoMonthLimited(bool value) {
+    _twoMonthLimited = value;
+  }
+
+  void setSkipDatePage(bool value) {
+    _skipDatePage = value;
+  }
+
   int getDateDiff() {
     final DateTime start = DateFormat('yyyy-MM-dd').parse(startDate);
     final DateTime end = DateFormat('yyyy-MM-dd').parse(endDate);
     return (start.difference(end).inDays * -1 + 1).abs();
+  }
+
+  void setNeedUpdate() {
+    _needUpdated = !_needUpdated;
+    notifyListeners();
   }
 }

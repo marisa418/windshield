@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:intl/intl.dart';
 
 import 'package:windshield/main.dart';
+import 'package:windshield/models/budget.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/routes/app_router.dart';
 import 'header/header.dart';
@@ -48,7 +50,11 @@ class Footer extends ConsumerWidget {
         children: [
           ElevatedButton(
             onPressed: () {
-              ref.read(providerStatement).setCreatePageIndex(0);
+              if (ref.read(providerStatement).skipDatePage) {
+                AutoRouter.of(context).popUntilRouteWithName('StatementRoute');
+              } else {
+                ref.read(providerStatement).setCreatePageIndex(0);
+              }
             },
             style: ButtonStyle(
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -73,11 +79,14 @@ class Footer extends ConsumerWidget {
           ),
           ElevatedButton(
             onPressed: () async {
-              final res = await ref
-                  .read(apiProvider)
-                  .createStatement(statement.startDate, statement.endDate);
+              final res = await ref.read(apiProvider).createStatement(
+                    statement.startDate,
+                    statement.endDate,
+                    ref.watch(providerCategory).budgetList,
+                  );
               if (res) {
-                AutoRouter.of(context).replace(StatementRoute());
+                ref.read(providerStatement).setNeedUpdate();
+                AutoRouter.of(context).popUntilRouteWithName('StatementRoute');
               }
             },
             style: ButtonStyle(

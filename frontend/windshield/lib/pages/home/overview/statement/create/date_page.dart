@@ -14,11 +14,8 @@ class DatePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    SchedulerBinding.instance?.addPostFrameCallback(
-      (timeStamp) {
-        // final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
-        // ref.read(providerStatement).setStartDate(dateNow);
-        // ref.read(providerStatement).setEndDate(dateNow);
+    if (!ref.read(providerStatement).skipDatePage) {
+      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
         showDialog<void>(
           context: context,
           builder: (BuildContext context) => AlertDialog(
@@ -39,8 +36,8 @@ class DatePage extends ConsumerWidget {
             ],
           ),
         );
-      },
-    );
+      });
+    }
     return const Date();
   }
 }
@@ -147,7 +144,13 @@ class DatePicker extends ConsumerWidget {
       allowViewNavigation: false,
       headerHeight: 100,
       minDate: DateTime.now(),
-      maxDate: DateTime(DateTime.now().year, DateTime.now().month + 2, 0),
+      maxDate: ref.read(providerStatement).twoMonthLimited
+          ? DateTime(
+              DateTime.now().year,
+              DateTime.now().month + 2,
+              0,
+            )
+          : null,
       headerStyle: DateRangePickerHeaderStyle(
         textAlign: TextAlign.center,
         textStyle: Theme.of(context)

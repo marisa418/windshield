@@ -27,22 +27,27 @@ class StatementOverviewPage extends StatelessWidget {
               ),
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'แผนงบการเงิน',
-                  textAlign: TextAlign.left,
+                  'แผนงบการเงินของคุณ',
                   style: Theme.of(context)
                       .textTheme
-                      .headline1!
+                      .headline2!
                       .merge(const TextStyle(color: Colors.white)),
                 ),
+                const SizedBox(height: 15),
                 const Expanded(
                   child: MonthList(),
                 ),
               ],
             ),
           ),
-          const StatementsInMonth(),
+          Container(
+            height: MediaQuery.of(context).size.height - 210,
+            color: Colors.white,
+            child: const StatementsInMonth(),
+          ),
         ],
       ),
     );

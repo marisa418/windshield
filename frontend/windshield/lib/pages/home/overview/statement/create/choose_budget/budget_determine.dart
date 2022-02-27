@@ -7,6 +7,7 @@ import 'package:windshield/main.dart';
 import 'package:windshield/models/category.dart';
 import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+import 'package:windshield/models/budget.dart';
 
 class BudgetDetermine extends ConsumerWidget {
   const BudgetDetermine({Key? key}) : super(key: key);
@@ -33,9 +34,11 @@ class Income extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _budgetTab(category.incomeWorkingTab, 'รายรับจากการทำงาน', context),
-          _budgetTab(category.incomeAssetTab, 'รายรับจากสินทรัพย์', context),
-          _budgetTab(category.incomeOtherTab, 'รายรับอื่นๆ', context),
+          _budgetTab(
+              category.incomeWorkingTab, 'รายรับจากการทำงาน', context, ref),
+          _budgetTab(
+              category.incomeAssetTab, 'รายรับจากสินทรัพย์', context, ref),
+          _budgetTab(category.incomeOtherTab, 'รายรับอื่นๆ', context, ref),
         ],
       ),
     );
@@ -53,17 +56,20 @@ class Expense extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          _budgetTab(category.expenseInconsistencyTab, 'รายจ่ายไม่คงที่',
+              context, ref),
           _budgetTab(
-              category.expenseInconsistencyTab, 'รายจ่ายไม่คงที่', context),
-          _budgetTab(category.expenseConsistencyTab, 'รายจ่ายคงที่', context),
-          _budgetTab(category.savingAndInvestTab, 'การออมและการลงทุน', context),
+              category.expenseConsistencyTab, 'รายจ่ายคงที่', context, ref),
+          _budgetTab(
+              category.savingAndInvestTab, 'การออมและการลงทุน', context, ref),
         ],
       ),
     );
   }
 }
 
-Widget _budgetTab(List<Category> obj, String tabName, BuildContext context) {
+Widget _budgetTab(
+    List<Category> obj, String tabName, BuildContext context, WidgetRef ref) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -79,17 +85,15 @@ Widget _budgetTab(List<Category> obj, String tabName, BuildContext context) {
       Wrap(
         spacing: 30,
         runSpacing: 15,
-        children: _generateWrapChildren(
-          obj,
-          context,
-        ),
+        children: _generateWrapChildren(obj, context, ref),
       ),
       const SizedBox(height: 30),
     ],
   );
 }
 
-List<Widget> _generateWrapChildren(List<Category> obj, BuildContext context) {
+List<Widget> _generateWrapChildren(
+    List<Category> obj, BuildContext context, WidgetRef ref) {
   var list = obj.map<List<Widget>>(
     (data) {
       var widgetList = <Widget>[];
@@ -99,7 +103,9 @@ List<Widget> _generateWrapChildren(List<Category> obj, BuildContext context) {
           child: Column(
             children: [
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  ref.read(providerCategory).setBudgetList(data);
+                },
                 child: SizedBox(
                   height: 60,
                   width: 60,
@@ -109,7 +115,9 @@ List<Widget> _generateWrapChildren(List<Category> obj, BuildContext context) {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(255, 214, 213, 213),
+                  primary: (data.active != false && data.active != null)
+                      ? ref.read(providerCategory).getColorByFtype(data.ftype)
+                      : const Color.fromARGB(255, 214, 213, 213),
                   shape: const CircleBorder(),
                 ),
               ),
