@@ -58,6 +58,55 @@ class Provinces(generics.ListAPIView):
     queryset = Province.objects.all()
     serializer_class = ProvinceSerializer
 
+class DailyFlowSheet(generics.RetrieveAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.DailyFlowSheetSerializer
+    
+    def get_object(self):
+        uuid = self.request.user.uuid
+        if uuid is not None:
+            date = self.request.query_params.get("date", None)
+            if date is None:
+                date = datetime.now(tz= timezone('Asia/Bangkok'))
+            try:
+                dfsheet = models.DailyFlowSheet.objects.get(owner_id = uuid, date=date)
+            except models.DailyFlowSheet.DoesNotExist:
+                owner = models.NewUser.objects.get(uuid=uuid)
+                dfsheet = models.DailyFlowSheet.objects.create(owner_id = owner, date=date)
+        return dfsheet
+
+class DailyFlowSheetList(generics.ListAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.DailyFlowSheetSerializer
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is not None:
+            queryset = models.DailyFlowSheet.objects.filter(owner_id = uuid)
+            start = self.request.query_params.get("start", None)
+            if start is not None:
+                start = datetime.strptime(start, "%Y-%m-%d")
+                queryset = queryset.filter(date__gte=start)
+            end = self.request.query_params.get("end", None)
+            if end is not None:
+                end = datetime.strptime(end, "%Y-%m-%d")
+                queryset = queryset.filter(date__lte=end)
+            return queryset
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
+
+class Method(generics.ListCreateAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.MethodSerializer
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is not None:
+            queryset = models.Method.objects.filter(models.Q(user_id=uuid) | models.Q(user_id=None))
+            return queryset
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
+
 class Statement(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.StatementSerializer

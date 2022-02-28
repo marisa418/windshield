@@ -17,5 +17,12 @@ urlpatterns = [
     path('balance-sheet/', views.BalanceSheet.as_view(), name='balance_sheet'),
 
     #BUDGET
-    path('budget/', views.Budget.as_view(), name='budget')
+    path('budget/', views.Budget.as_view(), name='budget'),
+    
+    #DAILY FLOW SHEET
+    path('daily-flow-sheet/', views.DailyFlowSheet.as_view(), name="daily_flow_sheet"),
+    path('daily-flow-sheet/list/', views.DailyFlowSheetList.as_view(), name="daily_flow_sheet_list"),
+    
+    #METHOD
+    path('method/', views.Method.as_view(), name='method')
 ]
