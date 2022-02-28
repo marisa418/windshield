@@ -106,6 +106,15 @@ class Method(generics.ListCreateAPIView):
             return queryset
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
+        
+    def perform_create(self, serializer):
+        uuid = self.request.user.uuid
+        if uuid is not None:
+            owner_instance = NewUser.objects.get(uuid=uuid)
+            serializer.save(user_id=owner_instance, **self.request.data)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
+        
 
 class Statement(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
