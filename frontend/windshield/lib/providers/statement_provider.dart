@@ -24,6 +24,9 @@ class StatementProvider extends ChangeNotifier {
   String get startDate => _startDate;
   String get endDate => _endDate;
 
+  String _statementName = 'แผนการเงินที่ 1';
+  String get statementName => _statementName;
+
   bool _needUpdated = false;
   bool get needUpdated => _needUpdated;
 
@@ -61,15 +64,17 @@ class StatementProvider extends ChangeNotifier {
         statements.add(item);
       }
     }
-    Statement temp = Statement(
-      id: '',
-      name: '',
-      chosen: false,
-      start: '',
-      end: '',
-      month: 0,
-    );
-    statements.add(temp);
+    if (_statementList.length != 1) {
+      Statement temp = Statement(
+        id: '',
+        name: '',
+        chosen: false,
+        start: '',
+        end: '',
+        month: 0,
+      );
+      statements.add(temp);
+    }
     _statementsInMonth = statements;
     notifyListeners();
   }
@@ -89,6 +94,11 @@ class StatementProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setStatementName(String name) {
+    _statementName = name;
+    notifyListeners();
+  }
+
   void setTwoMonthLimited(bool value) {
     _twoMonthLimited = value;
   }
@@ -98,8 +108,8 @@ class StatementProvider extends ChangeNotifier {
   }
 
   int getDateDiff() {
-    final DateTime start = DateFormat('yyyy-MM-dd').parse(startDate);
-    final DateTime end = DateFormat('yyyy-MM-dd').parse(endDate);
+    final DateTime start = DateFormat('yyyy-MM-dd').parse(_startDate);
+    final DateTime end = DateFormat('yyyy-MM-dd').parse(_endDate);
     return (start.difference(end).inDays * -1 + 1).abs();
   }
 

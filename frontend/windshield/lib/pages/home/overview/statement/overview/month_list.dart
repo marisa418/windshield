@@ -27,6 +27,9 @@ class MonthList extends ConsumerWidget {
                 final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
                 ref.read(providerStatement).setStartDate(dateNow);
                 ref.read(providerStatement).setEndDate(dateNow);
+                ref
+                    .read(providerStatement)
+                    .setStatementName('แผนงบการเงินที่ 1');
                 ref.read(providerStatement).setCreatePageIndex(0);
                 ref.read(providerStatement).setSkipDatePage(false);
                 ref.read(providerStatement).setTwoMonthLimited(false);

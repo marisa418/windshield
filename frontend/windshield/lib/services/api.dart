@@ -217,7 +217,11 @@ class Api extends ChangeNotifier {
   }
 
   Future<bool> createStatement(
-      String start, String end, List<Budget> budgetList) async {
+    String name,
+    String start,
+    String end,
+    List<Budget> budgetList,
+  ) async {
     try {
       DateTime startTemp = DateFormat('y-MM-dd').parse(start);
       DateTime endTemp = DateFormat('y-MM-dd').parse(start);
@@ -230,7 +234,7 @@ class Api extends ChangeNotifier {
       final res = await dio.post(
         '/api/statement/',
         data: {
-          "name": "แผนที่ 1",
+          "name": name,
           "chosen": true,
           "start": start,
           "end": end,

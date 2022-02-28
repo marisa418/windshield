@@ -38,7 +38,7 @@ class Header extends StatelessWidget {
               // margin: const EdgeInsets.all(10),
               width: MediaQuery.of(context).size.width,
 
-              child: HeaderInfo(),
+              child: const HeaderInfo(),
             ),
           ),
         ],
@@ -52,6 +52,7 @@ class HeaderInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final name = ref.watch(providerStatement.select((e) => e.statementName));
     return Container(
       margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -68,13 +69,15 @@ class HeaderInfo extends ConsumerWidget {
       ),
       child: Column(
         children: [
-          Text(
-            'แผนงบการเงิน',
-            style: Theme.of(context).textTheme.headline4!.merge(
-                  const TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
+          const SizedBox(height: 10),
+          TextFormField(
+            initialValue: name,
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.edit),
+            ),
+            onChanged: (e) {
+              ref.read(providerStatement).setStatementName(e);
+            },
           ),
           const Divider(),
           const IncomeExpenseButton(),
@@ -90,6 +93,7 @@ class IncomeExpenseButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final category = ref.watch(providerCategory);
     return Container(
       margin: const EdgeInsets.all(10),
       // height: 60,
@@ -116,17 +120,17 @@ class IncomeExpenseButton extends ConsumerWidget {
                   children: [
                     Text(
                       'งบรายรับ',
-                      style: MyTheme.whiteTextTheme.bodyText1,
+                      style: MyTheme.whiteTextTheme.bodyText2,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '0 บ.',
+                          '${category.incomeTotal} บ.',
                           style: MyTheme.whiteTextTheme.headline4,
                         ),
                         Text(
-                          '0.00%',
+                          '${(category.incomeTotal / (category.incomeTotal + category.expenseTotal) * 100).toStringAsFixed(2)}%',
                           style: MyTheme.whiteTextTheme.bodyText1,
                         ),
                       ],
@@ -156,17 +160,17 @@ class IncomeExpenseButton extends ConsumerWidget {
                   children: [
                     Text(
                       'งบรายจ่าย',
-                      style: MyTheme.whiteTextTheme.bodyText1,
+                      style: MyTheme.whiteTextTheme.bodyText2,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '0 บ.',
+                          '${category.expenseTotal} บ.',
                           style: MyTheme.whiteTextTheme.headline4,
                         ),
                         Text(
-                          '0.00%',
+                          '${(category.expenseTotal / (category.incomeTotal + category.expenseTotal) * 100).toStringAsFixed(2)}%',
                           style: MyTheme.whiteTextTheme.bodyText1,
                         ),
                       ],
@@ -187,6 +191,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final category = ref.watch(providerCategory);
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Column(
@@ -203,7 +208,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '0 บ.',
+                      '${category.incomeWorkingTotal} บ.',
                       style: Theme.of(context).textTheme.headline4,
                     ),
                   ],
@@ -218,7 +223,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '0 บ.',
+                      '${category.expenseInconsistencyTotal} บ.',
                       style: Theme.of(context).textTheme.headline4,
                     ),
                   ],
@@ -238,7 +243,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '0 บ.',
+                      '${category.incomeAssetTotal} บ.',
                       style: Theme.of(context).textTheme.headline4,
                     ),
                   ],
@@ -253,7 +258,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '0 บ.',
+                      '${category.expenseConsistencyTotal} บ.',
                       style: Theme.of(context).textTheme.headline4,
                     ),
                   ],
@@ -273,7 +278,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '0 บ.',
+                      '${category.incomeOtherTotal} บ.',
                       style: Theme.of(context).textTheme.headline4,
                     ),
                   ],
@@ -288,7 +293,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '0 บ.',
+                      '${category.savingAndInvestTotal} บ.',
                       style: Theme.of(context).textTheme.headline4,
                     ),
                   ],

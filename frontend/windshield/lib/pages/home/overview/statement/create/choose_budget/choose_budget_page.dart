@@ -72,7 +72,7 @@ class Footer extends ConsumerWidget {
                 'ย้อนกลับ',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headline2!.merge(
-                      TextStyle(color: Colors.white),
+                      const TextStyle(color: Colors.white),
                     ),
               ),
             ),
@@ -80,6 +80,7 @@ class Footer extends ConsumerWidget {
           ElevatedButton(
             onPressed: () async {
               final res = await ref.read(apiProvider).createStatement(
+                    statement.statementName,
                     statement.startDate,
                     statement.endDate,
                     ref.watch(providerCategory).budgetList,

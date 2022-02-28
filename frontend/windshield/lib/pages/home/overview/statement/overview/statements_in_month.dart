@@ -19,6 +19,7 @@ class StatementsInMonth extends ConsumerWidget {
       physics: const ScrollPhysics(),
       itemCount: statement.statementsInMonth.length,
       itemBuilder: (context, index) {
+        print(index);
         return SizedBox(
           height: statement.statementsInMonth[index].name == '' ? 130 : 200,
           width: MediaQuery.of(context).size.width,
@@ -36,13 +37,16 @@ class StatementsInMonth extends ConsumerWidget {
                 ),
               ],
             ),
-            child: statement.statementsInMonth[index].name == ''
+            child: statement.statementsInMonth[index].id == ''
                 ? GestureDetector(
                     onTap: () {
-                      ref
-                          .read(providerStatement)
-                          .setStartDate(statement.startDate);
-                      ref.read(providerStatement).setEndDate(statement.endDate);
+                      final start =
+                          statement.statementsInMonth[index - 1].start;
+                      final end = statement.statementsInMonth[index - 1].end;
+                      final name = 'แผนงบการเงินที่ ${index + 1}';
+                      ref.read(providerStatement).setStartDate(start);
+                      ref.read(providerStatement).setEndDate(end);
+                      ref.read(providerStatement).setStatementName(name);
                       ref.read(providerStatement).setCreatePageIndex(1);
                       ref.read(providerStatement).setSkipDatePage(true);
                       ref.read(providerStatement).setTwoMonthLimited(false);
@@ -63,11 +67,15 @@ class StatementsInMonth extends ConsumerWidget {
                     ),
                   )
                 : Center(
-                    child: Text('''${statement.statementsInMonth[index].name}\n
-                        ${statement.statementsInMonth[index].id}\n
-                        ${statement.statementsInMonth[index].start}\n
-                        ${statement.statementsInMonth[index].end}''',
-                        style: Theme.of(context).textTheme.bodyText1),
+                    child: Text(
+                      '''
+                         ${statement.statementsInMonth[index].name}
+                         ${statement.statementsInMonth[index].id}
+                         ${statement.statementsInMonth[index].start}
+                         ${statement.statementsInMonth[index].end}
+                      ''',
+                      style: Theme.of(context).textTheme.bodyText1,
+                    ),
                   ),
           ),
         );

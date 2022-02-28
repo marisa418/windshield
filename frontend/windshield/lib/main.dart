@@ -24,8 +24,6 @@ final providerStatementApi =
   final data = await ref.read(apiProvider).getAllStatements();
   final currentMonth = DateTime.now().month;
   final currentYear = DateTime.now().year;
-  // ref.read(providerStatement).setSelectedMonth(int.parse(currentMonth));
-  // ref.read(providerStatement).setSelectedMonth(currentMonth);
   Statement temp =
       Statement(id: '', name: '', chosen: false, start: '', end: '', month: 0);
   data.insert(0, temp);
