@@ -58,6 +58,30 @@ class Provinces(generics.ListAPIView):
     queryset = Province.objects.all()
     serializer_class = ProvinceSerializer
 
+class DailyFlow(generics.ListCreateAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.DailyFlowSerializer
+    
+    def get_queryset(self):
+        dfsheet = self.request.query_params.get("df_id", None)
+        if dfsheet is not None:
+            queryset = models.DailyFlow.objects.filter(df_id=dfsheet)
+        return queryset
+    
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        if not isinstance(request.data, list): 
+            dfsheet = request.data["df_id"]
+        else: 
+            dfsheet = request.data[0]["df_id"]
+        results = models.DailyFlow.objects.filter(df_id=dfsheet)
+        output_serializer = serializers.DailyFlowSerializer(results, many=True)
+        data = output_serializer.data
+        return Response(data)
+    
+
 class DailyFlowSheet(generics.RetrieveAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DailyFlowSheetSerializer
