@@ -123,9 +123,9 @@ class FinancialStatementPlan(models.Model):
 class Budget(models.Model):
     freq_choices = [
         ('DLY', 'Daily'),
-        ('WKY', 'Weekly'),
-        ('MNY', 'Monthly'),
-        ('ANY', 'Annually'),
+        ('WLY', 'Weekly'),
+        ('MLY', 'Monthly'),
+        ('ALY', 'Annually'),
     ]
     id = models.CharField(max_length=19, primary_key=True)
     cat_id = models.ForeignKey(Category, on_delete=CASCADE)
