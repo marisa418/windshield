@@ -151,9 +151,9 @@ class CategoryProvider extends ChangeNotifier {
     int total = 0;
     if (freq == 'DLY') {
       total = budgetPerPeriod * numOfDays;
-    } else if (freq == 'WKY') {
+    } else if (freq == 'WLY') {
       total = budgetPerPeriod * numOfDays;
-    } else if (freq == 'MNY') {
+    } else if (freq == 'MLY') {
       total = budgetPerPeriod * numOfDays;
     }
     Budget budget = Budget(
@@ -162,7 +162,7 @@ class CategoryProvider extends ChangeNotifier {
       balance: 0,
       totalBudget: total,
       budgetPerPeriod: budgetPerPeriod,
-      frequency: 'MNY',
+      frequency: 'MLY',
       dueDate: '2022-03-31',
     );
     _budgetList.add(budget);

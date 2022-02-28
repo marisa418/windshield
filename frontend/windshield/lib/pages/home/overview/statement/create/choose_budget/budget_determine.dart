@@ -248,7 +248,7 @@ class Calculator extends ConsumerWidget {
                         cat,
                         catIndex,
                         budgetPerPeriod,
-                        'DLY',
+                        'MLY',
                         statementDateAmount,
                       );
                   AutoRouter.of(context).pop();
