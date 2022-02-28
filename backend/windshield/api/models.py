@@ -1,6 +1,5 @@
-from enum import unique
+from datetime import datetime
 from django.db import models
-import uuid
 from django.db.models.deletion import CASCADE
 from django.utils.timezone import now
 from user.models import NewUser, Province
@@ -13,7 +12,7 @@ class BalanceSheet(models.Model):
         db_table = 'balance_sheet'
 
     def __str__(self):
-        return self.id
+        return self.id + " " + str(self.owner_id)
 
 class BalanceSheetLog(models.Model):
     id = models.AutoField(primary_key=True)
@@ -28,7 +27,7 @@ class BalanceSheetLog(models.Model):
         db_table = 'balance_sheet_log'
 
     def __str__(self):
-        return self.id
+        return str(self.timestamp) + " " + str(self.bsheet_id) + "(" +  self.id + ")"
 
 class FinancialType(models.Model):
     domain_choices = [
@@ -47,7 +46,7 @@ class FinancialType(models.Model):
         db_table = 'financial_type'
 
     def __str__(self):
-        return self.id
+        return self.id + " " + self.name + "(" + self.domain + ")" 
 
 class Category(models.Model):
     id = models.CharField(max_length=15, primary_key=True)
@@ -62,7 +61,7 @@ class Category(models.Model):
         db_table = 'category'
 
     def __str__(self):
-        return self.id
+        return self.id + " " + self.name
 
 class Asset(models.Model):
     id = models.OneToOneField(Category, on_delete=CASCADE, primary_key=True)
@@ -76,7 +75,7 @@ class Asset(models.Model):
         db_table = 'asset'
 
     def __str__(self):
-        return self.id
+        return self.id + " " + self.source
 
 class Debt(models.Model):
     id = models.OneToOneField(Category, on_delete=CASCADE, primary_key=True)
@@ -93,7 +92,7 @@ class Debt(models.Model):
         db_table = 'debt'
 
     def __str__(self):
-        return self.id
+        return self.id + " " + self.creditor
 
 class Month(models.Model):
     id = models.SmallIntegerField(primary_key=True)
@@ -104,7 +103,7 @@ class Month(models.Model):
         db_table = 'month'
 
     def __str__(self):
-        return self.name
+        return str(self.id) + " " + self.name
 
 class FinancialStatementPlan(models.Model):
     id = models.CharField(max_length=23, primary_key=True)
@@ -151,7 +150,7 @@ class Budget(models.Model):
         return str(self.id)
 
 class DailyFlowSheet(models.Model):
-    id = models.CharField(max_length=21, primary_key=True)
+    id = models.CharField(max_length=19, primary_key=True)
     owner_id = models.ForeignKey(NewUser, on_delete = CASCADE)
     date = models.DateField(default=now, null=True)
 
@@ -159,23 +158,53 @@ class DailyFlowSheet(models.Model):
         db_table = 'daily_flow_sheet'
 
     def __str__(self):
-        return self.owner_id
+        return self.id
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = "DFS" + str(self.owner_id)[:10] + datetime.strftime(self.date, "%y%m%d")
+        return super(Budget, self).save(*args, **kwargs)
+
+class Method(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30)
+    user_id = models.ForeignKey(NewUser, on_delete=CASCADE, null=True, blank=True)
+    icon = models.CharField(max_length=20, default="money-bill")
+    
+    class Meta:
+        db_table = "method"
+    
+    def __str__(self):
+        return str(self.id) + " " + self.name + " (" + str(self.user_id) + ")"
 
 class DailyFlow(models.Model):
-    id = models.CharField(max_length=4, primary_key=True)
+    id = models.CharField(max_length=21, primary_key=True)
     ds_id = models.ForeignKey(DailyFlowSheet, on_delete=CASCADE)
     category_id = models.ForeignKey(Category, on_delete=CASCADE)
     name = models.CharField(max_length=30)
     value = models.PositiveIntegerField()
-    #method =
-    detail = models.TextField()
+    method = models.ForeignKey(Method, on_delete=CASCADE)
+    detail = models.TextField(null=True)
     # photo = models.FilePathField()
 
     class Meta:
         db_table = 'daily_flow'
 
     def __str__(self):
-        return self.id
+        return self.id + " " + self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            try:
+                cat = Category.objects.get(id=self.category_id)
+                prefix = str(cat.id)[-2:] + "F" + str(self.ds_id)[3:]
+            except models.Model.DoesNotExist:
+                prefix = "NAF" + str(self.ds_id)[3:]
+            last_id = DailyFlow.objects.filter(id__startswith=prefix).last().id[-2:]
+            if last_id == None: no_id = 0
+            else: no_id = int(last_id) + 1
+            self.id = prefix + str("00" + str(no_id))[-3:]
+        return super(Budget, self).save(*args, **kwargs)
 
 class FinancialGoal(models.Model):
     id = models.CharField(max_length=15, primary_key=True)

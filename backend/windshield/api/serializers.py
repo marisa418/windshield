@@ -3,6 +3,13 @@ from pyexpat import model
 from rest_framework import serializers
 from . import models
 
+class DailyFlowSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.DailyFlowSheet
+        exclude = ["owner_id"]
+        read_only_fields = ['id']
+
 class StatementSerializer(serializers.ModelSerializer):
 
     class Meta:
