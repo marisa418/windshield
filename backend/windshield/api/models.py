@@ -163,7 +163,7 @@ class DailyFlowSheet(models.Model):
     def save(self, *args, **kwargs):
         if not self.id:
             self.id = "DFS" + str(self.owner_id)[:10] + datetime.strftime(self.date, "%y%m%d")
-        return super(Budget, self).save(*args, **kwargs)
+        return super(DailyFlowSheet, self).save(*args, **kwargs)
 
 class Method(models.Model):
     id = models.AutoField(primary_key=True)
@@ -204,7 +204,7 @@ class DailyFlow(models.Model):
             if last_id == None: no_id = 0
             else: no_id = int(last_id) + 1
             self.id = prefix + str("00" + str(no_id))[-3:]
-        return super(Budget, self).save(*args, **kwargs)
+        return super(DailyFlow, self).save(*args, **kwargs)
 
 class FinancialGoal(models.Model):
     id = models.CharField(max_length=15, primary_key=True)
