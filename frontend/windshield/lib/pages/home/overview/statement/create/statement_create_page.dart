@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:auto_route/auto_route.dart';
 
 import 'package:windshield/main.dart';
 import 'date_page.dart';
@@ -12,13 +13,22 @@ class StatementCreatePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final provider =
         ref.watch(providerStatement.select((value) => value.createPageIndex));
-    return Scaffold(
-      body: IndexedStack(
-        index: provider,
-        children: const [
-          DatePage(),
-          ChooseBudgetPage(),
-        ],
+    return WillPopScope(
+      onWillPop: () async {
+        if (ref.read(providerStatement).statementList.length != 1) {
+          return true;
+        }
+        AutoRouter.of(context).popUntilRouteWithName('HomeRoute');
+        return false;
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: provider,
+          children: const [
+            DatePage(),
+            ChooseBudgetPage(),
+          ],
+        ),
       ),
     );
   }

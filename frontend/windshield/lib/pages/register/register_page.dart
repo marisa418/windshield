@@ -26,7 +26,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    // final api = ref.watch(apiProvider);
     return Scaffold(
       body: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
@@ -77,9 +76,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         style: Theme.of(context).textTheme.headline1!.merge(
                               const TextStyle(
                                 color: Colors.white,
-                                // fontSize: 14,
-                                // letterSpacing: 5,
-                                // fontWeight: FontWeight.bold,
                               ),
                             ),
                       ),
@@ -204,9 +200,16 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                     _phone,
                                   );
                               if (res) {
-                                AutoRouter.of(context).push(PinRoute());
+                                AutoRouter.of(context).push(const PinRoute());
                               } else {
-                                print('SOMETHING WENT WRONG');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('เกิดข้อผิดพลาด'),
+                                  ),
+                                );
+                                setState(() {
+                                  _isLoading = false;
+                                });
                               }
                             }
                           },

@@ -120,9 +120,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               setState(() => {_password = value!}),
                         ),
                       ),
-                      const SizedBox(height: 200),
-                      ElevatedButton(
-                        onPressed: () async {
+                      const SizedBox(height: 80),
+                      GestureDetector(
+                        onTap: () async {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
                             final res = await ref
@@ -135,24 +135,69 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             }
                           }
                         },
-                        child: Text(
-                          'เข้าสู่ระบบ',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline4!
-                              .merge(const TextStyle(color: Colors.white)),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width - 60,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            color: Theme.of(context).primaryColor,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 3,
+                                blurRadius: 7,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Text(
+                                'เข้าสู่ระบบ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline3!
+                                    .merge(
+                                      const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          AutoRouter.of(context).push(const RegisterRoute());
-                        },
-                        child: Text(
-                          'สมัครสมาชิก',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline4!
-                              .merge(const TextStyle(color: Colors.white)),
+                      const SizedBox(height: 30),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(30),
+                        onTap: () =>
+                            AutoRouter.of(context).push(const RegisterRoute()),
+                        child: Ink(
+                          width: MediaQuery.of(context).size.width - 60,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                              width: 3,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Center(
+                              child: Text(
+                                'สมัครสมาชิก',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headline3!
+                                    .merge(
+                                      TextStyle(
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                                    ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ],

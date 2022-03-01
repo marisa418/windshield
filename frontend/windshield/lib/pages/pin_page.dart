@@ -196,9 +196,11 @@ class _PinFieldState extends ConsumerState {
                       onPressed: () async {
                         if (await _updatePin(PinFieldController.text)) {
                           AutoRouter.of(context)
-                              .replace(const RegisterInfoRoute());
+                              .push(const RegisterInfoRoute());
                         } else {
-                          print('CREATING PIN WENT WRONG');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+                          );
                         }
                       },
                       style: ElevatedButton.styleFrom(

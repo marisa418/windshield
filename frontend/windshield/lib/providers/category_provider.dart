@@ -89,6 +89,9 @@ class CategoryProvider extends ChangeNotifier {
   int _budgetPerPeriod = 0;
   int get budgetPerPeriod => _budgetPerPeriod;
 
+  String _budgetType = 'MLY';
+  String get budgetType => _budgetType;
+
   void setIsIncomePage(int value) {
     _isIncomePage = value;
     notifyListeners();
@@ -152,9 +155,9 @@ class CategoryProvider extends ChangeNotifier {
     if (freq == 'DLY') {
       total = budgetPerPeriod * numOfDays;
     } else if (freq == 'WLY') {
-      total = budgetPerPeriod * numOfDays;
+      total = budgetPerPeriod * (numOfDays / 7).ceil();
     } else if (freq == 'MLY') {
-      total = budgetPerPeriod * numOfDays;
+      total = budgetPerPeriod;
     }
     Budget budget = Budget(
       catId: cat.id,
@@ -162,8 +165,8 @@ class CategoryProvider extends ChangeNotifier {
       balance: 0,
       totalBudget: total,
       budgetPerPeriod: budgetPerPeriod,
-      frequency: 'MLY',
-      dueDate: '2022-03-31',
+      frequency: freq,
+      dueDate: '2022-01-01',
     );
     _budgetList.add(budget);
     _categoryList[catIndex].active = true;
@@ -198,6 +201,11 @@ class CategoryProvider extends ChangeNotifier {
 
   void setBudgetPerPeriod(int value) {
     _budgetPerPeriod = value;
+    notifyListeners();
+  }
+
+  void setBudgetType(String value) {
+    _budgetType = value;
     notifyListeners();
   }
 

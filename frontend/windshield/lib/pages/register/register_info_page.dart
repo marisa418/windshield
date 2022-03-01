@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:windshield/pages/pin_page.dart';
 
 import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/main.dart';
@@ -179,9 +180,7 @@ class _FormInfoState extends ConsumerState {
                       )
                     ],
                   ),
-                  onPressed: () {
-                    AutoRouter.of(context).pop();
-                  },
+                  onPressed: () => AutoRouter.of(context).pop(),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(

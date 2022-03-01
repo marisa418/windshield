@@ -195,96 +195,128 @@ class Calculator extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final statementDateAmount = ref.read(providerStatement).getDateDiff();
     final budgetPerPeriod =
-        ref.watch(providerCategory.select((value) => value.budgetPerPeriod));
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: EdgeInsets.only(
-            left: 10,
-            right: 10,
-            top: 30,
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: TextField(
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            onChanged: (e) {
-              ref
-                  .read(providerCategory)
-                  .setBudgetPerPeriod(int.tryParse(e) ?? 0);
-            },
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'จำนวนเงิน',
-            ),
-          ),
-        ),
-        const SizedBox(height: 30),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            GestureDetector(
-              onTap: () => AutoRouter.of(context).pop(),
-              child: Container(
-                height: 50,
-                width: 150,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                  color: Colors.red,
-                ),
-                child: Center(
-                  child: Text(
-                    'ยกเลิก',
-                    style: MyTheme.whiteTextTheme.headline3,
+        ref.watch(providerCategory.select((e) => e.budgetPerPeriod));
+    final budgetType = ref.watch(providerCategory.select((e) => e.budgetType));
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 10,
+        right: 10,
+        top: 30,
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Flexible(
+                flex: 7,
+                child: TextField(
+                  autofocus: true,
+                  keyboardType: TextInputType.number,
+                  onChanged: (e) {
+                    ref
+                        .read(providerCategory)
+                        .setBudgetPerPeriod(int.tryParse(e) ?? 0);
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: 'จำนวนเงิน',
                   ),
                 ),
               ),
-            ),
-            GestureDetector(
-              onTap: () {
-                if (budgetPerPeriod != 0) {
-                  ref.read(providerCategory).addBudget(
-                        cat,
-                        catIndex,
-                        budgetPerPeriod,
-                        'MLY',
-                        statementDateAmount,
-                      );
-                  AutoRouter.of(context).pop();
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return const AlertDialog(
-                        title: Text(
-                          'โปรดกรอกจำนวนเงิน',
-                          textAlign: TextAlign.center,
-                        ),
-                      );
-                    },
-                  );
-                }
-              },
-              child: Container(
-                height: 50,
-                width: 150,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(15)),
-                  color: Colors.green,
+              Flexible(
+                flex: 3,
+                child: DropdownButton<String>(
+                  value: budgetType,
+                  icon: const Icon(Icons.arrow_downward),
+                  onChanged: (String? e) {
+                    ref.read(providerCategory).setBudgetType(e!);
+                  },
+                  items: <String>['ต่อวัน', 'ต่อสัปดาห์', 'ต่อเดือน']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: _returnType(value),
+                      child: Text(value),
+                    );
+                  }).toList(),
                 ),
-                child: Center(
-                  child: Text(
-                    'ยืนยัน',
-                    style: MyTheme.whiteTextTheme.headline3,
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              GestureDetector(
+                onTap: () => AutoRouter.of(context).pop(),
+                child: Container(
+                  height: 50,
+                  width: 150,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    color: Colors.red,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'ยกเลิก',
+                      style: MyTheme.whiteTextTheme.headline3,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 30),
-      ],
+              GestureDetector(
+                onTap: () {
+                  if (budgetPerPeriod != 0) {
+                    ref.read(providerCategory).addBudget(
+                          cat,
+                          catIndex,
+                          budgetPerPeriod,
+                          ref.read(providerCategory).budgetType,
+                          statementDateAmount,
+                        );
+                    AutoRouter.of(context).pop();
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const AlertDialog(
+                          title: Text(
+                            'โปรดกรอกจำนวนเงิน',
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
+                child: Container(
+                  height: 50,
+                  width: 150,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    color: Colors.green,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'ยืนยัน',
+                      style: MyTheme.whiteTextTheme.headline3,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+        ],
+      ),
     );
+  }
+
+  String _returnType(String value) {
+    if (value == 'ต่อวัน') return 'DLY';
+    if (value == 'ต่อสัปดาห์') return 'WLY';
+    return 'MLY';
   }
 }
