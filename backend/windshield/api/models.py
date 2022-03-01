@@ -162,8 +162,8 @@ class DailyFlowSheet(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.id:
-            date = datetime.strptime(self.date, "%Y-%m-%d")
-            self.id = "DFS" + str(self.owner_id)[:10] + datetime.strftime(date, "%y%m%d")
+            # date = datetime.strptime(self.date, "%Y-%m-%d")
+            self.id = "DFS" + str(self.owner_id)[:10] + datetime.strftime(self.date, "%y%m%d")
         return super(DailyFlowSheet, self).save(*args, **kwargs)
 
 class Method(models.Model):
@@ -180,7 +180,7 @@ class Method(models.Model):
 
 class DailyFlow(models.Model):
     id = models.CharField(max_length=21, primary_key=True)
-    ds_id = models.ForeignKey(DailyFlowSheet, on_delete=CASCADE)
+    df_id = models.ForeignKey(DailyFlowSheet, on_delete=CASCADE)
     category_id = models.ForeignKey(Category, on_delete=CASCADE)
     name = models.CharField(max_length=30)
     value = models.PositiveIntegerField()
@@ -198,12 +198,12 @@ class DailyFlow(models.Model):
         if not self.id:
             try:
                 cat = Category.objects.get(id=self.category_id)
-                prefix = str(cat.id)[-2:] + "F" + str(self.ds_id)[3:]
-            except models.Model.DoesNotExist:
-                prefix = "NAF" + str(self.ds_id)[3:]
-            last_id = DailyFlow.objects.filter(id__startswith=prefix).last().id[-2:]
+                prefix = str(cat.id)[-2:] + "F" + str(self.df_id)[3:]
+            except Category.DoesNotExist:
+                prefix = "NAF" + str(self.df_id)[3:]
+            last_id = DailyFlow.objects.filter(id__startswith=prefix).last()
             if last_id == None: no_id = 0
-            else: no_id = int(last_id) + 1
+            else: no_id = int(last_id.id[-2:]) + 1
             self.id = prefix + str("00" + str(no_id))[-3:]
         return super(DailyFlow, self).save(*args, **kwargs)
 

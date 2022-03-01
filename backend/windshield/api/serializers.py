@@ -7,6 +7,7 @@ class DailyFlowSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.DailyFlow
+        fields = '__all__'
         read_only_fields = ['id']
 
 class DailyFlowSheetSerializer(serializers.ModelSerializer):
