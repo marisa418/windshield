@@ -10,6 +10,7 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import datetime
 from pytz import timezone
+from django.db.models import Q
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -134,7 +135,7 @@ class Method(generics.ListCreateAPIView):
     def get_queryset(self):
         uuid = self.request.user.uuid
         if uuid is not None:
-            queryset = models.Method.objects.filter(models.Q(user_id=uuid) | models.Q(user_id=None))
+            queryset = models.Method.objects.filter(Q(user_id=uuid) | Q(user_id=None))
             return queryset
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
