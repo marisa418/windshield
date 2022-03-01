@@ -30,8 +30,8 @@ class StatementProvider extends ChangeNotifier {
   bool _needUpdated = false;
   bool get needUpdated => _needUpdated;
 
-  bool _twoMonthLimited = true;
-  bool get twoMonthLimited => _twoMonthLimited;
+  bool _firstTimeCreating = true;
+  bool get firstTimeCreating => _firstTimeCreating;
 
   bool _skipDatePage = false;
   bool get skipDatePage => _skipDatePage;
@@ -99,8 +99,8 @@ class StatementProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setTwoMonthLimited(bool value) {
-    _twoMonthLimited = value;
+  void setFirstTimeCreating(bool value) {
+    _firstTimeCreating = value;
   }
 
   void setSkipDatePage(bool value) {

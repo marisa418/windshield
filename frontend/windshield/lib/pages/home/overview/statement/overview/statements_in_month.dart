@@ -40,16 +40,17 @@ class StatementsInMonth extends ConsumerWidget {
             child: statement.statementsInMonth[index].id == ''
                 ? GestureDetector(
                     onTap: () {
+                      final readState = ref.read(providerStatement);
                       final start =
-                          statement.statementsInMonth[index - 1].start;
-                      final end = statement.statementsInMonth[index - 1].end;
+                          readState.statementsInMonth[index - 1].start;
+                      final end = readState.statementsInMonth[index - 1].end;
                       final name = 'แผนงบการเงินที่ ${index + 1}';
-                      ref.read(providerStatement).setStartDate(start);
-                      ref.read(providerStatement).setEndDate(end);
-                      ref.read(providerStatement).setStatementName(name);
-                      ref.read(providerStatement).setCreatePageIndex(1);
-                      ref.read(providerStatement).setSkipDatePage(true);
-                      ref.read(providerStatement).setTwoMonthLimited(false);
+                      readState.setStartDate(start);
+                      readState.setEndDate(end);
+                      readState.setStatementName(name);
+                      readState.setCreatePageIndex(1);
+                      readState.setSkipDatePage(true);
+                      readState.setFirstTimeCreating(false);
                       AutoRouter.of(context).push(const StatementCreateRoute());
                     },
                     child: Container(

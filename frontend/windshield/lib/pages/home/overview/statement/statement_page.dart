@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:intl/intl.dart';
 
 import 'package:windshield/main.dart';
 import './create/statement_create_page.dart';
@@ -22,17 +23,13 @@ class StatementPage extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => Text('Text : $error'),
       data: (data) {
+        ref.read(providerStatement).setFirstTimeCreating(true);
         if (data.length == 1) {
           SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
             AutoRouter.of(context).push(const StatementCreateRoute());
           });
         }
         return const StatementOverviewPage();
-        // if (data.length == 1) {
-        //   return const StatementCreatePage();
-        // } else {
-        //   return const StatementOverviewPage();
-        // }
       },
     );
   }

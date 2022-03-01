@@ -24,15 +24,13 @@ class MonthList extends ConsumerWidget {
             margin: const EdgeInsets.all(10),
             child: TextButton(
               onPressed: () {
-                final dateNow = DateFormat('yyyy-MM-dd').format(DateTime.now());
-                ref.read(providerStatement).setStartDate(dateNow);
-                ref.read(providerStatement).setEndDate(dateNow);
-                ref
-                    .read(providerStatement)
-                    .setStatementName('แผนงบการเงินที่ 1');
-                ref.read(providerStatement).setCreatePageIndex(0);
-                ref.read(providerStatement).setSkipDatePage(false);
-                ref.read(providerStatement).setTwoMonthLimited(false);
+                final readState = ref.read(providerStatement);
+                final now = DateTime.now();
+                readState.setStartDate(DateFormat('yyyy-MM-dd').format(now));
+                readState.setEndDate(DateFormat('yyyy-MM-dd').format(now));
+                readState.setCreatePageIndex(0);
+                readState.setSkipDatePage(false);
+                readState.setFirstTimeCreating(false);
                 AutoRouter.of(context).push(const StatementCreateRoute());
               },
               child: const FaIcon(

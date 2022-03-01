@@ -138,19 +138,38 @@ class DatePicker extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final readState = ref.read(providerStatement);
+    final now = DateTime.now();
+    DateTime _start = now;
+    DateTime _end = now;
+    if (readState.firstTimeCreating) {
+      final start = DateFormat('yyyy-MM-dd').format(now);
+      final end = DateFormat('yyyy-MM-dd').format(DateTime(
+        now.year,
+        now.month + 2,
+        0,
+      ));
+      _start = DateFormat('yyyy-MM-dd').parse(start);
+      _end = DateFormat('yyyy-MM-dd').parse(end);
+    } else {
+      final lastStatement = readState.statementList.last;
+      final lastEnd = DateFormat('yyyy-MM-dd').parse(lastStatement.end);
+      // final lastDayOfEndMonth = DateTime(lastEnd.year, lastEnd.month + 1, 0);
+      final nextMonth = DateTime(lastEnd.year, lastStatement.month + 2, 0);
+      String start = DateFormat('yyyy-MM-dd').format(lastEnd.add(const Duration(
+        days: 1,
+      )));
+      final end = DateFormat('yyyy-MM-dd').format(nextMonth);
+      _start = DateFormat('yyyy-MM-dd').parse(start);
+      _end = DateFormat('yyyy-MM-dd').parse(end);
+    }
     return SfDateRangePicker(
       selectionMode: DateRangePickerSelectionMode.range,
       selectionRadius: 20,
       allowViewNavigation: false,
       headerHeight: 100,
-      minDate: DateTime.now(),
-      maxDate: ref.read(providerStatement).twoMonthLimited
-          ? DateTime(
-              DateTime.now().year,
-              DateTime.now().month + 2,
-              0,
-            )
-          : null,
+      minDate: _start,
+      maxDate: _end,
       headerStyle: DateRangePickerHeaderStyle(
         textAlign: TextAlign.center,
         textStyle: Theme.of(context)
