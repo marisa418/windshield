@@ -162,7 +162,6 @@ class DailyFlowSheet(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.id:
-            date = datetime.strptime(self.date, "%Y-%m-%d")
             self.id = "DFS" + str(self.owner_id)[:10] + datetime.strftime(date, "%y%m%d")
         return super(DailyFlowSheet, self).save(*args, **kwargs)
 
