@@ -50,14 +50,11 @@ class _HomeState extends ConsumerState<HomePage> {
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(right: 5, bottom: 20),
-        // padding: EdgeInsets.all(10),
         child: SizedBox(
           height: 70,
           width: 70,
           child: FloatingActionButton(
-            onPressed: () {
-              // ref.read(apiProvider).login();
-            },
+            onPressed: () {},
             tooltip: 'Income Expense',
             child: const Icon(Icons.book),
           ),

@@ -121,7 +121,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 80),
-                      GestureDetector(
+                      InkWell(
                         onTap: () async {
                           if (_formKey.currentState!.validate()) {
                             _formKey.currentState!.save();
@@ -135,7 +135,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             }
                           }
                         },
-                        child: Container(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Ink(
                           width: MediaQuery.of(context).size.width - 60,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),

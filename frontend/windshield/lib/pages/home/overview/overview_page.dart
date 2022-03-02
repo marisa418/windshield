@@ -5,6 +5,7 @@ import 'package:windshield/routes/app_router.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/styles/theme.dart';
+import './overview_comp/inc_exp.dart';
 
 class Overview extends StatelessWidget {
   const Overview({Key? key}) : super(key: key);
@@ -31,13 +32,7 @@ class Overview extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 20),
-                const Placeholder(
-                  fallbackHeight: 130,
-                ),
-                const SizedBox(height: 20),
-                const Placeholder(
-                  fallbackHeight: 130,
-                ),
+                const IncExp(),
                 const SizedBox(height: 20),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +42,7 @@ class Overview extends StatelessWidget {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            AutoRouter.of(context).push(StatementRoute());
+                            AutoRouter.of(context).push(const StatementRoute());
                           },
                           child: Container(
                             alignment: Alignment.center,

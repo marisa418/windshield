@@ -69,13 +69,8 @@ class StatementsInMonth extends ConsumerWidget {
                   )
                 : Center(
                     child: Text(
-                      '''
-                         ${statement.statementsInMonth[index].name}
-                         ${statement.statementsInMonth[index].id}
-                         ${statement.statementsInMonth[index].start}
-                         ${statement.statementsInMonth[index].end}
-                      ''',
-                      style: Theme.of(context).textTheme.bodyText1,
+                      '${statement.statementsInMonth[index].name}\n${statement.statementsInMonth[index].start}\n${statement.statementsInMonth[index].end}',
+                      style: Theme.of(context).textTheme.headline2,
                     ),
                   ),
           ),

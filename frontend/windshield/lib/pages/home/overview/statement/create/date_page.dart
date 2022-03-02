@@ -14,30 +14,31 @@ class DatePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!ref.read(providerStatement).skipDatePage) {
-      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-        showDialog<void>(
-          context: context,
-          builder: (BuildContext context) => AlertDialog(
-            title: Text(
-              'TEST TEXT',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headline4!.merge(
-                    const TextStyle(
-                      color: Colors.black,
-                    ),
-                  ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => AutoRouter.of(context).pop(),
-                child: const Text('ยืนยัน'),
-              ),
-            ],
-          ),
-        );
-      });
-    }
+    // if (!ref.read(providerStatement).skipDatePage) {
+    //   SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+    //     showDialog<void>(
+    //       context: context,
+    //       builder: (BuildContext context) => AlertDialog(
+
+    //         title: Text(
+    //           'โปรดเลือกวันเริ่มต้นของแผนเป็น\n"วันที่ท่านคิดว่าจะได้รายรับก้อนถัดไป"',
+    //           textAlign: TextAlign.center,
+    //           style: Theme.of(context).textTheme.headline4!.merge(
+    //                 const TextStyle(
+    //                   color: Colors.black,
+    //                 ),
+    //               ),
+    //         ),
+    //         actions: [
+    //           TextButton(
+    //             onPressed: () => AutoRouter.of(context).pop(),
+    //             child: const Text('ยืนยัน'),
+    //           ),
+    //         ],
+    //       ),
+    //     );
+    //   });
+    // }
     return const Date();
   }
 }
