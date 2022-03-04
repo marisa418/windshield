@@ -159,7 +159,15 @@ class Statement(generics.ListCreateAPIView):
         uuid = self.request.user.uuid
         if uuid is not None:
             queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+            lower = self.request.query_params.get("lower-date", None)
+            upper = self.request.query_params.get("upper-date", None)
             date = self.request.query_params.get("date", None)
+            if lower is not None:
+                lower = datetime.strptime(lower, "%Y-%m-%d")
+                queryset = queryset.filter(end__gte=lower)
+            if upper is not None:
+                upper = datetime.strptime(upper, "%Y-%m-%d")
+                queryset = queryset.filter(start__lte=upper)
             if date is not None:
                 date = datetime.strptime(date, "%Y-%m-%d")
                 queryset = queryset.filter(start__lte=date, end__gte=date)
@@ -175,9 +183,14 @@ class Statement(generics.ListCreateAPIView):
             month_instance = models.Month.objects.get(id=month)
             owner_instance = NewUser.objects.get(uuid=uuid)
             # -yymmdd-id
-            finan_id = models.FinancialStatementPlan.objects.filter(owner_id=uuid, start=startDate).count()
+            plans = models.FinancialStatementPlan.objects.filter(owner_id=uuid, start=startDate)
+            if(plans.filter(chosen=True).count() > 0):
+                self.request.data['chosen'] = False
+            else:
+                self.request.data['chosen'] = True
+            plan_id = plans.count()
             return serializer.save(
-                id = 'FSP' + str(uuid)[:10] + '-' + str(startDate)[2:4] + str(startDate)[5:7] + str(startDate)[-2:] + '-' + str(finan_id)[-1:],
+                id = 'FSP' + str(uuid)[:10] + '-' + str(startDate)[2:4] + str(startDate)[5:7] + str(startDate)[-2:] + '-' + str(plan_id)[-1:],
                 owner_id = owner_instance,
                 month = month_instance,
                 **self.request.data
@@ -237,12 +250,12 @@ class Category(generics.ListCreateAPIView):
                             )
         else :
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-
+    
 class Budget(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.BudgetSerializer
     
     def get_queryset(self):
+        self.serializer_class = serializers.BudgetSerializer
         fplan = self.request.query_params.get("fplan", None)
         fplan_queryset = models.FinancialStatementPlan.objects.filter(owner_id=self.request.user.uuid)
         if fplan is None:
@@ -254,14 +267,17 @@ class Budget(generics.ListCreateAPIView):
         return queryset
     
     def create(self, request):
+        self.serializer_class = serializers.BudgetCreateSerializer
         serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        n = len(request.data)
         if not isinstance(request.data, list): 
             fplan = request.data["fplan"]
+            n = 1
         else: 
             fplan = request.data[0]["fplan"]
         results = models.Budget.objects.filter(fplan=fplan)
         output_serializer = serializers.BudgetSerializer(results, many=True)
-        data = output_serializer.data
+        data = output_serializer.data[-n:]
         return Response(data)
