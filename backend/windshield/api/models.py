@@ -127,9 +127,9 @@ class Budget(models.Model):
         ('MLY', 'Monthly'),
         ('ALY', 'Annually'),
     ]
-    id = models.CharField(max_length=19, primary_key=True)
+    id = models.CharField(max_length=24, primary_key=True)
     cat_id = models.ForeignKey(Category, on_delete=CASCADE)
-    fplan = models.ForeignKey(FinancialStatementPlan, on_delete=CASCADE)
+    fplan = models.ForeignKey(FinancialStatementPlan, related_name="budgets", on_delete=CASCADE)
     balance = models.PositiveIntegerField(default=0)
     total_budget = models.PositiveIntegerField()
     budget_per_period = models.PositiveIntegerField()
@@ -138,12 +138,10 @@ class Budget(models.Model):
 
     class Meta:
         db_table = 'budget'
-        unique_together = ("cat_id", "fplan")
     
     def save(self, *args, **kwargs):
         if not self.id:
-            no_id = Budget.objects.filter(cat_id=self.cat_id).count()
-            self.id = "BUD" + str(self.cat_id)[3:] + str("000" + str(no_id))[-4:]
+            self.id = "BUD" + str(self.cat_id.id)[3:] + "-" + str(self.fplan.id)[-8:]
         return super(Budget, self).save(*args, **kwargs)
     
     def __str__(self):

@@ -1,5 +1,6 @@
 from dataclasses import fields
 from pyexpat import model
+from unicodedata import category
 from rest_framework import serializers
 from . import models
 
@@ -23,13 +24,6 @@ class MethodSerializer(serializers.ModelSerializer):
         model = models.Method
         exclude = ["user_id"]
 
-class StatementSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = models.FinancialStatementPlan
-        exclude = ["owner_id"]
-        read_only_fields = ['id']
-
 class CategorySerializer(serializers.ModelSerializer):
     
     class Meta:
@@ -43,10 +37,23 @@ class BalanceSheetSerializer(serializers.ModelSerializer):
         model = models.BalanceSheet
         fields = '__all__'
 
+class BudgetCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Budget
+        read_only_fields = ["id"]
+        fields = "__all__"
+
 class BudgetSerializer(serializers.ModelSerializer):
+    cat_id = CategorySerializer(read_only=True)
 
     class Meta:
         model = models.Budget
         fields = "__all__"
-        read_only_fields = ["id"]
-        # fields = ('id', 'fplan', 'balance', 'total_budget', 'budget_per_period', 'frequency')
+        
+class StatementSerializer(serializers.ModelSerializer):
+    budgets = BudgetSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = models.FinancialStatementPlan
+        exclude = ["owner_id"]
+        read_only_fields = ['id', 'chosen', 'budgets']
