@@ -24,7 +24,7 @@ class StatementProvider extends ChangeNotifier {
   String get startDate => _startDate;
   String get endDate => _endDate;
 
-  String _statementName = 'แผนการเงินที่ 1';
+  String _statementName = 'แผนงบการเงินที่ 1';
   String get statementName => _statementName;
 
   bool _needUpdated = false;

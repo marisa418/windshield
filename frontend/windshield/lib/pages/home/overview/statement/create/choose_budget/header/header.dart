@@ -111,7 +111,13 @@ class IncomeExpenseButton extends ConsumerWidget {
                     topLeft: Radius.circular(10),
                     bottomLeft: Radius.circular(10),
                   ),
-                  color: Color.fromARGB(255, 85, 214, 89),
+                  gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Color(0xff14b6da),
+                        Color(0xff2ae194),
+                      ]),
                 ),
                 padding: const EdgeInsets.all(5),
                 child: Column(
@@ -151,7 +157,13 @@ class IncomeExpenseButton extends ConsumerWidget {
                     topRight: Radius.circular(10),
                     bottomRight: Radius.circular(10),
                   ),
-                  color: Color.fromARGB(255, 228, 78, 67),
+                  gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Color(0xffdf4833),
+                        Color(0xffee3884),
+                      ]),
                 ),
                 padding: const EdgeInsets.all(5),
                 child: Column(
