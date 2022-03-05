@@ -57,3 +57,10 @@ class StatementSerializer(serializers.ModelSerializer):
         model = models.FinancialStatementPlan
         exclude = ["owner_id"]
         read_only_fields = ['id', 'chosen', 'budgets']
+        
+class StatementUpdateSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.FinancialStatementPlan
+        exclude = ['owner_id']
+        read_only_fields = ['id', 'start', 'end', 'month']
