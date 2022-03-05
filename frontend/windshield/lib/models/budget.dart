@@ -5,7 +5,6 @@ class Budget {
   int totalBudget;
   int budgetPerPeriod;
   String frequency;
-  String dueDate;
 
   Budget({
     required this.catId,
@@ -14,7 +13,6 @@ class Budget {
     required this.totalBudget,
     required this.budgetPerPeriod,
     required this.frequency,
-    required this.dueDate,
   });
 
   factory Budget.fromJson(Map<String, dynamic> json) => Budget(
@@ -24,7 +22,6 @@ class Budget {
         totalBudget: json['total_budget'],
         budgetPerPeriod: json['budget_per_period'],
         frequency: json['frequency'],
-        dueDate: json['due_date'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -34,6 +31,5 @@ class Budget {
         'total_budget': totalBudget,
         'budget_per_period': budgetPerPeriod,
         'frequency': frequency,
-        'due_date': dueDate,
       };
 }

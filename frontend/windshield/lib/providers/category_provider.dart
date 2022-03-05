@@ -166,7 +166,6 @@ class CategoryProvider extends ChangeNotifier {
       totalBudget: total,
       budgetPerPeriod: budgetPerPeriod,
       frequency: freq,
-      dueDate: '2022-01-01',
     );
     _budgetList.add(budget);
     _categoryList[catIndex].active = true;

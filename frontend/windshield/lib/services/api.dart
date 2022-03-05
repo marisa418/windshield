@@ -244,13 +244,6 @@ class Api extends ChangeNotifier {
       print(res);
       final jsonList = budgetList.map((e) {
         e.fplan = res.data['id'];
-        print(e.fplan);
-        print(e.balance);
-        print(e.frequency);
-        print(e.budgetPerPeriod);
-        print(e.catId);
-        print(e.dueDate);
-        print(e.totalBudget);
         return e.toJson();
       }).toList();
       final res2 = await dio.post(
