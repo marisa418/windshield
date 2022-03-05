@@ -9,8 +9,8 @@ urlpatterns = [
 
     #FINANCIAL STATEMENT PLAN
     path('statement/', views.Statement.as_view(), name='statement'),
+    path('statement/<str:pk>/', views.StatementInstance.as_view(), name='statement-instance'),
     path('statement/<str:pk>/name/', views.StatementChangeName.as_view(), name='statement-change-name'),
-    path('statement/<str:pk>/activate/', views.StatementActivate.as_view(), name='statement-activate'),
 
     #CATEGORY
     path('categories/', views.Category.as_view(), name='categories-list'),

@@ -148,8 +148,7 @@ class Method(generics.ListCreateAPIView):
             serializer.save(user_id=owner_instance, **self.request.data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
-        
-
+          
 class Statement(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.StatementSerializer
@@ -211,7 +210,7 @@ class StatementChangeName(generics.UpdateAPIView):
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class StatementActivate(generics.UpdateAPIView):
+class StatementInstance(generics.RetrieveUpdateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.StatementUpdateSerializer
     
@@ -223,15 +222,9 @@ class StatementActivate(generics.UpdateAPIView):
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
     
-    def get_object(self, id):
-        try:
-            return models.FinancialStatementPlan.objects.get(id=id)
-        except models.FinancialStatementPlan.DoesNotExist:
-            raise status.HTTP_400_BAD_REQUEST
-    
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
-        active_instance = self.get_object(kwargs["pk"])
+        active_instance = self.get_object()
         queryset = self.get_queryset().filter(start=active_instance.start, end=active_instance.end)
         instance = []
         for obj in queryset:
