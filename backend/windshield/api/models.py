@@ -150,7 +150,7 @@ class Budget(models.Model):
 class DailyFlowSheet(models.Model):
     id = models.CharField(max_length=19, primary_key=True)
     owner_id = models.ForeignKey(NewUser, on_delete = CASCADE)
-    date = models.DateField(default=now, null=True)
+    date = models.DateField(default=now)
 
     class Meta:
         db_table = 'daily_flow_sheet'

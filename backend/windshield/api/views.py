@@ -1,3 +1,4 @@
+from operator import mod
 from urllib import request, response
 from uuid import uuid4
 from rest_framework import status, generics, permissions
@@ -197,6 +198,51 @@ class Statement(generics.ListCreateAPIView):
             )
         else :
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class StatementChangeName(generics.UpdateAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.StatementUpdateSerializer
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is not None:
+            self.queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+            return self.queryset
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class StatementActivate(generics.UpdateAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.StatementUpdateSerializer
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is not None:
+            self.queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+            return self.queryset
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+    def get_object(self, id):
+        try:
+            return models.FinancialStatementPlan.objects.get(id=id)
+        except models.FinancialStatementPlan.DoesNotExist:
+            raise status.HTTP_400_BAD_REQUEST
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        active_instance = self.get_object(kwargs["pk"])
+        queryset = self.get_queryset().filter(start=active_instance.start, end=active_instance.end)
+        instance = []
+        for obj in queryset:
+            if obj.id == kwargs["pk"]:
+                obj.chosen = True
+            else:
+                obj.chosen = False
+            obj.save()
+            instance.append(obj)
+        serializer = self.get_serializer(instance, many=True, partial=partial)
+        return Response(serializer.data)
 
 class BalanceSheet(generics.RetrieveAPIView):
     permissions_classes = [permissions.IsAuthenticated]
