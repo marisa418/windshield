@@ -40,7 +40,7 @@ class BalanceSheetSerializer(serializers.ModelSerializer):
 class BudgetCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Budget
-        read_only_fields = ["id"]
+        read_only_fields = ["id", "total_budget"]
         fields = "__all__"
 
 class BudgetSerializer(serializers.ModelSerializer):

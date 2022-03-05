@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.deletion import CASCADE
 from django.utils.timezone import now
 from user.models import NewUser, Province
+import math
 
 class BalanceSheet(models.Model):
     id = models.CharField(max_length=13, primary_key=True)
@@ -140,6 +141,18 @@ class Budget(models.Model):
         db_table = 'budget'
     
     def save(self, *args, **kwargs):
+        if self.frequency == 'DLY':
+            fplan = FinancialStatementPlan.objects.get(id=self.fplan)
+            delta = fplan.end - fplan.start
+            expect_total = (delta.days + 1) * self.budget_per_period
+            self.total_budget = expect_total
+        elif self.frequency == 'WLY':
+            fplan = FinancialStatementPlan.objects.get(id=self.fplan)
+            delta = fplan.end - fplan.start
+            expect_total = math.ceil((delta.days + 1)/7) * self.budget_per_period
+            self.total_budget = expect_total
+        else:
+            self.total_budget = self.budget_per_period
         if not self.id:
             self.id = "BUD" + str(self.cat_id.id)[3:] + "-" + str(self.fplan.id)[-8:]
         return super(Budget, self).save(*args, **kwargs)
