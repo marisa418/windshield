@@ -20,6 +20,7 @@ urlpatterns = [
 
     #BUDGET
     path('budget/', views.Budget.as_view(), name='budget'),
+    path('budget/update/', views.BudgetUpdate.as_view(), name='budgets-update'),
     
     #DAILY FLOW SHEET
     path('daily-flow-sheet/', views.DailyFlowSheet.as_view(), name="daily-flow_sheet"),

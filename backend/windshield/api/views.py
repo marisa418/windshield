@@ -294,7 +294,7 @@ class Budget(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
-        self.serializer_class = serializers.BudgetSerializer
+        self.serializer_class = serializers.BudgetCategorySerializer
         fplan = self.request.query_params.get("fplan", None)
         fplan_queryset = models.FinancialStatementPlan.objects.filter(owner_id=self.request.user.uuid)
         if fplan is None:
@@ -306,7 +306,7 @@ class Budget(generics.ListCreateAPIView):
         return queryset
     
     def create(self, request):
-        self.serializer_class = serializers.BudgetCreateSerializer
+        self.serializer_class = serializers.BudgetSerializer
         serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
@@ -317,6 +317,46 @@ class Budget(generics.ListCreateAPIView):
         else: 
             fplan = request.data[0]["fplan"]
         results = models.Budget.objects.filter(fplan=fplan)
-        output_serializer = serializers.BudgetSerializer(results, many=True)
+        output_serializer = serializers.BudgetCategorySerializer(results, many=True)
         data = output_serializer.data[-n:]
         return Response(data)
+    
+class BudgetUpdate(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.BudgetUpdateSerializer
+    queryset = models.Budget.objects.all()
+    
+    def get_object(self, obj_id):
+        try:
+            return models.Budget.objects.get(id=obj_id)
+        except models.Budget.DoesNotExist:
+            raise status.HTTP_400_BAD_REQUEST
+    
+    def validate_ids(self, id_list):
+        for id in id_list:
+            try:
+                models.Budget.objects.get(id=id)
+            except models.Budget.DoesNotExist:
+                raise status.HTTP_400_BAD_REQUEST
+        return True
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        if isinstance(request.data, list):
+            budget_ids = [i['id'] for i in request.data]
+            self.validate_ids(budget_ids)
+            result = []
+            for obj in request.data:
+                budget_id = obj['id']
+                inst = self.get_object(budget_id)
+                inst.budget_per_period = obj['budget_per_period']
+                inst.frequency = obj['frequency']
+                inst.save()
+                result.append(inst)
+        else:
+            result = self.get_object(request.data['id'])
+            result.budget_per_period = request.data['budget_per_period']
+            result.frequency = request.data['frequency']
+            result.save()
+        serializer = serializers.BudgetCategorySerializer(result, many=isinstance(request.data, list), partial=partial)
+        return Response(serializer.data)
