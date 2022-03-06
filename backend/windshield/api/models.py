@@ -65,11 +65,18 @@ class Category(models.Model):
         return self.id + " " + self.name
 
 class Asset(models.Model):
-    id = models.OneToOneField(Category, on_delete=CASCADE, primary_key=True)
-    bsheet_id = models.ForeignKey(BalanceSheet, on_delete=CASCADE)
+    benefit_type_choice = [
+        ('ITR', 'Interest'),
+        ('DIV', 'Dividend'),
+        ('RTF', 'Rental Fee'),
+        ('SEL', 'Sell')
+    ]
+    id = models.CharField(max_length=17, primary_key=True)
+    cat_id = models.ForeignKey(Category, on_delete=CASCADE)
+    bsheet_id = models.ForeignKey(BalanceSheet, related_name='assets', on_delete=CASCADE)
     source = models.CharField(max_length=30)
     recent_value = models.PositiveIntegerField()
-    # benefit_type =
+    benefit_type = models.CharField(max_length=3, choices=benefit_type_choice, null=True)
     benefit_value = models.DecimalField(decimal_places=2, max_digits=10, null=True)
 
     class Meta:
@@ -79,15 +86,16 @@ class Asset(models.Model):
         return self.id + " " + self.source
 
 class Debt(models.Model):
-    id = models.OneToOneField(Category, on_delete=CASCADE, primary_key=True)
-    bsheet_id = models.ForeignKey(BalanceSheet, on_delete=CASCADE)
+    id = models.CharField(max_length=17, primary_key=True)
+    cat_id = models.ForeignKey(Category, on_delete=CASCADE)
+    bsheet_id = models.ForeignKey(BalanceSheet, related_name='debts', on_delete=CASCADE)
     balance = models.PositiveIntegerField()
     creditor = models.CharField(max_length=30)
     interest = models.DecimalField(decimal_places=2, max_digits=5, null=True)
     debt_term = models.PositiveIntegerField()
     minimum = models.PositiveIntegerField(null=True)
     suspend = models.PositiveIntegerField(null=True)
-    imp_ranking = models.IntegerField()
+    imp_ranking = models.IntegerField(default=0)
     
     class Meta:
         db_table = 'debt'

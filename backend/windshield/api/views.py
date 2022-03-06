@@ -1,6 +1,7 @@
 from operator import mod
 from urllib import request, response
 from uuid import uuid4
+from xmlrpc.client import ResponseError
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -237,6 +238,30 @@ class StatementInstance(generics.RetrieveUpdateAPIView):
         serializer = self.get_serializer(instance, many=True, partial=partial)
         return Response(serializer.data)
 
+class Asset(generics.ListAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.AssetSerializer
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
+        queryset = models.Asset.objects.filter(bsheet_id=bsheet.id)
+        return queryset
+
+class Debt(generics.ListAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.DebtSerializer
+
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
+        queryset = models.Debt.objects.filter(bsheet_id=bsheet.id)
+        return queryset
+    
 class BalanceSheet(generics.RetrieveAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.BalanceSheetSerializer
