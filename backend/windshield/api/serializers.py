@@ -12,6 +12,7 @@ class DailyFlowSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class DailyFlowSheetSerializer(serializers.ModelSerializer):
+    date = serializers.DateTimeField(format="%Y-%m-%d")
     
     class Meta:
         model = models.DailyFlowSheet
