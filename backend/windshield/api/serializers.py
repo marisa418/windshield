@@ -7,8 +7,15 @@ class MethodSerializer(serializers.ModelSerializer):
         model = models.Method
         exclude = ["user_id"]
 
+class DailyFlowCreateSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.DailyFlow
+        fields = '__all__'
+        read_only_fields = ['id']
+
 class DailyFlowSerializer(serializers.ModelSerializer):
-    method = MethodSerializer
+    method = MethodSerializer(read_only=True)
     
     class Meta:
         model = models.DailyFlow

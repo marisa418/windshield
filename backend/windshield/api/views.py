@@ -62,6 +62,7 @@ class DailyFlow(generics.ListCreateAPIView):
     serializer_class = serializers.DailyFlowSerializer
     
     def get_queryset(self):
+        self.serializer_class = serializers.DailyFlowSerializer
         uuid = self.request.user.uuid
         if uuid is not None:
             dfsheet = self.request.query_params.get("df_id", None)
@@ -76,18 +77,20 @@ class DailyFlow(generics.ListCreateAPIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
     
     def create(self, request):
+        self.serializer_class = serializers.DailyFlowCreateSerializer
         serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        n = len(request.data)
         if not isinstance(request.data, list): 
-            dfsheet = request.data["df_id"]
+            df_id = request.data["df_id"]
+            n = 1
         else: 
-            dfsheet = request.data[0]["df_id"]
-        results = models.DailyFlow.objects.filter(df_id=dfsheet)
+            df_if = request.data[0]["df_id"]
+        results = models.DailyFlow.objects.filter(df_id=df_id)
         output_serializer = serializers.DailyFlowSerializer(results, many=True)
-        data = output_serializer.data
-        return Response(data)
-    
+        data = output_serializer.data[-n:]
+        return Response(data)    
 
 class DailyFlowSheet(generics.RetrieveAPIView):
     permissions_classes = [permissions.IsAuthenticated]

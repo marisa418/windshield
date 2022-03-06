@@ -201,7 +201,7 @@ class Method(models.Model):
 class DailyFlow(models.Model):
     id = models.CharField(max_length=21, primary_key=True)
     df_id = models.ForeignKey(DailyFlowSheet, related_name='flows', on_delete=CASCADE)
-    category_id = models.ForeignKey(Category, on_delete=CASCADE)
+    category = models.ForeignKey(Category, on_delete=CASCADE)
     name = models.CharField(max_length=30)
     value = models.PositiveIntegerField()
     method = models.ForeignKey(Method, on_delete=CASCADE)
