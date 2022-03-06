@@ -31,5 +31,5 @@ urlpatterns = [
     
     #DAILY FLOW
     path('daily-flow/', views.DailyFlow.as_view(), name="daily-flow"),
-    path('daily-flow/<str:pk>/', views.SpecificDailyFlow.as_view(), name="daily-flow-update")
+    path('daily-flow/<str:pk>/', views.InBudgetDailyFlow.as_view(), name="daily-flow-update")
 ]

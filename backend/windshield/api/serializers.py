@@ -8,7 +8,7 @@ class MethodSerializer(serializers.ModelSerializer):
         model = models.Method
         exclude = ["user_id"]
 
-class DailyFlowUpdateSerializer(serializers.ModelSerializer):
+class InBudgetDailyFlowSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.DailyFlow
