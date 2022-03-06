@@ -30,6 +30,6 @@ urlpatterns = [
     path('method/', views.Method.as_view(), name='method'),
     
     #DAILY FLOW
-    path('daily-flow/', views.DailyFlow.as_view(), name="daily-flow"),
-    path('daily-flow/<str:pk>/', views.InBudgetDailyFlow.as_view(), name="daily-flow-update")
+    path('daily-flow/', views.DailyListFlow.as_view(), name="daily-flow"),
+    path('daily-flow/<str:pk>/', views.DailyFlow.as_view(), name="daily-flow-update")
 ]
