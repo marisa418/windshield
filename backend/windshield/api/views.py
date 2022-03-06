@@ -94,6 +94,7 @@ class DailyFlowSheet(generics.RetrieveAPIView):
     serializer_class = serializers.DailyFlowSheetSerializer
     
     def get_object(self):
+        self.serializer_class = serializers.DailyFlowSheetSerializer
         uuid = self.request.user.uuid
         if uuid is not None:
             date = self.request.query_params.get("date", None)
@@ -102,13 +103,14 @@ class DailyFlowSheet(generics.RetrieveAPIView):
             try:
                 dfsheet = models.DailyFlowSheet.objects.get(owner_id = uuid, date=date)
             except models.DailyFlowSheet.DoesNotExist:
+                self.serializer_class = serializers.DailyFlowSheetCreateSerializer
                 owner = models.NewUser.objects.get(uuid=uuid)
                 dfsheet = models.DailyFlowSheet.objects.create(owner_id = owner, date=date)
         return dfsheet
 
 class DailyFlowSheetList(generics.ListAPIView):
     permissions_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.DailyFlowSheetListSerializer
+    serializer_class = serializers.DailyFlowSheetSerializer
     
     def get_queryset(self):
         uuid = self.request.user.uuid

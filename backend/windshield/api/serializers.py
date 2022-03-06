@@ -1,14 +1,21 @@
 from rest_framework import serializers
 from . import models
 
+class MethodSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.Method
+        exclude = ["user_id"]
+
 class DailyFlowSerializer(serializers.ModelSerializer):
+    method = MethodSerializer
     
     class Meta:
         model = models.DailyFlow
         fields = '__all__'
         read_only_fields = ['id']
 
-class DailyFlowSheetSerializer(serializers.ModelSerializer):
+class DailyFlowSheetCreateSerializer(serializers.ModelSerializer):
     date = serializers.DateTimeField(format="%Y-%m-%d")
     
     class Meta:
@@ -16,18 +23,13 @@ class DailyFlowSheetSerializer(serializers.ModelSerializer):
         exclude = ["owner_id"]
         read_only_fields = ['id']
 
-class DailyFlowSheetListSerializer(serializers.ModelSerializer):
+class DailyFlowSheetSerializer(serializers.ModelSerializer):
+    flows = DailyFlowSerializer(many=True, read_only=True)
     
     class Meta:
         model = models.DailyFlowSheet
         exclude = ["owner_id"]
         read_only_fields = ['id']
-
-class MethodSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = models.Method
-        exclude = ["user_id"]
 
 class CategorySerializer(serializers.ModelSerializer):
     
