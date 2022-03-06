@@ -221,6 +221,17 @@ class DailyFlow(models.Model):
         budget.used_balance += change
         budget.save()
     
+    def delete(self):
+        dfsheet = DailyFlowSheet.objects.get(id=self.df_id.id)
+        if dfsheet is None:
+            raise ValidationError("daily flow sheet is not exist")
+        cat = Category.objects.get(id=self.category.id)
+        if cat is None:
+            raise ValidationError("category is not exist")
+        change = -self.value
+        self.__update_budget_balance__(dfsheet.date, cat, change)
+        return super(DailyFlow, self).delete()
+    
     def save(self, *args, **kwargs):
         dfsheet = DailyFlowSheet.objects.get(id=self.df_id.id)
         if dfsheet is None:

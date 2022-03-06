@@ -57,10 +57,17 @@ class Provinces(generics.ListAPIView):
     queryset = Province.objects.all()
     serializer_class = ProvinceSerializer
 
-class DailyFlowUpdate(generics.UpdateAPIView):
+class SpecificDailyFlow(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DailyFlowUpdateSerializer
     queryset = models.DailyFlow.objects.all()
+    
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(self.object)
+        data = serializer.data
+        self.object.delete()
+        return Response(data, status=status.HTTP_202_ACCEPTED)
 
 class DailyFlow(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
