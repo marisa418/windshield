@@ -1,3 +1,4 @@
+from dataclasses import field
 from rest_framework import serializers
 from . import models
 
@@ -6,6 +7,13 @@ class MethodSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Method
         exclude = ["user_id"]
+
+class DailyFlowUpdateSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.DailyFlow
+        fields = '__all__'
+        read_only_fields = ['id', 'df_id', 'category']
 
 class DailyFlowCreateSerializer(serializers.ModelSerializer):
     

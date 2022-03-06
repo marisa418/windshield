@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.deletion import CASCADE
 from django.utils.timezone import now
 from user.models import NewUser, Province
+from django.core.exceptions import ValidationError
 import math
 
 class BalanceSheet(models.Model):
@@ -139,11 +140,11 @@ class Budget(models.Model):
     id = models.CharField(max_length=24, primary_key=True)
     cat_id = models.ForeignKey(Category, on_delete=CASCADE)
     fplan = models.ForeignKey(FinancialStatementPlan, related_name="budgets", on_delete=CASCADE)
-    balance = models.PositiveIntegerField(default=0)
+    used_balance = models.PositiveIntegerField(default=0)
     total_budget = models.PositiveIntegerField()
     budget_per_period = models.PositiveIntegerField()
     frequency = models.CharField(max_length=3, choices=freq_choices, default=freq_choices[2][0])
-    due_date = models.DateTimeField(null=True)
+    # due_date = models.DateTimeField(null=True)
 
     class Meta:
         db_table = 'budget'
@@ -214,14 +215,30 @@ class DailyFlow(models.Model):
     def __str__(self):
         return self.id + " " + self.name
     
+    def __update_budget_balance__(self, date, category, change):
+        plan = FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
+        budget = Budget.objects.get(fplan=plan.id, cat_id=category.id)
+        budget.used_balance += change
+        budget.save()
+    
     def save(self, *args, **kwargs):
+        dfsheet = DailyFlowSheet.objects.get(id=self.df_id.id)
+        if dfsheet is None:
+            raise ValidationError("daily flow sheet is not exist")
+        cat = Category.objects.get(id=self.category.id)
+        if cat is None:
+            raise ValidationError("category is not exist")
         if not self.id:
-            cat = Category.objects.get(id=self.category_id)
             prefix = str(cat.id)[-2:] + "F" + str(self.df_id)[3:]
             last_id = DailyFlow.objects.filter(id__startswith=prefix).last()
             if last_id == None: no_id = 0
             else: no_id = int(last_id.id[-2:]) + 1
             self.id = prefix + str("00" + str(no_id))[-3:]
+            change = self.value - 0
+        else:
+            flow = DailyFlow.objects.get(id=self.id)
+            change = self.value - flow.value
+        self.__update_budget_balance__(dfsheet.date, cat, change)
         return super(DailyFlow, self).save(*args, **kwargs)
 
 class FinancialGoal(models.Model):
