@@ -216,11 +216,8 @@ class DailyFlow(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.id:
-            try:
-                cat = Category.objects.get(id=self.category_id)
-                prefix = str(cat.id)[-2:] + "F" + str(self.df_id)[3:]
-            except Category.DoesNotExist:
-                prefix = "NAF" + str(self.df_id)[3:]
+            cat = Category.objects.get(id=self.category_id)
+            prefix = str(cat.id)[-2:] + "F" + str(self.df_id)[3:]
             last_id = DailyFlow.objects.filter(id__startswith=prefix).last()
             if last_id == None: no_id = 0
             else: no_id = int(last_id.id[-2:]) + 1

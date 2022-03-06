@@ -1,6 +1,3 @@
-from dataclasses import fields
-from pyexpat import model
-from unicodedata import category
 from rest_framework import serializers
 from . import models
 
@@ -13,6 +10,13 @@ class DailyFlowSerializer(serializers.ModelSerializer):
 
 class DailyFlowSheetSerializer(serializers.ModelSerializer):
     date = serializers.DateTimeField(format="%Y-%m-%d")
+    
+    class Meta:
+        model = models.DailyFlowSheet
+        exclude = ["owner_id"]
+        read_only_fields = ['id']
+
+class DailyFlowSheetListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.DailyFlowSheet

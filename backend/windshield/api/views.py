@@ -1,7 +1,3 @@
-from operator import mod
-from urllib import request, response
-from uuid import uuid4
-from xmlrpc.client import ResponseError
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -112,7 +108,7 @@ class DailyFlowSheet(generics.RetrieveAPIView):
 
 class DailyFlowSheetList(generics.ListAPIView):
     permissions_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.DailyFlowSheetSerializer
+    serializer_class = serializers.DailyFlowSheetListSerializer
     
     def get_queryset(self):
         uuid = self.request.user.uuid
