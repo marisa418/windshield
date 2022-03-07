@@ -215,7 +215,7 @@ class DailyFlow(models.Model):
     def __str__(self):
         return self.id + " " + self.name
     
-    def __update_budget_balance__(self, date, category, change):
+    def __update_budget__(self, date, category, change):
         try:
             plan = FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
             budget = Budget.objects.get(fplan=plan.id, cat_id=category.id)
@@ -233,7 +233,9 @@ class DailyFlow(models.Model):
         if cat is None:
             raise ValidationError("category is not exist")
         change = -self.value
-        self.__update_budget_balance__(dfsheet.date, cat, change)
+        cat.used_count -= 1
+        cat.save()
+        self.__update_budget__(dfsheet.date, cat, change)
         return super(DailyFlow, self).delete()
     
     def save(self, *args, **kwargs):
@@ -250,10 +252,12 @@ class DailyFlow(models.Model):
             else: no_id = int(last_id.id[-2:]) + 1
             self.id = prefix + str("00" + str(no_id))[-3:]
             change = self.value - 0
+            cat.used_count += 1
+            cat.save()
         else:
             flow = DailyFlow.objects.get(id=self.id)
             change = self.value - flow.value
-        self.__update_budget_balance__(dfsheet.date, cat, change)
+        self.__update_budget__(dfsheet.date, cat, change)
         return super(DailyFlow, self).save(*args, **kwargs)
 
 class FinancialGoal(models.Model):
