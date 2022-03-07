@@ -138,7 +138,7 @@ class Budget(models.Model):
         ('ALY', 'Annually'),
     ]
     id = models.CharField(max_length=24, primary_key=True)
-    cat_id = models.ForeignKey(Category, on_delete=CASCADE)
+    cat_id = models.ForeignKey(Category, related_name="budgets",on_delete=CASCADE)
     fplan = models.ForeignKey(FinancialStatementPlan, related_name="budgets", on_delete=CASCADE)
     used_balance = models.PositiveIntegerField(default=0)
     total_budget = models.PositiveIntegerField()
@@ -202,7 +202,7 @@ class Method(models.Model):
 class DailyFlow(models.Model):
     id = models.CharField(max_length=21, primary_key=True)
     df_id = models.ForeignKey(DailyFlowSheet, related_name='flows', on_delete=CASCADE)
-    category = models.ForeignKey(Category, on_delete=CASCADE)
+    category = models.ForeignKey(Category, related_name='flows', on_delete=CASCADE)
     name = models.CharField(max_length=30)
     value = models.PositiveIntegerField()
     method = models.ForeignKey(Method, on_delete=CASCADE)
@@ -216,10 +216,14 @@ class DailyFlow(models.Model):
         return self.id + " " + self.name
     
     def __update_budget_balance__(self, date, category, change):
-        plan = FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
-        budget = Budget.objects.get(fplan=plan.id, cat_id=category.id)
+        try:
+            plan = FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
+            budget = Budget.objects.get(fplan=plan.id, cat_id=category.id)
+        except (FinancialStatementPlan.DoesNotExist, Budget.DoesNotExist):
+            return False
         budget.used_balance += change
         budget.save()
+        return True
     
     def delete(self):
         dfsheet = DailyFlowSheet.objects.get(id=self.df_id.id)

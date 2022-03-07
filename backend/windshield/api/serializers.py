@@ -108,3 +108,11 @@ class StatementUpdateSerializer(serializers.ModelSerializer):
         model = models.FinancialStatementPlan
         exclude = ['owner_id']
         read_only_fields = ['id', 'start', 'end', 'month']
+        
+class CategoryWithBudgetSerializer(serializers.ModelSerializer):
+    budgets = BudgetSerializer(many=True)
+    
+    class Meta:
+        model = models.Category
+        exclude = ["user_id"]
+        read_only_fields = ["id", "budgets"]

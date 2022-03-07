@@ -8,7 +8,7 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import datetime
 from pytz import timezone
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -289,6 +289,27 @@ class BalanceSheet(generics.RetrieveAPIView):
                 bsheet = models.BalanceSheet.objects.create(id = "BSH" + str(uuid)[:10],
                                                    owner_id = owner)
         return bsheet
+
+class CategoryWithBudgets(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.CategoryWithBudgetSerializer
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            queryset = models.Category.objects.filter(user_id=uuid)
+            date = self.request.query_params.get('date', None)
+            if date is None:
+                date = datetime.now(tz= timezone('Asia/Bangkok'))
+            fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
+            budgets = models.Budget.objects.filter(fplan=fplan.id)
+            queryset = queryset.prefetch_related(
+                Prefetch('budgets', queryset=budgets)
+            )
+            return queryset
+    
 
 class Category(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
