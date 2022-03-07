@@ -109,10 +109,11 @@ class StatementUpdateSerializer(serializers.ModelSerializer):
         exclude = ['owner_id']
         read_only_fields = ['id', 'start', 'end', 'month']
         
-class CategoryWithBudgetSerializer(serializers.ModelSerializer):
+class CategoryWithBudgetAndFlowsSerializer(serializers.ModelSerializer):
     budgets = BudgetSerializer(many=True)
+    flows = DailyFlowListSerializer(many=True)
     
     class Meta:
         model = models.Category
         exclude = ["user_id"]
-        read_only_fields = ["id", "budgets"]
+        read_only_fields = ["id", "budgets", "flows"]

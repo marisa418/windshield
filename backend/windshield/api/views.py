@@ -290,9 +290,9 @@ class BalanceSheet(generics.RetrieveAPIView):
                                                    owner_id = owner)
         return bsheet
 
-class CategoryWithBudgets(generics.ListAPIView):
+class CategoryWithBudgetsAndFlows(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.CategoryWithBudgetSerializer
+    serializer_class = serializers.CategoryWithBudgetAndFlowsSerializer
     
     def get_queryset(self):
         uuid = self.request.user.uuid
@@ -309,8 +309,17 @@ class CategoryWithBudgets(generics.ListAPIView):
             except models.FinancialStatementPlan.DoesNotExist:
                 fplan_id = None
             budgets = models.Budget.objects.filter(fplan=fplan_id)
+            try:
+                dfsheet = models.DailyFlowSheet.objects.get(date=date)
+                df_id = dfsheet.id
+            except models.DailyFlowSheet.DoesNotExist:
+                df_id = None
+            flows = models.DailyFlow.objects.filter(df_id=df_id)
             queryset = queryset.prefetch_related(
                 Prefetch('budgets', queryset=budgets)
+            )
+            queryset = queryset.prefetch_related(
+                Prefetch('flows', queryset=flows)
             )
             return queryset
     
