@@ -303,8 +303,12 @@ class CategoryWithBudgets(generics.ListAPIView):
             date = self.request.query_params.get('date', None)
             if date is None:
                 date = datetime.now(tz= timezone('Asia/Bangkok'))
-            fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
-            budgets = models.Budget.objects.filter(fplan=fplan.id)
+            try:
+                fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
+                fplan_id = fplan.id
+            except models.FinancialStatementPlan.DoesNotExist:
+                fplan_id = None
+            budgets = models.Budget.objects.filter(fplan=fplan_id)
             queryset = queryset.prefetch_related(
                 Prefetch('budgets', queryset=budgets)
             )
