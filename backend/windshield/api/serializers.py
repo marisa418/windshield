@@ -53,19 +53,26 @@ class CategorySerializer(serializers.ModelSerializer):
         exclude = ["user_id"]
         read_only_fields = ["id"]
         
+class FinancialTypeSerializer(serializers.ModelSerializer):
+    categories = CategorySerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = models.FinancialType
+        fields = '__all__'
+        
 class AssetSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.Asset
         fields = '__all__'
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'bsheet_id']
         
 class DebtSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.Debt
         fields = '__all__'
-        read_only_fields = ['id', 'imp_ranking']
+        read_only_fields = ['id', 'imp_ranking', 'bsheet_id']
 
 class BalanceSheetSerializer(serializers.ModelSerializer):
     assets = AssetSerializer(many=True, read_only=True)
