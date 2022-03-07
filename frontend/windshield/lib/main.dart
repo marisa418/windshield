@@ -8,60 +8,56 @@ import 'styles/theme.dart';
 import 'services/api.dart';
 import 'providers/statement_provider.dart';
 import 'models/statement.dart';
-import 'providers/category_provider.dart';
+import 'providers/budget_provider.dart';
 import 'models/category.dart';
 
 final apiProvider = ChangeNotifierProvider<Api>((ref) => Api());
 
-final providerStatement =
-    ChangeNotifierProvider.autoDispose<StatementProvider>((ref) {
-  return StatementProvider();
-});
+final provStatement = ChangeNotifierProvider.autoDispose<StatementProvider>(
+    (ref) => StatementProvider());
 
-final providerStatementApi =
-    FutureProvider.autoDispose<List<Statement>>((ref) async {
-  ref.watch(providerStatement.select((value) => value.needUpdated));
-  final data = await ref.read(apiProvider).getAllStatements();
-  final currentMonth = DateTime.now().month;
-  final currentYear = DateTime.now().year;
-  Statement temp =
-      Statement(id: '', name: '', chosen: false, start: '', end: '', month: 0);
-  data.insert(0, temp);
-  ref.read(providerStatement).setStatementList(data);
-  ref.read(providerStatement).setExistedMonth();
-  for (var i = 1; i < data.length; i++) {
-    final dataDate = DateFormat('y-MM-dd').parse(data[i].start);
-    if (currentYear == dataDate.year) {
-      if (currentMonth <= data[i].month) {
-        final month = ref
-            .read(providerStatement)
-            .existedMonth
-            .indexWhere((e) => e == data[i].month);
-        ref
-            .read(providerStatement)
-            .setStatementMonthIndex(month == -1 ? 0 : month);
-        break;
-      }
-    }
-  }
-  ref.read(providerStatement).setStatementsInMonth();
-  return data;
-});
+// final providerStatementApi =
+//     FutureProvider.autoDispose<List<Statement>>((ref) async {
+//   ref.watch(providerStatement.select((value) => value.needUpdated));
+//   final data = await ref.read(apiProvider).getAllStatements();
+//   final currentMonth = DateTime.now().month;
+//   final currentYear = DateTime.now().year;
+//   Statement temp =
+//       Statement(id: '', name: '', chosen: false, start: '', end: '', month: 0);
+//   data.insert(0, temp);
+//   ref.read(providerStatement).setStatementList(data);
+//   ref.read(providerStatement).setExistedMonth();
+//   for (var i = 1; i < data.length; i++) {
+//     final dataDate = DateFormat('y-MM-dd').parse(data[i].start);
+//     if (currentYear == dataDate.year) {
+//       if (currentMonth <= data[i].month) {
+//         final month = ref
+//             .read(providerStatement)
+//             .existedMonth
+//             .indexWhere((e) => e == data[i].month);
+//         ref
+//             .read(providerStatement)
+//             .setStatementMonthIndex(month == -1 ? 0 : month);
+//         break;
+//       }
+//     }
+//   }
+//   ref.read(providerStatement).setStatementsInMonth();
+//   return data;
+// });
 
-final providerCategory =
-    ChangeNotifierProvider.autoDispose<CategoryProvider>((ref) {
-  return CategoryProvider();
-});
+final provBudget = ChangeNotifierProvider.autoDispose<BudgetProvider>(
+    (ref) => BudgetProvider());
 
-final providerCategoryApi =
-    FutureProvider.autoDispose<List<Category>>((ref) async {
-  final data = await ref.read(apiProvider).getAllCategories();
-  await ref.read(apiProvider).getBalanceSheet();
-  ref.read(providerCategory).setCategoryList(data);
-  ref.read(providerCategory).setCategoryTypes();
-  ref.read(providerCategory).setCategoryTypeTabs();
-  return data;
-});
+// final providerCategoryApi =
+//     FutureProvider.autoDispose<List<Category>>((ref) async {
+//   final data = await ref.read(apiProvider).getAllCategories();
+//   await ref.read(apiProvider).getBalanceSheet();
+//   ref.read(providerCategory).setCategoryList(data);
+//   ref.read(providerCategory).setCategoryTypes();
+//   ref.read(providerCategory).setCategoryTypeTabs();
+//   return data;
+// });
 
 void main() {
   runApp(ProviderScope(child: MyApp()));

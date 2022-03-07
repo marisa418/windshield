@@ -5,9 +5,6 @@ class Category {
   String ftype;
   String icon;
 
-  bool active = false;
-  int total = 0;
-
   Category({
     required this.id,
     required this.name,

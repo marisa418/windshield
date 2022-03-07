@@ -41,9 +41,17 @@ class _$AppRouter extends RootStackRouter {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const StatementPage());
     },
+    StatementInfoRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const StatementInfoPage());
+    },
     StatementCreateRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const StatementCreatePage());
+    },
+    StatementEditRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const StatementEditPage());
     }
   };
 
@@ -55,7 +63,9 @@ class _$AppRouter extends RootStackRouter {
         RouteConfig(RegisterInfoRoute.name, path: '/register-info-page'),
         RouteConfig(HomeRoute.name, path: '/home-page'),
         RouteConfig(StatementRoute.name, path: '/statement-page'),
-        RouteConfig(StatementCreateRoute.name, path: '/statement-create-page')
+        RouteConfig(StatementInfoRoute.name, path: '/statement-info-page'),
+        RouteConfig(StatementCreateRoute.name, path: '/statement-create-page'),
+        RouteConfig(StatementEditRoute.name, path: '/statement-edit-page')
       ];
 }
 
@@ -109,10 +119,28 @@ class StatementRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [StatementInfoPage]
+class StatementInfoRoute extends PageRouteInfo<void> {
+  const StatementInfoRoute()
+      : super(StatementInfoRoute.name, path: '/statement-info-page');
+
+  static const String name = 'StatementInfoRoute';
+}
+
+/// generated route for
 /// [StatementCreatePage]
 class StatementCreateRoute extends PageRouteInfo<void> {
   const StatementCreateRoute()
       : super(StatementCreateRoute.name, path: '/statement-create-page');
 
   static const String name = 'StatementCreateRoute';
+}
+
+/// generated route for
+/// [StatementEditPage]
+class StatementEditRoute extends PageRouteInfo<void> {
+  const StatementEditRoute()
+      : super(StatementEditRoute.name, path: '/statement-edit-page');
+
+  static const String name = 'StatementEditRoute';
 }

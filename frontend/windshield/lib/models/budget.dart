@@ -1,35 +1,39 @@
 class Budget {
+  String id;
   String catId;
+  double balance;
+  double total;
+  double budPerPeriod;
+  String freq;
   String fplan;
-  int balance;
-  int totalBudget;
-  int budgetPerPeriod;
-  String frequency;
 
   Budget({
+    required this.id,
     required this.catId,
-    required this.fplan,
     required this.balance,
-    required this.totalBudget,
-    required this.budgetPerPeriod,
-    required this.frequency,
+    required this.total,
+    required this.budPerPeriod,
+    required this.freq,
+    required this.fplan,
   });
 
   factory Budget.fromJson(Map<String, dynamic> json) => Budget(
+        id: json['id'],
         catId: json['cat_id'],
-        fplan: json['fplan'],
         balance: json['balance'],
-        totalBudget: json['total_budget'],
-        budgetPerPeriod: json['budget_per_period'],
-        frequency: json['frequency'],
+        total: json['total_budget'],
+        budPerPeriod: json['budget_per_period'],
+        freq: json['frequency'],
+        fplan: json['fplan'],
       );
 
   Map<String, dynamic> toJson() => {
+        'id': id,
         'cat_id': catId,
-        'fplan': fplan,
         'balance': balance,
-        'total_budget': totalBudget,
-        'budget_per_period': budgetPerPeriod,
-        'frequency': frequency,
+        'total_budget': total,
+        'budget_per_period': budPerPeriod,
+        'frequency': freq,
+        'fplan': fplan,
       };
 }
