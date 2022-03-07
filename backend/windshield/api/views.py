@@ -8,7 +8,7 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import datetime
 from pytz import timezone
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -57,9 +57,21 @@ class Provinces(generics.ListAPIView):
     queryset = Province.objects.all()
     serializer_class = ProvinceSerializer
 
-class DailyFlow(generics.ListCreateAPIView):
+class DailyFlow(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DailyFlowSerializer
+    queryset = models.DailyFlow.objects.all()
+    
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(self.object)
+        data = serializer.data
+        self.object.delete()
+        return Response(data, status=status.HTTP_202_ACCEPTED)
+
+class DailyListFlow(generics.ListCreateAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.DailyFlowListSerializer
     
     def get_queryset(self):
         self.serializer_class = serializers.DailyFlowSerializer
@@ -86,7 +98,7 @@ class DailyFlow(generics.ListCreateAPIView):
             df_id = request.data["df_id"]
             n = 1
         else: 
-            df_if = request.data[0]["df_id"]
+            df_id = request.data[0]["df_id"]
         results = models.DailyFlow.objects.filter(df_id=df_id)
         output_serializer = serializers.DailyFlowSerializer(results, many=True)
         data = output_serializer.data[-n:]
@@ -277,6 +289,40 @@ class BalanceSheet(generics.RetrieveAPIView):
                 bsheet = models.BalanceSheet.objects.create(id = "BSH" + str(uuid)[:10],
                                                    owner_id = owner)
         return bsheet
+
+class CategoryWithBudgetsAndFlows(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.CategoryWithBudgetAndFlowsSerializer
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            queryset = models.Category.objects.filter(user_id=uuid)
+            date = self.request.query_params.get('date', None)
+            if date is None:
+                date = datetime.now(tz= timezone('Asia/Bangkok'))
+            try:
+                fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
+                fplan_id = fplan.id
+            except models.FinancialStatementPlan.DoesNotExist:
+                fplan_id = None
+            budgets = models.Budget.objects.filter(fplan=fplan_id)
+            try:
+                dfsheet = models.DailyFlowSheet.objects.get(date=date)
+                df_id = dfsheet.id
+            except models.DailyFlowSheet.DoesNotExist:
+                df_id = None
+            flows = models.DailyFlow.objects.filter(df_id=df_id)
+            queryset = queryset.prefetch_related(
+                Prefetch('budgets', queryset=budgets)
+            )
+            queryset = queryset.prefetch_related(
+                Prefetch('flows', queryset=flows)
+            )
+            return queryset
+    
 
 class Category(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]

@@ -1,3 +1,4 @@
+from dataclasses import field
 from rest_framework import serializers
 from . import models
 
@@ -7,6 +8,13 @@ class MethodSerializer(serializers.ModelSerializer):
         model = models.Method
         exclude = ["user_id"]
 
+class DailyFlowSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.DailyFlow
+        fields = '__all__'
+        read_only_fields = ['id', 'df_id', 'category']
+
 class DailyFlowCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
@@ -14,7 +22,7 @@ class DailyFlowCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['id']
 
-class DailyFlowSerializer(serializers.ModelSerializer):
+class DailyFlowListSerializer(serializers.ModelSerializer):
     method = MethodSerializer(read_only=True)
     
     class Meta:
@@ -100,3 +108,12 @@ class StatementUpdateSerializer(serializers.ModelSerializer):
         model = models.FinancialStatementPlan
         exclude = ['owner_id']
         read_only_fields = ['id', 'start', 'end', 'month']
+        
+class CategoryWithBudgetAndFlowsSerializer(serializers.ModelSerializer):
+    budgets = BudgetSerializer(many=True)
+    flows = DailyFlowListSerializer(many=True)
+    
+    class Meta:
+        model = models.Category
+        exclude = ["user_id"]
+        read_only_fields = ["id", "budgets", "flows"]

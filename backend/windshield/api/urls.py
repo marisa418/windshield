@@ -14,6 +14,7 @@ urlpatterns = [
 
     #CATEGORY
     path('categories/', views.Category.as_view(), name='categories-list'),
+    path('categories-budgets-flows/', views.CategoryWithBudgetsAndFlows.as_view(), name='categories-with-budgets'),
     
     #BALANCE SHEET
     path('balance-sheet/', views.BalanceSheet.as_view(), name='balance-sheet'),
@@ -30,5 +31,6 @@ urlpatterns = [
     path('method/', views.Method.as_view(), name='method'),
     
     #DAILY FLOW
-    path('daily-flow/', views.DailyFlow.as_view(), name="daily-flow")
+    path('daily-flow/', views.DailyListFlow.as_view(), name="daily-flow"),
+    path('daily-flow/<str:pk>/', views.DailyFlow.as_view(), name="daily-flow-update")
 ]

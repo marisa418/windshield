@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.deletion import CASCADE
 from django.utils.timezone import now
 from user.models import NewUser, Province
+from django.core.exceptions import ValidationError
 import math
 
 class BalanceSheet(models.Model):
@@ -19,10 +20,8 @@ class BalanceSheetLog(models.Model):
     id = models.AutoField(primary_key=True)
     bsheet_id = models.ForeignKey(BalanceSheet, on_delete=CASCADE)
     timestamp = models.DateTimeField(default=now)
-    asset_value = models.PositiveIntegerField()
-    debt_balance = models.PositiveIntegerField()
-    benefit_value = models.DecimalField(decimal_places=2, max_digits=10, null=True) 
-    debt_interest = models.DecimalField(decimal_places=2, max_digits=10, null=True) 
+    asset_value = models.DecimalField(max_digits=12, decimal_places=2),
+    debt_balance = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
         db_table = 'balance_sheet_log'
@@ -75,25 +74,33 @@ class Asset(models.Model):
     cat_id = models.ForeignKey(Category, on_delete=CASCADE)
     bsheet_id = models.ForeignKey(BalanceSheet, related_name='assets', on_delete=CASCADE)
     source = models.CharField(max_length=30)
-    recent_value = models.PositiveIntegerField()
+    recent_value = models.DecimalField(max_digits=12, decimal_places=2)
     benefit_type = models.CharField(max_length=3, choices=benefit_type_choice, null=True)
-    benefit_value = models.DecimalField(decimal_places=2, max_digits=10, null=True)
+    benefit_value = models.DecimalField(decimal_places=2, max_digits=12, null=True)
 
     class Meta:
         db_table = 'asset'
 
     def __str__(self):
         return self.id + " " + self.source
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            last_id = Asset.objects.filter(cat_id=self.cat_id.id).last()
+            if last_id == None: no_id = 0
+            else: no_id = int(last_id.id[-2:]) + 1
+            self.id =  "ASS" + str(self.cat_id.id)[3:] + str("0" + no_id)[-2:]
+        return super(Budget, self).save(*args, **kwargs)
 
 class Debt(models.Model):
     id = models.CharField(max_length=17, primary_key=True)
     cat_id = models.ForeignKey(Category, on_delete=CASCADE)
     bsheet_id = models.ForeignKey(BalanceSheet, related_name='debts', on_delete=CASCADE)
-    balance = models.PositiveIntegerField()
+    balance = models.DecimalField(max_digits=12, decimal_places=2)
     creditor = models.CharField(max_length=30)
     interest = models.DecimalField(decimal_places=2, max_digits=5, null=True)
-    debt_term = models.PositiveIntegerField()
-    minimum = models.PositiveIntegerField(null=True)
+    debt_term = models.DateField(null=True)
+    minimum = models.DecimalField(max_digits=12, decimal_places=2, null=True)
     suspend = models.PositiveIntegerField(null=True)
     imp_ranking = models.IntegerField(default=0)
     
@@ -102,6 +109,14 @@ class Debt(models.Model):
 
     def __str__(self):
         return self.id + " " + self.creditor
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            last_id = Debt.objects.filter(cat_id=self.cat_id.id).last()
+            if last_id == None: no_id = 0
+            else: no_id = int(last_id.id[-2:]) + 1
+            self.id =  "DEB" + str(self.cat_id.id)[3:] + str("0" + no_id)[-2:]
+        return super(Budget, self).save(*args, **kwargs)
 
 class Month(models.Model):
     id = models.SmallIntegerField(primary_key=True)
@@ -137,13 +152,13 @@ class Budget(models.Model):
         ('ALY', 'Annually'),
     ]
     id = models.CharField(max_length=24, primary_key=True)
-    cat_id = models.ForeignKey(Category, on_delete=CASCADE)
+    cat_id = models.ForeignKey(Category, related_name="budgets",on_delete=CASCADE)
     fplan = models.ForeignKey(FinancialStatementPlan, related_name="budgets", on_delete=CASCADE)
-    balance = models.PositiveIntegerField(default=0)
-    total_budget = models.PositiveIntegerField()
-    budget_per_period = models.PositiveIntegerField()
+    used_balance = models.PositiveIntegerField(default=0)
+    total_budget = models.DecimalField(max_digits=12, decimal_places=2)
+    budget_per_period = models.DecimalField(max_digits=12, decimal_places=2)
     frequency = models.CharField(max_length=3, choices=freq_choices, default=freq_choices[2][0])
-    due_date = models.DateTimeField(null=True)
+    # due_date = models.DateTimeField(null=True)
 
     class Meta:
         db_table = 'budget'
@@ -201,9 +216,9 @@ class Method(models.Model):
 class DailyFlow(models.Model):
     id = models.CharField(max_length=21, primary_key=True)
     df_id = models.ForeignKey(DailyFlowSheet, related_name='flows', on_delete=CASCADE)
-    category = models.ForeignKey(Category, on_delete=CASCADE)
+    category = models.ForeignKey(Category, related_name='flows', on_delete=CASCADE)
     name = models.CharField(max_length=30)
-    value = models.PositiveIntegerField()
+    value = models.DecimalField(max_digits=12, decimal_places=2)
     method = models.ForeignKey(Method, on_delete=CASCADE)
     detail = models.TextField(null=True)
     # photo = models.FilePathField()
@@ -214,14 +229,49 @@ class DailyFlow(models.Model):
     def __str__(self):
         return self.id + " " + self.name
     
+    def __update_budget__(self, date, category, change):
+        try:
+            plan = FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
+            budget = Budget.objects.get(fplan=plan.id, cat_id=category.id)
+        except (FinancialStatementPlan.DoesNotExist, Budget.DoesNotExist):
+            return False
+        budget.used_balance += change
+        budget.save()
+        return True
+    
+    def delete(self):
+        dfsheet = DailyFlowSheet.objects.get(id=self.df_id.id)
+        if dfsheet is None:
+            raise ValidationError("daily flow sheet is not exist")
+        cat = Category.objects.get(id=self.category.id)
+        if cat is None:
+            raise ValidationError("category is not exist")
+        change = -self.value
+        cat.used_count -= 1
+        cat.save()
+        self.__update_budget__(dfsheet.date, cat, change)
+        return super(DailyFlow, self).delete()
+    
     def save(self, *args, **kwargs):
+        dfsheet = DailyFlowSheet.objects.get(id=self.df_id.id)
+        if dfsheet is None:
+            raise ValidationError("daily flow sheet is not exist")
+        cat = Category.objects.get(id=self.category.id)
+        if cat is None:
+            raise ValidationError("category is not exist")
         if not self.id:
-            cat = Category.objects.get(id=self.category_id)
             prefix = str(cat.id)[-2:] + "F" + str(self.df_id)[3:]
             last_id = DailyFlow.objects.filter(id__startswith=prefix).last()
             if last_id == None: no_id = 0
             else: no_id = int(last_id.id[-2:]) + 1
             self.id = prefix + str("00" + str(no_id))[-3:]
+            change = self.value - 0
+            cat.used_count += 1
+            cat.save()
+        else:
+            flow = DailyFlow.objects.get(id=self.id)
+            change = self.value - flow.value
+        self.__update_budget__(dfsheet.date, cat, change)
         return super(DailyFlow, self).save(*args, **kwargs)
 
 class FinancialGoal(models.Model):
@@ -230,12 +280,12 @@ class FinancialGoal(models.Model):
     detail = models.TextField(null=True)
     category_id = models.ForeignKey(Category, on_delete=CASCADE)
     term = models.PositiveIntegerField(null=True)
-    goal = models.PositiveIntegerField()
-    total_progress = models.PositiveIntegerField(default=0)
+    goal = models.DecimalField(max_digits=12, decimal_places=2)
+    total_progress = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     start = models.DateField()
     # strategy = 
     period_term = models.PositiveIntegerField(null=True)
-    progress_per_period = models.PositiveIntegerField(null=True)
+    progress_per_period = models.DecimalField(max_digits=12, decimal_places=2, null=True)
     reward = models.PositiveIntegerField(null=True)
 
     class Meta:
