@@ -208,6 +208,18 @@ class Statement(generics.ListCreateAPIView):
         else :
             return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
     
+    def __date_validation__(self, queryset, start, end):
+        if isinstance(start, str): start = datetime.strptime(start, "%Y-%m-%d")
+        if isinstance(end, str): end = datetime.strptime(end, "%Y-%m-%d")
+        if start >= end: return False
+        tmp = queryset.filter(start__lt=start, end__gt=start)
+        if tmp.count() > 0: return False
+        tmp = queryset.filter(start__lt=end, end__gt=end)
+        if tmp.count() > 0: return False
+        tmp = queryset.filter(start__gt=start, end__lt=end)
+        if tmp.count() > 0: return False
+        return True
+    
     def perform_create(self, serializer):
         uuid = self.request.user.uuid
         if uuid is not None:
@@ -217,7 +229,10 @@ class Statement(generics.ListCreateAPIView):
             month_instance = models.Month.objects.get(id=month)
             owner_instance = NewUser.objects.get(uuid=uuid)
             # -yymmdd-id
-            plans = models.FinancialStatementPlan.objects.filter(owner_id=uuid, start=startDate, end=endDate)
+            queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+            if self.__date_validation__(queryset, startDate, endDate):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            plans = queryset.filter(start=startDate, end=endDate)
             if(plans.filter(chosen=True).count() > 0):
                 self.request.data['chosen'] = False
             else:
