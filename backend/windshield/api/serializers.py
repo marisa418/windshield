@@ -71,7 +71,7 @@ class FinancialTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.FinancialType
         fields = '__all__'
-        
+
 class AssetSerializer(serializers.ModelSerializer):
     
     class Meta:
@@ -79,7 +79,23 @@ class AssetSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['id', 'bsheet_id']
         
+class AssetsSerializer(serializers.ModelSerializer):
+    cat_id = CategorySerializer(read_only=True)
+    
+    class Meta:
+        model = models.Asset
+        fields = '__all__'
+        read_only_fields = ['id', 'bsheet_id']
+
 class DebtSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.Debt
+        fields = '__all__'
+        read_only_fields = ['id', 'imp_ranking', 'bsheet_id']  
+
+class DebtsSerializer(serializers.ModelSerializer):
+    cat_id = CategorySerializer(read_only=True)
     
     class Meta:
         model = models.Debt
@@ -87,8 +103,8 @@ class DebtSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'imp_ranking', 'bsheet_id']
 
 class BalanceSheetSerializer(serializers.ModelSerializer):
-    assets = AssetSerializer(many=True, read_only=True)
-    debts = DebtSerializer(many=True, read_only=True)
+    assets = AssetsSerializer(many=True, read_only=True)
+    debts = DebtsSerializer(many=True, read_only=True)
     
     class Meta:
         model = models.BalanceSheet

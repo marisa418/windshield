@@ -273,7 +273,7 @@ class StatementInstance(generics.RetrieveUpdateAPIView):
 
 class Asset(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.AssetSerializer
+    serializer_class = serializers.AssetsSerializer
     
     def get_queryset(self):
         uuid = self.request.user.uuid
@@ -284,6 +284,7 @@ class Asset(generics.ListCreateAPIView):
         return queryset
     
     def perform_create(self, serializer):
+        serializer = serializers.AssetSerializer
         uuid = self.request.user.uuid
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -299,9 +300,21 @@ class Asset(generics.ListCreateAPIView):
                         **self.request.data
                         )
 
+class AssetInstance(generics.RetrieveUpdateDestroyAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.AssetSerializer
+    queryset = models.Asset.objects.all()
+    
+    def get_object(self):
+        try:
+            self.serializer_class = serializers.AssetsSerializer
+            return models.Asset.objects.get(id=self.kwargs['pk'])
+        except models.Asset.DoesNotExist:
+            raise status.HTTP_400_BAD_REQUEST
+
 class Debt(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.DebtSerializer
+    serializer_class = serializers.DebtsSerializer
 
     def get_queryset(self):
         uuid = self.request.user.uuid
@@ -312,6 +325,7 @@ class Debt(generics.ListCreateAPIView):
         return queryset
     
     def perform_create(self, serializer):
+        serializer = serializers.DebtSerializer
         uuid = self.request.user.uuid
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -326,6 +340,18 @@ class Debt(generics.ListCreateAPIView):
                         cat_id = cat,
                         **self.request.data
                         )
+
+class DebtInstance(generics.RetrieveUpdateDestroyAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.DebtSerializer
+    queryset = models.Debt.objects.all()
+    
+    def get_object(self):
+        try:
+            self.serializer_class = serializers.DebtsSerializer
+            return models.Debt.objects.get(id=self.kwargs['pk'])
+        except models.Debt.DoesNotExist:
+            raise status.HTTP_400_BAD_REQUEST
     
 class BalanceSheet(generics.RetrieveAPIView):
     permissions_classes = [permissions.IsAuthenticated]

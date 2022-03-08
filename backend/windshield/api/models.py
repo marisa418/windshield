@@ -129,6 +129,14 @@ class Asset(models.Model):
             debt_balance = debt_value
         )
     
+    def delete(self, *args, **kwargs):
+        aggr = Asset.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('recent_value'))
+        if aggr["sum_value"] is None:
+            aggr["sum_value"] = 0
+        new_value = aggr["sum_value"] - self.recent_value
+        self.__save_log__(new_value)
+        return super(Asset, self).delete(*args, kwargs)
+    
     def save(self, *args, **kwargs):
         if not self.id:
             last_id = Asset.objects.filter(cat_id=self.cat_id.id).last()
@@ -175,6 +183,14 @@ class Debt(models.Model):
             asset_value = asset_value, 
             debt_balance = new_value
         )
+    
+    def delete(self, *args, **kwargs):
+        aggr = Debt.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('balance'))
+        if aggr["sum_value"] is None:
+            aggr["sum_value"] = 0
+        new_value = aggr["sum_value"] - self.balance
+        self.__save_log__(new_value)
+        return super(Debt, self).delete(*args, kwargs)
     
     def save(self, *args, **kwargs):
         if not self.id:
