@@ -2,15 +2,15 @@ import 'package:intl/intl.dart';
 
 import 'budget.dart';
 
-class Statement {
+class StmntStatement {
   String id;
   String name;
   bool chosen;
   DateTime start;
   DateTime end;
-  List<Budget> budgets;
+  List<StmntBudget> budgets;
 
-  Statement({
+  StmntStatement({
     required this.id,
     required this.name,
     required this.chosen,
@@ -19,14 +19,14 @@ class Statement {
     required this.budgets,
   });
 
-  factory Statement.fromJson(Map<String, dynamic> json) => Statement(
+  factory StmntStatement.fromJson(Map<String, dynamic> json) => StmntStatement(
         id: json['id'],
         name: json['name'],
         chosen: json['chosen'],
         start: DateFormat('y-MM-dd').parse(json['start']),
         end: DateFormat('y-MM-dd').parse(json['end']),
-        budgets:
-            List<Budget>.from(json['budgets'].map((x) => Budget.fromJson(x))),
+        budgets: List<StmntBudget>.from(
+            json['budgets'].map((x) => StmntBudget.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {

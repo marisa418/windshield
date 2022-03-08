@@ -7,9 +7,10 @@ import 'package:flutter/material.dart';
 
 import '../../models/user.dart';
 import '../../models/provinces.dart';
-import '../../models/statement.dart';
-import '../../models/category.dart';
-import '../../models/budget.dart';
+import '../../models/statement/statement.dart';
+import '../../models/statement/category.dart';
+import '../../models/statement/budget.dart';
+import '../../models/daily_flow/category.dart';
 
 class Api extends ChangeNotifier {
   Dio dio = Dio();
@@ -89,7 +90,6 @@ class Api extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }
@@ -113,7 +113,6 @@ class Api extends ChangeNotifier {
       if (!res) return false;
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }
@@ -124,10 +123,8 @@ class Api extends ChangeNotifier {
       print(res.toString());
       Map<String, dynamic> data = await jsonDecode(res.toString());
       _user = User.fromJson(data);
-      print(_user?.props);
       return _user;
     } catch (e) {
-      print(e);
       return _user;
     }
   }
@@ -142,7 +139,6 @@ class Api extends ChangeNotifier {
       );
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }
@@ -161,7 +157,6 @@ class Api extends ChangeNotifier {
       );
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }
@@ -177,117 +172,104 @@ class Api extends ChangeNotifier {
           .toList();
       return data;
     } catch (e) {
-      print(e);
       return null;
     }
   }
 
-  Future<List<Statement>> getAllStatements() async {
+  //FINANCIAL STATEMENT PLAN
+
+  Future<List<StmntStatement>> getAllNotEndYetStatements(DateTime date) async {
     try {
-      final res = await dio.get('/api/statement?ordering=month,id',
+      final str = DateFormat('y-MM-dd').format(date);
+      final res = await dio.get('/api/statement/?lower-date=$str',
           options: Options(
             responseType: ResponseType.plain,
           ));
       final data = (json.decode(res.toString()) as List)
-          .map((i) => Statement.fromJson(i))
+          .map((i) => StmntStatement.fromJson(i))
           .toList();
-      // notifyListeners();
+      print(data);
       return data;
     } catch (e) {
       print(e);
-      // notifyListeners();
       return [];
     }
   }
 
-  Future<List<Category>> getAllCategories() async {
+  Future<List<StmntCategory>> getAllCategories() async {
     try {
       final res = await dio.get('/api/categories/',
           options: Options(
             responseType: ResponseType.plain,
           ));
       final data = (json.decode(res.toString()) as List)
-          .map((i) => Category.fromJson(i))
+          .map((i) => StmntCategory.fromJson(i))
           .toList();
       return data;
     } catch (e) {
-      print(e);
       return [];
     }
   }
 
-  Future<bool> createStatement(
+  Future<String> createStatement(
     String name,
     String start,
     String end,
-    List<Budget> budgetList,
   ) async {
     try {
-      DateTime startTemp = DateFormat('y-MM-dd').parse(start);
-      DateTime endTemp = DateFormat('y-MM-dd').parse(start);
-      DateTime lastDayOfEndTemp = DateTime(endTemp.year, endTemp.month + 1, 0);
-      int month = startTemp.month;
-      if (lastDayOfEndTemp.difference(startTemp).inDays + 1 <= 7) {
-        month++;
-      }
-
       final res = await dio.post(
         '/api/statement/',
         data: {
           "name": name,
-          "chosen": true,
           "start": start,
           "end": end,
-          "month": month
+          "month": 1,
         },
       );
-      print(res);
-      final jsonList = budgetList.map((e) {
-        e.fplan = res.data['id'];
-        return e.toJson();
-      }).toList();
-      final res2 = await dio.post(
-        '/api/budget/',
-        data: jsonList,
-      );
-      print(res2);
-      // notifyListeners();
-      return true;
+      return res.data['id'];
     } catch (e) {
-      print(e);
-      // notifyListeners();
-      return false;
+      return '';
     }
   }
 
-  Future<bool> createCategory(String id, String name, int ftype) async {
+  Future<bool> updateStatementName(String id, String name) async {
     try {
-      final res = await dio.post(
-        '/api/category/',
+      final res = await dio.patch(
+        '/api/statement/$id/name/',
         data: {
-          "id": id,
           "name": name,
-          "usedCount": 0,
-          "ftype": ftype.toString(),
-          "user_id": _user?.uuid,
         },
       );
-      print(res);
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }
 
-  Future<bool> getBalanceSheet() async {
+  Future<bool> updateStatementActive(String id) async {
     try {
-      final res = await dio.get('/api/balance-sheet');
-      print(res);
+      final res = await dio.patch('/api/statement/$id/');
       return true;
     } catch (e) {
-      print(e);
       return false;
+    }
+  }
+
+  //รายรับ-รายจ่าย
+  Future<List<DFlowCategory>> getAllCategoriesWithBudgetFlows(
+      DateTime date) async {
+    try {
+      final str = DateFormat('y-MM-dd').format(date);
+      final res = await dio.patch('/api/categories-budgets-flows/?date=$str',
+          options: Options(
+            responseType: ResponseType.plain,
+          ));
+      final data = (json.decode(res.toString()) as List)
+          .map((i) => DFlowCategory.fromJson(i))
+          .toList();
+      return data;
+    } catch (e) {
+      return [];
     }
   }
 }

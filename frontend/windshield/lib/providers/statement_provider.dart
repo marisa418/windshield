@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:windshield/models/statement/budget.dart';
 
-import 'package:windshield/models/statement.dart';
+import 'package:windshield/models/statement/statement.dart';
 
 class StatementProvider extends ChangeNotifier {
-  List<Statement> _stmntList = [];
-  List<Statement> get stmntList => _stmntList;
+  List<StmntStatement> _stmntList = [];
+  List<StmntStatement> get stmntList => _stmntList;
 
-  List<Statement> _stmntActiveList = [];
-  List<Statement> get stmntActiveList => _stmntActiveList;
+  List<StmntStatement> _stmntActiveList = [];
+  List<StmntStatement> get stmntActiveList => _stmntActiveList;
 
   List<String> _stmntDateChipList = [];
   List<String> get stmntDateChipList => _stmntDateChipList;
@@ -16,8 +17,8 @@ class StatementProvider extends ChangeNotifier {
   int _stmntDateChipIdx = 0;
   int get stmntDateChipIdx => _stmntDateChipIdx;
 
-  List<Statement> _stmntDateList = [];
-  List<Statement> get stmntDateList => _stmntDateList;
+  List<StmntStatement> _stmntDateList = [];
+  List<StmntStatement> get stmntDateList => _stmntDateList;
 
   bool _needFetchAPI = false;
   bool get needFetchAPI => _needFetchAPI;
@@ -43,7 +44,36 @@ class StatementProvider extends ChangeNotifier {
   String _stmntId = '';
   String get stmntId => _stmntId;
 
-  void setStatementList(List<Statement> value) {
+  // TEMP
+  StmntBudget budTemp = StmntBudget(
+    id: '',
+    catId: '',
+    balance: 0,
+    total: 0,
+    budPerPeriod: 0,
+    freq: '',
+    fplan: '',
+  );
+  StmntStatement stmntTemp = StmntStatement(
+    id: '',
+    name: '',
+    chosen: false,
+    start: DateTime.now(),
+    end: DateTime.now(),
+    budgets: [
+      StmntBudget(
+        id: '',
+        catId: '',
+        balance: 0,
+        total: 0,
+        budPerPeriod: 0,
+        freq: '',
+        fplan: '',
+      ),
+    ],
+  );
+
+  void setStatementList(List<StmntStatement> value) {
     _stmntList = value;
     // notifyListeners();
   }
@@ -54,6 +84,7 @@ class StatementProvider extends ChangeNotifier {
         _stmntActiveList.add(stmnt);
       }
     }
+    _stmntActiveList.add(stmntTemp);
   }
 
   void setStmntDateChipList() {

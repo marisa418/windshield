@@ -1,4 +1,4 @@
-class Budget {
+class StmntBudget {
   String id;
   String catId;
   double balance;
@@ -7,7 +7,7 @@ class Budget {
   String freq;
   String fplan;
 
-  Budget({
+  StmntBudget({
     required this.id,
     required this.catId,
     required this.balance,
@@ -17,12 +17,12 @@ class Budget {
     required this.fplan,
   });
 
-  factory Budget.fromJson(Map<String, dynamic> json) => Budget(
+  factory StmntBudget.fromJson(Map<String, dynamic> json) => StmntBudget(
         id: json['id'],
         catId: json['cat_id'],
-        balance: json['balance'],
-        total: json['total_budget'],
-        budPerPeriod: json['budget_per_period'],
+        balance: json['used_balance'].toDouble(),
+        total: double.parse(json['total_budget']),
+        budPerPeriod: double.parse(json['budget_per_period']),
         freq: json['frequency'],
         fplan: json['fplan'],
       );
@@ -30,7 +30,7 @@ class Budget {
   Map<String, dynamic> toJson() => {
         'id': id,
         'cat_id': catId,
-        'balance': balance,
+        'used_balance': balance,
         'total_budget': total,
         'budget_per_period': budPerPeriod,
         'frequency': freq,
