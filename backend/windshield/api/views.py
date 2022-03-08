@@ -230,14 +230,17 @@ class Statement(generics.ListCreateAPIView):
             owner_instance = NewUser.objects.get(uuid=uuid)
             # -yymmdd-id
             queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
-            if self.__date_validation__(queryset, startDate, endDate):
+            if not self.__date_validation__(queryset, startDate, endDate):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             plans = queryset.filter(start=startDate, end=endDate)
             if(plans.filter(chosen=True).count() > 0):
                 self.request.data['chosen'] = False
             else:
                 self.request.data['chosen'] = True
-            plan_id = plans.count()
+            last_plan = plans.last()
+            if last_plan is None : plan_id = 0
+            else: 
+                plan_id = int(last_plan.id[-1:]) + 1
             return serializer.save(
                 id = 'FSP' + str(uuid)[:10] + '-' + str(startDate)[2:4] + str(startDate)[5:7] + str(startDate)[-2:] + '-' + str(plan_id)[-1:],
                 owner_id = owner_instance,
@@ -259,7 +262,7 @@ class StatementChangeName(generics.UpdateAPIView):
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class StatementInstance(generics.RetrieveUpdateAPIView):
+class StatementInstance(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.StatementUpdateSerializer
     
@@ -285,6 +288,16 @@ class StatementInstance(generics.RetrieveUpdateAPIView):
             instance.append(obj)
         serializer = self.get_serializer(instance, many=True, partial=partial)
         return Response(serializer.data)
+    
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        print(self.object)
+        if self.object.chosen:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(self.object)
+        data = serializer.data
+        self.object.delete()
+        return Response(data, status=status.HTTP_202_ACCEPTED)
 
 class Asset(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
