@@ -1,120 +1,164 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:windshield/models/statement/budget.dart';
 
-import 'package:windshield/models/statement.dart';
+import 'package:windshield/models/statement/statement.dart';
 
 class StatementProvider extends ChangeNotifier {
-  int _statementMonthIndex = 0;
-  int get statementMonthIndex => _statementMonthIndex;
+  List<StmntStatement> _stmntList = [];
+  List<StmntStatement> get stmntList => _stmntList;
 
-  List<Statement> _statementList = [];
-  List<Statement> get statementList => _statementList;
+  List<StmntStatement> _stmntActiveList = [];
+  List<StmntStatement> get stmntActiveList => _stmntActiveList;
 
-  List<Statement> _statementsInMonth = [];
-  List<Statement> get statementsInMonth => _statementsInMonth;
+  List<String> _stmntDateChipList = [];
+  List<String> get stmntDateChipList => _stmntDateChipList;
 
-  List<int> _existedMonth = [];
-  List<int> get existedMonth => _existedMonth;
+  int _stmntDateChipIdx = 0;
+  int get stmntDateChipIdx => _stmntDateChipIdx;
 
-  int _createPageIndex = 0;
-  int get createPageIndex => _createPageIndex;
+  List<StmntStatement> _stmntDateList = [];
+  List<StmntStatement> get stmntDateList => _stmntDateList;
 
-  String _startDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  String _endDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-  String get startDate => _startDate;
-  String get endDate => _endDate;
+  bool _needFetchAPI = false;
+  bool get needFetchAPI => _needFetchAPI;
 
-  String _statementName = 'แผนงบการเงินที่ 1';
-  String get statementName => _statementName;
+  int _stmntCreatePageIdx = 0;
+  int get stmntCreatePageIndex => _stmntCreatePageIdx;
 
-  bool _needUpdated = false;
-  bool get needUpdated => _needUpdated;
+  DateTime _start = DateFormat('y-MM-dd').parse(DateTime.now().toString());
+  DateTime get start => DateFormat('y-MM-dd').parse(_start.toString());
 
-  bool _firstTimeCreating = true;
-  bool get firstTimeCreating => _firstTimeCreating;
+  DateTime _end = DateFormat('y-MM-dd').parse(DateTime.now().toString());
+  DateTime get end => DateFormat('y-MM-dd').parse(_end.toString());
 
-  bool _skipDatePage = false;
-  bool get skipDatePage => _skipDatePage;
+  DateTime _minDate = DateFormat('y-MM-dd').parse(DateTime.now().toString());
+  DateTime get minDate => DateFormat('y-MM-dd').parse(_minDate.toString());
 
-  void setStatementList(List<Statement> value) {
-    _statementList = value;
+  DateTime _maxDate = DateFormat('y-MM-dd').parse(DateTime.now().toString());
+  DateTime get maxDate => DateFormat('y-MM-dd').parse(_maxDate.toString());
+
+  String _stmntName = 'แผนงบการเงิน';
+  String get stmntName => _stmntName;
+
+  String _stmntId = '';
+  String get stmntId => _stmntId;
+
+  // TEMP
+  StmntBudget budTemp = StmntBudget(
+    id: '',
+    catId: '',
+    balance: 0,
+    total: 0,
+    budPerPeriod: 0,
+    freq: '',
+    fplan: '',
+  );
+  StmntStatement stmntTemp = StmntStatement(
+    id: '',
+    name: '',
+    chosen: false,
+    start: DateTime.now(),
+    end: DateTime.now(),
+    budgets: [
+      StmntBudget(
+        id: '',
+        catId: '',
+        balance: 0,
+        total: 0,
+        budPerPeriod: 0,
+        freq: '',
+        fplan: '',
+      ),
+    ],
+  );
+
+  void setStatementList(List<StmntStatement> value) {
+    _stmntList = value;
     // notifyListeners();
   }
 
-  void setExistedMonth() {
-    List<int> month = [];
-    for (var item in _statementList) {
-      if (!month.contains(item.month)) {
-        month.add(item.month);
+  void setStmntActiveList() {
+    for (var stmnt in _stmntList) {
+      if (stmnt.chosen == true) {
+        _stmntActiveList.add(stmnt);
       }
     }
-    _existedMonth = month;
-    notifyListeners();
+    _stmntActiveList.add(stmntTemp);
   }
 
-  void setStatementMonthIndex(int value) {
-    _statementMonthIndex = value;
-    notifyListeners();
-  }
-
-  void setStatementsInMonth() {
-    List<Statement> statements = [];
-    for (var item in _statementList) {
-      if (item.month == _existedMonth[_statementMonthIndex]) {
-        statements.add(item);
+  void setStmntDateChipList() {
+    for (var i = 0; i < _stmntList.length; i++) {
+      final date = '${_stmntList[i].start}|${_stmntList[i].end}';
+      if (!_stmntDateChipList.contains(date)) {
+        _stmntDateChipList.add(date);
       }
     }
-    if (_statementList.length != 1) {
-      Statement temp = Statement(
-        id: '',
-        name: '',
-        chosen: false,
-        start: '',
-        end: '',
-        month: 0,
-      );
-      statements.add(temp);
+  }
+
+  void setStmntDateChipIdx(int value) {
+    _stmntDateChipIdx = value;
+    notifyListeners();
+  }
+
+  void setStmntDateList() {
+    final date = _stmntDateChipList[_stmntDateChipIdx].split('|');
+    for (var i = 0; i < _stmntList.length; i++) {
+      if (_stmntList[i].start.toString() == date[0]) {
+        _stmntDateList.add(_stmntList[i]);
+      }
     }
-    _statementsInMonth = statements;
     notifyListeners();
   }
 
-  void setCreatePageIndex(int value) {
-    _createPageIndex = value;
+  void setNeedFetchAPI() {
+    _needFetchAPI = !_needFetchAPI;
     notifyListeners();
   }
 
-  void setStartDate(String date) {
-    _startDate = date;
+  void setStmntCreatePageIdx(int value) {
+    _stmntCreatePageIdx = value;
     notifyListeners();
   }
 
-  void setEndDate(String date) {
-    _endDate = date;
+  void setStart(DateTime value) {
+    _start = DateFormat('y-MM-dd').parse(value.toString());
     notifyListeners();
   }
 
-  void setStatementName(String name) {
-    _statementName = name;
+  void setEnd(DateTime value) {
+    _end = DateFormat('y-MM-dd').parse(value.toString());
     notifyListeners();
   }
 
-  void setFirstTimeCreating(bool value) {
-    _firstTimeCreating = value;
+  void setMinDate(DateTime value) {
+    _minDate = DateFormat('y-MM-dd').parse(value.toString());
+    // notifyListeners();
   }
 
-  void setSkipDatePage(bool value) {
-    _skipDatePage = value;
+  void setMaxDate(DateTime value) {
+    _maxDate = DateFormat('y-MM-dd').parse(value.toString());
+    // notifyListeners();
+  }
+
+  void setStmntId(String value) {
+    _stmntId = value;
+    // notifyListeners();
+  }
+
+  void setStmntName(String value) {
+    _stmntName = value;
+    notifyListeners();
   }
 
   int getDateDiff() {
-    final DateTime start = DateFormat('yyyy-MM-dd').parse(_startDate);
-    final DateTime end = DateFormat('yyyy-MM-dd').parse(_endDate);
-    return (start.difference(end).inDays * -1 + 1).abs();
+    return _end.difference(_start).inDays + 1;
   }
 
-  void setNeedUpdate() {
-    _needUpdated = !_needUpdated;
-    notifyListeners();
+  bool canCreateStmnt() {
+    if (getDateDiff() <= 35 && getDateDiff() >= 21) {
+      return true;
+    }
+    return false;
   }
 }
