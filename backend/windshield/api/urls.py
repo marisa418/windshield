@@ -15,9 +15,12 @@ urlpatterns = [
     #CATEGORY
     path('categories/', views.Category.as_view(), name='categories-list'),
     path('categories-budgets-flows/', views.CategoryWithBudgetsAndFlows.as_view(), name='categories-with-budgets'),
+    path('categories/financial-type/', views.FinancialTypeList.as_view(), name='financial-type-list'),
     
     #BALANCE SHEET
     path('balance-sheet/', views.BalanceSheet.as_view(), name='balance-sheet'),
+    path('asset/', views.Asset.as_view(), name='asset'),
+    path('debt/', views.Debt.as_view(), name='debt'),
 
     #BUDGET
     path('budget/', views.Budget.as_view(), name='budget'),

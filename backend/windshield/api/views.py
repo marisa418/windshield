@@ -57,6 +57,25 @@ class Provinces(generics.ListAPIView):
     queryset = Province.objects.all()
     serializer_class = ProvinceSerializer
 
+class FinancialTypeList(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.FinancialTypeSerializer
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = models.FinancialType.objects.all()
+        domain = self.request.query_params.get("domain", None)
+        if domain is not None:
+            queryset = queryset.filter(domain=domain)
+        cat = models.Category.objects.filter(user_id=uuid)
+        queryset = queryset.prefetch_related(
+            Prefetch('categories', queryset=cat)
+        )
+        return queryset
+    
+
 class DailyFlow(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DailyFlowSerializer
@@ -251,7 +270,7 @@ class StatementInstance(generics.RetrieveUpdateAPIView):
         serializer = self.get_serializer(instance, many=True, partial=partial)
         return Response(serializer.data)
 
-class Asset(generics.ListAPIView):
+class Asset(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.AssetSerializer
     
@@ -262,8 +281,16 @@ class Asset(generics.ListAPIView):
         bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
         queryset = models.Asset.objects.filter(bsheet_id=bsheet.id)
         return queryset
+    
+    def create(self, request, *args, **kwargs):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
+        request.data['bsheet_id'] = bsheet.id
+        return super(Asset, self).create(request, *args, **kwargs)
 
-class Debt(generics.ListAPIView):
+class Debt(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DebtSerializer
 
@@ -274,6 +301,14 @@ class Debt(generics.ListAPIView):
         bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
         queryset = models.Debt.objects.filter(bsheet_id=bsheet.id)
         return queryset
+    
+    def create(self, request, *args, **kwargs):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
+        request.data['bsheet_id'] = bsheet.id
+        return super(Debt, self).create(request, *args, **kwargs)
     
 class BalanceSheet(generics.RetrieveAPIView):
     permissions_classes = [permissions.IsAuthenticated]
