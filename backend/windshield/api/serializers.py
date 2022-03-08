@@ -2,6 +2,18 @@ from dataclasses import field
 from rest_framework import serializers
 from . import models
 
+class BalanceSheetLogSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.BalanceSheetLog
+        fields = "__all__"
+
+class DefaultCategoriesSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.DefaultCategory
+        fields = "__all__"
+
 class MethodSerializer(serializers.ModelSerializer):
     
     class Meta:
@@ -102,7 +114,7 @@ class BudgetCategorySerializer(serializers.ModelSerializer):
         fields = "__all__"
         
 class StatementSerializer(serializers.ModelSerializer):
-    budgets = BudgetSerializer(many=True, read_only=True)
+    budgets = BudgetCategorySerializer(many=True, read_only=True)
     
     class Meta:
         model = models.FinancialStatementPlan
