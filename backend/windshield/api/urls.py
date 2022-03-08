@@ -30,10 +30,11 @@ urlpatterns = [
     path('daily-flow-sheet/', views.DailyFlowSheet.as_view(), name="daily-flow_sheet"),
     path('daily-flow-sheet/list/', views.DailyFlowSheetList.as_view(), name="daily-flow-sheet-list"),
     
-    #METHOD
-    path('method/', views.Method.as_view(), name='method'),
-    
     #DAILY FLOW
+    path('method/', views.Method.as_view(), name='method'),
     path('daily-flow/', views.DailyListFlow.as_view(), name="daily-flow"),
-    path('daily-flow/<str:pk>/', views.DailyFlow.as_view(), name="daily-flow-update")
+    path('daily-flow/<str:pk>/', views.DailyFlow.as_view(), name="daily-flow-update"),
+    
+    #FOR ADMIN
+    path('default-categories/', views.DefaultCategories.as_view(), name='default-categories'),
 ]

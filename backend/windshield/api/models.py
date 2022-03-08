@@ -1,6 +1,8 @@
 from datetime import datetime
 from operator import mod
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.db.models.deletion import CASCADE
 from django.utils.timezone import now
 from user.models import NewUser, Province
@@ -21,14 +23,14 @@ class BalanceSheetLog(models.Model):
     id = models.AutoField(primary_key=True)
     bsheet_id = models.ForeignKey(BalanceSheet, on_delete=CASCADE)
     timestamp = models.DateTimeField(default=now)
-    asset_value = models.DecimalField(max_digits=12, decimal_places=2),
+    asset_value = models.DecimalField(max_digits=12, decimal_places=2)
     debt_balance = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
         db_table = 'balance_sheet_log'
 
     def __str__(self):
-        return str(self.timestamp) + " " + str(self.bsheet_id) + "(" +  self.id + ")"
+        return str(self.timestamp) + " " + str(self.bsheet_id) + "(" +  str(self.id) + ")"
 
 class FinancialType(models.Model):
     domain_choices = [
@@ -49,6 +51,27 @@ class FinancialType(models.Model):
     def __str__(self):
         return self.id + " " + self.name + "(" + self.domain + ")" 
 
+class DefaultCategory(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30)
+    ftype = models.ForeignKey(FinancialType, on_delete=CASCADE)
+    icon = models.CharField(max_length=30, default="shield-alt")
+    
+    class Meta:
+        db_table = 'default_category'
+        
+    def __str__(self):
+        return str(self.id) + " " + self.name
+
+@receiver(post_save, sender=DefaultCategory, dispatch_uid="add_new_category_to_all_user")
+def add_default_cat(sender, instance, created, *args, **kwargs):
+    if created:
+        users = NewUser.objects.all()
+        for user in users:
+            n_cats = Category.objects.filter(user_id=user.uuid).count()
+            if n_cats != 0:
+                Category.objects.create(name=instance.name, ftype=instance.ftype, user_id=user, icon=instance.icon)
+
 class Category(models.Model):
     id = models.CharField(max_length=15, primary_key=True)
     name = models.CharField(max_length=30)
@@ -63,6 +86,14 @@ class Category(models.Model):
 
     def __str__(self):
         return self.id + " " + self.name
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            last_id = Category.objects.filter(user_id=self.user_id.uuid).last()
+            if last_id == None: no_id = 0
+            else: no_id = int(last_id.id[-2:]) + 1
+            self.id =  "CAT" + str(self.user_id.uuid)[:10] + str("0" + str(no_id))[-2:]
+        return super(Category, self).save(*args, **kwargs)
 
 class Asset(models.Model):
     benefit_type_choice = [
@@ -86,15 +117,16 @@ class Asset(models.Model):
         return self.id + " " + self.source
     
     def __save_log__(self, new_value):
-        try:
-            last_log = BalanceSheetLog.objects.filter(bsheet_id=self.bsheet_id).order_by('-timestamp')[0]
-            debt_value = last_log.debt_value
-        except BalanceSheetLog.DoesNotExist:
+        logs = BalanceSheetLog.objects.filter(bsheet_id=self.bsheet_id).order_by('-timestamp')
+        if len(logs) > 0:
+            last_log = logs[0]
+            debt_value = last_log.debt_balance
+        else:
             debt_value = 0
         BalanceSheetLog.objects.create(
-            bsheet_id=self.bsheet_id, 
-            asset_value=new_value, 
-            debt_value=debt_value
+            bsheet_id = self.bsheet_id, 
+            asset_value = new_value, 
+            debt_balance = debt_value
         )
     
     def save(self, *args, **kwargs):
@@ -102,12 +134,14 @@ class Asset(models.Model):
             last_id = Asset.objects.filter(cat_id=self.cat_id.id).last()
             if last_id == None: no_id = 0
             else: no_id = int(last_id.id[-2:]) + 1
-            self.id =  "ASS" + str(self.cat_id.id)[3:] + str("0" + no_id)[-2:]
-            new_value = self.recent_value
+            self.id =  "ASS" + str(self.cat_id.id)[3:] + str("0" + str(no_id))[-2:]
+            old_value = 0
         else:
-            aggr = Asset.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('recent_value'))
             old_value = Asset.objects.get(id=self.id).recent_value
-            new_value = aggr.sum_value - old_value + self.recent_value
+        aggr = Asset.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('recent_value'))
+        if aggr["sum_value"] is None:
+            aggr["sum_value"] = 0
+        new_value = aggr["sum_value"] - old_value + self.recent_value
         self.__save_log__(new_value)
         return super(Asset, self).save(*args, **kwargs)
 
@@ -130,15 +164,16 @@ class Debt(models.Model):
         return self.id + " " + self.creditor
     
     def __save_log__(self, new_value):
-        try:
-            last_log = BalanceSheetLog.objects.filter(bsheet_id=self.bsheet_id).order_by('-timestamp')[0]
+        logs = BalanceSheetLog.objects.filter(bsheet_id=self.bsheet_id).order_by('-timestamp')
+        if len(logs) > 0:
+            last_log = logs[0]
             asset_value = last_log.asset_value
-        except BalanceSheetLog.DoesNotExist:
+        else:
             asset_value = 0
         BalanceSheetLog.objects.create(
-            bsheet_id=self.bsheet_id, 
-            asset_value=asset_value, 
-            debt_value=new_value
+            bsheet_id = self.bsheet_id, 
+            asset_value = asset_value, 
+            debt_balance = new_value
         )
     
     def save(self, *args, **kwargs):
@@ -146,12 +181,14 @@ class Debt(models.Model):
             last_id = Debt.objects.filter(cat_id=self.cat_id.id).last()
             if last_id == None: no_id = 0
             else: no_id = int(last_id.id[-2:]) + 1
-            self.id =  "DEB" + str(self.cat_id.id)[3:] + str("0" + no_id)[-2:]
-            new_value = self.balance
+            self.id =  "DEB" + str(self.cat_id.id)[3:] + str("0" + str(no_id))[-2:]
+            old_value = 0
         else:
-            aggr = Debt.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('balance'))
             old_value = Debt.objects.get(id=self.id).balance
-            new_value = aggr.sum_value - old_value + self.balance
+        aggr = Debt.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('recent_value'))
+        if aggr["sum_value"] is None:
+            aggr["sum_value"] = 0
+        new_value = aggr["sum_value"] - old_value + self.balance
         self.__save_log__(new_value)
         return super(Debt, self).save(*args, **kwargs)
 
@@ -191,7 +228,7 @@ class Budget(models.Model):
     id = models.CharField(max_length=24, primary_key=True)
     cat_id = models.ForeignKey(Category, related_name="budgets",on_delete=CASCADE)
     fplan = models.ForeignKey(FinancialStatementPlan, related_name="budgets", on_delete=CASCADE)
-    used_balance = models.PositiveIntegerField(default=0)
+    used_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_budget = models.DecimalField(max_digits=12, decimal_places=2)
     budget_per_period = models.DecimalField(max_digits=12, decimal_places=2)
     frequency = models.CharField(max_length=3, choices=freq_choices, default=freq_choices[2][0])

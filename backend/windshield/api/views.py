@@ -212,11 +212,12 @@ class Statement(generics.ListCreateAPIView):
         uuid = self.request.user.uuid
         if uuid is not None:
             startDate = self.request.data['start']
+            endDate = self.request.data['end']
             month = str(self.request.data.pop("month"))
             month_instance = models.Month.objects.get(id=month)
             owner_instance = NewUser.objects.get(uuid=uuid)
             # -yymmdd-id
-            plans = models.FinancialStatementPlan.objects.filter(owner_id=uuid, start=startDate)
+            plans = models.FinancialStatementPlan.objects.filter(owner_id=uuid, start=startDate, end=endDate)
             if(plans.filter(chosen=True).count() > 0):
                 self.request.data['chosen'] = False
             else:
@@ -282,13 +283,21 @@ class Asset(generics.ListCreateAPIView):
         queryset = models.Asset.objects.filter(bsheet_id=bsheet.id)
         return queryset
     
-    def create(self, request, *args, **kwargs):
+    def perform_create(self):
         uuid = self.request.user.uuid
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+        cat_id = self.request.data.pop("cat_id", None)
         bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
-        request.data['bsheet_id'] = bsheet.id
-        return super(Asset, self).create(request, *args, **kwargs)
+        try:
+            cat = models.Category.objects.get(id=cat_id)
+        except models.Category.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return models.Asset.objects.create(
+                        bsheet_id = bsheet,
+                        cat_id = cat,
+                        **self.request.data
+                        )
 
 class Debt(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
@@ -302,13 +311,21 @@ class Debt(generics.ListCreateAPIView):
         queryset = models.Debt.objects.filter(bsheet_id=bsheet.id)
         return queryset
     
-    def create(self, request, *args, **kwargs):
+    def perform_create(self):
         uuid = self.request.user.uuid
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+        cat_id = self.request.data.pop("cat_id", None)
         bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
-        request.data['bsheet_id'] = bsheet.id
-        return super(Debt, self).create(request, *args, **kwargs)
+        try:
+            cat = models.Category.objects.get(id=cat_id)
+        except models.Category.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return models.Debt.objects.create(
+                        bsheet_id = bsheet,
+                        cat_id = cat,
+                        **self.request.data
+                        )
     
 class BalanceSheet(generics.RetrieveAPIView):
     permissions_classes = [permissions.IsAuthenticated]
@@ -359,6 +376,11 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
             return queryset
     
 
+class DefaultCategories(generics.ListCreateAPIView):
+    permissions_classes = [permissions.IsAdminUser]
+    serializer_class = serializers.DefaultCategoriesSerializer
+    queryset = models.DefaultCategory.objects.all()
+
 class Category(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.CategorySerializer
@@ -369,14 +391,9 @@ class Category(generics.ListCreateAPIView):
             queryset = models.Category.objects.filter(user_id=uuid).order_by("used_count")
             if not queryset:
                 owner = models.NewUser.objects.get(uuid=uuid)
-                for i in range(len(DEFUALT_CAT)):
-                    ftype_instance = models.FinancialType.objects.get(id=str(DEFUALT_CAT[i][1]))
-                    models.Category.objects.create(id = "CAT" + str(owner.pk)[:10] + ("0" + str(i))[-2:],
-                                            name = DEFUALT_CAT[i][0],
-                                            ftype = ftype_instance,
-                                            user_id = owner,
-                                            icon = DEFUALT_CAT[i][2]
-                                            )
+                default_cat = models.DefaultCategory.objects.all()
+                for cat in default_cat:
+                    models.Category.objects.create(name=cat.name, ftype=cat.ftype, user_id=owner, icon=cat.icon)
                 queryset = models.Category.objects.filter(user_id=uuid).order_by("used_count")
             return queryset
         else :
