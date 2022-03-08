@@ -283,7 +283,7 @@ class Asset(generics.ListCreateAPIView):
         queryset = models.Asset.objects.filter(bsheet_id=bsheet.id)
         return queryset
     
-    def perform_create(self):
+    def perform_create(self, serializer):
         uuid = self.request.user.uuid
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -311,7 +311,7 @@ class Debt(generics.ListCreateAPIView):
         queryset = models.Debt.objects.filter(bsheet_id=bsheet.id)
         return queryset
     
-    def perform_create(self):
+    def perform_create(self, serializer):
         uuid = self.request.user.uuid
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)

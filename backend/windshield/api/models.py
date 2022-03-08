@@ -185,7 +185,7 @@ class Debt(models.Model):
             old_value = 0
         else:
             old_value = Debt.objects.get(id=self.id).balance
-        aggr = Debt.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('recent_value'))
+        aggr = Debt.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('balance'))
         if aggr["sum_value"] is None:
             aggr["sum_value"] = 0
         new_value = aggr["sum_value"] - old_value + self.balance
