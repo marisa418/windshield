@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/intl.dart';
 
 import 'routes/app_router.dart';
 import 'styles/theme.dart';
 import 'services/api.dart';
-import 'providers/statement_provider.dart';
+
 import 'models/statement/statement.dart';
+import 'models/daily_flow/category.dart';
+
+import 'providers/statement_provider.dart';
 import 'providers/budget_provider.dart';
-import 'models/statement/category.dart';
+import 'providers/daily_flow_provider.dart';
 
 final apiProvider = ChangeNotifierProvider<Api>((ref) => Api());
 
@@ -43,6 +45,20 @@ final provBudget = ChangeNotifierProvider.autoDispose<BudgetProvider>(
 //   ref.read(providerCategory).setCategoryTypeTabs();
 //   return data;
 // });
+
+final provDFlow = ChangeNotifierProvider.autoDispose<DailyFlowProvider>(
+    (ref) => DailyFlowProvider());
+
+final apiDFlow = FutureProvider.autoDispose<List<DFlowCategory>>((ref) async {
+  ref.watch(provDFlow.select((value) => value.needFetchAPI));
+  final now = DateTime.now();
+  final id = await ref.read(apiProvider).getTodayDFId();
+  final data = await ref.read(apiProvider).getAllCategoriesWithBudgetFlows(now);
+  ref.read(provDFlow).setDfId(id);
+  ref.read(provDFlow).setCatList(data);
+  ref.read(provDFlow).setCatType();
+  return data;
+});
 
 void main() {
   runApp(ProviderScope(child: MyApp()));

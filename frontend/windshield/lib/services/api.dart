@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
+import 'package:windshield/models/daily_flow/flow.dart';
 
 import '../../models/user.dart';
 import '../../models/provinces.dart';
@@ -188,10 +189,8 @@ class Api extends ChangeNotifier {
       final data = (json.decode(res.toString()) as List)
           .map((i) => StmntStatement.fromJson(i))
           .toList();
-      print(data);
       return data;
     } catch (e) {
-      print(e);
       return [];
     }
   }
@@ -226,7 +225,8 @@ class Api extends ChangeNotifier {
           "month": 1,
         },
       );
-      return res.data['id'];
+      final data = StmntCategory.fromJson(jsonDecode(res.toString()));
+      return data.id;
     } catch (e) {
       return '';
     }
@@ -256,11 +256,21 @@ class Api extends ChangeNotifier {
   }
 
   //รายรับ-รายจ่าย
+  Future<String> getTodayDFId() async {
+    try {
+      final res = await dio.get('/api/daily-flow-sheet/');
+      final data = json.decode(res.toString());
+      return data['id'];
+    } catch (e) {
+      return '';
+    }
+  }
+
   Future<List<DFlowCategory>> getAllCategoriesWithBudgetFlows(
       DateTime date) async {
     try {
       final str = DateFormat('y-MM-dd').format(date);
-      final res = await dio.patch('/api/categories-budgets-flows/?date=$str',
+      final res = await dio.get('/api/categories-budgets-flows/?date=$str',
           options: Options(
             responseType: ResponseType.plain,
           ));
@@ -270,6 +280,73 @@ class Api extends ChangeNotifier {
       return data;
     } catch (e) {
       return [];
+    }
+  }
+
+  Future<DFlowFlow> addFlow(
+      String dfId, String catId, String name, double value, int method) async {
+    try {
+      final res = await dio.post(
+        '/api/daily-flow/',
+        data: {
+          "id": "",
+          "df_id": dfId,
+          "category": catId,
+          "name": name,
+          "value": value,
+          "method": method,
+        },
+      );
+      final data = (json.decode(res.toString()) as List)
+          .map((i) => DFlowFlow.fromJson(i))
+          .toList();
+      return data[0];
+    } catch (e) {
+      return DFlowFlow(
+        id: '',
+        method: Method(id: 0, name: '', icon: ''),
+        name: '',
+        value: 0,
+        detail: '',
+        dfId: '',
+        catId: '',
+      );
+    }
+  }
+
+  Future<DFlowFlow> editFlow(
+      String id, String name, double value, int method) async {
+    try {
+      final res = await dio.patch(
+        '/api/daily-flow/$id/',
+        data: {
+          "name": name,
+          "value": value,
+          "method": method,
+        },
+      );
+      final data = DFlowFlow.fromJson(jsonDecode(res.toString()));
+      return data;
+    } catch (e) {
+      return DFlowFlow(
+        id: '',
+        method: Method(id: 0, name: '', icon: ''),
+        name: '',
+        value: 0,
+        detail: '',
+        dfId: '',
+        catId: '',
+      );
+    }
+  }
+
+  Future<String> deleteFlow(String id) async {
+    try {
+      final res = await dio.delete('/api/daily-flow/$id/');
+      final data = DFlowFlow.fromJson(jsonDecode(res.toString()));
+      return data.id;
+    } catch (e) {
+      return '';
     }
   }
 }
