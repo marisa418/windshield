@@ -178,7 +178,6 @@ class Api extends ChangeNotifier {
   }
 
   //FINANCIAL STATEMENT PLAN
-
   Future<List<StmntStatement>> getAllNotEndYetStatements(DateTime date) async {
     try {
       final str = DateFormat('y-MM-dd').format(date);
@@ -349,4 +348,6 @@ class Api extends ChangeNotifier {
       return '';
     }
   }
+
+  //งบดุลการเงิน
 }

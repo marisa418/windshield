@@ -15,6 +15,8 @@ import '../pages/home/overview/statement/edit/statement_edit_page.dart';
 import '../pages/home/overview/daily_flow/daily_flow_page.dart';
 import '../pages/home/overview/daily_flow/create/daily_flow_create_page.dart';
 
+import '../pages/home/overview/balance_sheet/balance_sheet_page.dart';
+
 part 'app_router.gr.dart';
 
 @MaterialAutoRouter(
@@ -31,6 +33,7 @@ part 'app_router.gr.dart';
     AutoRoute(page: StatementEditPage),
     AutoRoute(page: DailyFlowPage),
     AutoRoute(page: DailyFlowCreatePage),
+    AutoRoute(page: BalanceSheetPage),
   ],
 )
 class AppRouter extends _$AppRouter {}

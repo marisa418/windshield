@@ -12,6 +12,7 @@ import 'models/daily_flow/category.dart';
 import 'providers/statement_provider.dart';
 import 'providers/budget_provider.dart';
 import 'providers/daily_flow_provider.dart';
+import 'providers/balance_sheet_provider.dart';
 
 final apiProvider = ChangeNotifierProvider<Api>((ref) => Api());
 
@@ -59,6 +60,9 @@ final apiDFlow = FutureProvider.autoDispose<List<DFlowCategory>>((ref) async {
   ref.read(provDFlow).setCatType();
   return data;
 });
+
+final provBSheet = ChangeNotifierProvider.autoDispose<BalanceSheetProvider>(
+    (ref) => BalanceSheetProvider());
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
