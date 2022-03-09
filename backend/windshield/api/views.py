@@ -435,7 +435,19 @@ class DefaultCategories(generics.ListCreateAPIView):
     serializer_class = serializers.DefaultCategoriesSerializer
     queryset = models.DefaultCategory.objects.all()
 
-class Category(generics.ListCreateAPIView):
+class Category(generics.RetrieveUpdateAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.CategorySerializer
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is not None: 
+            queryset = models.Category.objects.filter(user_id=uuid)
+            return queryset
+        else :
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class Categories(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.CategorySerializer
 

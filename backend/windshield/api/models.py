@@ -367,8 +367,9 @@ class DailyFlow(models.Model):
 class FinancialGoal(models.Model):
     id = models.CharField(max_length=15, primary_key=True)
     name = models.CharField(max_length=30)
-    detail = models.TextField(null=True)
-    category_id = models.ForeignKey(Category, on_delete=CASCADE)
+    # detail = models.TextField(null=True)
+    # category_id = models.ForeignKey(Category, on_delete=CASCADE)
+    icon = models.CharField(max_length=30, default='flag')
     term = models.PositiveIntegerField(null=True)
     goal = models.DecimalField(max_digits=12, decimal_places=2)
     total_progress = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -376,7 +377,7 @@ class FinancialGoal(models.Model):
     # strategy = 
     period_term = models.PositiveIntegerField(null=True)
     progress_per_period = models.DecimalField(max_digits=12, decimal_places=2, null=True)
-    reward = models.PositiveIntegerField(null=True)
+    reward = models.PositiveIntegerField(default=0)
 
     class Meta:
         db_table = 'financial_goal'
