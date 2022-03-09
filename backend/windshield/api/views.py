@@ -208,6 +208,18 @@ class Statement(generics.ListCreateAPIView):
         else :
             return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
     
+    def __date_validation__(self, queryset, start, end):
+        if isinstance(start, str): start = datetime.strptime(start, "%Y-%m-%d")
+        if isinstance(end, str): end = datetime.strptime(end, "%Y-%m-%d")
+        if start >= end: return False
+        tmp = queryset.filter(start__lt=start, end__gt=start)
+        if tmp.count() > 0: return False
+        tmp = queryset.filter(start__lt=end, end__gt=end)
+        if tmp.count() > 0: return False
+        tmp = queryset.filter(start__gt=start, end__lt=end)
+        if tmp.count() > 0: return False
+        return True
+    
     def perform_create(self, serializer):
         uuid = self.request.user.uuid
         if uuid is not None:
@@ -217,12 +229,18 @@ class Statement(generics.ListCreateAPIView):
             month_instance = models.Month.objects.get(id=month)
             owner_instance = NewUser.objects.get(uuid=uuid)
             # -yymmdd-id
-            plans = models.FinancialStatementPlan.objects.filter(owner_id=uuid, start=startDate, end=endDate)
+            queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+            if not self.__date_validation__(queryset, startDate, endDate):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            plans = queryset.filter(start=startDate, end=endDate)
             if(plans.filter(chosen=True).count() > 0):
                 self.request.data['chosen'] = False
             else:
                 self.request.data['chosen'] = True
-            plan_id = plans.count()
+            last_plan = plans.last()
+            if last_plan is None : plan_id = 0
+            else: 
+                plan_id = int(last_plan.id[-1:]) + 1
             return serializer.save(
                 id = 'FSP' + str(uuid)[:10] + '-' + str(startDate)[2:4] + str(startDate)[5:7] + str(startDate)[-2:] + '-' + str(plan_id)[-1:],
                 owner_id = owner_instance,
@@ -244,7 +262,7 @@ class StatementChangeName(generics.UpdateAPIView):
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class StatementInstance(generics.RetrieveUpdateAPIView):
+class StatementInstance(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.StatementUpdateSerializer
     
@@ -270,10 +288,20 @@ class StatementInstance(generics.RetrieveUpdateAPIView):
             instance.append(obj)
         serializer = self.get_serializer(instance, many=True, partial=partial)
         return Response(serializer.data)
+    
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        print(self.object)
+        if self.object.chosen:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(self.object)
+        data = serializer.data
+        self.object.delete()
+        return Response(data, status=status.HTTP_202_ACCEPTED)
 
 class Asset(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.AssetSerializer
+    serializer_class = serializers.AssetsSerializer
     
     def get_queryset(self):
         uuid = self.request.user.uuid
@@ -283,7 +311,8 @@ class Asset(generics.ListCreateAPIView):
         queryset = models.Asset.objects.filter(bsheet_id=bsheet.id)
         return queryset
     
-    def perform_create(self):
+    def perform_create(self, serializer):
+        serializer = serializers.AssetSerializer
         uuid = self.request.user.uuid
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -299,9 +328,21 @@ class Asset(generics.ListCreateAPIView):
                         **self.request.data
                         )
 
+class AssetInstance(generics.RetrieveUpdateDestroyAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.AssetSerializer
+    queryset = models.Asset.objects.all()
+    
+    def get_object(self):
+        try:
+            self.serializer_class = serializers.AssetsSerializer
+            return models.Asset.objects.get(id=self.kwargs['pk'])
+        except models.Asset.DoesNotExist:
+            raise status.HTTP_400_BAD_REQUEST
+
 class Debt(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.DebtSerializer
+    serializer_class = serializers.DebtsSerializer
 
     def get_queryset(self):
         uuid = self.request.user.uuid
@@ -311,7 +352,8 @@ class Debt(generics.ListCreateAPIView):
         queryset = models.Debt.objects.filter(bsheet_id=bsheet.id)
         return queryset
     
-    def perform_create(self):
+    def perform_create(self, serializer):
+        serializer = serializers.DebtSerializer
         uuid = self.request.user.uuid
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -326,6 +368,18 @@ class Debt(generics.ListCreateAPIView):
                         cat_id = cat,
                         **self.request.data
                         )
+
+class DebtInstance(generics.RetrieveUpdateDestroyAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.DebtSerializer
+    queryset = models.Debt.objects.all()
+    
+    def get_object(self):
+        try:
+            self.serializer_class = serializers.DebtsSerializer
+            return models.Debt.objects.get(id=self.kwargs['pk'])
+        except models.Debt.DoesNotExist:
+            raise status.HTTP_400_BAD_REQUEST
     
 class BalanceSheet(generics.RetrieveAPIView):
     permissions_classes = [permissions.IsAuthenticated]
