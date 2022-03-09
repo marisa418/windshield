@@ -63,7 +63,7 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Category
         exclude = ["user_id"]
-        read_only_fields = ["id"]
+        read_only_fields = ["id", "used_count"]
         
 class FinancialTypeSerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True, read_only=True)

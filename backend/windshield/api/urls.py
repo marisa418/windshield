@@ -13,9 +13,10 @@ urlpatterns = [
     path('statement/<str:pk>/name/', views.StatementChangeName.as_view(), name='statement-change-name'),
 
     #CATEGORY
-    path('categories/', views.Category.as_view(), name='categories-list'),
+    path('categories/', views.Categories.as_view(), name='categories-list'),
     path('categories-budgets-flows/', views.CategoryWithBudgetsAndFlows.as_view(), name='categories-with-budgets'),
     path('categories/financial-type/', views.FinancialTypeList.as_view(), name='financial-type-list'),
+    path('category/<str:pk>/', views.Category.as_view(), name='category-instance'),
     
     #BALANCE SHEET
     path('balance-sheet/', views.BalanceSheet.as_view(), name='balance-sheet'),
