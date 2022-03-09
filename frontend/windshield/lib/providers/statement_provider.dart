@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:windshield/models/statement/budget.dart';
+import 'package:windshield/models/statement/category.dart';
 
 import 'package:windshield/models/statement/statement.dart';
 
@@ -44,16 +45,7 @@ class StatementProvider extends ChangeNotifier {
   String _stmntId = '';
   String get stmntId => _stmntId;
 
-  // TEMP
-  StmntBudget budTemp = StmntBudget(
-    id: '',
-    catId: '',
-    balance: 0,
-    total: 0,
-    budPerPeriod: 0,
-    freq: '',
-    fplan: '',
-  );
+  // TEMP ======================================================================
   StmntStatement stmntTemp = StmntStatement(
     id: '',
     name: '',
@@ -69,9 +61,11 @@ class StatementProvider extends ChangeNotifier {
         budPerPeriod: 0,
         freq: '',
         fplan: '',
+        cat: StmntCategory(id: '', name: '', usedCount: 0, ftype: '', icon: ''),
       ),
     ],
   );
+  //============================================================================
 
   void setStatementList(List<StmntStatement> value) {
     _stmntList = value;
