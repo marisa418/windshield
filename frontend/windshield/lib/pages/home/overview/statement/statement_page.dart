@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:intl/intl.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/providers/statement_provider.dart';
@@ -177,7 +178,7 @@ class ActiveStatements extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  stmntActiveList[index].name,
+                  '${stmntActiveList[index].name} | ${DateFormat("d MMM y").format(stmntActiveList[index].start)}',
                   style: MyTheme.textTheme.headline4,
                 ),
                 const Divider(),
@@ -211,12 +212,14 @@ class ActiveStatements extends ConsumerWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    _getBudgetTotal(
+                                    _getIncTotal(
                                         stmntActiveList[index].budgets),
                                     style: MyTheme.whiteTextTheme.headline4,
                                   ),
                                   Text(
-                                    '50.95%',
+                                    _getIncPerc(
+                                            stmntActiveList[index].budgets) +
+                                        '%',
                                     style: MyTheme.whiteTextTheme.bodyText1,
                                   ),
                                 ],
@@ -235,6 +238,39 @@ class ActiveStatements extends ConsumerWidget {
                             end: Alignment.centerRight,
                             colors: MyTheme.expenseBackground,
                           ),
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(15),
+                            bottomRight: Radius.circular(15),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(7.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'งบรายจ่าย',
+                                style: MyTheme.whiteTextTheme.bodyText1,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    _getExpTotal(
+                                        stmntActiveList[index].budgets),
+                                    style: MyTheme.whiteTextTheme.headline4,
+                                  ),
+                                  Text(
+                                    _getExpPerc(
+                                            stmntActiveList[index].budgets) +
+                                        '%',
+                                    style: MyTheme.whiteTextTheme.bodyText1,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -249,12 +285,43 @@ class ActiveStatements extends ConsumerWidget {
   }
 }
 
-String _getBudgetTotal(List<StmntBudget> budget) {
+String _getIncTotal(List<StmntBudget> budget) {
   double sum = 0;
   for (var item in budget) {
-    sum += item.total;
+    if (item.cat.ftype == '1' ||
+        item.cat.ftype == '2' ||
+        item.cat.ftype == '3') {
+      sum += item.total;
+    }
   }
   return sum.toString();
 }
 
-// String _getBudgetPercentage(List<StmntBudget> budget) {}
+String _getExpTotal(List<StmntBudget> budget) {
+  double sum = 0;
+  for (var item in budget) {
+    if (item.cat.ftype == '4' ||
+        item.cat.ftype == '5' ||
+        item.cat.ftype == '6' ||
+        item.cat.ftype == '10' ||
+        item.cat.ftype == '11' ||
+        item.cat.ftype == '12') {
+      sum += item.total;
+    }
+  }
+  return sum.toString();
+}
+
+String _getIncPerc(List<StmntBudget> budget) {
+  final inc = _getIncTotal(budget);
+  final exp = _getExpTotal(budget);
+  double sum = double.parse(exp) + double.parse(inc);
+  return (double.parse(inc) / sum * 100).toStringAsFixed(2);
+}
+
+String _getExpPerc(List<StmntBudget> budget) {
+  final inc = _getIncTotal(budget);
+  final exp = _getExpTotal(budget);
+  double sum = double.parse(exp) + double.parse(inc);
+  return (double.parse(exp) / sum * 100).toStringAsFixed(2);
+}

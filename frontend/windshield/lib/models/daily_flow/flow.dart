@@ -7,6 +7,8 @@ class DFlowFlow {
   String dfId;
   String catId;
 
+  int methodId;
+
   DFlowFlow({
     required this.id,
     required this.method,
@@ -15,6 +17,7 @@ class DFlowFlow {
     required this.detail,
     required this.dfId,
     required this.catId,
+    this.methodId = 0,
   });
 
   factory DFlowFlow.fromJson(Map<String, dynamic> json) => DFlowFlow(

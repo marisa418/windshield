@@ -89,12 +89,13 @@ class BudgetProvider extends ChangeNotifier {
     }
     StmntBudget budget = StmntBudget(
       id: '',
-      catId: cat.id,
+      cat: StmntCategory(id: '', name: '', usedCount: 0, ftype: '', icon: ''),
       balance: 0,
       total: total,
       budPerPeriod: _budPerPeriod,
       freq: _budType,
       fplan: '',
+      catId: cat.id,
     );
     _budList.add(budget);
     _setTotalOnType(cat, true);
@@ -104,22 +105,6 @@ class BudgetProvider extends ChangeNotifier {
   void removeBudget(StmntCategory cat) {
     _setTotalOnType(cat, false);
     notifyListeners();
-  }
-
-  Color getColorByFtype(String value) {
-    if (value == '1') return Colors.amber;
-    if (value == '2') return Colors.lightBlue;
-    if (value == '3') return Colors.deepOrange;
-    if (value == '4') return Colors.deepPurple;
-    if (value == '5') return Colors.green;
-    if (value == '6') return Colors.pink;
-    if (value == '7') return Colors.yellow;
-    if (value == '8') return Colors.teal;
-    if (value == '9') return Colors.blueGrey;
-    if (value == '10') return Colors.red;
-    if (value == '11') return Colors.purple;
-    if (value == '12') return Colors.blue;
-    return Colors.black;
   }
 
   void setBudgetPerPeriod(double value) {
