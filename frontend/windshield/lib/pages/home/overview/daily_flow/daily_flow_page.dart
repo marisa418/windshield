@@ -13,8 +13,24 @@ class DailyFlowPage extends ConsumerWidget {
       error: (error, stackTrace) => Text(error.toString()),
       loading: () => Center(child: CircularProgressIndicator()),
       data: (data) {
-        return Container();
+        return Column(
+          children: [
+            SingleChildScrollView(),
+            SizedBox(
+              height: 100,
+            ),
+          ],
+        );
       },
     );
+  }
+}
+
+class Test extends ConsumerWidget {
+  const Test({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container();
   }
 }

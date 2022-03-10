@@ -159,5 +159,5 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
-ALLOWED_HOSTS = ['windshield-server.herokuapp.com', '127.0.0.1', 'localhost', '192.168.106.1']
+ALLOWED_HOSTS = ['*']
 
