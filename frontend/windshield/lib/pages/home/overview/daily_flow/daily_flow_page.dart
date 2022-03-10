@@ -13,24 +13,46 @@ class DailyFlowPage extends ConsumerWidget {
       error: (error, stackTrace) => Text(error.toString()),
       loading: () => Center(child: CircularProgressIndicator()),
       data: (data) {
-        return Column(
-          children: [
-            SingleChildScrollView(),
-            SizedBox(
-              height: 100,
-            ),
-          ],
+        return Scaffold(
+          body: Column(
+            children: [
+              const DailyList(),
+              Container(
+                height: 100,
+                color: Colors.white,
+              ),
+            ],
+          ),
         );
       },
     );
   }
 }
 
-class Test extends ConsumerWidget {
-  const Test({Key? key}) : super(key: key);
+class DailyList extends ConsumerWidget {
+  const DailyList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container();
+    final incWorking = ref.watch(provDFlow);
+    return Expanded(
+      child: SingleChildScrollView(
+          child: Column(
+        children: [
+          Container(color: Colors.pink, height: 200),
+          Container(color: Colors.red, height: 200),
+          GridView.builder(
+            shrinkWrap: true,
+            itemCount: incWorking.incWorkingList.length,
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 200),
+            itemBuilder: (_, index) {
+              print(index);
+              return Container(height: 50, width: 50, color: Colors.purple);
+            },
+          ),
+        ],
+      )),
+    );
   }
 }

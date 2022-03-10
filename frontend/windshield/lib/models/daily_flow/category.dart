@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../statement/budget.dart';
 import 'flow.dart';
 
@@ -26,12 +28,23 @@ class DFlowCategory {
         usedCount: json['used_count'],
         ftype: json['ftype'],
         icon: json['icon'],
-        budgets: List<StmntBudget>.from(
-          json['budgets'].map((x) => StmntBudget.fromJson(x)),
-        ),
-        flows: List<DFlowFlow>.from(
-          json['flows'].map((x) => DFlowFlow.fromJson(x)),
-        ),
+        // final data = (jsonDecode(res.toString()) as List)
+        //   .map((i) => DFlowCategory.fromJson(i))
+        //   .toList();
+        budgets: json['budgets']
+            .map((i) => StmntBudget.fromJson(jsonDecode(i)))
+            .toList(),
+        flows: json['flows']
+            .map((i) => DFlowFlow.fromJson(jsonDecode(i)))
+            .toList(),
+        // budgets: List<StmntBudget>.from(
+        //   json['budgets']
+        //       .map((x) => StmntBudget.fromJson(jsonDecode(x.toString()))),
+        // ),
+        // flows: List<DFlowFlow>.from(
+        //   json['flows']
+        //       .map((x) => DFlowFlow.fromJson(jsonDecode(x.toString()))),
+        // ),
       );
 
   Map<String, dynamic> toJson() => {

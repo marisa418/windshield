@@ -29,7 +29,7 @@ class Api extends ChangeNotifier {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.106.1:8000' + options.path;
+          options.path = 'http://192.168.1.39:8000' + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/')) {
@@ -273,11 +273,13 @@ class Api extends ChangeNotifier {
           options: Options(
             responseType: ResponseType.plain,
           ));
-      final data = (json.decode(res.toString()) as List)
+      final data = (jsonDecode(res.toString()) as List)
           .map((i) => DFlowCategory.fromJson(i))
           .toList();
+      print(data);
       return data;
     } catch (e) {
+      print(e);
       return [];
     }
   }

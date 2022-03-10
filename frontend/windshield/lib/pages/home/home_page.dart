@@ -1,9 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/components/fab_bottom_appbar.dart';
 import './overview/overview_page.dart';
+import 'package:windshield/routes/app_router.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -54,7 +56,9 @@ class _HomeState extends ConsumerState<HomePage> {
           height: 70,
           width: 70,
           child: FloatingActionButton(
-            onPressed: () {},
+            onPressed: () {
+              AutoRouter.of(context).push(const DailyFlowRoute());
+            },
             tooltip: 'Income Expense',
             child: const Icon(Icons.book),
           ),
