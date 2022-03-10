@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:windshield/models/daily_flow/budget.dart';
 
 import 'package:windshield/models/daily_flow/category.dart';
 import 'package:windshield/models/daily_flow/flow.dart';
-import 'package:windshield/models/statement/budget.dart';
-import 'package:windshield/models/statement/category.dart';
 
 class DailyFlowProvider extends ChangeNotifier {
   List<DFlowCategory> _catList = [];
@@ -58,9 +57,9 @@ class DailyFlowProvider extends ChangeNotifier {
     ftype: '',
     icon: '',
     budgets: [
-      StmntBudget(
+      DFlowBudget(
         id: '',
-        cat: StmntCategory(id: '', name: '', usedCount: 0, ftype: '', icon: ''),
+        catId: '',
         balance: 0,
         total: 0,
         budPerPeriod: 0,
