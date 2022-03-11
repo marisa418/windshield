@@ -90,7 +90,7 @@ class DailyFlow(generics.RetrieveUpdateDestroyAPIView):
 
 class DailyListFlow(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.DailyFlowListSerializer
+    serializer_class = serializers.DailyFlowSerializer
     
     def get_queryset(self):
         self.serializer_class = serializers.DailyFlowSerializer
@@ -472,7 +472,7 @@ class Categories(generics.ListCreateAPIView):
             cat_id = models.Category.objects.filter(user_id=uuid).count()
             ftype = str(self.request.data.pop("ftype"))
             ftype_instance = models.FinancialType.objects.get(id=ftype)
-            return serializer.save( id ='CAT' + str(uuid)[:10] + str("0" + str(cat_id))[-2:], 
+            return serializer.save( 
                             user_id = owner,
                             ftype = ftype_instance,
                             **self.request.data
@@ -550,3 +550,15 @@ class BudgetUpdate(generics.UpdateAPIView):
             result.save()
         serializer = serializers.BudgetCategorySerializer(result, many=isinstance(request.data, list), partial=partial)
         return Response(serializer.data)
+    
+class FinancialGoals(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.FinancialGoalsSerializer
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = models.FinancialGoal.objects.filter(user_id=uuid)
+        return queryset
+    

@@ -38,6 +38,9 @@ urlpatterns = [
     path('daily-flow/', views.DailyListFlow.as_view(), name="daily-flow"),
     path('daily-flow/<str:pk>/', views.DailyFlow.as_view(), name="daily-flow-update"),
     
+    #FINANCIAL GOAL
+    path('financial-goal/', views.FinancialGoals.as_view(), name="financial-goal"),
+    
     #FOR ADMIN
-    path('default-categories/', views.DefaultCategories.as_view(), name='default-categories'),
+    path('default-categories/', views.DefaultCategories.as_view(), name='default-categories')
 ]

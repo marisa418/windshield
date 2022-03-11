@@ -1,7 +1,7 @@
 from datetime import datetime
 from operator import mod
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.db.models.deletion import CASCADE
 from django.utils.timezone import now
@@ -73,13 +73,13 @@ def add_default_cat(sender, instance, created, *args, **kwargs):
                 Category.objects.create(name=instance.name, ftype=instance.ftype, user_id=user, icon=instance.icon)
 
 class Category(models.Model):
-    id = models.CharField(max_length=15, primary_key=True)
+    id = models.CharField(max_length=17, primary_key=True)
     name = models.CharField(max_length=30)
-    # status = 
     ftype = models.ForeignKey(FinancialType, related_name='categories',on_delete=CASCADE)
     user_id = models.ForeignKey(NewUser, on_delete = CASCADE)
     used_count = models.PositiveIntegerField(default=0)
     icon = models.CharField(max_length=30, default="shield-alt")
+    isDeleted = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'category'
@@ -87,12 +87,21 @@ class Category(models.Model):
     def __str__(self):
         return self.id + " " + self.name
     
+    def recover(self):
+        self.isDeleted = False
+    
+    def delete(self, *args, **kwargs):
+        if not self.isDeleted:
+            self.isDeleted = True
+        else:
+            return super(Category, self).delete(*args, **kwargs)
+    
     def save(self, *args, **kwargs):
         if not self.id:
             last_id = Category.objects.filter(user_id=self.user_id.uuid).last()
             if last_id == None: no_id = 0
-            else: no_id = int(last_id.id[-2:]) + 1
-            self.id =  "CAT" + str(self.user_id.uuid)[:10] + str("0" + str(no_id))[-2:]
+            else: no_id = int(last_id.id[-4:]) + 1
+            self.id =  "CAT" + str(self.user_id.uuid)[:10] + str("000" + str(no_id))[-4:]
         return super(Category, self).save(*args, **kwargs)
 
 class Asset(models.Model):
@@ -102,7 +111,7 @@ class Asset(models.Model):
         ('RTF', 'Rental Fee'),
         ('SEL', 'Sell')
     ]
-    id = models.CharField(max_length=17, primary_key=True)
+    id = models.CharField(max_length=19, primary_key=True)
     cat_id = models.ForeignKey(Category, on_delete=CASCADE)
     bsheet_id = models.ForeignKey(BalanceSheet, related_name='assets', on_delete=CASCADE)
     source = models.CharField(max_length=30)
@@ -154,7 +163,7 @@ class Asset(models.Model):
         return super(Asset, self).save(*args, **kwargs)
 
 class Debt(models.Model):
-    id = models.CharField(max_length=17, primary_key=True)
+    id = models.CharField(max_length=19, primary_key=True)
     cat_id = models.ForeignKey(Category, on_delete=CASCADE)
     bsheet_id = models.ForeignKey(BalanceSheet, related_name='debts', on_delete=CASCADE)
     balance = models.DecimalField(max_digits=12, decimal_places=2)
@@ -241,7 +250,7 @@ class Budget(models.Model):
         ('MLY', 'Monthly'),
         ('ALY', 'Annually'),
     ]
-    id = models.CharField(max_length=24, primary_key=True)
+    id = models.CharField(max_length=26, primary_key=True)
     cat_id = models.ForeignKey(Category, related_name="budgets",on_delete=CASCADE)
     fplan = models.ForeignKey(FinancialStatementPlan, related_name="budgets", on_delete=CASCADE)
     used_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -304,7 +313,7 @@ class Method(models.Model):
         return str(self.id) + " " + self.name + " (" + str(self.user_id) + ")"
 
 class DailyFlow(models.Model):
-    id = models.CharField(max_length=21, primary_key=True)
+    id = models.CharField(max_length=23, primary_key=True)
     df_id = models.ForeignKey(DailyFlowSheet, related_name='flows', on_delete=CASCADE)
     category = models.ForeignKey(Category, related_name='flows', on_delete=CASCADE)
     name = models.CharField(max_length=30)
@@ -350,7 +359,7 @@ class DailyFlow(models.Model):
         if cat is None:
             raise ValidationError("category is not exist")
         if not self.id:
-            prefix = str(cat.id)[-2:] + "F" + str(self.df_id)[3:]
+            prefix = str(cat.id)[-4:] + "F" + str(self.df_id)[3:]
             last_id = DailyFlow.objects.filter(id__startswith=prefix).last()
             if last_id == None: no_id = 0
             else: no_id = int(last_id.id[-2:]) + 1
@@ -365,18 +374,23 @@ class DailyFlow(models.Model):
         return super(DailyFlow, self).save(*args, **kwargs)
 
 class FinancialGoal(models.Model):
-    id = models.CharField(max_length=15, primary_key=True)
+    period = [
+        ('DLY', 'Daily'),
+        ('WLY', 'Weekly'),
+        ('MLY', 'Monthly'),
+        ('ALY', 'Annually'),
+    ]
+    id = models.CharField(max_length=16, primary_key=True)
     name = models.CharField(max_length=30)
-    # detail = models.TextField(null=True)
-    # category_id = models.ForeignKey(Category, on_delete=CASCADE)
+    user_id = models.ForeignKey(NewUser, on_delete=CASCADE)
+    category_id = models.ForeignKey(Category, on_delete=CASCADE)
     icon = models.CharField(max_length=30, default='flag')
-    term = models.PositiveIntegerField(null=True)
     goal = models.DecimalField(max_digits=12, decimal_places=2)
     total_progress = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     start = models.DateField()
-    # strategy = 
-    period_term = models.PositiveIntegerField(null=True)
+    goal_date = models.DateField(null=True)
     progress_per_period = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    period_term = models.CharField(max_length=3, choices=period)
     reward = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -384,6 +398,19 @@ class FinancialGoal(models.Model):
 
     def __str__(self):
         return self.id
+    
+    def save(self, *args, **kwargs):
+        if not self.id:
+            goaltype = FinancialType.objects.get(id=12)
+            goalcat = Category.objects.create(name=self.name, ftype=goaltype, user_id=self.user_id, icon=self.icon)
+            last_id = FinancialGoal.objects.filter(user_id=self.user_id.uuid).last()
+            if last_id == None: no_id = 0
+            else: no_id = int(last_id.id[-3:]) + 1
+            self.id =  "FNG" + str(self.user_id.uuid)[:10] + str("00" + str(no_id))[-3:]
+            self.category_id = goalcat
+        else:
+            self.category_id.update(name=self.name, icon=self.icon)
+        return super(FinancialGoal, self).save(*args, **kwargs)
 
 # class Admin(models.Model):
 #     id = models.CharField(max_length=3, primary_key=True)
