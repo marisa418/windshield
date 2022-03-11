@@ -1,4 +1,4 @@
-import '../statement/budget.dart';
+import 'budget.dart';
 import 'flow.dart';
 
 class DFlowCategory {
@@ -7,7 +7,7 @@ class DFlowCategory {
   int usedCount;
   String ftype;
   String icon;
-  List<StmntBudget> budgets;
+  List<DFlowBudget> budgets;
   List<DFlowFlow> flows;
 
   DFlowCategory({
@@ -26,12 +26,10 @@ class DFlowCategory {
         usedCount: json['used_count'],
         ftype: json['ftype'],
         icon: json['icon'],
-        budgets: List<StmntBudget>.from(
-          json['budgets'].map((x) => StmntBudget.fromJson(x)),
-        ),
+        budgets: List<DFlowBudget>.from(
+            json['budgets'].map((x) => DFlowBudget.fromJson(x))),
         flows: List<DFlowFlow>.from(
-          json['flows'].map((x) => DFlowFlow.fromJson(x)),
-        ),
+            json['flows'].map((x) => DFlowFlow.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
