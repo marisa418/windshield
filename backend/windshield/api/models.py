@@ -341,6 +341,15 @@ class DailyFlow(models.Model):
         budget.save()
         return True
     
+    def __update_goal__(self, category, change):
+        try:
+            goal = FinancialGoal.objects.get(category_id=category.id)
+        except FinancialGoal.DoesNotExist:
+            return False
+        goal.total_progress += change
+        goal.save()
+        return True
+    
     def delete(self):
         dfsheet = DailyFlowSheet.objects.get(id=self.df_id.id)
         if dfsheet is None:
@@ -352,6 +361,7 @@ class DailyFlow(models.Model):
         cat.used_count -= 1
         cat.save()
         self.__update_budget__(dfsheet.date, cat, change)
+        self.__update_goal__(cat, change)
         return super(DailyFlow, self).delete()
     
     def save(self, *args, **kwargs):
@@ -374,6 +384,7 @@ class DailyFlow(models.Model):
             flow = DailyFlow.objects.get(id=self.id)
             change = self.value - flow.value
         self.__update_budget__(dfsheet.date, cat, change)
+        self.__update_goal__(cat, change)
         return super(DailyFlow, self).save(*args, **kwargs)
 
 class FinancialGoal(models.Model):
