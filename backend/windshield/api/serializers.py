@@ -151,5 +151,4 @@ class FinancialGoalsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.FinancialGoal
         exclude = ["user_id"]
-        fields = "__all__"
         read_only_fields = ["id", "reward", "total_progress"]

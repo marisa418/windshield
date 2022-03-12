@@ -469,7 +469,6 @@ class Categories(generics.ListCreateAPIView):
         uuid = self.request.user.uuid
         if uuid is not None:
             owner = NewUser.objects.get(uuid=uuid)
-            cat_id = models.Category.objects.filter(user_id=uuid).count()
             ftype = str(self.request.data.pop("ftype"))
             ftype_instance = models.FinancialType.objects.get(id=ftype)
             return serializer.save( 
@@ -550,8 +549,8 @@ class BudgetUpdate(generics.UpdateAPIView):
             result.save()
         serializer = serializers.BudgetCategorySerializer(result, many=isinstance(request.data, list), partial=partial)
         return Response(serializer.data)
-    
-class FinancialGoals(generics.ListAPIView):
+
+class FinancialGoalInstance(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.FinancialGoalsSerializer
     
@@ -561,4 +560,26 @@ class FinancialGoals(generics.ListAPIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         queryset = models.FinancialGoal.objects.filter(user_id=uuid)
         return queryset
+    
+class FinancialGoals(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.FinancialGoalsSerializer
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = models.FinancialGoal.objects.filter(user_id=uuid)
+        return queryset
+    
+    def perform_create(self, serializer):
+        uuid = self.request.user.uuid
+        if uuid is not None:
+            owner = NewUser.objects.get(uuid=uuid)
+            return serializer.save( 
+                            user_id = owner,
+                            **self.request.data
+                            )
+        else :
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
     

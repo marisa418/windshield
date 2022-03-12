@@ -85,7 +85,9 @@ class Category(models.Model):
         db_table = 'category'
 
     def __str__(self):
-        return self.id + " " + self.name
+        if self.isDeleted: deleteStr = "deleted"
+        else: deleteStr = ""
+        return self.id + " " + self.name + " " + deleteStr
     
     def recover(self):
         self.isDeleted = False
@@ -93,6 +95,7 @@ class Category(models.Model):
     def delete(self, *args, **kwargs):
         if not self.isDeleted:
             self.isDeleted = True
+            self.save()
         else:
             return super(Category, self).delete(*args, **kwargs)
     
@@ -380,7 +383,7 @@ class FinancialGoal(models.Model):
         ('MLY', 'Monthly'),
         ('ALY', 'Annually'),
     ]
-    id = models.CharField(max_length=16, primary_key=True)
+    id = models.CharField(max_length=17, primary_key=True)
     name = models.CharField(max_length=30)
     user_id = models.ForeignKey(NewUser, on_delete=CASCADE)
     category_id = models.ForeignKey(Category, on_delete=CASCADE)
@@ -397,19 +400,27 @@ class FinancialGoal(models.Model):
         db_table = 'financial_goal'
 
     def __str__(self):
-        return self.id
+        return self.id + " " + self.name + " (" + str(self.total_progress) + "/" + str(self.goal) + ")"
+    
+    def delete(self, *args, **kwargs):
+        goalcat = Category.objects.get(id=self.category_id.id)
+        goalcat.delete()
+        return super(FinancialGoal, self).delete(*args, **kwargs)
     
     def save(self, *args, **kwargs):
         if not self.id:
+            print(self.user_id)
             goaltype = FinancialType.objects.get(id=12)
             goalcat = Category.objects.create(name=self.name, ftype=goaltype, user_id=self.user_id, icon=self.icon)
             last_id = FinancialGoal.objects.filter(user_id=self.user_id.uuid).last()
             if last_id == None: no_id = 0
-            else: no_id = int(last_id.id[-3:]) + 1
-            self.id =  "FNG" + str(self.user_id.uuid)[:10] + str("00" + str(no_id))[-3:]
+            else: no_id = int(last_id.id[-4:]) + 1
+            self.id =  "FNG" + str(self.user_id.uuid)[:10] + str("000" + str(no_id))[-4:]
             self.category_id = goalcat
         else:
-            self.category_id.update(name=self.name, icon=self.icon)
+            self.category_id.name = self.name
+            self.category_id.icon = self.icon
+            self.category_id.save()
         return super(FinancialGoal, self).save(*args, **kwargs)
 
 # class Admin(models.Model):
