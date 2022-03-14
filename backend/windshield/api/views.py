@@ -510,7 +510,7 @@ class Budget(generics.ListCreateAPIView):
         data = output_serializer.data[-n:]
         return Response(data)
     
-class BudgetUpdate(generics.UpdateAPIView):
+class BudgetUpdate(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.BudgetUpdateSerializer
     queryset = models.Budget.objects.all()
@@ -549,6 +549,19 @@ class BudgetUpdate(generics.UpdateAPIView):
             result.save()
         serializer = serializers.BudgetCategorySerializer(result, many=isinstance(request.data, list), partial=partial)
         return Response(serializer.data)
+    
+class BudgetDelete(generics.DestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.BudgetDeleteSerializer
+    queryset = models.Budget.objects.all()
+    
+    def delete(self, request, *args, **kwargs):
+        if isinstance(request.data, list):
+            targets = models.Budget.objects.filter(id__in=request.data)
+            result = targets.delete()
+            return Response(result[0], status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class FinancialGoalInstance(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]

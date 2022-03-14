@@ -114,6 +114,11 @@ class BudgetUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "total_budget", "cat_id", "fplan"]
         fields = "__all__"
 
+class BudgetDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Budget
+        fields = ['id']
+
 class BudgetCategorySerializer(serializers.ModelSerializer):
     cat_id = CategorySerializer(read_only=True)
 
