@@ -67,7 +67,10 @@ class Overview extends StatelessWidget {
                     Column(
                       children: [
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            AutoRouter.of(context)
+                                .push(const BalanceSheetRoute());
+                          },
                           child: Container(
                             alignment: Alignment.center,
                             height: 60,

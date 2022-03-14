@@ -55,6 +55,7 @@ class DailyFlowPage extends ConsumerWidget {
   }
 }
 
+//ตั้งแต่บนจนก่อนถึงปุ่มย้อนกลับ
 class DailyList extends ConsumerWidget {
   const DailyList({Key? key}) : super(key: key);
 
@@ -64,8 +65,8 @@ class DailyList extends ConsumerWidget {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            Container(color: Colors.pink, height: 200),
-            Container(color: Colors.red, height: 200),
+            Container(color: Colors.pink, height: 170),
+            Container(color: Colors.red, height: 170),
             const IncWorkingTab(),
             const IncAssetTab(),
           ],
@@ -84,7 +85,7 @@ class IncWorkingTab extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('รายรับจากการทำงาน'),
+        Text('รายรับจากการทำงาน', style: MyTheme.textTheme.headline3),
         GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
@@ -116,7 +117,7 @@ class IncAssetTab extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('รายรับจากสินทรัพย์'),
+        Text('รายรับจากสินทรัพย์', style: MyTheme.textTheme.headline3),
         GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
