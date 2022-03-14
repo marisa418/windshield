@@ -9,6 +9,14 @@ from user.models import NewUser, Province
 from django.core.exceptions import ValidationError
 import math
 
+# __validators__
+
+def validate_ispositive(value):
+    if value <= 0:
+        raise ValidationError("The field's value must can not be zero or negative")
+
+# __validators__
+
 class BalanceSheet(models.Model):
     id = models.CharField(max_length=13, primary_key=True)
     owner_id = models.ForeignKey(NewUser, on_delete = CASCADE)
@@ -23,7 +31,7 @@ class BalanceSheetLog(models.Model):
     id = models.AutoField(primary_key=True)
     bsheet_id = models.ForeignKey(BalanceSheet, on_delete=CASCADE)
     timestamp = models.DateTimeField(default=now)
-    asset_value = models.DecimalField(max_digits=12, decimal_places=2)
+    asset_value = models.DecimalField(max_digits=12, decimal_places=2, validators=[validate_ispositive])
     debt_balance = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
@@ -118,9 +126,9 @@ class Asset(models.Model):
     cat_id = models.ForeignKey(Category, on_delete=CASCADE)
     bsheet_id = models.ForeignKey(BalanceSheet, related_name='assets', on_delete=CASCADE)
     source = models.CharField(max_length=30)
-    recent_value = models.DecimalField(max_digits=12, decimal_places=2)
+    recent_value = models.DecimalField(max_digits=12, decimal_places=2, validators=[validate_ispositive])
     benefit_type = models.CharField(max_length=3, choices=benefit_type_choice, null=True)
-    benefit_value = models.DecimalField(decimal_places=2, max_digits=12, null=True)
+    benefit_value = models.DecimalField(decimal_places=2, max_digits=12, null=True, validators=[validate_ispositive])
 
     class Meta:
         db_table = 'asset'
@@ -169,7 +177,7 @@ class Debt(models.Model):
     id = models.CharField(max_length=19, primary_key=True)
     cat_id = models.ForeignKey(Category, on_delete=CASCADE)
     bsheet_id = models.ForeignKey(BalanceSheet, related_name='debts', on_delete=CASCADE)
-    balance = models.DecimalField(max_digits=12, decimal_places=2)
+    balance = models.DecimalField(max_digits=12, decimal_places=2, validators=[validate_ispositive])
     creditor = models.CharField(max_length=30)
     interest = models.DecimalField(decimal_places=2, max_digits=5, null=True)
     debt_term = models.DateField(null=True)
@@ -258,7 +266,7 @@ class Budget(models.Model):
     fplan = models.ForeignKey(FinancialStatementPlan, related_name="budgets", on_delete=CASCADE)
     used_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_budget = models.DecimalField(max_digits=12, decimal_places=2)
-    budget_per_period = models.DecimalField(max_digits=12, decimal_places=2)
+    budget_per_period = models.DecimalField(max_digits=12, decimal_places=2, validators=[validate_ispositive])
     frequency = models.CharField(max_length=3, choices=freq_choices, default=freq_choices[2][0])
     # due_date = models.DateTimeField(null=True)
 
@@ -320,7 +328,7 @@ class DailyFlow(models.Model):
     df_id = models.ForeignKey(DailyFlowSheet, related_name='flows', on_delete=CASCADE)
     category = models.ForeignKey(Category, related_name='flows', on_delete=CASCADE)
     name = models.CharField(max_length=30)
-    value = models.DecimalField(max_digits=12, decimal_places=2)
+    value = models.DecimalField(max_digits=12, decimal_places=2, validators=[validate_ispositive])
     method = models.ForeignKey(Method, on_delete=CASCADE)
     detail = models.TextField(null=True)
     # photo = models.FilePathField()
@@ -399,7 +407,7 @@ class FinancialGoal(models.Model):
     user_id = models.ForeignKey(NewUser, on_delete=CASCADE)
     category_id = models.ForeignKey(Category, on_delete=CASCADE)
     icon = models.CharField(max_length=30, default='flag')
-    goal = models.DecimalField(max_digits=12, decimal_places=2)
+    goal = models.DecimalField(max_digits=12, decimal_places=2, validators=[validate_ispositive])
     total_progress = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     start = models.DateField()
     goal_date = models.DateField(null=True)
