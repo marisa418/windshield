@@ -61,35 +61,43 @@ class DailyList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return IndexedStack(
-      index: ref.watch(provDFlow.select((e) => e.pageIdx)),
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(color: Colors.green, height: 170),
-                Container(color: Colors.blue, height: 170),
-                const IncWorkingTab(),
-                const IncAssetTab(),
-                // ตรงนี้ให้ใส่ IncOtherTab(),
-              ],
-            ),
+    final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
+    if (idx == 0) {
+      return Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                height: 170,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    colors: MyTheme.majorBackground,
+                    end: Alignment.centerRight,
+                  ),
+                ),
+              ),
+              Container(color: Colors.blue, height: 170),
+              const IncWorkingTab(),
+              const IncAssetTab(),
+              const IncOtherTab(),
+            ],
           ),
         ),
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(color: Colors.pink, height: 170),
-                Container(color: Colors.red, height: 170),
-                // ตรงนี้ให้หลิวใส่ tab ของพวก _exp
-              ],
-            ),
+      );
+    } else {
+      return Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(color: Colors.pink, height: 170),
+              Container(color: Colors.red, height: 170),
+              // ตรงนี้ให้หลิวใส่ tab ของพวก _exp
+            ],
           ),
         ),
-      ],
-    );
+      );
+    }
   }
 }
 
