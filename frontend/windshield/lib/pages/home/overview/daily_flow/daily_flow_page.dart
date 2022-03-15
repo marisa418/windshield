@@ -62,13 +62,20 @@ class DailyList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Expanded(
       child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(color: Colors.pink, height: 200),
-            Container(color: Colors.red, height: 200),
-            const IncWorkingTab(),
-            const IncAssetTab(),
-          ],
+        child: GestureDetector(
+          onTap: () {
+            //ref.read(provDFlow).setPageIdx();
+            print("On tap");
+          },
+          child: Column(
+            children: [
+              Container(color: Colors.pink, height: 200),
+              Container(color: Colors.red, height: 200),
+              const IncWorkingTab(),
+              const IncAssetTab(),
+              const IncOtherTab(),
+            ],
+          ),
         ),
       ),
     );
@@ -121,6 +128,38 @@ class IncAssetTab extends ConsumerWidget {
           physics: const ScrollPhysics(),
           shrinkWrap: true,
           itemCount: incAssetList.length,
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 100,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+          ),
+          itemBuilder: (_, index) {
+            return Container(
+              height: 50,
+              width: 50,
+              color: Colors.purple,
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class IncOtherTab extends ConsumerWidget {
+  const IncOtherTab({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final incOtherList = ref.watch(provDFlow.select((e) => e.incOtherList));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('รายรับอื่นๆ'),
+        GridView.builder(
+          physics: const ScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: incOtherList.length,
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: 100,
             mainAxisSpacing: 10,
