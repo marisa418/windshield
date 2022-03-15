@@ -15,7 +15,7 @@ class DailyFlowPage extends ConsumerWidget {
     final api = ref.watch(apiDFlow);
     return api.when(
       error: (error, stackTrace) => Text(error.toString()),
-      loading: () => Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CircularProgressIndicator()),
       data: (data) {
         return Scaffold(
           body: Column(
@@ -55,29 +55,40 @@ class DailyFlowPage extends ConsumerWidget {
   }
 }
 
+//ตั้งแต่บนจนก่อนถึงปุ่มย้อนกลับ
 class DailyList extends ConsumerWidget {
   const DailyList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Expanded(
-      child: SingleChildScrollView(
-        child: GestureDetector(
-          onTap: () {
-            //ref.read(provDFlow).setPageIdx();
-            print("On tap");
-          },
-          child: Column(
-            children: [
-              Container(color: Colors.pink, height: 200),
-              Container(color: Colors.red, height: 200),
-              const IncWorkingTab(),
-              const IncAssetTab(),
-              const IncOtherTab(),
-            ],
+    return IndexedStack(
+      index: ref.watch(provDFlow.select((e) => e.pageIdx)),
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(color: Colors.green, height: 170),
+                Container(color: Colors.blue, height: 170),
+                const IncWorkingTab(),
+                const IncAssetTab(),
+                // ตรงนี้ให้ใส่ IncOtherTab(),
+              ],
+            ),
           ),
         ),
-      ),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(color: Colors.pink, height: 170),
+                Container(color: Colors.red, height: 170),
+                // ตรงนี้ให้หลิวใส่ tab ของพวก _exp
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -91,7 +102,7 @@ class IncWorkingTab extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('รายรับจากการทำงาน'),
+        Text('รายรับจากการทำงาน', style: MyTheme.textTheme.headline3),
         GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
@@ -123,7 +134,7 @@ class IncAssetTab extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('รายรับจากสินทรัพย์'),
+        Text('รายรับจากสินทรัพย์', style: MyTheme.textTheme.headline3),
         GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,

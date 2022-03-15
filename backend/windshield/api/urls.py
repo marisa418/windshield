@@ -28,6 +28,7 @@ urlpatterns = [
     #BUDGET
     path('budget/', views.Budget.as_view(), name='budget'),
     path('budget/update/', views.BudgetUpdate.as_view(), name='budgets-update'),
+    path('budget/delete/', views.BudgetDelete.as_view(), name='budgets-delete'),
     
     #DAILY FLOW SHEET
     path('daily-flow-sheet/', views.DailyFlowSheet.as_view(), name="daily-flow_sheet"),
@@ -38,6 +39,10 @@ urlpatterns = [
     path('daily-flow/', views.DailyListFlow.as_view(), name="daily-flow"),
     path('daily-flow/<str:pk>/', views.DailyFlow.as_view(), name="daily-flow-update"),
     
+    #FINANCIAL GOAL
+    path('financial-goal/', views.FinancialGoals.as_view(), name="financial-goals"),
+    path('financial-goal/<str:pk>/', views.FinancialGoalInstance.as_view(), name="financial-goal"),
+    
     #FOR ADMIN
-    path('default-categories/', views.DefaultCategories.as_view(), name='default-categories'),
+    path('default-categories/', views.DefaultCategories.as_view(), name='default-categories')
 ]

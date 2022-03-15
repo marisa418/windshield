@@ -4,14 +4,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
+import 'package:windshield/models/balance_sheet/asset.dart';
 import 'package:windshield/models/daily_flow/flow.dart';
 
 import '../../models/user.dart';
 import '../../models/provinces.dart';
 import '../../models/statement/statement.dart';
 import '../../models/statement/category.dart';
-import '../../models/statement/budget.dart';
 import '../../models/daily_flow/category.dart';
+import '../../models/balance_sheet/balance_sheet.dart';
 
 class Api extends ChangeNotifier {
   Dio dio = Dio();
@@ -258,7 +259,7 @@ class Api extends ChangeNotifier {
   Future<String> getTodayDFId() async {
     try {
       final res = await dio.get('/api/daily-flow-sheet/');
-      final data = json.decode(res.toString());
+      final data = jsonDecode('$res');
       return data['id'];
     } catch (e) {
       return '';
@@ -296,7 +297,7 @@ class Api extends ChangeNotifier {
           "method": method,
         },
       );
-      final data = (jsonDecode(res.toString()) as List)
+      final data = (jsonDecode('$res') as List)
           .map((i) => DFlowFlow.fromJson(i))
           .toList();
       return data[0];
@@ -324,7 +325,7 @@ class Api extends ChangeNotifier {
           "method": method,
         },
       );
-      final data = DFlowFlow.fromJson(jsonDecode(res.toString()));
+      final data = DFlowFlow.fromJson(jsonDecode('$res'));
       return data;
     } catch (e) {
       return DFlowFlow(
@@ -342,7 +343,7 @@ class Api extends ChangeNotifier {
   Future<String> deleteFlow(String id) async {
     try {
       final res = await dio.delete('/api/daily-flow/$id/');
-      final data = DFlowFlow.fromJson(jsonDecode(res.toString()));
+      final data = DFlowFlow.fromJson(jsonDecode('$res'));
       return data.id;
     } catch (e) {
       return '';
@@ -350,4 +351,16 @@ class Api extends ChangeNotifier {
   }
 
   //งบดุลการเงิน
+  Future<BSheetBalance?> getBalanceSheet() async {
+    try {
+      final res = await dio.get('/api/balance-sheet/',
+          options: Options(
+            responseType: ResponseType.plain,
+          ));
+      final data = BSheetBalance.fromJson(jsonDecode('$res'));
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
 }

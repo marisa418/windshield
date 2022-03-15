@@ -1,4 +1,3 @@
-from dataclasses import field
 from rest_framework import serializers
 from . import models
 
@@ -20,13 +19,6 @@ class MethodSerializer(serializers.ModelSerializer):
         model = models.Method
         exclude = ["user_id"]
 
-class DailyFlowSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = models.DailyFlow
-        fields = '__all__'
-        read_only_fields = ['id', 'df_id', 'category']
-
 class DailyFlowCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
@@ -34,7 +26,7 @@ class DailyFlowCreateSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['id']
 
-class DailyFlowListSerializer(serializers.ModelSerializer):
+class DailyFlowSerializer(serializers.ModelSerializer):
     method = MethodSerializer(read_only=True)
     
     class Meta:
@@ -63,7 +55,7 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Category
         exclude = ["user_id"]
-        read_only_fields = ["id", "used_count"]
+        read_only_fields = ["id", "used_count", "isDeleted"]
         
 class FinancialTypeSerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True, read_only=True)
@@ -85,7 +77,7 @@ class AssetsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Asset
         fields = '__all__'
-        read_only_fields = ['id', 'bsheet_id']
+        read_only_fields = ['id', 'bsheet_id', 'isDeleted']
 
 class DebtSerializer(serializers.ModelSerializer):
     
@@ -122,6 +114,11 @@ class BudgetUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "total_budget", "cat_id", "fplan"]
         fields = "__all__"
 
+class BudgetDeleteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Budget
+        fields = ['id']
+
 class BudgetCategorySerializer(serializers.ModelSerializer):
     cat_id = CategorySerializer(read_only=True)
 
@@ -146,9 +143,17 @@ class StatementUpdateSerializer(serializers.ModelSerializer):
         
 class CategoryWithBudgetAndFlowsSerializer(serializers.ModelSerializer):
     budgets = BudgetSerializer(many=True)
-    flows = DailyFlowListSerializer(many=True)
+    flows = DailyFlowSerializer(many=True)
     
     class Meta:
         model = models.Category
         exclude = ["user_id"]
-        read_only_fields = ["id", "budgets", "flows"]
+        read_only_fields = ["id", "budgets", "flows", "isDeleted"]
+        
+class FinancialGoalsSerializer(serializers.ModelSerializer):
+    category_id = CategorySerializer(read_only=True)
+    
+    class Meta:
+        model = models.FinancialGoal
+        exclude = ["user_id"]
+        read_only_fields = ["id", "reward", "total_progress"]
