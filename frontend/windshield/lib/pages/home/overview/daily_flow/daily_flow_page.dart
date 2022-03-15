@@ -15,7 +15,7 @@ class DailyFlowPage extends ConsumerWidget {
     final api = ref.watch(apiDFlow);
     return api.when(
       error: (error, stackTrace) => Text(error.toString()),
-      loading: () => Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CircularProgressIndicator()),
       data: (data) {
         return Scaffold(
           body: Column(
@@ -61,17 +61,34 @@ class DailyList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(color: Colors.pink, height: 170),
-            Container(color: Colors.red, height: 170),
-            const IncWorkingTab(),
-            const IncAssetTab(),
-          ],
+    return IndexedStack(
+      index: ref.watch(provDFlow.select((e) => e.pageIdx)),
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(color: Colors.green, height: 170),
+                Container(color: Colors.blue, height: 170),
+                const IncWorkingTab(),
+                const IncAssetTab(),
+                // ตรงนี้ให้ใส่ IncOtherTab(),
+              ],
+            ),
+          ),
         ),
-      ),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(color: Colors.pink, height: 170),
+                Container(color: Colors.red, height: 170),
+                // ตรงนี้ให้หลิวใส่ tab ของพวก _exp
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
