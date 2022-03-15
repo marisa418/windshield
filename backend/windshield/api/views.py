@@ -69,7 +69,7 @@ class FinancialTypeList(generics.ListAPIView):
         domain = self.request.query_params.get("domain", None)
         if domain is not None:
             queryset = queryset.filter(domain=domain)
-        cat = models.Category.objects.filter(user_id=uuid)
+        cat = models.Category.objects.filter(user_id=uuid, isDeleted=False)
         queryset = queryset.prefetch_related(
             Prefetch('categories', queryset=cat)
         )
@@ -204,6 +204,9 @@ class Statement(generics.ListCreateAPIView):
             if date is not None:
                 date = datetime.strptime(date, "%Y-%m-%d")
                 queryset = queryset.filter(start__lte=date, end__gte=date)
+            queryset = queryset.prefetch_related(
+                Prefetch('budgets', queryset=models.Budget.objects.filter(cat_id__isDeleted=False))
+            )
             return queryset
         else :
             return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
@@ -308,7 +311,7 @@ class Asset(generics.ListCreateAPIView):
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
-        queryset = models.Asset.objects.filter(bsheet_id=bsheet.id)
+        queryset = models.Asset.objects.filter(bsheet_id=bsheet.id, cat_id__isDeleted=False)
         return queryset
     
     def perform_create(self, serializer):
@@ -349,7 +352,7 @@ class Debt(generics.ListCreateAPIView):
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
-        queryset = models.Debt.objects.filter(bsheet_id=bsheet.id)
+        queryset = models.Debt.objects.filter(bsheet_id=bsheet.id, cat_id__isDeleted=False)
         return queryset
     
     def perform_create(self, serializer):
@@ -389,7 +392,12 @@ class BalanceSheet(generics.RetrieveAPIView):
         uuid = self.request.user.uuid
         if uuid is not None:
             try:
-                bsheet = models.BalanceSheet.objects.get(owner_id = uuid)
+                assets = models.Asset.objects.filter(cat_id__isDeleted=False)
+                debts = models.Debt.objects.filter(cat_id__isDeleted=False)
+                bsheet = models.BalanceSheet.objects.prefetch_related(
+                    Prefetch('assets', queryset=assets),
+                    Prefetch('debts', queryset=debts)
+                ).get(owner_id = uuid)
             except models.BalanceSheet.DoesNotExist:
                 owner = models.NewUser.objects.get(uuid=uuid)
                 bsheet = models.BalanceSheet.objects.create(id = "BSH" + str(uuid)[:10],
@@ -491,7 +499,7 @@ class Budget(generics.ListCreateAPIView):
             fplan_instance = fplan_queryset.get(start__lte=now, end__gte=now, chosen=True)
         else: 
             fplan_instance = fplan_queryset.get(id=fplan)
-        queryset = models.Budget.objects.filter(fplan=fplan_instance)
+        queryset = models.Budget.objects.filter(fplan=fplan_instance, cat_id__isDeleted=False)
         return queryset
     
     def create(self, request):
