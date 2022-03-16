@@ -8,7 +8,7 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import datetime
 from pytz import timezone
-from django.db.models import Q, Prefetch
+from django.db.models import Q, F, Prefetch
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -353,6 +353,13 @@ class Debt(generics.ListCreateAPIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
         queryset = models.Debt.objects.filter(bsheet_id=bsheet.id, cat_id__isDeleted=False)
+        priority = self.request.query_params.get("priority", False)
+        if priority:
+            queryset = queryset.order_by(
+                F('interest').desc(nulls_last=True),
+                F('balance').asc(),
+                F('debt_term').asc(nulls_first=True)
+            )
         return queryset
     
     def perform_create(self, serializer):
