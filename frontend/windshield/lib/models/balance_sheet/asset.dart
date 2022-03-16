@@ -1,8 +1,8 @@
-import 'package:windshield/models/statement/category.dart';
+import 'category.dart';
 
 class BSheetAsset {
   String id;
-  StmntCategory cat;
+  BSheetCategory cat;
   String source;
   double recentVal;
   String benefitType;
@@ -21,7 +21,7 @@ class BSheetAsset {
 
   factory BSheetAsset.fromJson(Map<String, dynamic> json) => BSheetAsset(
         id: json['id'],
-        cat: StmntCategory.fromJson(json['cat_id']),
+        cat: BSheetCategory.fromJson(json['cat_id']),
         source: json['source'],
         recentVal: double.parse(json['recent_value']),
         benefitType: json['benefit_type'] ?? '',

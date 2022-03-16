@@ -15,7 +15,7 @@ class DailyFlowPage extends ConsumerWidget {
     final api = ref.watch(apiDFlow);
     return api.when(
       error: (error, stackTrace) => Text(error.toString()),
-      loading: () => Center(child: CircularProgressIndicator()),
+      loading: () => const Center(child: CircularProgressIndicator()),
       data: (data) {
         return Scaffold(
           body: Column(
@@ -61,18 +61,43 @@ class DailyList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(color: Colors.pink, height: 170),
-            Container(color: Colors.red, height: 170),
-            const IncWorkingTab(),
-            const IncAssetTab(),
-          ],
+    final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
+    if (idx == 0) {
+      return Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                height: 170,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    colors: MyTheme.majorBackground,
+                    end: Alignment.centerRight,
+                  ),
+                ),
+              ),
+              Container(color: Colors.blue, height: 170),
+              const IncWorkingTab(),
+              const IncAssetTab(),
+              const IncOtherTab(),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(color: Colors.pink, height: 170),
+              Container(color: Colors.red, height: 170),
+              // ตรงนี้ให้หลิวใส่ tab ของพวก _exp
+            ],
+          ),
+        ),
+      );
+    }
   }
 }
 
@@ -122,6 +147,38 @@ class IncAssetTab extends ConsumerWidget {
           physics: const ScrollPhysics(),
           shrinkWrap: true,
           itemCount: incAssetList.length,
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 100,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+          ),
+          itemBuilder: (_, index) {
+            return Container(
+              height: 50,
+              width: 50,
+              color: Colors.purple,
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class IncOtherTab extends ConsumerWidget {
+  const IncOtherTab({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final incOtherList = ref.watch(provDFlow.select((e) => e.incOtherList));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('รายรับอื่นๆ'),
+        GridView.builder(
+          physics: const ScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: incOtherList.length,
           gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: 100,
             mainAxisSpacing: 10,
