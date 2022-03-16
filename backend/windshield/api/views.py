@@ -6,7 +6,7 @@ from . import models
 from user.models import Province, NewUser
 from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz import timezone
 from django.db.models import Q, F, Prefetch
 
@@ -610,4 +610,124 @@ class FinancialGoals(generics.ListCreateAPIView):
                             )
         else :
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+class FinancialStatus(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    past_days = 30
+    
+    def __balance_sheet__(self):
+        try:
+            bsheet = models.BalanceSheet.objects.get(owner_id=self.request.user.uuid)
+            last_log = models.BalanceSheetLog.objects.filter(bsheet_id=bsheet.id).latest('timestamp')
+        except (models.BalanceSheet.DoesNotExist, models.BalanceSheetLog.DoesNotExist):
+            return None
+        return {
+            "asset": last_log.asset_value,
+            "debt": last_log.debt_balance
+            }
+    
+    def __cash_flow__(self):
+        min_date = datetime.today() - timedelta(days=self.past_days)
+        cash_flow = {
+            "working inc": 0,
+            "investment inc": 0,
+            "other inc": 0,
+            "inconsistance exp": 0,
+            "consistance exp": 0,
+            "other exp": 0
+            }
+        try:
+            data = models.DailyFlowSheet.objects.filter(owner_id = self.request.user.uuid, date__gt=min_date)
+            dfsheets = serializers.DailyFlowSheetSerializer(data, many=True)
+        except models.DailyFlowSheet.DoesNotExist:
+            return None
+        for sheet in dfsheets.data:
+            for flow in sheet["flows"]:
+                ftype = int(flow['category']['ftype'])
+                if ftype == 1:
+                    cash_flow["working inc"] += float(flow['value'])
+                elif ftype == 2:
+                    cash_flow["investment inc"] += float(flow['value'])
+                elif ftype == 3:
+                    cash_flow["other inc"] += float(flow['value'])
+                elif ftype == 4:
+                    cash_flow["inconsistance exp"] += float(flow['value'])
+                elif ftype == 5:
+                    cash_flow["consistance exp"] += float(flow['value'])
+                elif ftype == 6:
+                    cash_flow["other exp"] += float(flow['value'])
+        return cash_flow
+    
+    def __net_worth__(self):
+        balance = self.__balance_sheet__()
+        if balance is not None:
+            return balance["asset"] - balance["debt"]
+        return None
+    
+    def __net_cashflow__(self):
+        cash_flow = self.__cash_flow__()
+        if cash_flow is not None:
+            income = cash_flow["working inc"] + cash_flow["investment inc"] + cash_flow["other inc"]
+            expense = cash_flow["inconsistance exp"] + cash_flow["consistance exp"] + cash_flow["other exp"]
+            if income == 0 and expense == 0:
+                return None
+            return income - expense
+        return None
+    
+    def __survival_ratio__(self):
+        cash_flow = self.__cash_flow__()
+        if cash_flow is not None:
+            income = cash_flow["working inc"] + cash_flow["investment inc"]
+            expense = cash_flow["inconsistance exp"] + cash_flow["consistance exp"] + cash_flow["other exp"]
+            if expense == 0:
+                return None
+            return income / expense
+        return None
+    
+    def __wealth_ratio__(self):
+        cash_flow = self.__cash_flow__()
+        if cash_flow is not None:
+            income = cash_flow["investment inc"]
+            expense = cash_flow["inconsistance exp"] + cash_flow["consistance exp"] + cash_flow["other exp"]
+            if expense == 0:
+                return None
+            return income / expense
+        return None
+    
+    def __basic_liquidity_ratio__(self):
+        try:
+            bsheet = models.BalanceSheet.objects.get(owner_id=self.request.user.uuid)
+            data = models.Asset.objects.filter(bsheet_id=bsheet.id)
+            assets = serializers.AssetsSerializer(data, many=True)
+        except (models.BalanceSheet.DoesNotExist, models.Asset.DoesNotExist):
+            return None
+        liq_asset = 0
+        for asset in assets.data:
+            if asset["cat_id"]["ftype"] == 7:
+                liq_asset += float(asset["recent_value"])
+        cash_flow = self.__cash_flow__()
+        if cash_flow is not None:
+            expense = cash_flow["inconsistance exp"] + cash_flow["consistance exp"] + cash_flow["other exp"]
+            if expense == 0:
+                return None
+            return liq_asset / expense
+        return None
+          
+    def get(self, request):
+        if self.request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        self.past_days = int(request.query_params.get("days", 30))
+        finstatus = {
+            "Net Worth": self.__net_worth__(), 
+            "Net Cashflow": self.__net_cashflow__(),
+            "Survival Ratio": self.__survival_ratio__(),
+            "Wealth Ratio": self.__wealth_ratio__(),
+            "Basic Liquidity Ratio": self.__basic_liquidity_ratio__(),
+            "Debt Service Ratio": None,
+            "Saving Ratio": None,
+            "Investment Ratio": None,
+            "Financial Health": None
+            }
+        return Response(finstatus)
+    
     
