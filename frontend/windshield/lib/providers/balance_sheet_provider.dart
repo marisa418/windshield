@@ -42,6 +42,9 @@ class BalanceSheetProvider extends ChangeNotifier {
   double _debtLongTotal = 0;
   double get debtLongTotal => _debtLongTotal;
 
+  bool _needFetchAPI = false;
+  bool get needFetchAPI => _needFetchAPI;
+
   void setBs(BSheetBalance value) {
     _bs = value;
   }
@@ -84,6 +87,11 @@ class BalanceSheetProvider extends ChangeNotifier {
     }
     _assTotal = _assLiquidTotal + _assInvestTotal + _assPrivateTotal;
     _debtTotal = _debtShortTotal + _debtLongTotal;
+    notifyListeners();
+  }
+
+  void setNeedFetchAPI() {
+    _needFetchAPI = !_needFetchAPI;
     notifyListeners();
   }
 }

@@ -25,19 +25,19 @@ class StatementProvider extends ChangeNotifier {
   bool get needFetchAPI => _needFetchAPI;
 
   int _stmntCreatePageIdx = 0;
-  int get stmntCreatePageIndex => _stmntCreatePageIdx;
+  int get stmntCreatePageIdx => _stmntCreatePageIdx;
 
-  DateTime _start = DateFormat('y-MM-dd').parse(DateTime.now().toString());
-  DateTime get start => DateFormat('y-MM-dd').parse(_start.toString());
+  DateTime _start = DateTime.now();
+  DateTime get start => _start;
 
-  DateTime _end = DateFormat('y-MM-dd').parse(DateTime.now().toString());
-  DateTime get end => DateFormat('y-MM-dd').parse(_end.toString());
+  DateTime _end = DateTime.parse(DateTime.now().toString());
+  DateTime get end => DateTime.parse(_end.toString());
 
-  DateTime _minDate = DateFormat('y-MM-dd').parse(DateTime.now().toString());
-  DateTime get minDate => DateFormat('y-MM-dd').parse(_minDate.toString());
+  DateTime _minDate = DateTime.parse(DateTime.now().toString());
+  DateTime get minDate => DateTime.parse(_minDate.toString());
 
-  DateTime _maxDate = DateFormat('y-MM-dd').parse(DateTime.now().toString());
-  DateTime get maxDate => DateFormat('y-MM-dd').parse(_maxDate.toString());
+  DateTime _maxDate = DateTime.parse(DateTime.now().toString());
+  DateTime get maxDate => DateTime.parse(_maxDate.toString());
 
   String _stmntName = 'แผนงบการเงิน';
   String get stmntName => _stmntName;
@@ -78,7 +78,7 @@ class StatementProvider extends ChangeNotifier {
         _stmntActiveList.add(stmnt);
       }
     }
-    _stmntActiveList.add(stmntTemp);
+    // _stmntActiveList.add(stmntTemp);
   }
 
   void setStmntDateChipList() {
@@ -96,12 +96,17 @@ class StatementProvider extends ChangeNotifier {
   }
 
   void setStmntDateList() {
+    _stmntDateList = [];
     final date = _stmntDateChipList[_stmntDateChipIdx].split('|');
     for (var i = 0; i < _stmntList.length; i++) {
-      if (_stmntList[i].start.toString() == date[0]) {
+      if (_stmntList[i].start.toString() == date[0] &&
+          _stmntList[i].end.toString() == date[1]) {
         _stmntDateList.add(_stmntList[i]);
       }
     }
+    final temp = _stmntDateList.firstWhere((e) => e.chosen == true);
+    _stmntDateList.removeWhere((e) => e.chosen == true);
+    _stmntDateList.insert(0, temp);
     notifyListeners();
   }
 
@@ -116,22 +121,22 @@ class StatementProvider extends ChangeNotifier {
   }
 
   void setStart(DateTime value) {
-    _start = DateFormat('y-MM-dd').parse(value.toString());
+    _start = value;
     notifyListeners();
   }
 
   void setEnd(DateTime value) {
-    _end = DateFormat('y-MM-dd').parse(value.toString());
+    _end = value;
     notifyListeners();
   }
 
   void setMinDate(DateTime value) {
-    _minDate = DateFormat('y-MM-dd').parse(value.toString());
+    _minDate = value;
     // notifyListeners();
   }
 
   void setMaxDate(DateTime value) {
-    _maxDate = DateFormat('y-MM-dd').parse(value.toString());
+    _maxDate = value;
     // notifyListeners();
   }
 
@@ -154,5 +159,16 @@ class StatementProvider extends ChangeNotifier {
       return true;
     }
     return false;
+  }
+
+  void setAvailableDate(DateTime min, DateTime max) {
+    _minDate = min;
+    _maxDate = max;
+  }
+
+  void setDate(DateTime start, DateTime end) {
+    _start = start;
+    _end = end;
+    notifyListeners();
   }
 }

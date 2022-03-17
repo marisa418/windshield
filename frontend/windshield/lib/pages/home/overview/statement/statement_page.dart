@@ -8,6 +8,22 @@ import 'package:windshield/providers/statement_provider.dart';
 import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/models/statement/budget.dart';
+import 'package:windshield/models/statement/statement.dart';
+
+final apiStatement =
+    FutureProvider.autoDispose<List<StmntStatement>>((ref) async {
+  ref.watch(provStatement.select((value) => value.needFetchAPI));
+  final now = DateTime.now();
+  final data = await ref.read(apiProvider).getAllNotEndYetStatements(now);
+  ref.read(provStatement).setStatementList(data);
+  if (data.isNotEmpty) {
+    ref.read(provStatement).setStmntActiveList();
+    ref.read(provStatement).setStmntDateChipList();
+    ref.read(provStatement).setStmntDateChipIdx(0);
+    ref.read(provStatement).setStmntDateList();
+  }
+  return data;
+});
 
 // ทั้งหน้า
 class StatementPage extends ConsumerWidget {
@@ -23,9 +39,36 @@ class StatementPage extends ConsumerWidget {
         return Scaffold(
           body: Column(
             mainAxisSize: MainAxisSize.max,
-            children: const [
-              Header(),
-              StatementList(),
+            children: [
+              const Header(),
+              const StatementList(),
+              Container(
+                color: Colors.transparent,
+                height: 75,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    label: Text(
+                      'ย้อนกลับ  ',
+                      style: MyTheme.whiteTextTheme.headline3,
+                    ),
+                    icon: const Icon(
+                      Icons.arrow_left,
+                      color: Colors.white,
+                    ),
+                    style: TextButton.styleFrom(
+                      backgroundColor: MyTheme.primaryMajor,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                      ),
+                    ),
+                    onPressed: () => AutoRouter.of(context).pop(),
+                  ),
+                ),
+              ),
             ],
           ),
         );
@@ -61,75 +104,43 @@ class StatementList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height - 190,
-      child: Column(
-        children: [
-          const ListTile(),
-          Container(
-            color: Colors.transparent,
-            height: 75,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                label: Text(
-                  'ย้อนกลับ  ',
-                  style: MyTheme.whiteTextTheme.headline3,
-                ),
-                icon: const Icon(
-                  Icons.arrow_left,
-                  color: Colors.white,
-                ),
-                style: TextButton.styleFrom(
-                  backgroundColor: MyTheme.primaryMajor,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                  ),
-                ),
-                onPressed: () => AutoRouter.of(context).pop(),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Parent = StatementPage -> StatementList
-// เป็นตัว build statement list แต่ละตัว
-class ListTile extends ConsumerWidget {
-  const ListTile({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
     final stmnt = ref.watch(provStatement.select((e) => e.stmntActiveList));
     return Expanded(
       child: ListView.separated(
         separatorBuilder: (context, index) => const SizedBox(height: 15),
-        itemCount: stmnt.length,
+        itemCount: stmnt.length + 1,
         itemBuilder: (context, index) {
-          if (stmnt.length - 1 == index) {
+          if (stmnt.length == index) {
             return Padding(
               padding: const EdgeInsets.all(10),
-              child: Container(
-                height: 75,
-                decoration: BoxDecoration(
-                  color: MyTheme.primaryMinor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Center(
-                  child: Text(
-                    '+ กำหนดแผนงบการเงินเดือนถัดไป',
-                    style: TextStyle(
-                      color: MyTheme.primaryMajor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
+              child: GestureDetector(
+                onTap: () {
+                  final nextDayOfLastPlan =
+                      stmnt.last.end.add(const Duration(days: 1));
+                  ref.read(provStatement).setAvailableDate(
+                        nextDayOfLastPlan,
+                        nextDayOfLastPlan.add(const Duration(days: 34)),
+                      );
+                  ref.read(provStatement).setDate(
+                        nextDayOfLastPlan,
+                        nextDayOfLastPlan,
+                      );
+                  AutoRouter.of(context).push(const StatementCreateRoute());
+                },
+                child: Container(
+                  height: 75,
+                  decoration: BoxDecoration(
+                    color: MyTheme.primaryMinor,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '+ กำหนดแผนงบการเงินเดือนถัดไป',
+                      style: TextStyle(
+                        color: MyTheme.primaryMajor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -143,7 +154,7 @@ class ListTile extends ConsumerWidget {
   }
 }
 
-// Parent = StatementPage -> StatementList -> ListTile
+// Parent = StatementPage -> StatementList
 // เป็นตัว statement ที่ chosen = true
 class ActiveStatements extends ConsumerWidget {
   const ActiveStatements(this.index, {Key? key}) : super(key: key);
@@ -157,6 +168,7 @@ class ActiveStatements extends ConsumerWidget {
       child: GestureDetector(
         onTap: () {
           ref.read(provStatement).setStmntDateChipIdx(index);
+          ref.read(provStatement).setStmntDateList();
           AutoRouter.of(context).push(const StatementInfoRoute());
         },
         child: Container(
@@ -212,8 +224,7 @@ class ActiveStatements extends ConsumerWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    _getIncTotal(
-                                        stmntActiveList[index].budgets),
+                                    '${_getIncTotal(stmntActiveList[index].budgets)} บ.',
                                     style: MyTheme.whiteTextTheme.headline4,
                                   ),
                                   Text(
@@ -257,8 +268,7 @@ class ActiveStatements extends ConsumerWidget {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    _getExpTotal(
-                                        stmntActiveList[index].budgets),
+                                    '${_getExpTotal(stmntActiveList[index].budgets)} บ.',
                                     style: MyTheme.whiteTextTheme.headline4,
                                   ),
                                   Text(
