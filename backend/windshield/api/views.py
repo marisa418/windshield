@@ -259,7 +259,6 @@ class Statement(generics.ListCreateAPIView):
         )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
             
-
 class StatementChangeName(generics.UpdateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.StatementUpdateSerializer
@@ -321,8 +320,12 @@ class Asset(generics.ListCreateAPIView):
         queryset = models.Asset.objects.filter(bsheet_id=bsheet.id, cat_id__isDeleted=False)
         return queryset
     
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return self.perform_create(serializers.AssetSerializer)
+    
     def perform_create(self, serializer):
-        serializer = serializers.AssetSerializer
         uuid = self.request.user.uuid
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -332,11 +335,13 @@ class Asset(generics.ListCreateAPIView):
             cat = models.Category.objects.get(id=cat_id)
         except models.Category.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        return models.Asset.objects.create(
+        created_inst = models.Asset.objects.create(
                         bsheet_id = bsheet,
                         cat_id = cat,
                         **self.request.data
                         )
+        data = serializer(created_inst).data
+        return Response(data, status=status.HTTP_201_CREATED)
 
 class AssetInstance(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
