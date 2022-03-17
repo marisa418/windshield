@@ -30,7 +30,7 @@ class Api extends ChangeNotifier {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.1.39:8000' + options.path;
+          options.path = 'http://192.168.1.36:8000' + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/')) {
@@ -212,21 +212,20 @@ class Api extends ChangeNotifier {
 
   Future<String> createStatement(
     String name,
-    String start,
-    String end,
+    DateTime start,
+    DateTime end,
   ) async {
     try {
       final res = await dio.post(
         '/api/statement/',
         data: {
           "name": name,
-          "start": start,
-          "end": end,
+          "start": DateFormat('y-MM-dd').format(start),
+          "end": DateFormat('y-MM-dd').format(end),
           "month": 1,
         },
       );
-      final data = StmntCategory.fromJson(jsonDecode(res.toString()));
-      return data.id;
+      return res.data['name'];
     } catch (e) {
       return '';
     }

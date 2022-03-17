@@ -38,8 +38,8 @@ class BudgetProvider extends ChangeNotifier {
   double _savingInvestTotal = 0;
   double get savingInvestTotal => _savingInvestTotal;
 
-  double _incexpIdx = 0;
-  double get incexpIdx => _incexpIdx;
+  // double _incexpIdx = 0;
+  // double get incexpIdx => _incexpIdx;
   double _incTotal = 0;
   double get incTotal => _incTotal;
   double _expTotal = 0;

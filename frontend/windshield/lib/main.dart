@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart';
 
 import 'routes/app_router.dart';
 import 'styles/theme.dart';
 import 'services/api.dart';
 
-import 'models/statement/statement.dart';
 import 'models/daily_flow/category.dart';
 
 import 'providers/statement_provider.dart';
@@ -18,21 +18,6 @@ final apiProvider = ChangeNotifierProvider<Api>((ref) => Api());
 
 final provStatement = ChangeNotifierProvider.autoDispose<StatementProvider>(
     (ref) => StatementProvider());
-
-final apiStatement =
-    FutureProvider.autoDispose<List<StmntStatement>>((ref) async {
-  ref.watch(provStatement.select((value) => value.needFetchAPI));
-  final now = DateTime.now();
-  final data = await ref.read(apiProvider).getAllNotEndYetStatements(now);
-  ref.read(provStatement).setStatementList(data);
-  if (data.isNotEmpty) {
-    ref.read(provStatement).setStmntActiveList();
-    ref.read(provStatement).setStmntDateChipList();
-    ref.read(provStatement).setStmntDateChipIdx(0);
-    ref.read(provStatement).setStmntDateList();
-  }
-  return data;
-});
 
 final provBudget = ChangeNotifierProvider.autoDispose<BudgetProvider>(
     (ref) => BudgetProvider());
@@ -65,6 +50,7 @@ final provBSheet = ChangeNotifierProvider.autoDispose<BalanceSheetProvider>(
     (ref) => BalanceSheetProvider());
 
 void main() {
+  Intl.defaultLocale = 'th';
   runApp(ProviderScope(child: MyApp()));
 }
 
@@ -88,7 +74,7 @@ class MyApp extends StatelessWidget {
         Locale('th', ''),
         Locale('en', ''),
       ],
-      locale: const Locale('th'),
+      locale: const Locale('th', ''),
     );
   }
 }
