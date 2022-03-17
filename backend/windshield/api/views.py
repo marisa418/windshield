@@ -496,8 +496,8 @@ class Categories(generics.ListCreateAPIView):
                 for cat in default_cat:
                     models.Category.objects.create(name=cat.name, ftype=cat.ftype, user_id=owner, icon=cat.icon)
                 queryset = models.Category.objects.filter(user_id=uuid)
-            as_used = self.request.query_params.get('as_used', None)
-            if as_used is not None:
+            as_used = bool(self.request.query_params.get('as_used', False))
+            if as_used:
                 queryset = queryset.filter(
                     Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
                     Exists(models.Debt.objects.filter(cat_id__id=OuterRef('pk'))) |
