@@ -442,8 +442,15 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
             date = self.request.query_params.get('date', None)
             if date is None:
                 date = datetime.now(tz= timezone('Asia/Bangkok'))
-            domain = self.request.query_params.getlist('domain', None)
-            if domain is not None:
+            as_used = bool(self.request.query_params.get('as_used', False))
+            if as_used:
+                queryset = queryset.filter(
+                    Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
+                    Exists(models.Debt.objects.filter(cat_id__id=OuterRef('pk'))) |
+                    Q(ftype__domain__in=["INC", "EXP", "GOL"], isDeleted=False)
+                    )
+            domain = self.request.query_params.getlist('domain')
+            if len(domain) > 0:
                 queryset = queryset.filter(ftype__domain__in=domain)
             try:
                 fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
@@ -501,7 +508,7 @@ class Categories(generics.ListCreateAPIView):
                 queryset = queryset.filter(
                     Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
                     Exists(models.Debt.objects.filter(cat_id__id=OuterRef('pk'))) |
-                    Q(ftype__domain__in=["INC", "EXP", "GOL"])
+                    Q(ftype__domain__in=["INC", "EXP", "GOL"], isDeleted=False)
                     )
             domain = self.request.query_params.getlist('domain')
             if len(domain) > 0:
