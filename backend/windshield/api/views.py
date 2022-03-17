@@ -423,6 +423,9 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
             date = self.request.query_params.get('date', None)
             if date is None:
                 date = datetime.now(tz= timezone('Asia/Bangkok'))
+            domain = self.request.query_params.getlist('domain', None)
+            if domain is not None:
+                queryset = queryset.filter(ftype__domain__in=domain)
             try:
                 fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
                 fplan_id = fplan.id
@@ -467,13 +470,16 @@ class Categories(generics.ListCreateAPIView):
     def get_queryset(self):
         uuid = self.request.user.uuid
         if uuid is not None: 
-            queryset = models.Category.objects.filter(user_id=uuid).order_by("used_count")
+            queryset = models.Category.objects.filter(user_id=uuid).order_by("-used_count")
             if not queryset:
                 owner = models.NewUser.objects.get(uuid=uuid)
                 default_cat = models.DefaultCategory.objects.all()
                 for cat in default_cat:
                     models.Category.objects.create(name=cat.name, ftype=cat.ftype, user_id=owner, icon=cat.icon)
-                queryset = models.Category.objects.filter(user_id=uuid).order_by("used_count")
+                queryset = models.Category.objects.filter(user_id=uuid).order_by("-used_count")
+            domain = self.request.query_params.getlist('domain', None)
+            if domain is not None:
+                queryset = queryset.filter(ftype__domain__in=domain)
             return queryset
         else :
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -776,7 +782,7 @@ class FinancialStatus(APIView):
             "Saving Ratio": self.__saving_ratio__(cash_flow),
             "Investment Ratio": self.__investment_ratio__(asset, balance),
             "Financial Health": None
-            }
+            } 
         return Response(finstatus)
     
     
