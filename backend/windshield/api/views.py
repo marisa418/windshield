@@ -489,15 +489,22 @@ class Categories(generics.ListCreateAPIView):
     def get_queryset(self):
         uuid = self.request.user.uuid
         if uuid is not None: 
-            queryset = models.Category.objects.filter(user_id=uuid).order_by("-used_count")
+            queryset = models.Category.objects.filter(user_id=uuid)
             if not queryset:
                 owner = models.NewUser.objects.get(uuid=uuid)
                 default_cat = models.DefaultCategory.objects.all()
                 for cat in default_cat:
                     models.Category.objects.create(name=cat.name, ftype=cat.ftype, user_id=owner, icon=cat.icon)
-                queryset = models.Category.objects.filter(user_id=uuid).order_by("-used_count")
-            domain = self.request.query_params.getlist('domain', None)
-            if domain is not None:
+                queryset = models.Category.objects.filter(user_id=uuid)
+            as_used = self.request.query_params.get('as_used', None)
+            if as_used is not None:
+                queryset = queryset.filter(
+                    Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
+                    Exists(models.Debt.objects.filter(cat_id__id=OuterRef('pk'))) |
+                    Q(ftype__domain__in=["INC", "EXP", "GOL"])
+                    )
+            domain = self.request.query_params.getlist('domain')
+            if len(domain) > 0:
                 queryset = queryset.filter(ftype__domain__in=domain)
             return queryset
         else :
