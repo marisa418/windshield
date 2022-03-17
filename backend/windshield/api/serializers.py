@@ -1,5 +1,13 @@
+from unicodedata import category
 from rest_framework import serializers
 from . import models
+
+class CategorySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.Category
+        exclude = ["user_id"]
+        read_only_fields = ["id", "used_count", "isDeleted"]
 
 class BalanceSheetLogSerializer(serializers.ModelSerializer):
     
@@ -28,6 +36,7 @@ class DailyFlowCreateSerializer(serializers.ModelSerializer):
 
 class DailyFlowSerializer(serializers.ModelSerializer):
     method = MethodSerializer(read_only=True)
+    category = CategorySerializer()
     
     class Meta:
         model = models.DailyFlow
@@ -49,13 +58,6 @@ class DailyFlowSheetSerializer(serializers.ModelSerializer):
         model = models.DailyFlowSheet
         exclude = ["owner_id"]
         read_only_fields = ['id']
-
-class CategorySerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = models.Category
-        exclude = ["user_id"]
-        read_only_fields = ["id", "used_count", "isDeleted"]
         
 class FinancialTypeSerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True, read_only=True)

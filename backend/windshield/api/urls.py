@@ -43,6 +43,9 @@ urlpatterns = [
     path('financial-goal/', views.FinancialGoals.as_view(), name="financial-goals"),
     path('financial-goal/<str:pk>/', views.FinancialGoalInstance.as_view(), name="financial-goal"),
     
+    #FINANCIAL STATUS
+    path('financial-status/', views.FinancialStatus.as_view(), name="financial-status"),
+    
     #FOR ADMIN
     path('default-categories/', views.DefaultCategories.as_view(), name='default-categories')
 ]

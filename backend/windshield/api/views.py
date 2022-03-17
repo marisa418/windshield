@@ -6,9 +6,9 @@ from . import models
 from user.models import Province, NewUser
 from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz import timezone
-from django.db.models import Q, Prefetch
+from django.db.models import Q, F, Prefetch
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -74,7 +74,6 @@ class FinancialTypeList(generics.ListAPIView):
             Prefetch('categories', queryset=cat)
         )
         return queryset
-    
 
 class DailyFlow(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
@@ -353,6 +352,13 @@ class Debt(generics.ListCreateAPIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
         queryset = models.Debt.objects.filter(bsheet_id=bsheet.id, cat_id__isDeleted=False)
+        priority = self.request.query_params.get("priority", False)
+        if priority:
+            queryset = queryset.order_by(
+                F('interest').desc(nulls_last=True),
+                F('balance').asc(),
+                F('debt_term').asc(nulls_first=True)
+            )
         return queryset
     
     def perform_create(self, serializer):
@@ -417,6 +423,9 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
             date = self.request.query_params.get('date', None)
             if date is None:
                 date = datetime.now(tz= timezone('Asia/Bangkok'))
+            domain = self.request.query_params.getlist('domain', None)
+            if domain is not None:
+                queryset = queryset.filter(ftype__domain__in=domain)
             try:
                 fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
                 fplan_id = fplan.id
@@ -436,10 +445,9 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
                 Prefetch('flows', queryset=flows)
             )
             return queryset
-    
 
 class DefaultCategories(generics.ListCreateAPIView):
-    permissions_classes = [permissions.IsAdminUser]
+    permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DefaultCategoriesSerializer
     queryset = models.DefaultCategory.objects.all()
 
@@ -462,13 +470,16 @@ class Categories(generics.ListCreateAPIView):
     def get_queryset(self):
         uuid = self.request.user.uuid
         if uuid is not None: 
-            queryset = models.Category.objects.filter(user_id=uuid).order_by("used_count")
+            queryset = models.Category.objects.filter(user_id=uuid).order_by("-used_count")
             if not queryset:
                 owner = models.NewUser.objects.get(uuid=uuid)
                 default_cat = models.DefaultCategory.objects.all()
                 for cat in default_cat:
                     models.Category.objects.create(name=cat.name, ftype=cat.ftype, user_id=owner, icon=cat.icon)
-                queryset = models.Category.objects.filter(user_id=uuid).order_by("used_count")
+                queryset = models.Category.objects.filter(user_id=uuid).order_by("-used_count")
+            domain = self.request.query_params.getlist('domain', None)
+            if domain is not None:
+                queryset = queryset.filter(ftype__domain__in=domain)
             return queryset
         else :
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -603,4 +614,175 @@ class FinancialGoals(generics.ListCreateAPIView):
                             )
         else :
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+class FinancialStatus(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    past_days = 30
+    
+    def __balance_sheet__(self):
+        try:
+            bsheet = models.BalanceSheet.objects.get(owner_id=self.request.user.uuid)
+            last_log = models.BalanceSheetLog.objects.filter(bsheet_id=bsheet.id).latest('timestamp')
+        except (models.BalanceSheet.DoesNotExist, models.BalanceSheetLog.DoesNotExist):
+            return None
+        return {
+            "asset": last_log.asset_value,
+            "debt": last_log.debt_balance
+            }
+    
+    def __cash_flow__(self):
+        min_date = datetime.today() - timedelta(days=self.past_days)
+        cash_flow = {
+            "working inc": 0,
+            "investment inc": 0,
+            "other inc": 0,
+            "inconsistance exp": 0,
+            "consistance exp": 0,
+            "other exp": 0,
+            "debt exp": 0
+            }
+        try:
+            data = models.DailyFlowSheet.objects.filter(owner_id = self.request.user.uuid, date__gt=min_date)
+            dfsheets = serializers.DailyFlowSheetSerializer(data, many=True)
+        except models.DailyFlowSheet.DoesNotExist:
+            return None
+        for sheet in dfsheets.data:
+            for flow in sheet["flows"]:
+                ftype = int(flow['category']['ftype'])
+                cat_name = flow['category']['name']
+                if ftype == 1:
+                    cash_flow["working inc"] += float(flow['value'])
+                elif ftype == 2:
+                    cash_flow["investment inc"] += float(flow['value'])
+                elif ftype == 3:
+                    cash_flow["other inc"] += float(flow['value'])
+                elif ftype == 4:
+                    cash_flow["inconsistance exp"] += float(flow['value'])
+                elif ftype == 5:
+                    cash_flow["consistance exp"] += float(flow['value'])
+                elif ftype == 6:
+                    cash_flow["other exp"] += float(flow['value'])
+                
+                if ("ผ่อน" in cat_name or "หนี้" in cat_name) and (ftype == 4 or ftype == 5):
+                    cash_flow["debt exp"] += float(flow["value"])
+                elif ftype == 10 or ftype == 11:
+                    cash_flow["debt exp"] += float(flow["value"])
+        return cash_flow
+    
+    def __asset__(self):
+        try:
+            bsheet = models.BalanceSheet.objects.get(owner_id=self.request.user.uuid)
+            data = models.Asset.objects.filter(bsheet_id=bsheet.id)
+            assets = serializers.AssetsSerializer(data, many=True)
+        except (models.BalanceSheet.DoesNotExist, models.Asset.DoesNotExist):
+            return None
+        asset = {
+            "liquid ass": 0,
+            "investment ass": 0,
+            "personal ass": 0,
+        }
+        for inst in assets.data:
+            ftype = int(inst["cat_id"]["ftype"])
+            if ftype == 7:
+                asset["liquid ass"] += float(inst["recent_value"])
+            elif ftype == 8:
+                asset["investment ass"] += float(inst["recent_value"])
+            elif ftype == 9:
+                asset["personal ass"] += float(inst["recent_value"])
+        return asset
+    
+    def __debt__(self):
+        try:
+            bsheet = models.BalanceSheet.objects.get(owner_id=self.request.user.uuid)
+            data = models.Debt.objects.filter(bsheet_id=bsheet.id)
+            debts = serializers.DebtsSerializer(data, many=True)
+        except (models.BalanceSheet.DoesNotExist, models.Debt.DoesNotExist):
+            return None
+        debt = {
+            "short term": 0,
+            "long term": 0
+        }
+        for inst in debts.data:
+            ftype = int(inst["cat_id"]["ftype"])
+            if ftype == 10:
+                debt["short term"] += float(inst["balance"])
+            elif ftype == 11:
+                debt["long term"] += float(inst["balance"])
+        return debt
+    
+    def __net_worth__(self, balance):
+        if balance is not None: 
+            return balance["asset"] - balance["debt"]
+        return None
+    
+    def __net_cashflow__(self, cash_flow):
+        if cash_flow is not None:
+            income = cash_flow["working inc"] + cash_flow["investment inc"] + cash_flow["other inc"]
+            expense = cash_flow["inconsistance exp"] + cash_flow["consistance exp"] + cash_flow["other exp"]
+            if income != 0 or expense != 0:
+                return income - expense
+        return None
+    
+    def __survival_ratio__(self, cash_flow):
+        if cash_flow is not None:
+            expense = cash_flow["inconsistance exp"] + cash_flow["consistance exp"] + cash_flow["other exp"]
+            if expense != 0:
+                return (cash_flow["working inc"] + cash_flow["investment inc"]) / expense
+        return None
+    
+    def __wealth_ratio__(self, cash_flow):
+        if cash_flow is not None:
+            expense = cash_flow["inconsistance exp"] + cash_flow["consistance exp"] + cash_flow["other exp"]
+            if expense != 0:
+                return cash_flow["investment inc"] / expense
+        return None
+    
+    def __basic_liquidity_ratio__(self, cash_flow, asset):
+        if cash_flow is not None and asset is not None:
+            expense = cash_flow["inconsistance exp"] + cash_flow["consistance exp"] + cash_flow["other exp"]
+            if expense != 0:
+                return asset["liquid ass"] / expense
+        return None
+    
+    def __debt_service_ratio__(self, cash_flow):
+        if cash_flow is not None:
+            income = cash_flow["working inc"] + cash_flow["investment inc"] + cash_flow["other inc"]
+            if income != 0:
+                return cash_flow['debt exp'] / income
+        return None
+    
+    def __saving_ratio__(self, cash_flow):
+        if cash_flow is not None:
+            income = cash_flow["working inc"] + cash_flow["investment inc"] + cash_flow["other inc"]
+            if income != 0:
+                return cash_flow["other exp"] / income
+        return None
+    
+    def __investment_ratio__(self, asset, balance):
+        if balance is not None: 
+            net_worth = self.__net_worth__(balance)
+            if net_worth is not None and net_worth != 0:
+                return asset["investment ass"] / net_worth
+        return None
+    
+    def get(self, request):
+        if self.request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        self.past_days = int(request.query_params.get("days", 30))
+        cash_flow = self.__cash_flow__()
+        balance = self.__balance_sheet__()
+        asset = self.__asset__()
+        finstatus = {
+            "Net Worth": self.__net_worth__(balance), 
+            "Net Cashflow": self.__net_cashflow__(cash_flow),
+            "Survival Ratio": self.__survival_ratio__(cash_flow),
+            "Wealth Ratio": self.__wealth_ratio__(cash_flow),
+            "Basic Liquidity Ratio": self.__basic_liquidity_ratio__(cash_flow, asset),
+            "Debt Service Ratio": self.__debt_service_ratio__(cash_flow),
+            "Saving Ratio": self.__saving_ratio__(cash_flow),
+            "Investment Ratio": self.__investment_ratio__(asset, balance),
+            "Financial Health": None
+            } 
+        return Response(finstatus)
+    
     
