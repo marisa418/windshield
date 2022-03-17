@@ -8,7 +8,8 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import datetime, timedelta
 from pytz import timezone
-from django.db.models import Q, F, Prefetch
+from django.db.models import Exists, OuterRef, Q, F, Prefetch
+from django.core.exceptions import ValidationError
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -222,35 +223,42 @@ class Statement(generics.ListCreateAPIView):
         if tmp.count() > 0: return False
         return True
     
+    def create(self, request, *args, **kwargs):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return self.perform_create(serializer)
+    
     def perform_create(self, serializer):
         uuid = self.request.user.uuid
-        if uuid is not None:
-            startDate = self.request.data['start']
-            endDate = self.request.data['end']
-            month = str(self.request.data.pop("month"))
-            month_instance = models.Month.objects.get(id=month)
-            owner_instance = NewUser.objects.get(uuid=uuid)
-            # -yymmdd-id
-            queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
-            if not self.__date_validation__(queryset, startDate, endDate):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            plans = queryset.filter(start=startDate, end=endDate)
-            if(plans.filter(chosen=True).count() > 0):
-                self.request.data['chosen'] = False
-            else:
-                self.request.data['chosen'] = True
-            last_plan = plans.last()
-            if last_plan is None : plan_id = 0
-            else: 
-                plan_id = int(last_plan.id[-1:]) + 1
-            return serializer.save(
-                id = 'FSP' + str(uuid)[:10] + '-' + str(startDate)[2:4] + str(startDate)[5:7] + str(startDate)[-2:] + '-' + str(plan_id)[-1:],
-                owner_id = owner_instance,
-                month = month_instance,
-                **self.request.data
-            )
-        else :
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        startDate = self.request.data['start']
+        endDate = self.request.data['end']
+        month = str(self.request.data.pop("month"))
+        month_instance = models.Month.objects.get(id=month)
+        owner_instance = NewUser.objects.get(uuid=uuid)
+        # -yymmdd-id
+        queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+        if not self.__date_validation__(queryset, startDate, endDate):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        plans = queryset.filter(start=startDate, end=endDate)
+        if(plans.filter(chosen=True).count() > 0):
+            self.request.data['chosen'] = False
+        else:
+            self.request.data['chosen'] = True
+        last_plan = plans.last()
+        if last_plan is None : plan_id = 0
+        else: 
+            plan_id = int(last_plan.id[-1:]) + 1
+        serializer.save(
+            id = 'FSP' + str(uuid)[:10] + '-' + str(startDate)[2:4] + str(startDate)[5:7] + str(startDate)[-2:] + '-' + str(plan_id)[-1:],
+            owner_id = owner_instance,
+            month = month_instance,
+            **self.request.data
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
 
 class StatementChangeName(generics.UpdateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
