@@ -8,7 +8,8 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import datetime, timedelta
 from pytz import timezone
-from django.db.models import Q, F, Prefetch
+from django.db.models import Exists, OuterRef, Q, F, Prefetch
+from django.core.exceptions import ValidationError
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -222,36 +223,42 @@ class Statement(generics.ListCreateAPIView):
         if tmp.count() > 0: return False
         return True
     
+    def create(self, request, *args, **kwargs):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return self.perform_create(serializer)
+    
     def perform_create(self, serializer):
         uuid = self.request.user.uuid
-        if uuid is not None:
-            startDate = self.request.data['start']
-            endDate = self.request.data['end']
-            month = str(self.request.data.pop("month"))
-            month_instance = models.Month.objects.get(id=month)
-            owner_instance = NewUser.objects.get(uuid=uuid)
-            # -yymmdd-id
-            queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
-            if not self.__date_validation__(queryset, startDate, endDate):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            plans = queryset.filter(start=startDate, end=endDate)
-            if(plans.filter(chosen=True).count() > 0):
-                self.request.data['chosen'] = False
-            else:
-                self.request.data['chosen'] = True
-            last_plan = plans.last()
-            if last_plan is None : plan_id = 0
-            else: 
-                plan_id = int(last_plan.id[-1:]) + 1
-            return serializer.save(
-                id = 'FSP' + str(uuid)[:10] + '-' + str(startDate)[2:4] + str(startDate)[5:7] + str(startDate)[-2:] + '-' + str(plan_id)[-1:],
-                owner_id = owner_instance,
-                month = month_instance,
-                **self.request.data
-            )
-        else :
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-
+        startDate = self.request.data['start']
+        endDate = self.request.data['end']
+        month = str(self.request.data.pop("month"))
+        month_instance = models.Month.objects.get(id=month)
+        owner_instance = NewUser.objects.get(uuid=uuid)
+        # -yymmdd-id
+        queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+        if not self.__date_validation__(queryset, startDate, endDate):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        plans = queryset.filter(start=startDate, end=endDate)
+        if(plans.filter(chosen=True).count() > 0):
+            self.request.data['chosen'] = False
+        else:
+            self.request.data['chosen'] = True
+        last_plan = plans.last()
+        if last_plan is None : plan_id = 0
+        else: 
+            plan_id = int(last_plan.id[-1:]) + 1
+        serializer.save(
+            id = 'FSP' + str(uuid)[:10] + '-' + str(startDate)[2:4] + str(startDate)[5:7] + str(startDate)[-2:] + '-' + str(plan_id)[-1:],
+            owner_id = owner_instance,
+            month = month_instance,
+            **self.request.data
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
 class StatementChangeName(generics.UpdateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.StatementUpdateSerializer
@@ -313,8 +320,12 @@ class Asset(generics.ListCreateAPIView):
         queryset = models.Asset.objects.filter(bsheet_id=bsheet.id, cat_id__isDeleted=False)
         return queryset
     
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return self.perform_create(serializers.AssetSerializer)
+    
     def perform_create(self, serializer):
-        serializer = serializers.AssetSerializer
         uuid = self.request.user.uuid
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -324,11 +335,13 @@ class Asset(generics.ListCreateAPIView):
             cat = models.Category.objects.get(id=cat_id)
         except models.Category.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        return models.Asset.objects.create(
+        created_inst = models.Asset.objects.create(
                         bsheet_id = bsheet,
                         cat_id = cat,
                         **self.request.data
                         )
+        data = serializer(created_inst).data
+        return Response(data, status=status.HTTP_201_CREATED)
 
 class AssetInstance(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
@@ -340,7 +353,7 @@ class AssetInstance(generics.RetrieveUpdateDestroyAPIView):
             self.serializer_class = serializers.AssetsSerializer
             return models.Asset.objects.get(id=self.kwargs['pk'])
         except models.Asset.DoesNotExist:
-            raise status.HTTP_400_BAD_REQUEST
+            return None
 
 class Debt(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
@@ -361,8 +374,12 @@ class Debt(generics.ListCreateAPIView):
             )
         return queryset
     
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return self.perform_create(serializers.DebtSerializer)
+    
     def perform_create(self, serializer):
-        serializer = serializers.DebtSerializer
         uuid = self.request.user.uuid
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -372,11 +389,13 @@ class Debt(generics.ListCreateAPIView):
             cat = models.Category.objects.get(id=cat_id)
         except models.Category.DoesNotExist:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        return models.Debt.objects.create(
+        created_inst = models.Debt.objects.create(
                         bsheet_id = bsheet,
                         cat_id = cat,
                         **self.request.data
                         )
+        data = serializer(created_inst).data
+        return Response(data, status=status.HTTP_201_CREATED)
 
 class DebtInstance(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
@@ -423,8 +442,15 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
             date = self.request.query_params.get('date', None)
             if date is None:
                 date = datetime.now(tz= timezone('Asia/Bangkok'))
-            domain = self.request.query_params.getlist('domain', None)
-            if domain is not None:
+            as_used = bool(self.request.query_params.get('as_used', False))
+            if as_used:
+                queryset = queryset.filter(
+                    Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
+                    Exists(models.Debt.objects.filter(cat_id__id=OuterRef('pk'))) |
+                    Q(ftype__domain__in=["INC", "EXP", "GOL"], isDeleted=False)
+                    )
+            domain = self.request.query_params.getlist('domain')
+            if len(domain) > 0:
                 queryset = queryset.filter(ftype__domain__in=domain)
             try:
                 fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
@@ -470,15 +496,22 @@ class Categories(generics.ListCreateAPIView):
     def get_queryset(self):
         uuid = self.request.user.uuid
         if uuid is not None: 
-            queryset = models.Category.objects.filter(user_id=uuid).order_by("-used_count")
+            queryset = models.Category.objects.filter(user_id=uuid)
             if not queryset:
                 owner = models.NewUser.objects.get(uuid=uuid)
                 default_cat = models.DefaultCategory.objects.all()
                 for cat in default_cat:
                     models.Category.objects.create(name=cat.name, ftype=cat.ftype, user_id=owner, icon=cat.icon)
-                queryset = models.Category.objects.filter(user_id=uuid).order_by("-used_count")
-            domain = self.request.query_params.getlist('domain', None)
-            if domain is not None:
+                queryset = models.Category.objects.filter(user_id=uuid)
+            as_used = bool(self.request.query_params.get('as_used', False))
+            if as_used:
+                queryset = queryset.filter(
+                    Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
+                    Exists(models.Debt.objects.filter(cat_id__id=OuterRef('pk'))) |
+                    Q(ftype__domain__in=["INC", "EXP", "GOL"], isDeleted=False)
+                    )
+            domain = self.request.query_params.getlist('domain')
+            if len(domain) > 0:
                 queryset = queryset.filter(ftype__domain__in=domain)
             return queryset
         else :
