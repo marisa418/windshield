@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BudgetDetermine extends StatelessWidget {
+class BudgetDetermine extends ConsumerWidget {
   const BudgetDetermine({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container();
   }
 }
