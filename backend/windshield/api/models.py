@@ -183,14 +183,13 @@ class Debt(models.Model):
     debt_term = models.DateField(null=True)
     minimum = models.DecimalField(max_digits=12, decimal_places=2, null=True)
     suspend = models.PositiveIntegerField(null=True)
-    imp_ranking = models.IntegerField(default=0)
     
     class Meta:
         db_table = 'debt'
 
     def __str__(self):
         return self.id + " " + self.creditor
-    
+
     def __save_log__(self, new_value):
         logs = BalanceSheetLog.objects.filter(bsheet_id=self.bsheet_id).order_by('-timestamp')
         if len(logs) > 0:

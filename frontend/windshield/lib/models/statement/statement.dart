@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 import 'budget.dart';
 
 class StmntStatement {
@@ -23,8 +21,8 @@ class StmntStatement {
         id: json['id'],
         name: json['name'],
         chosen: json['chosen'],
-        start: DateFormat('y-MM-dd').parse(json['start']),
-        end: DateFormat('y-MM-dd').parse(json['end']),
+        start: DateTime.parse(json['start']),
+        end: DateTime.parse(json['end']),
         budgets: List<StmntBudget>.from(
             json['budgets'].map((x) => StmntBudget.fromJson(x))),
       );
