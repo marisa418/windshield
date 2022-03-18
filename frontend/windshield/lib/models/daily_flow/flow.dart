@@ -25,7 +25,7 @@ class DFlowFlow {
         method: Method.fromJson(json['method']),
         name: json['name'],
         value: double.parse(json['value']),
-        detail: json['detail'],
+        detail: json['detail'] ?? '',
         dfId: json['df_id'],
         catId: json['category'],
       );
