@@ -6,6 +6,7 @@ import 'package:windshield/main.dart';
 import 'package:windshield/providers/daily_flow_provider.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/routes/app_router.dart';
+import 'package:windshield/utility/icon_convertor.dart';
 
 class DailyFlowPage extends ConsumerWidget {
   const DailyFlowPage({Key? key}) : super(key: key);
@@ -59,41 +60,250 @@ class DailyFlowPage extends ConsumerWidget {
 class DailyList extends ConsumerWidget {
   const DailyList({Key? key}) : super(key: key);
 
+  get child => null;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
+    //final incAssetList = ref.watch(provDFlow.select((e) => e.incAssetList));
+    final incTotal = ref.watch(provDFlow.select((e) => e.incTotal));
+    final expTotal = ref.watch(provDFlow.select((e) => e.expTotal));
     if (idx == 0) {
       return Expanded(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                height: 170,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    colors: MyTheme.majorBackground,
-                    end: Alignment.centerRight,
-                  ),
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      height: 170,
+                      width: 450,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          colors: MyTheme.incomeBackground,
+                          end: Alignment.centerRight,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: const [
+                              Padding(
+                                padding:
+                                    EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
+                                child: Text(
+                                  'บัญชีรายรับ',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 25,
+                                      decoration: TextDecoration.none),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(25.0, 35.0, 0.0, 0.0),
+                            child: Text(
+                              'รายรับวันนี้',
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(0.7),
+                                  fontSize: 12,
+                                  decoration: TextDecoration.none
+                                  //Theme.of(context).textTheme.bodyText1,
+                                  ),
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                    25.0, 5.0, 0.0, 0.0),
+                                child: Text(
+                                  '$incTotal',
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 30,
+                                      decoration: TextDecoration.none
+                                      //Theme.of(context).textTheme.bodyText1,
+                                      ),
+                                ),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.white,
+                                  padding: const EdgeInsets.only(left: 20),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(20),
+                                      bottomLeft: Radius.circular(20),
+                                    ),
+                                  ), // Background color
+                                ),
+                                onPressed: () {
+                                  ref.read(provDFlow).setPageIdx(1);
+                                  // Respond to button press
+                                },
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.receipt,
+                                      size: 20.0,
+                                      color: MyTheme.negativeMajor,
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        'รายจ่ายวันนี้\n $expTotal',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: MyTheme.negativeMajor,
+                                        ),
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.arrow_right,
+                                      size: 40.0,
+                                      color: MyTheme.negativeMajor,
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Container(color: Colors.blue, height: 170),
-              const IncWorkingTab(),
-              const IncAssetTab(),
-              const IncOtherTab(),
-            ],
+                Container(color: Colors.white, height: 170),
+                const IncWorkingTab(),
+                const IncAssetTab(),
+                const IncOtherTab(),
+              ],
+            ),
           ),
         ),
       );
     } else {
       return Expanded(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(color: Colors.pink, height: 170),
-              Container(color: Colors.red, height: 170),
-              // ตรงนี้ให้หลิวใส่ tab ของพวก _exp
-            ],
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              children: [
+                Container(
+                  height: 170,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      colors: MyTheme.expenseBackground,
+                      end: Alignment.centerRight,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
+                            child: Text(
+                              'บัญชีรายจ่าย',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 25,
+                                  decoration: TextDecoration.none),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.fromLTRB(25.0, 35.0, 0.0, 0.0),
+                        child: Text(
+                          'รายจ่ายวันนี้',
+                          style: TextStyle(
+                              color: Colors.white.withOpacity(0.7),
+                              fontSize: 12,
+                              decoration: TextDecoration.none
+                              //Theme.of(context).textTheme.bodyText1,
+                              ),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.fromLTRB(25.0, 5.0, 0.0, 0.0),
+                            child: Text(
+                              '$expTotal',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 30,
+                                  decoration: TextDecoration.none
+                                  //Theme.of(context).textTheme.bodyText1,
+                                  ),
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.white,
+                              padding: const EdgeInsets.only(left: 20),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  bottomLeft: Radius.circular(20),
+                                ),
+                              ), // Background color
+                            ),
+                            onPressed: () {
+                              ref.read(provDFlow).setPageIdx(0);
+                              // Respond to button press
+                            },
+                            child: Row(
+                              children: [
+                                Icon(
+                                  HelperIcons.getIconData('hand-holding-usd'),
+                                  size: 20.0,
+                                  color: MyTheme.positiveMajor,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    'รายรับวันนี้\n $incTotal',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: MyTheme.positiveMajor,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_right,
+                                  size: 40.0,
+                                  color: MyTheme.positiveMajor,
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(color: Colors.white, height: 170),
+                const ExpConTab(),
+                const ExpNonConTab(),
+              ],
+            ),
           ),
         ),
       );
@@ -121,10 +331,34 @@ class IncWorkingTab extends ConsumerWidget {
             crossAxisSpacing: 10,
           ),
           itemBuilder: (_, index) {
-            return Container(
-              height: 50,
-              width: 50,
-              color: Colors.purple,
+            return Column(
+              children: [
+                if (incWorkingList[index].flows.length > 0) ...[
+                  Container(
+                    child: Icon(
+                      HelperIcons.getIconData(incWorkingList[index].icon),
+                      color: Colors.white,
+                    ),
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                        color: MyTheme.positiveMajor, shape: BoxShape.circle),
+                  ),
+                  Text(incWorkingList[index].name)
+                ] else ...[
+                  Container(
+                    child: Icon(
+                      HelperIcons.getIconData(incWorkingList[index].icon),
+                      color: Colors.white,
+                    ),
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                        color: MyTheme.positiveMinor, shape: BoxShape.circle),
+                  ),
+                  Text(incWorkingList[index].name)
+                ]
+              ],
             );
           },
         ),
@@ -153,10 +387,18 @@ class IncAssetTab extends ConsumerWidget {
             crossAxisSpacing: 10,
           ),
           itemBuilder: (_, index) {
-            return Container(
-              height: 50,
-              width: 50,
-              color: Colors.purple,
+            return Column(
+              children: [
+                Container(
+                  child: Icon(HelperIcons.getIconData(incAssetList[index].icon),
+                      color: Colors.white),
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                      color: MyTheme.positiveMajor, shape: BoxShape.circle),
+                ),
+                Text(incAssetList[index].name)
+              ],
             );
           },
         ),
@@ -174,7 +416,7 @@ class IncOtherTab extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('รายรับอื่นๆ'),
+        Text('รายรับอื่นๆ', style: MyTheme.textTheme.headline3),
         GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
@@ -185,10 +427,99 @@ class IncOtherTab extends ConsumerWidget {
             crossAxisSpacing: 10,
           ),
           itemBuilder: (_, index) {
-            return Container(
-              height: 50,
-              width: 50,
-              color: Colors.purple,
+            return Column(
+              children: [
+                Container(
+                  child: Icon(HelperIcons.getIconData(incOtherList[index].icon),
+                      color: Colors.white),
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                      color: MyTheme.positiveMajor, shape: BoxShape.circle),
+                ),
+                Text(incOtherList[index].name)
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class ExpConTab extends ConsumerWidget {
+  const ExpConTab({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final expConList = ref.watch(provDFlow.select((e) => e.incOtherList));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('รายจ่ายคงที่', style: MyTheme.textTheme.headline3),
+        GridView.builder(
+          physics: const ScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: expConList.length,
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 100,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+          ),
+          itemBuilder: (_, index) {
+            return Column(
+              children: [
+                Container(
+                  child: Icon(HelperIcons.getIconData(expConList[index].icon),
+                      color: Colors.white),
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                      color: MyTheme.negativeMajor, shape: BoxShape.circle),
+                ),
+                Text(expConList[index].name)
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class ExpNonConTab extends ConsumerWidget {
+  const ExpNonConTab({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final expNonConList = ref.watch(provDFlow.select((e) => e.incOtherList));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('รายจ่ายไม่คงที่', style: MyTheme.textTheme.headline3),
+        GridView.builder(
+          physics: const ScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: expNonConList.length,
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 100,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+          ),
+          itemBuilder: (_, index) {
+            return Column(
+              children: [
+                Container(
+                  child: Icon(
+                      HelperIcons.getIconData(expNonConList[index].icon),
+                      color: Colors.white),
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                      color: MyTheme.negativeMajor, shape: BoxShape.circle),
+                ),
+                Text(expNonConList[index].name)
+              ],
             );
           },
         ),
