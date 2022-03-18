@@ -7,4 +7,5 @@ app_name = 'user'
 urlpatterns = [
     path('register/', views.CustomUserCreate.as_view(), name="register_user"),
     path('<str:pk>/', views.User.as_view(), name='user_detail'),
+    path('admin/<str:pk>/', views.AdminEditUser.as_view(), name="user-update-by-admin")
 ]

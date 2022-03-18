@@ -20,4 +20,8 @@ class User(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     queryset = NewUser.objects.all()
     serializer_class = serializers.UserSerializer
-
+    
+class AdminEditUser(generics.RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAdminUser]
+    serializer_class = serializers.AdimEditUserSerializer
+    queryset = NewUser.objects.all()
