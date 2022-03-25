@@ -9,7 +9,6 @@ from rest_framework.filters import OrderingFilter
 from datetime import datetime, timedelta
 from pytz import timezone
 from django.db.models import Exists, OuterRef, Q, F, Prefetch
-from django.core.exceptions import ValidationError
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -442,7 +441,7 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
             date = self.request.query_params.get('date', None)
             if date is None:
                 date = datetime.now(tz= timezone('Asia/Bangkok'))
-            as_used = bool(self.request.query_params.get('as_used', False))
+            as_used = eval(self.request.query_params.get('as_used', False))
             if as_used:
                 queryset = queryset.filter(
                     Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
@@ -473,7 +472,7 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
             return queryset
 
 class DefaultCategories(generics.ListCreateAPIView):
-    permissions_classes = [permissions.IsAuthenticated]
+    permissions_classes = [permissions.IsAdminUser]
     serializer_class = serializers.DefaultCategoriesSerializer
     queryset = models.DefaultCategory.objects.all()
 
@@ -503,7 +502,7 @@ class Categories(generics.ListCreateAPIView):
                 for cat in default_cat:
                     models.Category.objects.create(name=cat.name, ftype=cat.ftype, user_id=owner, icon=cat.icon)
                 queryset = models.Category.objects.filter(user_id=uuid)
-            as_used = bool(self.request.query_params.get('as_used', False))
+            as_used = eval(self.request.query_params.get('as_used', "False"))
             if as_used:
                 queryset = queryset.filter(
                     Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
@@ -635,6 +634,16 @@ class FinancialGoals(generics.ListCreateAPIView):
         if uuid is None:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         queryset = models.FinancialGoal.objects.filter(user_id=uuid)
+        date = self.request.query_params.get("date", None)
+        if date is not None:
+            queryset = queryset.filter(start__lte=date)
+        completed = self.request.query_params.get("completed", None)
+        if completed is not None:
+            completed = eval(completed)
+            if completed:
+                queryset = queryset.filter(total_progress__gte=F("goal"))
+            else:
+                queryset = queryset.filter(total_progress__lt=F("goal"))
         return queryset
     
     def perform_create(self, serializer):

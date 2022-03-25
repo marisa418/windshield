@@ -29,17 +29,15 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    # user_id = serializers.CharField()
-    # email = serializers.EmailField()
-    # pin = serializers.CharField()
-    # tel = serializers.CharField()
-    # occu_type = serializers.CharField()
-    # status = serializers.CharField() 
-    # age = serializers.IntegerField()
-    # province = serializers.IntegerField()
-    # family = serializers.IntegerField()
-    # points = serializers.IntegerField()
 
     class Meta:
         model = NewUser
-        exclude = ('password',)
+        exclude = ['password']
+        read_only = ["user_id", "uuid", "points"]
+
+class AdimEditUserSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = NewUser
+        exclude = ['password']
+        read_only = ["uuid", "user_id", "email", "pin"]
