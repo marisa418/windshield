@@ -75,7 +75,7 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
     age = models.PositiveSmallIntegerField(null=True)
     province = models.ForeignKey(Province, on_delete=CASCADE, null=True)
     family = models.PositiveSmallIntegerField(null=True)
-    points = models.PositiveIntegerField(null=True)
+    points = models.PositiveIntegerField(default=0)
 
     objects = CustomAccountManager()
 

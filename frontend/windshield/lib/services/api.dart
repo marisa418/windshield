@@ -375,6 +375,7 @@ class Api extends ChangeNotifier {
           (res.data as List).map((i) => DFlowCategory.fromJson(i)).toList();
       return data;
     } catch (e) {
+      print(e);
       return [];
     }
   }
