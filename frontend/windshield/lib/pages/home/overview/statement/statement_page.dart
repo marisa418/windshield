@@ -4,22 +4,26 @@ import 'package:auto_route/auto_route.dart';
 import 'package:intl/intl.dart';
 
 import 'package:windshield/main.dart';
-import 'package:windshield/providers/statement_provider.dart';
 import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/styles/theme.dart';
+import 'package:windshield/providers/statement_provider.dart';
 import 'package:windshield/models/statement/budget.dart';
 import 'package:windshield/models/statement/statement.dart';
+import 'first_statement.dart';
+
+final provStatement = ChangeNotifierProvider.autoDispose<StatementProvider>(
+    (ref) => StatementProvider());
 
 final apiStatement =
     FutureProvider.autoDispose<List<StmntStatement>>((ref) async {
   ref.watch(provStatement.select((value) => value.needFetchAPI));
   final now = DateTime.now();
   final data = await ref.read(apiProvider).getAllNotEndYetStatements(now);
+  print(data);
   ref.read(provStatement).setStatementList(data);
   if (data.isNotEmpty) {
     ref.read(provStatement).setStmntActiveList();
     ref.read(provStatement).setStmntDateChipList();
-    ref.read(provStatement).setStmntDateChipIdx(0);
     ref.read(provStatement).setStmntDateList();
   }
   return data;
@@ -37,39 +41,41 @@ class StatementPage extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       data: (data) {
         return Scaffold(
-          body: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              const Header(),
-              const StatementList(),
-              Container(
-                color: Colors.transparent,
-                height: 75,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    label: Text(
-                      'ย้อนกลับ  ',
-                      style: MyTheme.whiteTextTheme.headline3,
-                    ),
-                    icon: const Icon(
-                      Icons.arrow_left,
-                      color: Colors.white,
-                    ),
-                    style: TextButton.styleFrom(
-                      backgroundColor: MyTheme.primaryMajor,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(20),
-                          bottomRight: Radius.circular(20),
+          body: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                const Header(),
+                const StatementList(),
+                Container(
+                  color: Colors.transparent,
+                  height: 75,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      label: Text(
+                        'ย้อนกลับ  ',
+                        style: MyTheme.whiteTextTheme.headline3,
+                      ),
+                      icon: const Icon(
+                        Icons.arrow_left,
+                        color: Colors.white,
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: MyTheme.primaryMajor,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
                         ),
                       ),
+                      onPressed: () => AutoRouter.of(context).pop(),
                     ),
-                    onPressed: () => AutoRouter.of(context).pop(),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -93,6 +99,24 @@ class Header extends ConsumerWidget {
         ),
       ),
       height: 190,
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('แผนงบการเงินของคุณ', style: MyTheme.whiteTextTheme.headline3),
+            Wrap(
+              children: [
+                const Icon(Icons.calendar_today, color: Colors.white),
+                Text(
+                  DateFormat(' E d MMM y').format(DateTime.now()),
+                  style: MyTheme.whiteTextTheme.headline4,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -115,8 +139,12 @@ class StatementList extends ConsumerWidget {
               padding: const EdgeInsets.all(10),
               child: GestureDetector(
                 onTap: () {
-                  final nextDayOfLastPlan =
-                      stmnt.last.end.add(const Duration(days: 1));
+                  DateTime nextDayOfLastPlan =
+                      DateUtils.dateOnly(DateTime.now());
+                  if (stmnt.isNotEmpty) {
+                    nextDayOfLastPlan =
+                        stmnt.last.end.add(const Duration(days: 1));
+                  }
                   ref.read(provStatement).setAvailableDate(
                         nextDayOfLastPlan,
                         nextDayOfLastPlan.add(const Duration(days: 34)),
@@ -125,6 +153,7 @@ class StatementList extends ConsumerWidget {
                         nextDayOfLastPlan,
                         nextDayOfLastPlan,
                       );
+                  ref.read(provStatement).setStmntCreatePageIdx(0);
                   AutoRouter.of(context).push(const StatementCreateRoute());
                 },
                 child: Container(
@@ -147,6 +176,9 @@ class StatementList extends ConsumerWidget {
               ),
             );
           }
+          if (index == 0) {
+            return const FirstStatement();
+          }
           return ActiveStatements(index);
         },
       ),
@@ -163,175 +195,212 @@ class ActiveStatements extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final stmntActiveList =
         ref.watch(provStatement.select((e) => e.stmntActiveList));
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: GestureDetector(
-        onTap: () {
-          ref.read(provStatement).setStmntDateChipIdx(index);
-          ref.read(provStatement).setStmntDateList();
-          AutoRouter.of(context).push(const StatementInfoRoute());
-        },
-        child: Container(
-          height: 150,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: MyTheme.dropShadow,
-                blurRadius: 7,
-                offset: const Offset(0, 3),
-              ),
-            ],
+    final sum = _getTotal(stmntActiveList[index].budgets);
+    final perc = _getPerc(sum);
+    return Container(
+      // height: 160,
+      margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: MyTheme.dropShadow,
+            blurRadius: 7,
+            offset: const Offset(0, 3),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${stmntActiveList[index].name} | ${DateFormat("d MMM y").format(stmntActiveList[index].start)}',
-                  style: MyTheme.textTheme.headline4,
-                ),
-                const Divider(),
-                Row(
-                  children: [
-                    Flexible(
-                      flex: 5,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: MyTheme.incomeBackground,
-                          ),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            bottomLeft: Radius.circular(15),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(7.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'งบรายรับ',
-                                style: MyTheme.whiteTextTheme.bodyText1,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${_getIncTotal(stmntActiveList[index].budgets)} บ.',
-                                    style: MyTheme.whiteTextTheme.headline4,
-                                  ),
-                                  Text(
-                                    _getIncPerc(
-                                            stmntActiveList[index].budgets) +
-                                        '%',
-                                    style: MyTheme.whiteTextTheme.bodyText1,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.end,
+                children: [
+                  Text(
+                    '${stmntActiveList[index].name} ',
+                    style: MyTheme.textTheme.headline4,
+                  ),
+                  Text(
+                    DateFormat("d MMM y").format(stmntActiveList[index].start),
+                    style: MyTheme.textTheme.bodyText1!.merge(
+                      const TextStyle(color: Colors.grey),
                     ),
-                    Flexible(
-                      flex: 5,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: MyTheme.expenseBackground,
-                          ),
-                          borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(15),
-                            bottomRight: Radius.circular(15),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(7.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'งบรายจ่าย',
-                                style: MyTheme.whiteTextTheme.bodyText1,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${_getExpTotal(stmntActiveList[index].budgets)} บ.',
-                                    style: MyTheme.whiteTextTheme.headline4,
-                                  ),
-                                  Text(
-                                    _getExpPerc(
-                                            stmntActiveList[index].budgets) +
-                                        '%',
-                                    style: MyTheme.whiteTextTheme.bodyText1,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                  ),
+                ],
+              ),
+              GestureDetector(
+                onTap: () {
+                  ref.read(provStatement).setStmntDateChipIdx(index);
+                  ref.read(provStatement).setStmntDateList();
+                  AutoRouter.of(context).push(const StatementInfoRoute());
+                },
+                child: Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Icon(Icons.edit, color: MyTheme.primaryMajor),
+                    Text(
+                      'เปลี่ยนแผน',
+                      style: MyTheme.textTheme.bodyText1!.merge(
+                        TextStyle(color: MyTheme.primaryMajor),
                       ),
                     ),
                   ],
                 ),
+              ),
+            ],
+          ),
+          const Divider(thickness: 1),
+          GestureDetector(
+            onTap: () {
+              final provStmnt = ref.read(provStatement);
+              provStmnt.setStmntId(stmntActiveList[index].id);
+              provStmnt.setStmntName(stmntActiveList[index].name);
+              provStmnt.setStmntBudgets(stmntActiveList[index].budgets);
+              provStmnt.setDate(
+                stmntActiveList[index].start,
+                stmntActiveList[index].end,
+              );
+              AutoRouter.of(context).push(const StatementEditRoute());
+            },
+            child: Row(
+              children: [
+                Flexible(
+                  flex: 5,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: MyTheme.incomeBackground,
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        bottomLeft: Radius.circular(15),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(7.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'งบรายรับ',
+                            style: MyTheme.whiteTextTheme.bodyText1,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${sum[0]} บ.',
+                                style: MyTheme.whiteTextTheme.headline4,
+                              ),
+                              Text(
+                                '${perc[0].toStringAsFixed(2)}%',
+                                style: MyTheme.whiteTextTheme.bodyText1,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 5,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: MyTheme.expenseBackground,
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(15),
+                        bottomRight: Radius.circular(15),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(7.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'งบรายจ่าย',
+                            style: MyTheme.whiteTextTheme.bodyText1,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${sum[1]} บ.',
+                                style: MyTheme.whiteTextTheme.headline4,
+                              ),
+                              Text(
+                                '${perc[1].toStringAsFixed(2)}%',
+                                style: MyTheme.whiteTextTheme.bodyText1,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
-        ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('สภาพคล่องสุทธิ', style: MyTheme.textTheme.bodyText1),
+              if (sum[0] - sum[1] > 0)
+                Text(
+                  '+${sum[0] - sum[1]}',
+                  style: MyTheme.textTheme.headline3!.merge(
+                    TextStyle(color: MyTheme.positiveMajor),
+                  ),
+                )
+              else
+                Text(
+                  '${sum[0] - sum[1]}',
+                  style: sum[0] - sum[1] != 0
+                      ? MyTheme.textTheme.headline3!.merge(
+                          TextStyle(color: MyTheme.negativeMajor),
+                        )
+                      : MyTheme.textTheme.headline3,
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
-String _getIncTotal(List<StmntBudget> budget) {
-  double sum = 0;
-  for (var item in budget) {
+List<double> _getTotal(List<StmntBudget> budgets) {
+  double incSum = 0;
+  double expSum = 0;
+  for (var item in budgets) {
     if (item.cat.ftype == '1' ||
         item.cat.ftype == '2' ||
         item.cat.ftype == '3') {
-      sum += item.total;
+      incSum += item.total;
+    } else {
+      expSum += item.total;
     }
   }
-  return sum.toString();
+  return [incSum, expSum];
 }
 
-String _getExpTotal(List<StmntBudget> budget) {
-  double sum = 0;
-  for (var item in budget) {
-    if (item.cat.ftype == '4' ||
-        item.cat.ftype == '5' ||
-        item.cat.ftype == '6' ||
-        item.cat.ftype == '10' ||
-        item.cat.ftype == '11' ||
-        item.cat.ftype == '12') {
-      sum += item.total;
-    }
-  }
-  return sum.toString();
-}
-
-String _getIncPerc(List<StmntBudget> budget) {
-  final inc = _getIncTotal(budget);
-  final exp = _getExpTotal(budget);
-  double sum = double.parse(exp) + double.parse(inc);
-  return (double.parse(inc) / sum * 100).toStringAsFixed(2);
-}
-
-String _getExpPerc(List<StmntBudget> budget) {
-  final inc = _getIncTotal(budget);
-  final exp = _getExpTotal(budget);
-  double sum = double.parse(exp) + double.parse(inc);
-  return (double.parse(exp) / sum * 100).toStringAsFixed(2);
+List<double> _getPerc(List<double> incexp) {
+  double sum = incexp[0] + incexp[1];
+  final inc = incexp[0] / sum * 100;
+  final exp = incexp[1] / sum * 100;
+  return [inc, exp];
 }

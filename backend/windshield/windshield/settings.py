@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-z4)s_(x!=h5d+eda@y1ypm^(qvv@w_k!h1(-%gwtt*d0iwfods
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -145,7 +145,7 @@ CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://localhost:50522"]
 AUTH_USER_MODEL = 'user.NewUser'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -158,6 +158,4 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
-
-ALLOWED_HOSTS = ['*']
 

@@ -22,18 +22,39 @@ part 'app_router.gr.dart';
 @MaterialAutoRouter(
   replaceInRouteName: 'Page,Route',
   routes: <AutoRoute>[
-    AutoRoute(page: LoginPage, initial: true),
-    AutoRoute(page: RegisterPage),
-    AutoRoute(page: PinPage),
-    AutoRoute(page: RegisterInfoPage),
-    AutoRoute(page: HomePage),
-    AutoRoute(page: StatementPage),
-    AutoRoute(page: StatementInfoPage),
-    AutoRoute(page: StatementCreatePage),
-    AutoRoute(page: StatementEditPage),
-    AutoRoute(page: DailyFlowPage),
-    AutoRoute(page: DailyFlowCreatePage),
-    AutoRoute(page: BalanceSheetPage),
+    AutoRoute(
+      path: '/login',
+      page: AppStackPage,
+      children: [
+        AutoRoute(page: LoginPage, initial: true),
+        AutoRoute(page: RegisterPage),
+        AutoRoute(page: PinPage),
+        AutoRoute(page: RegisterInfoPage),
+      ],
+    ),
+    AutoRoute(
+      path: '/',
+      page: EmptyRouterPage,
+      children: [
+        AutoRoute(page: HomePage, initial: true),
+        AutoRoute(page: StatementPage),
+        AutoRoute(page: StatementInfoPage),
+        AutoRoute(page: StatementCreatePage),
+        AutoRoute(page: StatementEditPage),
+        AutoRoute(page: DailyFlowPage),
+        AutoRoute(page: DailyFlowCreatePage),
+        AutoRoute(page: BalanceSheetPage),
+      ],
+    ),
   ],
 )
 class AppRouter extends _$AppRouter {}
+
+class AppStackPage extends StatelessWidget {
+  const AppStackPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const AutoRouter();
+  }
+}

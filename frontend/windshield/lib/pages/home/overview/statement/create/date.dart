@@ -6,6 +6,7 @@ import 'package:auto_route/auto_route.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/styles/theme.dart';
+import '../statement_page.dart';
 
 class Date extends ConsumerWidget {
   const Date({Key? key}) : super(key: key);
@@ -220,7 +221,9 @@ class Footer extends ConsumerWidget {
                       ref.read(provStatement).end,
                     );
                 if (id != '') {
+                  ref.read(provStatement).setStmntId(id);
                   ref.read(provStatement).setStmntCreatePageIdx(1);
+                  ref.read(provStatement).setNeedFetchAPI();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('เกิดข้อผิดพลาด')),

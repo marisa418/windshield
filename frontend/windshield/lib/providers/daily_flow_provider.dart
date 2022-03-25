@@ -75,7 +75,13 @@ class DailyFlowProvider extends ChangeNotifier {
         value: 0,
         detail: '',
         dfId: '',
-        catId: '',
+        cat: Cat(
+            id: '',
+            name: '',
+            usedCount: 0,
+            icon: '',
+            isDeleted: false,
+            ftype: ''),
       ),
     ],
   );
@@ -191,7 +197,7 @@ class DailyFlowProvider extends ChangeNotifier {
 
   void editFlow(DFlowFlow flow) {
     final found = _currCat.flows.firstWhere((e) => e.id == flow.id);
-    found.catId = flow.catId;
+    found.cat = flow.cat;
     found.detail = flow.detail;
     found.dfId = flow.dfId;
     found.id = flow.id;

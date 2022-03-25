@@ -8,9 +8,9 @@ class User {
 
   String? pin;
   String? tel;
-  String? age;
-  String? family;
-  String? points;
+  int? age;
+  int? family;
+  int? points;
 
   User({
     this.userId,

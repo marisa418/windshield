@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:windshield/main.dart';
 import 'package:windshield/routes/app_router.dart';
-import 'package:pinput/pin_put/pin_put.dart';
+import 'package:pinput/pinput.dart';
+import 'package:windshield/styles/theme.dart';
 
 import '../main.dart';
 import '../models/user.dart';
@@ -43,7 +44,7 @@ class _PinPageState extends ConsumerState {
                       ],
                     ),
                   ),
-                  child: PinField(),
+                  child: const PinField(),
                 );
               } else {
                 return Container();
@@ -57,29 +58,29 @@ class _PinPageState extends ConsumerState {
 }
 
 class PinField extends ConsumerStatefulWidget {
-  PinField({Key? key}) : super(key: key);
+  const PinField({Key? key}) : super(key: key);
 
   @override
   _PinFieldState createState() => _PinFieldState();
 }
 
 class _PinFieldState extends ConsumerState {
-  final TextEditingController PinFieldController = TextEditingController();
-  final FocusNode PinFieldFocusNode = FocusNode();
+  final TextEditingController pinController = TextEditingController();
+  final FocusNode focusNode = FocusNode();
 
   ElevatedButton _keyPad(String num) {
     return ElevatedButton(
       onPressed: () {
         if (num == '-1') {
-          if (PinFieldController.text.isNotEmpty) {
-            PinFieldController.text = PinFieldController.text.substring(
+          if (pinController.text.isNotEmpty) {
+            pinController.text = pinController.text.substring(
               0,
-              PinFieldController.text.length - 1,
+              pinController.text.length - 1,
             );
           }
         } else {
-          if (PinFieldController.text.length <= 6) {
-            PinFieldController.text += num;
+          if (pinController.length <= 5) {
+            pinController.text += num;
           }
         }
       },
@@ -110,130 +111,131 @@ class _PinFieldState extends ConsumerState {
     );
   }
 
-  BoxDecoration get PinFieldDecoration {
-    return BoxDecoration(
-      border: Border.all(color: Colors.white),
-      borderRadius: BorderRadius.circular(15.0),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final api = ref.watch(apiProvider);
-    return Builder(
-      builder: (context) {
-        return Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  margin: const EdgeInsets.all(20.0),
-                  padding: const EdgeInsets.all(20.0),
-                  child: PinPut(
-                    useNativeKeyboard: false,
-                    textStyle: const TextStyle(
-                      color: Colors.white,
+    return Center(
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Container(
+              height: 100,
+              margin: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(20.0),
+              child: Pinput(
+                useNativeKeyboard: false,
+                length: 6,
+                followingPinTheme: PinTheme(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20.0),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(.5),
                     ),
-                    fieldsCount: 6,
-                    // onSubmit: (String pin) => _showSnackBar(pin, context),
-                    focusNode: PinFieldFocusNode,
-                    controller: PinFieldController,
-                    submittedFieldDecoration: PinFieldDecoration.copyWith(
-                      borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                focusedPinTheme: PinTheme(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5.0),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(.5),
                     ),
-                    selectedFieldDecoration: PinFieldDecoration,
-                    followingFieldDecoration: PinFieldDecoration.copyWith(
-                      borderRadius: BorderRadius.circular(20.0),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(.5),
+                    color: Colors.white.withOpacity(.5),
+                  ),
+                ),
+                submittedPinTheme: PinTheme(
+                  width: 40,
+                  height: 40,
+                  textStyle: MyTheme.whiteTextTheme.headline4,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5.0),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(.5),
+                    ),
+                  ),
+                ),
+                focusNode: focusNode,
+                controller: pinController,
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _keyPad('7'),
+                    _keyPad('8'),
+                    _keyPad('9'),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _keyPad('4'),
+                    _keyPad('5'),
+                    _keyPad('6'),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _keyPad('1'),
+                    _keyPad('2'),
+                    _keyPad('3'),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    const SizedBox(width: 92, height: 60),
+                    _keyPad('0'),
+                    _keyPad('-1'),
+                  ],
+                ),
+                const SizedBox(height: 40),
+                ElevatedButton(
+                  onPressed: () async {
+                    final _updatePin = ref.read(apiProvider);
+                    final pin = pinController.text;
+                    if (pin.length > 4 && await _updatePin.updatePin(pin)) {
+                      AutoRouter.of(context).push(const RegisterInfoRoute());
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    primary: Colors.white,
+                    elevation: 0,
+                  ),
+                  child: Container(
+                    height: 60,
+                    width: 300,
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'บันทึก',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 82, 84, 255),
+                        fontSize: 16.0,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 30.0),
-                // const Divider(),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        _keyPad('7'),
-                        _keyPad('8'),
-                        _keyPad('9'),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        _keyPad('4'),
-                        _keyPad('5'),
-                        _keyPad('6'),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        _keyPad('1'),
-                        _keyPad('2'),
-                        _keyPad('3'),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        const SizedBox(width: 92, height: 60),
-                        _keyPad('0'),
-                        _keyPad('-1'),
-                      ],
-                    ),
-                    const SizedBox(height: 40),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (await _updatePin(PinFieldController.text)) {
-                          AutoRouter.of(context)
-                              .push(const RegisterInfoRoute());
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('เกิดข้อผิดพลาด')),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
-                        primary: Colors.white,
-                        elevation: 0,
-                      ),
-                      child: Container(
-                        height: 60,
-                        width: 300,
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'บันทึก',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 82, 84, 255),
-                            fontSize: 16.0,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
-  }
-
-  Future<bool> _updatePin(String inputPin) async {
-    return await ref.read(apiProvider).updatePin(inputPin);
   }
 }

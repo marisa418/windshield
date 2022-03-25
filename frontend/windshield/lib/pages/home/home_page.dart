@@ -2,10 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:windshield/main.dart';
 import 'package:windshield/components/fab_bottom_appbar.dart';
-import './overview/overview_page.dart';
 import 'package:windshield/routes/app_router.dart';
+import './overview/overview_page.dart';
+import './setting/setting_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -24,7 +24,7 @@ class _HomeState extends ConsumerState<HomePage> {
     pageList.add(const Overview());
     pageList.add(Container(color: Colors.red));
     pageList.add(Container(color: Colors.blue));
-    pageList.add(Container(color: Colors.purple));
+    pageList.add(const SettingPage());
   }
 
   void _updateIndex(int index) {

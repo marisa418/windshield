@@ -79,17 +79,14 @@ class _FormInfoState extends ConsumerState {
 
   _updateStatus(String val) {
     _status = val;
-    print(_status);
   }
 
   _updateFamily(int val) {
     _family = val;
-    print(_family);
   }
 
   _updateOccu(String val) {
     _occuType = val;
-    print(_occuType);
   }
 
   late final Future<List<Province>?> provFuture =
@@ -139,7 +136,6 @@ class _FormInfoState extends ConsumerState {
                       onChanged: (value) {
                         setState(() {
                           _province = value!;
-                          print(_province);
                         });
                       },
                       value: _province,
@@ -205,17 +201,14 @@ class _FormInfoState extends ConsumerState {
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      print(_province);
-                      print(_status);
-                      print(_occuType);
-                      print(_family);
+
                       final res = await ref
                           .read(apiProvider)
                           .updateUser(_province, _status, _occuType, _family);
-                      if (res) {
-                        AutoRouter.of(context).replace(const HomeRoute());
-                      } else {
-                        print("Can't update user");
+                      if (!res) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+                        );
                       }
                     }
                   },
@@ -393,7 +386,7 @@ class _OccuChoicesState extends State<OccuChoices> {
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 0),
             leading: Radio<String>(
-              value: 'DAI',
+              value: 'DLY',
               groupValue: _occuType,
               onChanged: (value) => _updateOccu(value!),
               fillColor:
