@@ -18,6 +18,8 @@ class DailyFlowProvider extends ChangeNotifier {
   double get incTotal => _incTotal;
   double _expTotal = 0;
   double get expTotal => _expTotal;
+  String _colorBackground = 'income';
+  String get colorBackground => _colorBackground;
 
   //1
   List<DFlowCategory> _incWorkingList = [];
@@ -75,7 +77,13 @@ class DailyFlowProvider extends ChangeNotifier {
         value: 0,
         detail: '',
         dfId: '',
-        catId: '',
+        cat: Cat(
+            id: '',
+            name: '',
+            usedCount: 0,
+            icon: '',
+            isDeleted: false,
+            ftype: ''),
       ),
     ],
   );
@@ -87,17 +95,21 @@ class DailyFlowProvider extends ChangeNotifier {
   String _flowName = '';
   String get flowName => _flowName;
 
-  String _flowValue = '';
-  String get flowValue => _flowValue;
+  double _flowValue = 0;
+  double get flowValue => _flowValue;
 
-  String _flowMethod = '';
-  String get flowMethod => _flowMethod;
+  int _flowMethod = 0;
+  int get flowMethod => _flowMethod;
 
   bool _needFetchAPI = false;
   bool get needFetchAPI => _needFetchAPI;
 
   void setCatList(List<DFlowCategory> value) {
     _catList = value;
+  }
+
+  void setColorBackground(String value) {
+    _colorBackground = value;
   }
 
   void setPageIdx(int value) {
@@ -111,6 +123,7 @@ class DailyFlowProvider extends ChangeNotifier {
 
   void setCurrCat(DFlowCategory value) {
     _currCat = value;
+    print('Yeah u using currCat');
     notifyListeners();
   }
 
@@ -124,12 +137,12 @@ class DailyFlowProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setFlowValue(String value) {
+  void setFlowValue(double value) {
     _flowValue = value;
     notifyListeners();
   }
 
-  void setFlowMethod(String value) {
+  void setFlowMethod(int value) {
     _flowMethod = value;
     notifyListeners();
   }
@@ -191,7 +204,7 @@ class DailyFlowProvider extends ChangeNotifier {
 
   void editFlow(DFlowFlow flow) {
     final found = _currCat.flows.firstWhere((e) => e.id == flow.id);
-    found.catId = flow.catId;
+    found.cat = flow.cat;
     found.detail = flow.detail;
     found.dfId = flow.dfId;
     found.id = flow.id;

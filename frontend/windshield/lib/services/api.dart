@@ -278,6 +278,7 @@ class Api extends ChangeNotifier {
           .toList();
       return data;
     } catch (e) {
+      print(e);
       return [];
     }
   }
@@ -308,7 +309,13 @@ class Api extends ChangeNotifier {
         value: 0,
         detail: '',
         dfId: '',
-        catId: '',
+        cat: Cat(
+            id: '',
+            name: '',
+            usedCount: 0,
+            icon: '',
+            isDeleted: false,
+            ftype: ''),
       );
     }
   }
@@ -334,7 +341,13 @@ class Api extends ChangeNotifier {
         value: 0,
         detail: '',
         dfId: '',
-        catId: '',
+        cat: Cat(
+            id: '',
+            name: '',
+            usedCount: 0,
+            icon: '',
+            isDeleted: false,
+            ftype: ''),
       );
     }
   }

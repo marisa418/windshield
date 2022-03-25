@@ -1,8 +1,12 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:badges/badges.dart';
 
 import 'package:windshield/main.dart';
+import 'package:windshield/models/daily_flow/flow.dart';
 import 'package:windshield/providers/daily_flow_provider.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/routes/app_router.dart';
@@ -314,55 +318,101 @@ class DailyList extends ConsumerWidget {
 class IncWorkingTab extends ConsumerWidget {
   const IncWorkingTab({Key? key}) : super(key: key);
 
+  get incWorking => null;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final incWorkingList = ref.watch(provDFlow.select((e) => e.incWorkingList));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('รายรับจากการทำงาน', style: MyTheme.textTheme.headline3),
-        GridView.builder(
-          physics: const ScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: incWorkingList.length,
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 100,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
+
+    return Padding(
+      padding: const EdgeInsets.all(25.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('รายรับจากการทำงาน', style: MyTheme.textTheme.headline3),
+          GridView.builder(
+            physics: const ScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: incWorkingList.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              mainAxisExtent: 100,
+            ),
+            itemBuilder: (_, index) {
+              return Column(
+                children: [
+                  Expanded(
+                    child: Badge(
+                      position: BadgePosition(top: 0, end: 10, isCenter: false),
+                      animationType: BadgeAnimationType.scale,
+                      showBadge:
+                          incWorkingList[index].flows.isEmpty ? false : true,
+                      badgeContent: Text(
+                        '${incWorkingList[index].flows.length}',
+                        style: const TextStyle(fontSize: 15),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 75, //height of button
+                            width: 75, //width of button
+                            child: ElevatedButton(
+                              onPressed: () {
+                                ref
+                                    .read(provDFlow)
+                                    .setColorBackground('income');
+                                ref
+                                    .read(provDFlow)
+                                    .setCurrCat(incWorkingList[index]);
+                                AutoRouter.of(context)
+                                    .push(const DailyFlowCreateRoute());
+                                ref.watch(provDFlow).currCat.flows;
+                              },
+                              style: ElevatedButton.styleFrom(
+                                elevation: 0.0,
+                                shadowColor: Colors
+                                    .transparent, //remove shadow on button
+                                primary: incWorkingList[index].budgets.isEmpty
+                                    ? Color(0xffE0E0E0)
+                                    : MyTheme.positiveMajor,
+                                textStyle: const TextStyle(fontSize: 12),
+                                padding: const EdgeInsets.all(10),
+
+                                shape: const CircleBorder(),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    HelperIcons.getIconData(
+                                        incWorkingList[index].icon),
+                                    color: Colors.white,
+                                  ),
+                                  if (incWorkingList[index]
+                                      .flows
+                                      .isNotEmpty) ...[
+                                    Text(
+                                      _loopFlow(incWorkingList[index].flows),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Text(incWorkingList[index].name)
+                ],
+              );
+            },
           ),
-          itemBuilder: (_, index) {
-            return Column(
-              children: [
-                if (incWorkingList[index].flows.length > 0) ...[
-                  Container(
-                    child: Icon(
-                      HelperIcons.getIconData(incWorkingList[index].icon),
-                      color: Colors.white,
-                    ),
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                        color: MyTheme.positiveMajor, shape: BoxShape.circle),
-                  ),
-                  Text(incWorkingList[index].name)
-                ] else ...[
-                  Container(
-                    child: Icon(
-                      HelperIcons.getIconData(incWorkingList[index].icon),
-                      color: Colors.white,
-                    ),
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                        color: MyTheme.positiveMinor, shape: BoxShape.circle),
-                  ),
-                  Text(incWorkingList[index].name)
-                ]
-              ],
-            );
-          },
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -389,13 +439,52 @@ class IncAssetTab extends ConsumerWidget {
           itemBuilder: (_, index) {
             return Column(
               children: [
-                Container(
-                  child: Icon(HelperIcons.getIconData(incAssetList[index].icon),
-                      color: Colors.white),
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                      color: MyTheme.positiveMajor, shape: BoxShape.circle),
+                Badge(
+                  animationType: BadgeAnimationType.scale,
+                  showBadge: incAssetList[index].flows.isEmpty ? false : true,
+                  badgeContent: Text(
+                    '${incAssetList[index].flows.length}',
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          ref.read(provDFlow).setColorBackground('income');
+                          ref.read(provDFlow).setCurrCat(incAssetList[index]);
+                          AutoRouter.of(context).push(DailyFlowCreateRoute());
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0.0,
+                          shadowColor:
+                              Colors.transparent, //remove shadow on button
+                          primary: incAssetList[index].budgets.isEmpty
+                              ? MyTheme.positiveMinor
+                              : MyTheme.positiveMajor,
+                          textStyle: const TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.bold),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 20),
+
+                          shape: const CircleBorder(),
+                        ),
+                        child: Column(
+                          //mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              HelperIcons.getIconData(incAssetList[index].icon),
+                              color: Colors.white,
+                            ),
+                            if (incAssetList[index].flows.isNotEmpty) ...[
+                              Text(
+                                _loopFlow(incAssetList[index].flows),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Text(incAssetList[index].name)
               ],
@@ -429,13 +518,52 @@ class IncOtherTab extends ConsumerWidget {
           itemBuilder: (_, index) {
             return Column(
               children: [
-                Container(
-                  child: Icon(HelperIcons.getIconData(incOtherList[index].icon),
-                      color: Colors.white),
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                      color: MyTheme.positiveMajor, shape: BoxShape.circle),
+                Badge(
+                  animationType: BadgeAnimationType.scale,
+                  showBadge: incOtherList[index].flows.isEmpty ? false : true,
+                  badgeContent: Text(
+                    '${incOtherList[index].flows.length}',
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          ref.read(provDFlow).setColorBackground('income');
+                          ref.read(provDFlow).setCurrCat(incOtherList[index]);
+                          AutoRouter.of(context).push(DailyFlowCreateRoute());
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0.0,
+                          shadowColor:
+                              Colors.transparent, //remove shadow on button
+                          primary: incOtherList[index].budgets.isEmpty
+                              ? MyTheme.positiveMinor
+                              : MyTheme.positiveMajor,
+                          textStyle: const TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.bold),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 20),
+
+                          shape: const CircleBorder(),
+                        ),
+                        child: Column(
+                          //mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              HelperIcons.getIconData(incOtherList[index].icon),
+                              color: Colors.white,
+                            ),
+                            if (incOtherList[index].flows.isNotEmpty) ...[
+                              Text(
+                                _loopFlow(incOtherList[index].flows),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Text(incOtherList[index].name)
               ],
@@ -450,9 +578,11 @@ class IncOtherTab extends ConsumerWidget {
 class ExpConTab extends ConsumerWidget {
   const ExpConTab({Key? key}) : super(key: key);
 
+//add savind Class
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final expConList = ref.watch(provDFlow.select((e) => e.incOtherList));
+    final expConList = ref.watch(provDFlow.select((e) => e.expConList));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -469,13 +599,52 @@ class ExpConTab extends ConsumerWidget {
           itemBuilder: (_, index) {
             return Column(
               children: [
-                Container(
-                  child: Icon(HelperIcons.getIconData(expConList[index].icon),
-                      color: Colors.white),
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                      color: MyTheme.negativeMajor, shape: BoxShape.circle),
+                Badge(
+                  animationType: BadgeAnimationType.scale,
+                  showBadge: expConList[index].flows.isEmpty ? false : true,
+                  badgeContent: Text(
+                    '${expConList[index].flows.length}',
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          ref.read(provDFlow).setColorBackground('expense');
+                          ref.read(provDFlow).setCurrCat(expConList[index]);
+                          AutoRouter.of(context).push(DailyFlowCreateRoute());
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0.0,
+                          shadowColor:
+                              Colors.transparent, //remove shadow on button
+                          primary: expConList[index].budgets.isEmpty
+                              ? MyTheme.negativeMinor
+                              : MyTheme.negativeMajor,
+                          textStyle: const TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.bold),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 15),
+
+                          shape: const CircleBorder(),
+                        ),
+                        child: Column(
+                          //mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              HelperIcons.getIconData(expConList[index].icon),
+                              color: Colors.white,
+                            ),
+                            if (expConList[index].flows.isNotEmpty) ...[
+                              Text(
+                                _loopFlow(expConList[index].flows),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Text(expConList[index].name)
               ],
@@ -492,7 +661,8 @@ class ExpNonConTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final expNonConList = ref.watch(provDFlow.select((e) => e.incOtherList));
+    final expNonConList = ref.watch(provDFlow.select((e) => e.expInconList));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -509,14 +679,53 @@ class ExpNonConTab extends ConsumerWidget {
           itemBuilder: (_, index) {
             return Column(
               children: [
-                Container(
-                  child: Icon(
-                      HelperIcons.getIconData(expNonConList[index].icon),
-                      color: Colors.white),
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                      color: MyTheme.negativeMajor, shape: BoxShape.circle),
+                Badge(
+                  animationType: BadgeAnimationType.scale,
+                  showBadge: expNonConList[index].flows.isEmpty ? false : true,
+                  badgeContent: Text(
+                    '${expNonConList[index].flows.length}',
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                  child: Column(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          ref.read(provDFlow).setColorBackground('expense');
+                          ref.read(provDFlow).setCurrCat(expNonConList[index]);
+                          AutoRouter.of(context).push(DailyFlowCreateRoute());
+                        },
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0.0,
+                          shadowColor:
+                              Colors.transparent, //remove shadow on button
+                          primary: expNonConList[index].budgets.isEmpty
+                              ? MyTheme.negativeMinor
+                              : MyTheme.negativeMajor,
+                          textStyle: const TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.bold),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 15),
+
+                          shape: const CircleBorder(),
+                        ),
+                        child: Column(
+                          //mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              HelperIcons.getIconData(
+                                  expNonConList[index].icon),
+                              color: Colors.white,
+                            ),
+                            if (expNonConList[index].flows.isNotEmpty) ...[
+                              Text(
+                                _loopFlow(expNonConList[index].flows),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Text(expNonConList[index].name)
               ],
@@ -526,4 +735,14 @@ class ExpNonConTab extends ConsumerWidget {
       ],
     );
   }
+
+  setCatType(int i) {}
+}
+
+String _loopFlow(List<DFlowFlow> flows) {
+  double sum = 0;
+  flows.forEach((e) {
+    sum += e.value;
+  });
+  return sum.toString();
 }
