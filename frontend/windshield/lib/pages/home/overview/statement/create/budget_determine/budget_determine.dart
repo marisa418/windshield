@@ -89,9 +89,9 @@ class Footer extends ConsumerWidget {
             child: Container(
               width: 140,
               height: 50,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: MyTheme.primaryMajor,
+                borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(20),
                   bottomRight: Radius.circular(20),
                 ),
@@ -99,15 +99,13 @@ class Footer extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.arrow_left,
-                    color: MyTheme.primaryMajor,
+                    color: Colors.white,
                   ),
                   Text(
                     'ย้อนกลับ',
-                    style: MyTheme.whiteTextTheme.headline3!.merge(
-                      TextStyle(color: MyTheme.primaryMajor),
-                    ),
+                    style: MyTheme.whiteTextTheme.headline3,
                   ),
                 ],
               ),
@@ -118,9 +116,9 @@ class Footer extends ConsumerWidget {
             child: Container(
               width: 140,
               height: 50,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: MyTheme.primaryMajor,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   bottomLeft: Radius.circular(20),
                 ),
@@ -130,13 +128,11 @@ class Footer extends ConsumerWidget {
                 children: [
                   Text(
                     'ถัดไป',
-                    style: MyTheme.whiteTextTheme.headline3!.merge(
-                      TextStyle(color: MyTheme.primaryMajor),
-                    ),
+                    style: MyTheme.whiteTextTheme.headline3,
                   ),
-                  Icon(
+                  const Icon(
                     Icons.arrow_right,
-                    color: MyTheme.primaryMajor,
+                    color: Colors.white,
                   ),
                 ],
               ),

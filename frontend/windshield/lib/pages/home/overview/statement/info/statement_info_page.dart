@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/styles/theme.dart';
@@ -275,170 +276,240 @@ class Statement extends ConsumerWidget {
         top: 10,
         bottom: 10,
       ),
-      child: Container(
-        height: 150,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: MyTheme.dropShadow,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    stmntList[index].name,
-                    style: MyTheme.textTheme.headline4,
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      if (stmntList[index].chosen) return;
-                      final id = stmntList[index].id;
-                      await ref.read(apiProvider).updateStatementActive(id);
-                      ref.read(provStatement).setNeedFetchAPI();
-                    },
-                    child: stmntList[index].chosen
-                        ? Icon(Icons.check_circle, color: MyTheme.primaryMajor)
-                        : Icon(Icons.radio_button_off_outlined,
-                            color: MyTheme.primaryMajor),
-                  ),
-                ],
-              ),
-              // const Divider(),
-              GestureDetector(
-                onTap: () {
-                  final provStmnt = ref.read(provStatement);
-                  provStmnt.setStmntId(stmntList[index].id);
-                  provStmnt.setStmntName(stmntList[index].name);
-                  provStmnt.setStmntBudgets(stmntList[index].budgets);
-                  provStmnt.setDate(
-                    stmntList[index].start,
-                    stmntList[index].end,
-                  );
-                  AutoRouter.of(context).push(const StatementEditRoute());
-                },
-                child: Row(
-                  children: [
-                    Flexible(
-                      flex: 5,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: MyTheme.incomeBackground,
-                          ),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            bottomLeft: Radius.circular(15),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(7.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'งบรายรับ',
-                                style: MyTheme.whiteTextTheme.bodyText1,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${sum[0]} บ.',
-                                    style: MyTheme.whiteTextTheme.headline4,
-                                  ),
-                                  Text(
-                                    '${perc[0].toStringAsFixed(2)}%',
-                                    style: MyTheme.whiteTextTheme.bodyText1,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Flexible(
-                      flex: 5,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: MyTheme.expenseBackground,
-                          ),
-                          borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(15),
-                            bottomRight: Radius.circular(15),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(7.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'งบรายจ่าย',
-                                style: MyTheme.whiteTextTheme.bodyText1,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${sum[1]} บ.',
-                                    style: MyTheme.whiteTextTheme.headline4,
-                                  ),
-                                  Text(
-                                    '${perc[1].toStringAsFixed(2)}%',
-                                    style: MyTheme.whiteTextTheme.bodyText1,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('สภาพคล่องสุทธิ', style: MyTheme.textTheme.bodyText1),
-                  if (sum[0] - sum[1] > 0)
-                    Text(
-                      '+${sum[0] - sum[1]}',
-                      style: MyTheme.textTheme.headline3!.merge(
-                        TextStyle(color: MyTheme.positiveMajor),
-                      ),
-                    )
-                  else
-                    Text(
-                      '${sum[0] - sum[1]}',
-                      style: sum[0] - sum[1] != 0
-                          ? MyTheme.textTheme.headline3!.merge(
-                              TextStyle(color: MyTheme.negativeMajor),
-                            )
-                          : MyTheme.textTheme.headline3,
-                    ),
-                ],
+      child: GestureDetector(
+        onTap: () {
+          final provStmnt = ref.read(provStatement);
+          provStmnt.setStmntId(stmntList[index].id);
+          provStmnt.setStmntName(stmntList[index].name);
+          provStmnt.setStmntBudgets(stmntList[index].budgets);
+          provStmnt.setDate(
+            stmntList[index].start,
+            stmntList[index].end,
+          );
+          AutoRouter.of(context).push(const StatementEditRoute());
+        },
+        child: Container(
+          height: 150,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: MyTheme.dropShadow,
+                blurRadius: 7,
+                offset: const Offset(0, 3),
               ),
             ],
+          ),
+          child: Slidable(
+            enabled: index == 0 ? false : true,
+            endActionPane: ActionPane(
+              extentRatio: 0.25,
+              motion: const BehindMotion(),
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        useRootNavigator: false,
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('ท่านยืนยันที่จะลบหรือไม่?'),
+                          actions: [
+                            TextButton(
+                              child: const Text('ยกเลิก'),
+                              onPressed: () => AutoRouter.of(context).pop(),
+                            ),
+                            TextButton(
+                              child: const Text('ยืนยัน'),
+                              onPressed: () async {
+                                final res = await ref
+                                    .read(apiProvider)
+                                    .deleteStatement(stmntList[index].id);
+                                if (res) {
+                                  ref.read(provStatement).setNeedFetchAPI();
+                                  AutoRouter.of(context).pop();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('ไม่สามารถลบแผนได้'),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: MyTheme.expenseBackground,
+                        ),
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                          Text('ลบ', style: TextStyle(color: Colors.white)),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        stmntList[index].name,
+                        style: MyTheme.textTheme.headline4,
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          if (stmntList[index].chosen) return;
+                          final id = stmntList[index].id;
+                          await ref.read(apiProvider).updateStatementActive(id);
+                          ref.read(provStatement).setNeedFetchAPI();
+                        },
+                        child: stmntList[index].chosen
+                            ? Icon(Icons.check_circle,
+                                color: MyTheme.primaryMajor)
+                            : Icon(Icons.radio_button_off_outlined,
+                                color: MyTheme.primaryMajor),
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 1),
+                  Row(
+                    children: [
+                      Flexible(
+                        flex: 5,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: MyTheme.incomeBackground,
+                            ),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(15),
+                              bottomLeft: Radius.circular(15),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(7.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'งบรายรับ',
+                                  style: MyTheme.whiteTextTheme.bodyText1,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '${sum[0]} บ.',
+                                      style: MyTheme.whiteTextTheme.headline4,
+                                    ),
+                                    Text(
+                                      '${perc[0].toStringAsFixed(2)}%',
+                                      style: MyTheme.whiteTextTheme.bodyText1,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        flex: 5,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: MyTheme.expenseBackground,
+                            ),
+                            borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(15),
+                              bottomRight: Radius.circular(15),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(7.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'งบรายจ่าย',
+                                  style: MyTheme.whiteTextTheme.bodyText1,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '${sum[1]} บ.',
+                                      style: MyTheme.whiteTextTheme.headline4,
+                                    ),
+                                    Text(
+                                      '${perc[1].toStringAsFixed(2)}%',
+                                      style: MyTheme.whiteTextTheme.bodyText1,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('สภาพคล่องสุทธิ',
+                          style: MyTheme.textTheme.bodyText1),
+                      if (sum[0] - sum[1] > 0)
+                        Text(
+                          '+${sum[0] - sum[1]}',
+                          style: MyTheme.textTheme.headline3!.merge(
+                            TextStyle(color: MyTheme.positiveMajor),
+                          ),
+                        )
+                      else
+                        Text(
+                          '${sum[0] - sum[1]}',
+                          style: sum[0] - sum[1] != 0
+                              ? MyTheme.textTheme.headline3!.merge(
+                                  TextStyle(color: MyTheme.negativeMajor),
+                                )
+                              : MyTheme.textTheme.headline3,
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
