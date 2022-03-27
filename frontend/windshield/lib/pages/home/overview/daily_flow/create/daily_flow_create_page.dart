@@ -172,7 +172,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
                                         currCat.flows[index].value);
                                     ref.read(provDFlow).setFlowMethod(
                                         currCat.flows[index].method.id);
-                                    //showModalBottomSheet();
+                                    const Calculator(isAdd: false);
                                   },
                                 ),
                                 const SizedBox(width: 8),
@@ -232,7 +232,13 @@ class DailyFlowCreatePage extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    ref.read(provDFlow).setFlowId('');
+                    ref.read(provDFlow).setFlowName('โปรดกรอกชื่อรายการ');
+                    ref.read(provDFlow).setFlowValue(0);
+                    ref.read(provDFlow).setFlowMethod(2);
+                    Calculator(isAdd: true);
+                  },
                 ),
               ),
             ),
@@ -249,4 +255,13 @@ String _loopFlow(List<DFlowFlow> value) {
     sum += e.value;
   }
   return sum.toString();
+}
+
+class Calculator extends ConsumerWidget {
+  const Calculator({required this.isAdd, Key? key}) : super(key: key);
+  final bool isAdd;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container();
+  }
 }
