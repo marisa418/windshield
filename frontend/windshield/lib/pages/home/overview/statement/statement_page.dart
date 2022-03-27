@@ -197,78 +197,79 @@ class ActiveStatements extends ConsumerWidget {
         ref.watch(provStatement.select((e) => e.stmntActiveList));
     final sum = _getTotal(stmntActiveList[index].budgets);
     final perc = _getPerc(sum);
-    return Container(
-      // height: 160,
-      margin: const EdgeInsets.all(10),
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MyTheme.dropShadow,
-            blurRadius: 7,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.end,
-                children: [
-                  Text(
-                    '${stmntActiveList[index].name} ',
-                    style: MyTheme.textTheme.headline4,
-                  ),
-                  Text(
-                    DateFormat("d MMM y").format(stmntActiveList[index].start),
-                    style: MyTheme.textTheme.bodyText1!.merge(
-                      const TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                ],
-              ),
-              GestureDetector(
-                onTap: () {
-                  ref.read(provStatement).setStmntDateChipIdx(index);
-                  ref.read(provStatement).setStmntDateList();
-                  AutoRouter.of(context).push(const StatementInfoRoute());
-                },
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
+    return GestureDetector(
+      onTap: () {
+        final provStmnt = ref.read(provStatement);
+        provStmnt.setStmntId(stmntActiveList[index].id);
+        provStmnt.setStmntName(stmntActiveList[index].name);
+        provStmnt.setStmntBudgets(stmntActiveList[index].budgets);
+        provStmnt.setDate(
+          stmntActiveList[index].start,
+          stmntActiveList[index].end,
+        );
+        AutoRouter.of(context).push(const StatementEditRoute());
+      },
+      child: Container(
+        // height: 160,
+        margin: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: MyTheme.dropShadow,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.end,
                   children: [
-                    Icon(Icons.edit, color: MyTheme.primaryMajor),
                     Text(
-                      'เปลี่ยนแผน',
+                      '${stmntActiveList[index].name} ',
+                      style: MyTheme.textTheme.headline4,
+                    ),
+                    Text(
+                      DateFormat("d MMM y")
+                          .format(stmntActiveList[index].start),
                       style: MyTheme.textTheme.bodyText1!.merge(
-                        TextStyle(color: MyTheme.primaryMajor),
+                        const TextStyle(color: Colors.grey),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          const Divider(thickness: 1),
-          GestureDetector(
-            onTap: () {
-              final provStmnt = ref.read(provStatement);
-              provStmnt.setStmntId(stmntActiveList[index].id);
-              provStmnt.setStmntName(stmntActiveList[index].name);
-              provStmnt.setStmntBudgets(stmntActiveList[index].budgets);
-              provStmnt.setDate(
-                stmntActiveList[index].start,
-                stmntActiveList[index].end,
-              );
-              AutoRouter.of(context).push(const StatementEditRoute());
-            },
-            child: Row(
+                GestureDetector(
+                  onTap: () {
+                    ref.read(provStatement).setStmntDateChipIdx(index);
+                    ref.read(provStatement).setStmntDateList();
+                    AutoRouter.of(context).push(const StatementInfoRoute());
+                  },
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Icon(Icons.edit, color: MyTheme.primaryMajor),
+                      Text(
+                        'เปลี่ยนแผน',
+                        style: MyTheme.textTheme.bodyText1!.merge(
+                          TextStyle(color: MyTheme.primaryMajor),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const Divider(thickness: 1),
+            Row(
               children: [
                 Flexible(
                   flex: 5,
@@ -354,30 +355,30 @@ class ActiveStatements extends ConsumerWidget {
                 ),
               ],
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('สภาพคล่องสุทธิ', style: MyTheme.textTheme.bodyText1),
-              if (sum[0] - sum[1] > 0)
-                Text(
-                  '+${sum[0] - sum[1]}',
-                  style: MyTheme.textTheme.headline3!.merge(
-                    TextStyle(color: MyTheme.positiveMajor),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('สภาพคล่องสุทธิ', style: MyTheme.textTheme.bodyText1),
+                if (sum[0] - sum[1] > 0)
+                  Text(
+                    '+${sum[0] - sum[1]}',
+                    style: MyTheme.textTheme.headline3!.merge(
+                      TextStyle(color: MyTheme.positiveMajor),
+                    ),
+                  )
+                else
+                  Text(
+                    '${sum[0] - sum[1]}',
+                    style: sum[0] - sum[1] != 0
+                        ? MyTheme.textTheme.headline3!.merge(
+                            TextStyle(color: MyTheme.negativeMajor),
+                          )
+                        : MyTheme.textTheme.headline3,
                   ),
-                )
-              else
-                Text(
-                  '${sum[0] - sum[1]}',
-                  style: sum[0] - sum[1] != 0
-                      ? MyTheme.textTheme.headline3!.merge(
-                          TextStyle(color: MyTheme.negativeMajor),
-                        )
-                      : MyTheme.textTheme.headline3,
-                ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

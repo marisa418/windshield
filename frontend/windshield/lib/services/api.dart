@@ -299,6 +299,16 @@ class Api extends ChangeNotifier {
     }
   }
 
+  Future<bool> deleteStatement(String id) async {
+    try {
+      final res = await dio.delete('/api/statement/$id/');
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> updateStatementName(String id, String name) async {
     try {
       await dio.patch('/api/statement/$id/name/', data: {"name": name});

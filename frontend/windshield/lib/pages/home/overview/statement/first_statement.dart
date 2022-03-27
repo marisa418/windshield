@@ -14,77 +14,77 @@ class FirstStatement extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stmnt = ref.watch(provStatement.select((e) => e.stmntActiveList[0]));
-    return Container(
-      margin: const EdgeInsets.all(10),
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MyTheme.dropShadow,
-            blurRadius: 7,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.end,
-                children: [
-                  Text(
-                    '${stmnt.name} ',
-                    style: MyTheme.textTheme.headline4,
-                  ),
-                  Text(
-                    DateFormat("d MMM y").format(stmnt.start),
-                    style: MyTheme.textTheme.bodyText1!.merge(
-                      const TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                ],
-              ),
-              GestureDetector(
-                onTap: () {
-                  ref.read(provStatement).setStmntDateChipIdx(0);
-                  ref.read(provStatement).setStmntDateList();
-                  AutoRouter.of(context).push(const StatementInfoRoute());
-                },
-                child: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
+    return GestureDetector(
+      onTap: () {
+        final provStmnt = ref.read(provStatement);
+        provStmnt.setStmntId(stmnt.id);
+        provStmnt.setStmntName(stmnt.name);
+        provStmnt.setStmntBudgets(stmnt.budgets);
+        provStmnt.setDate(
+          stmnt.start,
+          stmnt.end,
+        );
+        AutoRouter.of(context).push(const StatementEditRoute());
+      },
+      child: Container(
+        margin: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: MyTheme.dropShadow,
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.end,
                   children: [
-                    Icon(Icons.edit, color: MyTheme.primaryMajor),
                     Text(
-                      'เปลี่ยนแผน',
+                      '${stmnt.name} ',
+                      style: MyTheme.textTheme.headline4,
+                    ),
+                    Text(
+                      DateFormat("d MMM y").format(stmnt.start),
                       style: MyTheme.textTheme.bodyText1!.merge(
-                        TextStyle(color: MyTheme.primaryMajor),
+                        const TextStyle(color: Colors.grey),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          const Divider(thickness: 1),
-          GestureDetector(
-            onTap: () {
-              final provStmnt = ref.read(provStatement);
-              provStmnt.setStmntId(stmnt.id);
-              provStmnt.setStmntName(stmnt.name);
-              provStmnt.setStmntBudgets(stmnt.budgets);
-              provStmnt.setDate(
-                stmnt.start,
-                stmnt.end,
-              );
-              AutoRouter.of(context).push(const StatementEditRoute());
-            },
-            child: Row(
+                GestureDetector(
+                  onTap: () {
+                    ref.read(provStatement).setStmntDateChipIdx(0);
+                    ref.read(provStatement).setStmntDateList();
+                    AutoRouter.of(context).push(const StatementInfoRoute());
+                  },
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Icon(Icons.edit, color: MyTheme.primaryMajor),
+                      Text(
+                        'เปลี่ยนแผน',
+                        style: MyTheme.textTheme.bodyText1!.merge(
+                          TextStyle(color: MyTheme.primaryMajor),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const Divider(thickness: 1),
+            Row(
               children: [
                 Flexible(
                   flex: 5,
@@ -198,8 +198,8 @@ class FirstStatement extends ConsumerWidget {
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
