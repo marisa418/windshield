@@ -38,4 +38,15 @@ class StmntBudget {
         "budget_per_period": budPerPeriod,
         "frequency": freq,
       };
+
+  Map<String, dynamic> toJsonUpdate() => {
+        'id': id,
+        "budget_per_period": budPerPeriod,
+        "frequency": freq,
+      };
+
+  @override
+  String toString() {
+    return '$id | ${cat.name} | $balance | $total | $budPerPeriod | $freq | $fplan | $catId\n';
+  }
 }

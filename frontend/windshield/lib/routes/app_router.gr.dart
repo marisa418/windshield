@@ -17,6 +17,14 @@ class _$AppRouter extends RootStackRouter {
 
   @override
   final Map<String, PageFactory> pagesMap = {
+    AppStackRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const AppStackPage());
+    },
+    EmptyRouterRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const EmptyRouterPage());
+    },
     LoginRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const LoginPage());
@@ -69,25 +77,57 @@ class _$AppRouter extends RootStackRouter {
 
   @override
   List<RouteConfig> get routes => [
-        RouteConfig(LoginRoute.name, path: '/'),
-        RouteConfig(RegisterRoute.name, path: '/register-page'),
-        RouteConfig(PinRoute.name, path: '/pin-page'),
-        RouteConfig(RegisterInfoRoute.name, path: '/register-info-page'),
-        RouteConfig(HomeRoute.name, path: '/home-page'),
-        RouteConfig(StatementRoute.name, path: '/statement-page'),
-        RouteConfig(StatementInfoRoute.name, path: '/statement-info-page'),
-        RouteConfig(StatementCreateRoute.name, path: '/statement-create-page'),
-        RouteConfig(StatementEditRoute.name, path: '/statement-edit-page'),
-        RouteConfig(DailyFlowRoute.name, path: '/daily-flow-page'),
-        RouteConfig(DailyFlowCreateRoute.name, path: '/daily-flow-create-page'),
-        RouteConfig(BalanceSheetRoute.name, path: '/balance-sheet-page')
+        RouteConfig(AppStackRoute.name, path: '/login', children: [
+          RouteConfig(LoginRoute.name, path: '', parent: AppStackRoute.name),
+          RouteConfig(RegisterRoute.name,
+              path: 'register-page', parent: AppStackRoute.name),
+          RouteConfig(PinRoute.name,
+              path: 'pin-page', parent: AppStackRoute.name),
+          RouteConfig(RegisterInfoRoute.name,
+              path: 'register-info-page', parent: AppStackRoute.name)
+        ]),
+        RouteConfig(EmptyRouterRoute.name, path: '/', children: [
+          RouteConfig(HomeRoute.name, path: '', parent: EmptyRouterRoute.name),
+          RouteConfig(StatementRoute.name,
+              path: 'statement-page', parent: EmptyRouterRoute.name),
+          RouteConfig(StatementInfoRoute.name,
+              path: 'statement-info-page', parent: EmptyRouterRoute.name),
+          RouteConfig(StatementCreateRoute.name,
+              path: 'statement-create-page', parent: EmptyRouterRoute.name),
+          RouteConfig(StatementEditRoute.name,
+              path: 'statement-edit-page', parent: EmptyRouterRoute.name),
+          RouteConfig(DailyFlowRoute.name,
+              path: 'daily-flow-page', parent: EmptyRouterRoute.name),
+          RouteConfig(DailyFlowCreateRoute.name,
+              path: 'daily-flow-create-page', parent: EmptyRouterRoute.name),
+          RouteConfig(BalanceSheetRoute.name,
+              path: 'balance-sheet-page', parent: EmptyRouterRoute.name)
+        ])
       ];
+}
+
+/// generated route for
+/// [AppStackPage]
+class AppStackRoute extends PageRouteInfo<void> {
+  const AppStackRoute({List<PageRouteInfo>? children})
+      : super(AppStackRoute.name, path: '/login', initialChildren: children);
+
+  static const String name = 'AppStackRoute';
+}
+
+/// generated route for
+/// [EmptyRouterPage]
+class EmptyRouterRoute extends PageRouteInfo<void> {
+  const EmptyRouterRoute({List<PageRouteInfo>? children})
+      : super(EmptyRouterRoute.name, path: '/', initialChildren: children);
+
+  static const String name = 'EmptyRouterRoute';
 }
 
 /// generated route for
 /// [LoginPage]
 class LoginRoute extends PageRouteInfo<void> {
-  const LoginRoute() : super(LoginRoute.name, path: '/');
+  const LoginRoute() : super(LoginRoute.name, path: '');
 
   static const String name = 'LoginRoute';
 }
@@ -95,7 +135,7 @@ class LoginRoute extends PageRouteInfo<void> {
 /// generated route for
 /// [RegisterPage]
 class RegisterRoute extends PageRouteInfo<void> {
-  const RegisterRoute() : super(RegisterRoute.name, path: '/register-page');
+  const RegisterRoute() : super(RegisterRoute.name, path: 'register-page');
 
   static const String name = 'RegisterRoute';
 }
@@ -103,7 +143,7 @@ class RegisterRoute extends PageRouteInfo<void> {
 /// generated route for
 /// [PinPage]
 class PinRoute extends PageRouteInfo<void> {
-  const PinRoute() : super(PinRoute.name, path: '/pin-page');
+  const PinRoute() : super(PinRoute.name, path: 'pin-page');
 
   static const String name = 'PinRoute';
 }
@@ -112,7 +152,7 @@ class PinRoute extends PageRouteInfo<void> {
 /// [RegisterInfoPage]
 class RegisterInfoRoute extends PageRouteInfo<void> {
   const RegisterInfoRoute()
-      : super(RegisterInfoRoute.name, path: '/register-info-page');
+      : super(RegisterInfoRoute.name, path: 'register-info-page');
 
   static const String name = 'RegisterInfoRoute';
 }
@@ -120,7 +160,7 @@ class RegisterInfoRoute extends PageRouteInfo<void> {
 /// generated route for
 /// [HomePage]
 class HomeRoute extends PageRouteInfo<void> {
-  const HomeRoute() : super(HomeRoute.name, path: '/home-page');
+  const HomeRoute() : super(HomeRoute.name, path: '');
 
   static const String name = 'HomeRoute';
 }
@@ -128,7 +168,7 @@ class HomeRoute extends PageRouteInfo<void> {
 /// generated route for
 /// [StatementPage]
 class StatementRoute extends PageRouteInfo<void> {
-  const StatementRoute() : super(StatementRoute.name, path: '/statement-page');
+  const StatementRoute() : super(StatementRoute.name, path: 'statement-page');
 
   static const String name = 'StatementRoute';
 }
@@ -137,7 +177,7 @@ class StatementRoute extends PageRouteInfo<void> {
 /// [StatementInfoPage]
 class StatementInfoRoute extends PageRouteInfo<void> {
   const StatementInfoRoute()
-      : super(StatementInfoRoute.name, path: '/statement-info-page');
+      : super(StatementInfoRoute.name, path: 'statement-info-page');
 
   static const String name = 'StatementInfoRoute';
 }
@@ -146,7 +186,7 @@ class StatementInfoRoute extends PageRouteInfo<void> {
 /// [StatementCreatePage]
 class StatementCreateRoute extends PageRouteInfo<void> {
   const StatementCreateRoute()
-      : super(StatementCreateRoute.name, path: '/statement-create-page');
+      : super(StatementCreateRoute.name, path: 'statement-create-page');
 
   static const String name = 'StatementCreateRoute';
 }
@@ -155,7 +195,7 @@ class StatementCreateRoute extends PageRouteInfo<void> {
 /// [StatementEditPage]
 class StatementEditRoute extends PageRouteInfo<void> {
   const StatementEditRoute()
-      : super(StatementEditRoute.name, path: '/statement-edit-page');
+      : super(StatementEditRoute.name, path: 'statement-edit-page');
 
   static const String name = 'StatementEditRoute';
 }
@@ -163,7 +203,7 @@ class StatementEditRoute extends PageRouteInfo<void> {
 /// generated route for
 /// [DailyFlowPage]
 class DailyFlowRoute extends PageRouteInfo<void> {
-  const DailyFlowRoute() : super(DailyFlowRoute.name, path: '/daily-flow-page');
+  const DailyFlowRoute() : super(DailyFlowRoute.name, path: 'daily-flow-page');
 
   static const String name = 'DailyFlowRoute';
 }
@@ -172,7 +212,7 @@ class DailyFlowRoute extends PageRouteInfo<void> {
 /// [DailyFlowCreatePage]
 class DailyFlowCreateRoute extends PageRouteInfo<void> {
   const DailyFlowCreateRoute()
-      : super(DailyFlowCreateRoute.name, path: '/daily-flow-create-page');
+      : super(DailyFlowCreateRoute.name, path: 'daily-flow-create-page');
 
   static const String name = 'DailyFlowCreateRoute';
 }
@@ -181,7 +221,7 @@ class DailyFlowCreateRoute extends PageRouteInfo<void> {
 /// [BalanceSheetPage]
 class BalanceSheetRoute extends PageRouteInfo<void> {
   const BalanceSheetRoute()
-      : super(BalanceSheetRoute.name, path: '/balance-sheet-page');
+      : super(BalanceSheetRoute.name, path: 'balance-sheet-page');
 
   static const String name = 'BalanceSheetRoute';
 }

@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,29 +9,10 @@ import 'styles/theme.dart';
 import 'services/api.dart';
 
 import 'models/daily_flow/category.dart';
-
-import 'providers/statement_provider.dart';
-import 'providers/budget_provider.dart';
 import 'providers/daily_flow_provider.dart';
 import 'providers/balance_sheet_provider.dart';
 
 final apiProvider = ChangeNotifierProvider<Api>((ref) => Api());
-
-final provStatement = ChangeNotifierProvider.autoDispose<StatementProvider>(
-    (ref) => StatementProvider());
-
-final provBudget = ChangeNotifierProvider.autoDispose<BudgetProvider>(
-    (ref) => BudgetProvider());
-
-// final providerCategoryApi =
-//     FutureProvider.autoDispose<List<Category>>((ref) async {
-//   final data = await ref.read(apiProvider).getAllCategories();
-//   await ref.read(apiProvider).getBalanceSheet();
-//   ref.read(providerCategory).setCategoryList(data);
-//   ref.read(providerCategory).setCategoryTypes();
-//   ref.read(providerCategory).setCategoryTypeTabs();
-//   return data;
-// });
 
 final provDFlow = ChangeNotifierProvider.autoDispose<DailyFlowProvider>(
     (ref) => DailyFlowProvider());
@@ -54,15 +36,21 @@ void main() {
   runApp(ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   MyApp({Key? key}) : super(key: key);
   final _appRouter = AppRouter();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isLoggedIn = ref.watch(apiProvider.select((e) => e.isLoggedIn));
     return MaterialApp.router(
+      routerDelegate: AutoRouterDelegate.declarative(
+        _appRouter,
+        routes: (_) => [
+          if (isLoggedIn) const EmptyRouterRoute() else const AppStackRoute(),
+        ],
+      ),
       routeInformationParser: _appRouter.defaultRouteParser(),
-      routerDelegate: _appRouter.delegate(),
       title: 'Windshield',
       theme: MyTheme.myTheme(),
       localizationsDelegates: const [

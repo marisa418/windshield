@@ -45,6 +45,9 @@ class StatementProvider extends ChangeNotifier {
   String _stmntId = '';
   String get stmntId => _stmntId;
 
+  List<StmntBudget> _stmntBudgets = [];
+  List<StmntBudget> get stmntBudgets => _stmntBudgets;
+
   // TEMP ======================================================================
   StmntStatement stmntTemp = StmntStatement(
     id: '',
@@ -73,11 +76,13 @@ class StatementProvider extends ChangeNotifier {
   }
 
   void setStmntActiveList() {
+    _stmntActiveList = [];
     for (var stmnt in _stmntList) {
       if (stmnt.chosen == true) {
         _stmntActiveList.add(stmnt);
       }
     }
+    notifyListeners();
     // _stmntActiveList.add(stmntTemp);
   }
 
@@ -147,6 +152,11 @@ class StatementProvider extends ChangeNotifier {
 
   void setStmntName(String value) {
     _stmntName = value;
+    notifyListeners();
+  }
+
+  void setStmntBudgets(List<StmntBudget> value) {
+    _stmntBudgets = value;
     notifyListeners();
   }
 

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
-import 'package:windshield/styles/theme.dart';
 import 'package:windshield/main.dart';
+import 'package:windshield/styles/theme.dart';
 import 'package:windshield/models/statement/budget.dart';
 import 'package:windshield/routes/app_router.dart';
+import '../statement_page.dart';
 
 class StatementInfoPage extends ConsumerWidget {
   const StatementInfoPage({Key? key}) : super(key: key);
@@ -14,39 +16,41 @@ class StatementInfoPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          const Header(),
-          const StatementList(),
-          Container(
-            color: Colors.transparent,
-            height: 75,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                label: Text(
-                  'ย้อนกลับ  ',
-                  style: MyTheme.whiteTextTheme.headline3,
-                ),
-                icon: const Icon(
-                  Icons.arrow_left,
-                  color: Colors.white,
-                ),
-                style: TextButton.styleFrom(
-                  backgroundColor: MyTheme.primaryMajor,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
+      body: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            const Header(),
+            const StatementList(),
+            Container(
+              color: Colors.transparent,
+              height: 75,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  label: Text(
+                    'ย้อนกลับ  ',
+                    style: MyTheme.whiteTextTheme.headline3,
+                  ),
+                  icon: const Icon(
+                    Icons.arrow_left,
+                    color: Colors.white,
+                  ),
+                  style: TextButton.styleFrom(
+                    backgroundColor: MyTheme.primaryMajor,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
                     ),
                   ),
+                  onPressed: () => AutoRouter.of(context).pop(),
                 ),
-                onPressed: () => AutoRouter.of(context).pop(),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -67,11 +71,21 @@ class Header extends ConsumerWidget {
       ),
       height: 190,
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(15.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('แผนงบการเงินของคุณ', style: MyTheme.whiteTextTheme.headline3),
+            Wrap(
+              children: [
+                const Icon(Icons.calendar_today, color: Colors.white),
+                Text(
+                  DateFormat(' E d MMM y').format(DateTime.now()),
+                  style: MyTheme.whiteTextTheme.headline4,
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
             const DateChipList(),
           ],
         ),
@@ -87,6 +101,7 @@ class DateChipList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final chips = ref.watch(provStatement).stmntDateChipList;
     final idx = ref.watch(provStatement).stmntDateChipIdx;
+    final stmnt = ref.watch(provStatement).stmntActiveList;
     return Expanded(
       child: ListView.separated(
         separatorBuilder: (_, index) => const SizedBox(width: 10),
@@ -94,14 +109,34 @@ class DateChipList extends ConsumerWidget {
         itemCount: chips.length + 1,
         itemBuilder: (_, index) {
           if (index == 0) {
-            return Container(
-              width: 70,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
-                borderRadius: const BorderRadius.all(Radius.circular(35)),
+            return GestureDetector(
+              onTap: () {
+                DateTime nextDayOfLastPlan = DateUtils.dateOnly(DateTime.now());
+                if (stmnt.isNotEmpty) {
+                  nextDayOfLastPlan =
+                      stmnt.last.end.add(const Duration(days: 1));
+                }
+                ref.read(provStatement).setAvailableDate(
+                      nextDayOfLastPlan,
+                      nextDayOfLastPlan.add(const Duration(days: 34)),
+                    );
+                ref.read(provStatement).setDate(
+                      nextDayOfLastPlan,
+                      nextDayOfLastPlan,
+                    );
+                ref.read(provStatement).setStmntCreatePageIdx(0);
+                AutoRouter.of(context).push(const StatementCreateRoute());
+              },
+              child: Container(
+                width: 65,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.3),
+                  borderRadius: const BorderRadius.all(Radius.circular(35)),
+                ),
+                child: Center(
+                  child: Text('+', style: MyTheme.whiteTextTheme.headline2),
+                ),
               ),
-              child: Center(
-                  child: Text('+', style: MyTheme.whiteTextTheme.headline2)),
             );
           }
           return GestureDetector(
@@ -110,7 +145,7 @@ class DateChipList extends ConsumerWidget {
               ref.read(provStatement).setStmntDateList();
             },
             child: Container(
-              width: 70,
+              width: 65,
               decoration: BoxDecoration(
                 color: idx == index - 1
                     ? Colors.white
@@ -119,7 +154,7 @@ class DateChipList extends ConsumerWidget {
               ),
               child: Center(
                 child: Text(
-                  DateFormat('MMM')
+                  DateFormat('d MMM')
                       .format(DateTime.parse(chips[index - 1].split('|')[0])),
                   style: idx == index - 1
                       ? MyTheme.textTheme.headline4
@@ -174,19 +209,42 @@ class StatementList extends ConsumerWidget {
                     const SizedBox(height: 20),
                   ],
                 ),
-              Container(
-                height: 70,
-                // width: double.infinity,
-                decoration: BoxDecoration(
-                  color: MyTheme.primaryMinor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Center(
-                  child: Text(
-                    '+ เพิ่มแผนใหม่ของเดือนนี้',
-                    style: MyTheme.textTheme.headline3!.merge(
-                      TextStyle(
-                        color: MyTheme.primaryMajor,
+              GestureDetector(
+                onTap: () async {
+                  final stmntList = ref.read(provStatement).stmntDateList;
+                  ref.read(provStatement).setAvailableDate(
+                        stmntList[0].start,
+                        stmntList[0].end,
+                      );
+                  ref.read(provStatement).setDate(
+                        stmntList[0].start,
+                        stmntList[0].end,
+                      );
+                  final id = await ref.read(apiProvider).createStatement(
+                        'แผนการเงิน',
+                        ref.read(provStatement).start,
+                        ref.read(provStatement).end,
+                      );
+                  ref.read(provStatement).setStmntCreatePageIdx(1);
+                  ref.read(provStatement).setStmntId(id);
+                  ref.read(provStatement).setStmntName('แผนงบการเงิน');
+                  AutoRouter.of(context).push(const StatementCreateRoute());
+                  ref.read(provStatement).setNeedFetchAPI();
+                },
+                child: Container(
+                  height: 70,
+                  // width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: MyTheme.primaryMinor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '+ เพิ่มแผนใหม่ของเดือนนี้',
+                      style: MyTheme.textTheme.headline3!.merge(
+                        TextStyle(
+                          color: MyTheme.primaryMajor,
+                        ),
                       ),
                     ),
                   ),
@@ -211,121 +269,247 @@ class Statement extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stmntList = ref.watch(provStatement.select((e) => e.stmntDateList));
+    final sum = _getTotal(stmntList[index].budgets);
+    final perc = _getPerc(sum);
     return Padding(
       padding: const EdgeInsets.only(
         top: 10,
         bottom: 10,
       ),
-      child: Container(
-        height: 150,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: MyTheme.dropShadow,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                stmntList[index].name,
-                style: MyTheme.textTheme.headline4,
+      child: GestureDetector(
+        onTap: () {
+          final provStmnt = ref.read(provStatement);
+          provStmnt.setStmntId(stmntList[index].id);
+          provStmnt.setStmntName(stmntList[index].name);
+          provStmnt.setStmntBudgets(stmntList[index].budgets);
+          provStmnt.setDate(
+            stmntList[index].start,
+            stmntList[index].end,
+          );
+          AutoRouter.of(context).push(const StatementEditRoute());
+        },
+        child: Container(
+          height: 150,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: MyTheme.dropShadow,
+                blurRadius: 7,
+                offset: const Offset(0, 3),
               ),
-              const Divider(),
-              Row(
-                children: [
-                  Flexible(
-                    flex: 5,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                          colors: MyTheme.incomeBackground,
-                        ),
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(15),
-                          bottomLeft: Radius.circular(15),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(7.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'งบรายรับ',
-                              style: MyTheme.whiteTextTheme.bodyText1,
+            ],
+          ),
+          child: Slidable(
+            enabled: index == 0 ? false : true,
+            endActionPane: ActionPane(
+              extentRatio: 0.25,
+              motion: const BehindMotion(),
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        useRootNavigator: false,
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('ท่านยืนยันที่จะลบหรือไม่?'),
+                          actions: [
+                            TextButton(
+                              child: const Text('ยกเลิก'),
+                              onPressed: () => AutoRouter.of(context).pop(),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${_getIncTotal(stmntList[index].budgets)} บ.',
-                                  style: MyTheme.whiteTextTheme.headline4,
-                                ),
-                                Text(
-                                  _getIncPerc(stmntList[index].budgets) + '%',
-                                  style: MyTheme.whiteTextTheme.bodyText1,
-                                ),
-                              ],
+                            TextButton(
+                              child: const Text('ยืนยัน'),
+                              onPressed: () async {
+                                final res = await ref
+                                    .read(apiProvider)
+                                    .deleteStatement(stmntList[index].id);
+                                if (res) {
+                                  ref.read(provStatement).setNeedFetchAPI();
+                                  AutoRouter.of(context).pop();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('ไม่สามารถลบแผนได้'),
+                                    ),
+                                  );
+                                }
+                              },
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                  ),
-                  Flexible(
-                    flex: 5,
+                      );
+                    },
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
                           colors: MyTheme.expenseBackground,
                         ),
                         borderRadius: const BorderRadius.only(
-                          topRight: Radius.circular(15),
-                          bottomRight: Radius.circular(15),
+                          topRight: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
                         ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(7.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'งบรายจ่าย',
-                              style: MyTheme.whiteTextTheme.bodyText1,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${_getExpTotal(stmntList[index].budgets)} บ.',
-                                  style: MyTheme.whiteTextTheme.headline4,
-                                ),
-                                Text(
-                                  _getExpPerc(stmntList[index].budgets) + '%',
-                                  style: MyTheme.whiteTextTheme.bodyText1,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(
+                            Icons.delete,
+                            color: Colors.white,
+                          ),
+                          Text('ลบ', style: TextStyle(color: Colors.white)),
+                        ],
                       ),
                     ),
                   ),
+                )
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        stmntList[index].name,
+                        style: MyTheme.textTheme.headline4,
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          if (stmntList[index].chosen) return;
+                          final id = stmntList[index].id;
+                          await ref.read(apiProvider).updateStatementActive(id);
+                          ref.read(provStatement).setNeedFetchAPI();
+                        },
+                        child: stmntList[index].chosen
+                            ? Icon(Icons.check_circle,
+                                color: MyTheme.primaryMajor)
+                            : Icon(Icons.radio_button_off_outlined,
+                                color: MyTheme.primaryMajor),
+                      ),
+                    ],
+                  ),
+                  const Divider(thickness: 1),
+                  Row(
+                    children: [
+                      Flexible(
+                        flex: 5,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: MyTheme.incomeBackground,
+                            ),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(15),
+                              bottomLeft: Radius.circular(15),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(7.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'งบรายรับ',
+                                  style: MyTheme.whiteTextTheme.bodyText1,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '${sum[0]} บ.',
+                                      style: MyTheme.whiteTextTheme.headline4,
+                                    ),
+                                    Text(
+                                      '${perc[0].toStringAsFixed(2)}%',
+                                      style: MyTheme.whiteTextTheme.bodyText1,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Flexible(
+                        flex: 5,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: MyTheme.expenseBackground,
+                            ),
+                            borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(15),
+                              bottomRight: Radius.circular(15),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(7.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'งบรายจ่าย',
+                                  style: MyTheme.whiteTextTheme.bodyText1,
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      '${sum[1]} บ.',
+                                      style: MyTheme.whiteTextTheme.headline4,
+                                    ),
+                                    Text(
+                                      '${perc[1].toStringAsFixed(2)}%',
+                                      style: MyTheme.whiteTextTheme.bodyText1,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('สภาพคล่องสุทธิ',
+                          style: MyTheme.textTheme.bodyText1),
+                      if (sum[0] - sum[1] > 0)
+                        Text(
+                          '+${sum[0] - sum[1]}',
+                          style: MyTheme.textTheme.headline3!.merge(
+                            TextStyle(color: MyTheme.positiveMajor),
+                          ),
+                        )
+                      else
+                        Text(
+                          '${sum[0] - sum[1]}',
+                          style: sum[0] - sum[1] != 0
+                              ? MyTheme.textTheme.headline3!.merge(
+                                  TextStyle(color: MyTheme.negativeMajor),
+                                )
+                              : MyTheme.textTheme.headline3,
+                        ),
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -333,43 +517,24 @@ class Statement extends ConsumerWidget {
   }
 }
 
-String _getIncTotal(List<StmntBudget> budget) {
-  double sum = 0;
-  for (var item in budget) {
+List<double> _getTotal(List<StmntBudget> budgets) {
+  double incSum = 0;
+  double expSum = 0;
+  for (var item in budgets) {
     if (item.cat.ftype == '1' ||
         item.cat.ftype == '2' ||
         item.cat.ftype == '3') {
-      sum += item.total;
+      incSum += item.total;
+    } else {
+      expSum += item.total;
     }
   }
-  return sum.toString();
+  return [incSum, expSum];
 }
 
-String _getExpTotal(List<StmntBudget> budget) {
-  double sum = 0;
-  for (var item in budget) {
-    if (item.cat.ftype == '4' ||
-        item.cat.ftype == '5' ||
-        item.cat.ftype == '6' ||
-        item.cat.ftype == '10' ||
-        item.cat.ftype == '11' ||
-        item.cat.ftype == '12') {
-      sum += item.total;
-    }
-  }
-  return sum.toString();
-}
-
-String _getIncPerc(List<StmntBudget> budget) {
-  final inc = _getIncTotal(budget);
-  final exp = _getExpTotal(budget);
-  double sum = double.parse(exp) + double.parse(inc);
-  return (double.parse(inc) / sum * 100).toStringAsFixed(2);
-}
-
-String _getExpPerc(List<StmntBudget> budget) {
-  final inc = _getIncTotal(budget);
-  final exp = _getExpTotal(budget);
-  double sum = double.parse(exp) + double.parse(inc);
-  return (double.parse(exp) / sum * 100).toStringAsFixed(2);
+List<double> _getPerc(List<double> incexp) {
+  double sum = incexp[0] + incexp[1];
+  final inc = incexp[0] / sum * 100;
+  final exp = incexp[1] / sum * 100;
+  return [inc, exp];
 }

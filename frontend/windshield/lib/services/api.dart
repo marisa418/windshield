@@ -4,9 +4,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
-import 'package:windshield/models/balance_sheet/asset.dart';
-import 'package:windshield/models/daily_flow/flow.dart';
 
+import '../../models/daily_flow/flow.dart';
+import '../../models/statement/budget.dart';
 import '../../models/user.dart';
 import '../../models/provinces.dart';
 import '../../models/statement/statement.dart';
@@ -18,11 +18,11 @@ class Api extends ChangeNotifier {
   Dio dio = Dio();
   String? _accessToken;
   User? _user = User();
-
-  int _placeholderId = 0;
+  bool _isLoggedIn = false;
 
   String? get accessToken => _accessToken;
   User? get user => _user;
+  bool get isLoggedIn => _isLoggedIn;
 
   final _storage = const FlutterSecureStorage();
 
@@ -33,20 +33,53 @@ class Api extends ChangeNotifier {
           options.path = 'http://192.168.1.41:8000' + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
-        if (options.path.contains('/user/register/')) {
+        if (options.path.contains('/user/register/') ||
+            options.path.contains('/token/') ||
+            options.path.contains('/token/refresh/')) {
           options.headers['Authorization'] = '';
         }
-        print(options.path + ' | ' + _accessToken.toString());
+        // print(options.path + ' | ' + _accessToken.toString());
+        print(options.path);
         return handler.next(options);
       },
       onError: (DioError error, handler) async {
+        print(error.response);
+        if (error.requestOptions.path.contains('token/refresh')) {
+          _accessToken = null;
+          await _storage.deleteAll();
+          _isLoggedIn = false;
+          notifyListeners();
+          return handler.reject(error);
+        }
+
         if (error.response?.statusCode == 401 &&
             error.response?.statusMessage == 'Unauthorized') {
-          if (await _storage.containsKey(key: 'refreshToken')) {
-            await refreshToken();
-            return handler.resolve(await _retry(error.requestOptions));
+          final refresh = await _storage.read(key: 'refreshToken');
+
+          if (refresh != null) {
+            if (Jwt.isExpired(refresh)) {
+              _accessToken = null;
+              await _storage.deleteAll();
+              _isLoggedIn = false;
+              notifyListeners();
+              return handler.reject(error);
+            } else {
+              try {
+                await refreshToken();
+                return handler.resolve(await _retry(error.requestOptions));
+              } catch (e) {
+                print('FUCK MY LIFE');
+              }
+            }
+          } else {
+            _accessToken = null;
+            await _storage.deleteAll();
+            _isLoggedIn = false;
+            notifyListeners();
+            return handler.reject(error);
           }
         }
+
         return handler.next(error);
       },
     ));
@@ -57,43 +90,77 @@ class Api extends ChangeNotifier {
       method: requestOptions.method,
       headers: requestOptions.headers,
     );
-    return dio.request<dynamic>(requestOptions.path,
-        data: requestOptions.data,
-        queryParameters: requestOptions.queryParameters,
-        options: options);
+    final data = dio.request<dynamic>(
+      requestOptions.path,
+      data: requestOptions.data,
+      queryParameters: requestOptions.queryParameters,
+      options: options,
+    );
+    return data;
   }
 
   Future<void> refreshToken() async {
     final refreshToken = await _storage.read(key: 'refreshToken');
     final response =
-        await dio.post('/token/refresh', data: {'refreshToken': refreshToken});
-    if (response.statusCode == 201) {
-      _accessToken = response.data;
-    } else {
-      //refresh is wrong
-      _accessToken = null;
-      _storage.deleteAll();
+        await dio.post('/token/refresh/', data: {'refresh': refreshToken});
+    if (response.statusCode == 200) {
+      _accessToken = response.data['access'];
+      await _storage.write(
+          key: 'refreshToken', value: response.data['refresh']);
+
+      // _isLoggedIn = true;
+      // notifyListeners();
     }
   }
 
   Future<bool> login(String username, String password) async {
     try {
-      final response = await dio.post(
+      final res = await dio.post(
         '/token/',
         data: {
           'user_id': username,
           'password': password,
         },
       );
-      Map<String, dynamic> token = jsonDecode(response.toString());
-      _accessToken = token['access'];
-      Map<String, dynamic> data = Jwt.parseJwt(token['access']);
+      _accessToken = res.data['access'];
+      await _storage.write(key: 'refreshToken', value: res.data['refresh']);
+      Map<String, dynamic> data = Jwt.parseJwt(res.data['access']);
+
       _user?.uuid = data['user_id'];
+      _isLoggedIn = true;
       notifyListeners();
       return true;
     } catch (e) {
       return false;
     }
+  }
+
+  Future<bool> loginByPin(String pin) async {
+    try {
+      final refresh = await _storage.read(key: 'refreshToken');
+      final res = await dio.post('/token/refresh/', data: {'refresh': refresh});
+      _accessToken = res.data['access'];
+      await _storage.write(key: 'refreshToken', value: res.data['refresh']);
+      Map<String, dynamic> data = Jwt.parseJwt(res.data['access']);
+      _user?.uuid = data['user_id'];
+      await getUserInfo();
+      if (_user?.pin == pin) {
+        _isLoggedIn = true;
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> logout() async {
+    await _storage.deleteAll();
+    _user = User();
+    _accessToken = null;
+    _isLoggedIn = false;
+    notifyListeners();
   }
 
   Future<bool> register(
@@ -111,8 +178,18 @@ class Api extends ChangeNotifier {
           'tel': phone,
         },
       );
-      final res = await login(username, password);
-      if (!res) return false;
+      final res = await dio.post(
+        '/token/',
+        data: {
+          'user_id': username,
+          'password': password,
+        },
+      );
+
+      _accessToken = res.data['access'];
+      await _storage.write(key: 'refreshToken', value: res.data['refresh']);
+      Map<String, dynamic> data = Jwt.parseJwt(res.data['access']);
+      _user?.uuid = data['user_id'];
       return true;
     } catch (e) {
       return false;
@@ -122,11 +199,13 @@ class Api extends ChangeNotifier {
   Future<User?> getUserInfo() async {
     try {
       final res = await dio.get('/user/${_user?.uuid}');
-      print(res.toString());
-      Map<String, dynamic> data = await jsonDecode(res.toString());
-      _user = User.fromJson(data);
+      // Map<String, dynamic> data = await jsonDecode(res.toString());
+      print(res.data);
+      _user = User.fromJson(res.data);
+      print(_user);
       return _user;
     } catch (e) {
+      print(e);
       return _user;
     }
   }
@@ -157,6 +236,8 @@ class Api extends ChangeNotifier {
           "occu_type": occuType,
         },
       );
+      _isLoggedIn = true;
+      notifyListeners();
       return true;
     } catch (e) {
       return false;
@@ -165,30 +246,21 @@ class Api extends ChangeNotifier {
 
   Future<List<Province>?> getProvinces() async {
     try {
-      final res = await dio.get('/api/provinces/',
-          options: Options(
-            responseType: ResponseType.plain,
-          ));
-      final data = (json.decode(res.toString()) as List)
-          .map((i) => Province.fromJson(i))
-          .toList();
+      final res = await dio.get('/api/provinces/');
+      final data = (res.data as List).map((i) => Province.fromJson(i)).toList();
       return data;
     } catch (e) {
       return null;
     }
   }
 
-  //FINANCIAL STATEMENT PLAN
+  //แผนงบการเงิน
   Future<List<StmntStatement>> getAllNotEndYetStatements(DateTime date) async {
     try {
       final str = DateFormat('y-MM-dd').format(date);
-      final res = await dio.get('/api/statement/?lower-date=$str',
-          options: Options(
-            responseType: ResponseType.plain,
-          ));
-      final data = (jsonDecode('${res.data}') as List)
-          .map((i) => StmntStatement.fromJson(i))
-          .toList();
+      final res = await dio.get('/api/statement/?lower-date=$str');
+      final data =
+          (res.data as List).map((i) => StmntStatement.fromJson(i)).toList();
       return data;
     } catch (e) {
       return [];
@@ -197,13 +269,9 @@ class Api extends ChangeNotifier {
 
   Future<List<StmntCategory>> getAllCategories() async {
     try {
-      final res = await dio.get('/api/categories/',
-          options: Options(
-            responseType: ResponseType.plain,
-          ));
-      final data = (json.decode(res.toString()) as List)
-          .map((i) => StmntCategory.fromJson(i))
-          .toList();
+      final res = await dio.get('/api/categories/?as_used=True');
+      final data =
+          (res.data as List).map((i) => StmntCategory.fromJson(i)).toList();
       return data;
     } catch (e) {
       return [];
@@ -225,20 +293,25 @@ class Api extends ChangeNotifier {
           "month": 1,
         },
       );
-      return res.data['name'];
+      return res.data['id'];
     } catch (e) {
       return '';
     }
   }
 
+  Future<bool> deleteStatement(String id) async {
+    try {
+      final res = await dio.delete('/api/statement/$id/');
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> updateStatementName(String id, String name) async {
     try {
-      final res = await dio.patch(
-        '/api/statement/$id/name/',
-        data: {
-          "name": name,
-        },
-      );
+      await dio.patch('/api/statement/$id/name/', data: {"name": name});
       return true;
     } catch (e) {
       return false;
@@ -247,7 +320,45 @@ class Api extends ChangeNotifier {
 
   Future<bool> updateStatementActive(String id) async {
     try {
-      final res = await dio.patch('/api/statement/$id/');
+      await dio.patch('/api/statement/$id/');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> createBudgets(List<StmntBudget> budgets, String id) async {
+    try {
+      final data = budgets.map((e) {
+        e.fplan = id;
+        return e.toJson();
+      }).toList();
+      await dio.post(
+        '/api/budget/',
+        data: data,
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> updateBudgets(List<StmntBudget> budgets, String id) async {
+    try {
+      final data = budgets.map((e) => e.toJsonUpdate()).toList();
+      await dio.patch(
+        '/api/budget/update/',
+        data: data,
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> deleteBudgets(List<String> budgets) async {
+    try {
+      await dio.delete('/api/budget/delete/', data: budgets);
       return true;
     } catch (e) {
       return false;
@@ -258,8 +369,7 @@ class Api extends ChangeNotifier {
   Future<String> getTodayDFId() async {
     try {
       final res = await dio.get('/api/daily-flow-sheet/');
-      final data = jsonDecode('$res');
-      return data['id'];
+      return res.data['id'];
     } catch (e) {
       return '';
     }
@@ -269,15 +379,13 @@ class Api extends ChangeNotifier {
       DateTime date) async {
     try {
       final str = DateFormat('y-MM-dd').format(date);
-      final res = await dio.get('/api/categories-budgets-flows/?date=$str',
-          options: Options(
-            responseType: ResponseType.plain,
-          ));
-      final data = (jsonDecode('$res') as List)
-          .map((i) => DFlowCategory.fromJson(i))
-          .toList();
+      final res = await dio
+          .get('/api/categories-budgets-flows/?as_used=True&date=$str');
+      final data =
+          (res.data as List).map((i) => DFlowCategory.fromJson(i)).toList();
       return data;
     } catch (e) {
+      print(e);
       return [];
     }
   }
@@ -296,9 +404,8 @@ class Api extends ChangeNotifier {
           "method": method,
         },
       );
-      final data = (jsonDecode('$res') as List)
-          .map((i) => DFlowFlow.fromJson(i))
-          .toList();
+      final data =
+          (res.data as List).map((i) => DFlowFlow.fromJson(i)).toList();
       return data[0];
     } catch (e) {
       return DFlowFlow(
@@ -308,7 +415,14 @@ class Api extends ChangeNotifier {
         value: 0,
         detail: '',
         dfId: '',
-        catId: '',
+        cat: Cat(
+          id: '',
+          name: '',
+          usedCount: 0,
+          icon: '',
+          isDeleted: false,
+          ftype: '',
+        ),
       );
     }
   }
@@ -324,7 +438,7 @@ class Api extends ChangeNotifier {
           "method": method,
         },
       );
-      final data = DFlowFlow.fromJson(jsonDecode('$res'));
+      final data = DFlowFlow.fromJson(res.data);
       return data;
     } catch (e) {
       return DFlowFlow(
@@ -334,7 +448,13 @@ class Api extends ChangeNotifier {
         value: 0,
         detail: '',
         dfId: '',
-        catId: '',
+        cat: Cat(
+            id: '',
+            name: '',
+            usedCount: 0,
+            icon: '',
+            isDeleted: false,
+            ftype: ''),
       );
     }
   }
@@ -342,7 +462,7 @@ class Api extends ChangeNotifier {
   Future<String> deleteFlow(String id) async {
     try {
       final res = await dio.delete('/api/daily-flow/$id/');
-      final data = DFlowFlow.fromJson(jsonDecode('$res'));
+      final data = DFlowFlow.fromJson(res.data);
       return data.id;
     } catch (e) {
       return '';
@@ -352,11 +472,8 @@ class Api extends ChangeNotifier {
   //งบดุลการเงิน
   Future<BSheetBalance?> getBalanceSheet() async {
     try {
-      final res = await dio.get('/api/balance-sheet/',
-          options: Options(
-            responseType: ResponseType.plain,
-          ));
-      final data = BSheetBalance.fromJson(jsonDecode('$res'));
+      final res = await dio.get('/api/balance-sheet/');
+      final data = BSheetBalance.fromJson(res.data);
       return data;
     } catch (e) {
       return null;

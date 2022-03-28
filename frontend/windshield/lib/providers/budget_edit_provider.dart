@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:windshield/models/statement/category.dart';
 import 'package:windshield/models/statement/budget.dart';
 
-class BudgetProvider extends ChangeNotifier {
+class BudgetEditProvider extends ChangeNotifier {
   List<StmntCategory> _catList = [];
   List<StmntCategory> get catList => _catList;
 
@@ -81,12 +81,25 @@ class BudgetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setInitBudgets(List<StmntBudget> buds) {
+    for (var bud in buds) {
+      bud.catId = bud.cat.id;
+      _budList.add(bud);
+      final cat = _catList.firstWhere((e) => e.id == bud.cat.id);
+      cat.active = true;
+      cat.total = bud.total;
+      _setTotalOnType(cat, true);
+    }
+    notifyListeners();
+  }
+
   void addBudget(
     StmntCategory cat,
     int numOfDays,
     String fplanId,
   ) {
     double total = 0;
+
     if (_budType == 'DLY') {
       total = _budPerPeriod * numOfDays;
     } else if (_budType == 'WLY') {
@@ -94,6 +107,7 @@ class BudgetProvider extends ChangeNotifier {
     } else if (_budType == 'MLY') {
       total = _budPerPeriod;
     }
+
     StmntBudget budget = StmntBudget(
       id: '',
       cat: StmntCategory(id: '', name: '', usedCount: 0, ftype: '', icon: ''),
