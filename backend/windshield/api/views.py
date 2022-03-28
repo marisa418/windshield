@@ -61,10 +61,15 @@ class FinancialTypeList(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.FinancialTypeSerializer
     
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is None:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         queryset = models.FinancialType.objects.all()
         domain = self.request.query_params.get("domain", None)
         if domain is not None:
@@ -91,24 +96,26 @@ class DailyListFlow(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DailyFlowSerializer
     
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
-        self.serializer_class = serializers.DailyFlowSerializer
         uuid = self.request.user.uuid
-        if uuid is not None:
-            dfsheet = self.request.query_params.get("df_id", None)
-            if dfsheet is not None:
-                queryset = models.DailyFlow.objects.filter(df_id=dfsheet)
-            else:
-                date = datetime.now(tz= timezone('Asia/Bangkok'))
-                dfsheet = models.DailyFlowSheet.objects.get(owner_id = uuid, date=date)
-                queryset = models.DailyFlow.objects.filter(df_id=dfsheet.id)
-            return queryset
+        dfsheet = self.request.query_params.get("df_id", None)
+        if dfsheet is not None:
+            queryset = models.DailyFlow.objects.filter(df_id=dfsheet)
         else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
+            date = datetime.now(tz= timezone('Asia/Bangkok'))
+            dfsheet = models.DailyFlowSheet.objects.get(owner_id = uuid, date=date)
+            queryset = models.DailyFlow.objects.filter(df_id=dfsheet.id)
+        return queryset
     
     def create(self, request):
-        self.serializer_class = serializers.DailyFlowCreateSerializer
-        serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
+        serializer = serializers.DailyFlowCreateSerializer(data=request.data, many=isinstance(request.data, list))
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         n = len(request.data)
@@ -118,7 +125,7 @@ class DailyListFlow(generics.ListCreateAPIView):
         else: 
             df_id = request.data[0]["df_id"]
         results = models.DailyFlow.objects.filter(df_id=df_id)
-        output_serializer = serializers.DailyFlowSerializer(results, many=True)
+        output_serializer = self.get_serializer(results, many=True)
         data = output_serializer.data[-n:]
         return Response(data)    
 
@@ -126,60 +133,78 @@ class DailyFlowSheet(generics.RetrieveAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DailyFlowSheetSerializer
     
+    def retrieve(self, request, pk=None):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = models.DailyFlowSheet.objects.filter(owner_id=request.user.uuid)
+        object = self.get_object()
+        serializer = self.serializer_class(object, many=False)
+        return Response(serializer.data)
+    
     def get_object(self):
-        self.serializer_class = serializers.DailyFlowSheetSerializer
         uuid = self.request.user.uuid
-        if uuid is not None:
-            date = self.request.query_params.get("date", None)
-            if date is None:
-                date = datetime.now(tz= timezone('Asia/Bangkok'))
-            try:
-                dfsheet = models.DailyFlowSheet.objects.get(owner_id = uuid, date=date)
-            except models.DailyFlowSheet.DoesNotExist:
-                self.serializer_class = serializers.DailyFlowSheetCreateSerializer
-                owner = models.NewUser.objects.get(uuid=uuid)
-                dfsheet = models.DailyFlowSheet.objects.create(owner_id = owner, date=date)
+        date = self.request.query_params.get("date", None)
+        if date is None:
+            date = datetime.now(tz= timezone('Asia/Bangkok'))
+        try:
+            dfsheet = models.DailyFlowSheet.objects.get(owner_id = uuid, date=date)
+        except models.DailyFlowSheet.DoesNotExist:
+            serializer = serializers.DailyFlowSheetCreateSerializer(data={"owner_id": uuid, "date":date})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            dfsheet = models.DailyFlowSheet.objects.get(owner_id = uuid, date=date)
         return dfsheet
 
 class DailyFlowSheetList(generics.ListAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DailyFlowSheetSerializer
     
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is not None:
-            queryset = models.DailyFlowSheet.objects.filter(owner_id = uuid)
-            start = self.request.query_params.get("start", None)
-            if start is not None:
-                start = datetime.strptime(start, "%Y-%m-%d")
-                queryset = queryset.filter(date__gte=start)
-            end = self.request.query_params.get("end", None)
-            if end is not None:
-                end = datetime.strptime(end, "%Y-%m-%d")
-                queryset = queryset.filter(date__lte=end)
-            return queryset
-        else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
+        queryset = models.DailyFlowSheet.objects.filter(owner_id = uuid)
+        start = self.request.query_params.get("start", None)
+        if start is not None:
+            start = datetime.strptime(start, "%Y-%m-%d")
+            queryset = queryset.filter(date__gte=start)
+        end = self.request.query_params.get("end", None)
+        if end is not None:
+            end = datetime.strptime(end, "%Y-%m-%d")
+            queryset = queryset.filter(date__lte=end)
+        return queryset
 
 class Method(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.MethodSerializer
     
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is not None:
-            queryset = models.Method.objects.filter(Q(user_id=uuid) | Q(user_id=None))
-            return queryset
-        else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
+        queryset = models.Method.objects.filter(Q(user_id=uuid) | Q(user_id=None))
+        return queryset
+    
+    def create(self, request, *args, **kwargs):
+        uuid = self.request.user.uuid
+        if uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        return super().create(request, *args, **kwargs)
         
     def perform_create(self, serializer):
         uuid = self.request.user.uuid
-        if uuid is not None:
-            owner_instance = NewUser.objects.get(uuid=uuid)
-            serializer.save(user_id=owner_instance, **self.request.data)
-        else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
+        owner_instance = NewUser.objects.get(uuid=uuid)
+        serializer.save(user_id=owner_instance, **self.request.data)
           
 class Statement(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -187,28 +212,32 @@ class Statement(generics.ListCreateAPIView):
     filter_backends = [OrderingFilter]
     # queryset = models.FinancialStatementPlan.objects.all()
 
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is not None:
-            queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
-            lower = self.request.query_params.get("lower-date", None)
-            upper = self.request.query_params.get("upper-date", None)
-            date = self.request.query_params.get("date", None)
-            if lower is not None:
-                lower = datetime.strptime(lower, "%Y-%m-%d")
-                queryset = queryset.filter(end__gte=lower)
-            if upper is not None:
-                upper = datetime.strptime(upper, "%Y-%m-%d")
-                queryset = queryset.filter(start__lte=upper)
-            if date is not None:
-                date = datetime.strptime(date, "%Y-%m-%d")
-                queryset = queryset.filter(start__lte=date, end__gte=date)
-            queryset = queryset.prefetch_related(
-                Prefetch('budgets', queryset=models.Budget.objects.filter(cat_id__isDeleted=False))
-            )
-            return queryset
-        else :
-            return Response(status=status.HTTP_401_UNAUTHORIZED, message='uuid not found')
+        queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+        lower = self.request.query_params.get("lower-date", None)
+        upper = self.request.query_params.get("upper-date", None)
+        date = self.request.query_params.get("date", None)
+        if lower is not None:
+            lower = datetime.strptime(lower, "%Y-%m-%d")
+            queryset = queryset.filter(end__gte=lower)
+        if upper is not None:
+            upper = datetime.strptime(upper, "%Y-%m-%d")
+            queryset = queryset.filter(start__lte=upper)
+        if date is not None:
+            date = datetime.strptime(date, "%Y-%m-%d")
+            queryset = queryset.filter(start__lte=date, end__gte=date)
+        queryset = queryset.prefetch_related(
+            Prefetch('budgets', queryset=models.Budget.objects.filter(cat_id__isDeleted=False))
+        )
+        return queryset
     
     def __date_validation__(self, queryset, start, end):
         if isinstance(start, str): start = datetime.strptime(start, "%Y-%m-%d")
@@ -262,25 +291,33 @@ class StatementChangeName(generics.UpdateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.StatementUpdateSerializer
     
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is not None:
-            self.queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
-            return self.queryset
-        else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        self.queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+        return self.queryset
 
 class StatementInstance(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.StatementUpdateSerializer
     
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is not None:
-            self.queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
-            return self.queryset
-        else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        self.queryset = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+        return self.queryset
     
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -311,10 +348,15 @@ class Asset(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.AssetsSerializer
     
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is None:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
         queryset = models.Asset.objects.filter(bsheet_id=bsheet.id, cat_id__isDeleted=False)
         return queryset
@@ -358,10 +400,15 @@ class Debt(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DebtsSerializer
 
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is None:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
         queryset = models.Debt.objects.filter(bsheet_id=bsheet.id, cat_id__isDeleted=False)
         priority = self.request.query_params.get("priority", False)
@@ -406,7 +453,7 @@ class DebtInstance(generics.RetrieveUpdateDestroyAPIView):
             self.serializer_class = serializers.DebtsSerializer
             return models.Debt.objects.get(id=self.kwargs['pk'])
         except models.Debt.DoesNotExist:
-            raise status.HTTP_400_BAD_REQUEST
+            return None
     
 class BalanceSheet(generics.RetrieveAPIView):
     permissions_classes = [permissions.IsAuthenticated]
@@ -432,44 +479,48 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.CategoryWithBudgetAndFlowsSerializer
     
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is None:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        else:
-            queryset = models.Category.objects.filter(user_id=uuid)
-            date = self.request.query_params.get('date', None)
-            if date is None:
-                date = datetime.now(tz= timezone('Asia/Bangkok'))
-            as_used = eval(self.request.query_params.get('as_used', False))
-            if as_used:
-                queryset = queryset.filter(
-                    Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
-                    Exists(models.Debt.objects.filter(cat_id__id=OuterRef('pk'))) |
-                    Q(ftype__domain__in=["INC", "EXP", "GOL"], isDeleted=False)
-                    )
-            domain = self.request.query_params.getlist('domain')
-            if len(domain) > 0:
-                queryset = queryset.filter(ftype__domain__in=domain)
-            try:
-                fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
-                fplan_id = fplan.id
-            except models.FinancialStatementPlan.DoesNotExist:
-                fplan_id = None
-            budgets = models.Budget.objects.filter(fplan=fplan_id)
-            try:
-                dfsheet = models.DailyFlowSheet.objects.get(date=date)
-                df_id = dfsheet.id
-            except models.DailyFlowSheet.DoesNotExist:
-                df_id = None
-            flows = models.DailyFlow.objects.filter(df_id=df_id)
-            queryset = queryset.prefetch_related(
-                Prefetch('budgets', queryset=budgets)
-            )
-            queryset = queryset.prefetch_related(
-                Prefetch('flows', queryset=flows)
-            )
-            return queryset
+        queryset = models.Category.objects.filter(user_id=uuid)
+        date = self.request.query_params.get('date', None)
+        if date is None:
+            date = datetime.now(tz= timezone('Asia/Bangkok'))
+        as_used = eval(self.request.query_params.get('as_used', False))
+        if as_used:
+            queryset = queryset.filter(
+                Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
+                Exists(models.Debt.objects.filter(cat_id__id=OuterRef('pk'))) |
+                Q(ftype__domain__in=["INC", "EXP", "GOL"], isDeleted=False)
+                )
+        domain = self.request.query_params.getlist('domain')
+        if len(domain) > 0:
+            queryset = queryset.filter(ftype__domain__in=domain)
+        try:
+            fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
+            fplan_id = fplan.id
+        except models.FinancialStatementPlan.DoesNotExist:
+            fplan_id = None
+        budgets = models.Budget.objects.filter(fplan=fplan_id)
+        try:
+            dfsheet = models.DailyFlowSheet.objects.get(date=date)
+            df_id = dfsheet.id
+        except models.DailyFlowSheet.DoesNotExist:
+            df_id = None
+        flows = models.DailyFlow.objects.filter(df_id=df_id)
+        queryset = queryset.prefetch_related(
+            Prefetch('budgets', queryset=budgets)
+        )
+        queryset = queryset.prefetch_related(
+            Prefetch('flows', queryset=flows)
+        )
+        return queryset
 
 class DefaultCategories(generics.ListCreateAPIView):
     permissions_classes = [permissions.IsAdminUser]
@@ -480,61 +531,73 @@ class Category(generics.RetrieveUpdateAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.CategorySerializer
     
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is not None: 
-            queryset = models.Category.objects.filter(user_id=uuid)
-            return queryset
-        else :
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-
+        queryset = models.Category.objects.filter(user_id=uuid)
+        return queryset
+        
 class Categories(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.CategorySerializer
 
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is not None: 
+        queryset = models.Category.objects.filter(user_id=uuid)
+        if not queryset:
+            owner = models.NewUser.objects.get(uuid=uuid)
+            default_cat = models.DefaultCategory.objects.all()
+            for cat in default_cat:
+                models.Category.objects.create(name=cat.name, ftype=cat.ftype, user_id=owner, icon=cat.icon)
             queryset = models.Category.objects.filter(user_id=uuid)
-            if not queryset:
-                owner = models.NewUser.objects.get(uuid=uuid)
-                default_cat = models.DefaultCategory.objects.all()
-                for cat in default_cat:
-                    models.Category.objects.create(name=cat.name, ftype=cat.ftype, user_id=owner, icon=cat.icon)
-                queryset = models.Category.objects.filter(user_id=uuid)
-            as_used = eval(self.request.query_params.get('as_used', "False"))
-            if as_used:
-                queryset = queryset.filter(
-                    Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
-                    Exists(models.Debt.objects.filter(cat_id__id=OuterRef('pk'))) |
-                    Q(ftype__domain__in=["INC", "EXP", "GOL"], isDeleted=False)
-                    )
-            domain = self.request.query_params.getlist('domain')
-            if len(domain) > 0:
-                queryset = queryset.filter(ftype__domain__in=domain)
-            return queryset
-        else :
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        as_used = eval(self.request.query_params.get('as_used', "False"))
+        if as_used:
+            queryset = queryset.filter(
+                Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
+                Exists(models.Debt.objects.filter(cat_id__id=OuterRef('pk'))) |
+                Q(ftype__domain__in=["INC", "EXP", "GOL"], isDeleted=False)
+                )
+        domain = self.request.query_params.getlist('domain')
+        if len(domain) > 0:
+            queryset = queryset.filter(ftype__domain__in=domain)
+        return queryset
     
     def perform_create(self, serializer):
         uuid = self.request.user.uuid
-        if uuid is not None:
-            owner = NewUser.objects.get(uuid=uuid)
-            ftype = str(self.request.data.pop("ftype"))
-            ftype_instance = models.FinancialType.objects.get(id=ftype)
-            return serializer.save( 
-                            user_id = owner,
-                            ftype = ftype_instance,
-                            **self.request.data
-                            )
-        else :
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        owner = NewUser.objects.get(uuid=uuid)
+        ftype = str(self.request.data.pop("ftype"))
+        ftype_instance = models.FinancialType.objects.get(id=ftype)
+        return serializer.save( 
+                        user_id = owner,
+                        ftype = ftype_instance,
+                        **self.request.data
+                        )
     
 class Budget(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.BudgetCategorySerializer
+    
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
     
     def get_queryset(self):
-        self.serializer_class = serializers.BudgetCategorySerializer
         fplan = self.request.query_params.get("fplan", None)
         fplan_queryset = models.FinancialStatementPlan.objects.filter(owner_id=self.request.user.uuid)
         if fplan is None:
@@ -546,8 +609,7 @@ class Budget(generics.ListCreateAPIView):
         return queryset
     
     def create(self, request):
-        self.serializer_class = serializers.BudgetSerializer
-        serializer = self.get_serializer(data=request.data, many=isinstance(request.data, list))
+        serializer = serializers.BudgetSerializer(data=request.data, many=isinstance(request.data, list))
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         n = len(request.data)
@@ -557,7 +619,7 @@ class Budget(generics.ListCreateAPIView):
         else: 
             fplan = request.data[0]["fplan"]
         results = models.Budget.objects.filter(fplan=fplan)
-        output_serializer = serializers.BudgetCategorySerializer(results, many=True)
+        output_serializer = self.serializer_class(results, many=True)
         data = output_serializer.data[-n:]
         return Response(data)
     
@@ -618,10 +680,15 @@ class FinancialGoalInstance(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.FinancialGoalsSerializer
     
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is None:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         queryset = models.FinancialGoal.objects.filter(user_id=uuid)
         return queryset
     
@@ -629,10 +696,15 @@ class FinancialGoals(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.FinancialGoalsSerializer
     
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
     def get_queryset(self):
         uuid = self.request.user.uuid
-        if uuid is None:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         queryset = models.FinancialGoal.objects.filter(user_id=uuid)
         date = self.request.query_params.get("date", None)
         if date is not None:
@@ -648,14 +720,11 @@ class FinancialGoals(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         uuid = self.request.user.uuid
-        if uuid is not None:
-            owner = NewUser.objects.get(uuid=uuid)
-            return serializer.save( 
-                            user_id = owner,
-                            **self.request.data
-                            )
-        else :
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        owner = NewUser.objects.get(uuid=uuid)
+        return serializer.save( 
+                        user_id = owner,
+                        **self.request.data
+                        )
         
 class FinancialStatus(APIView):
     permission_classes = [permissions.IsAuthenticated]
