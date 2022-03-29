@@ -70,7 +70,6 @@ class Cat {
   String name;
   int usedCount;
   String icon;
-  bool isDeleted;
   String ftype;
 
   Cat({
@@ -78,7 +77,6 @@ class Cat {
     required this.name,
     required this.usedCount,
     required this.icon,
-    required this.isDeleted,
     required this.ftype,
   });
 
@@ -87,7 +85,6 @@ class Cat {
         name: json['name'],
         usedCount: json['used_count'],
         icon: json['icon'],
-        isDeleted: json['isDeleted'],
         ftype: json['ftype'],
       );
 }

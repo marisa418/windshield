@@ -396,7 +396,6 @@ class Api extends ChangeNotifier {
       final res = await dio.post(
         '/api/daily-flow/',
         data: {
-          "id": "",
           "df_id": dfId,
           "category": catId,
           "name": name,
@@ -420,7 +419,6 @@ class Api extends ChangeNotifier {
           name: '',
           usedCount: 0,
           icon: '',
-          isDeleted: false,
           ftype: '',
         ),
       );
@@ -448,13 +446,7 @@ class Api extends ChangeNotifier {
         value: 0,
         detail: '',
         dfId: '',
-        cat: Cat(
-            id: '',
-            name: '',
-            usedCount: 0,
-            icon: '',
-            isDeleted: false,
-            ftype: ''),
+        cat: Cat(id: '', name: '', usedCount: 0, icon: '', ftype: ''),
       );
     }
   }
