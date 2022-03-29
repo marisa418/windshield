@@ -77,13 +77,7 @@ class DailyFlowProvider extends ChangeNotifier {
         value: 0,
         detail: '',
         dfId: '',
-        cat: Cat(
-            id: '',
-            name: '',
-            usedCount: 0,
-            icon: '',
-            isDeleted: false,
-            ftype: ''),
+        cat: Cat(id: '', name: '', usedCount: 0, icon: '', ftype: ''),
       ),
     ],
   );

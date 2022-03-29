@@ -267,9 +267,9 @@ class Api extends ChangeNotifier {
     }
   }
 
-  Future<List<StmntCategory>> getAllCategories() async {
+  Future<List<StmntCategory>> getAllCategories(bool asUsed) async {
     try {
-      final res = await dio.get('/api/categories/?as_used=True');
+      final res = await dio.get('/api/categories/?as_used=$asUsed');
       final data =
           (res.data as List).map((i) => StmntCategory.fromJson(i)).toList();
       return data;
@@ -396,7 +396,6 @@ class Api extends ChangeNotifier {
       final res = await dio.post(
         '/api/daily-flow/',
         data: {
-          "id": "",
           "df_id": dfId,
           "category": catId,
           "name": name,
@@ -420,7 +419,6 @@ class Api extends ChangeNotifier {
           name: '',
           usedCount: 0,
           icon: '',
-          isDeleted: false,
           ftype: '',
         ),
       );
@@ -448,13 +446,7 @@ class Api extends ChangeNotifier {
         value: 0,
         detail: '',
         dfId: '',
-        cat: Cat(
-            id: '',
-            name: '',
-            usedCount: 0,
-            icon: '',
-            isDeleted: false,
-            ftype: ''),
+        cat: Cat(id: '', name: '', usedCount: 0, icon: '', ftype: ''),
       );
     }
   }
