@@ -48,7 +48,7 @@ class DailyFlowSheetCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.DailyFlowSheet
-        exclude = ["owner_id"]
+        fields = '__all__'
         read_only_fields = ['id']
 
 class DailyFlowSheetSerializer(serializers.ModelSerializer):
