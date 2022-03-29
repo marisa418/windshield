@@ -12,7 +12,7 @@ final provBudget = ChangeNotifierProvider.autoDispose<BudgetProvider>(
     (ref) => BudgetProvider());
 
 final apiCat = FutureProvider.autoDispose<List<StmntCategory>>((ref) async {
-  final data = await ref.read(apiProvider).getAllCategories();
+  final data = await ref.read(apiProvider).getAllCategories(true);
   ref.read(provBudget).setCatList(data);
   ref.read(provBudget).setCategoryTypeTabs();
   return data;
