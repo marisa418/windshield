@@ -492,7 +492,7 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
         date = self.request.query_params.get('date', None)
         if date is None:
             date = datetime.now(tz= timezone('Asia/Bangkok'))
-        as_used = eval(self.request.query_params.get('as_used', False))
+        as_used = eval(self.request.query_params.get('as_used', 'False'))
         if as_used:
             queryset = queryset.filter(
                 Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
