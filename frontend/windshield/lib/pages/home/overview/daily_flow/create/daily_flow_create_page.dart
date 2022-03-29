@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -172,7 +173,12 @@ class DailyFlowCreatePage extends ConsumerWidget {
                                         currCat.flows[index].value);
                                     ref.read(provDFlow).setFlowMethod(
                                         currCat.flows[index].method.id);
-                                    const Calculator(isAdd: false);
+
+                                    showModalBottomSheet(
+                                      context: context,
+                                      builder: (context) =>
+                                          Calculator(isAdd: false),
+                                    );
                                   },
                                 ),
                                 const SizedBox(width: 8),
@@ -234,10 +240,13 @@ class DailyFlowCreatePage extends ConsumerWidget {
                   ),
                   onPressed: () {
                     ref.read(provDFlow).setFlowId('');
-                    ref.read(provDFlow).setFlowName('โปรดกรอกชื่อรายการ');
+                    ref.read(provDFlow).setFlowName(currCat.name);
                     ref.read(provDFlow).setFlowValue(0);
                     ref.read(provDFlow).setFlowMethod(2);
-                    Calculator(isAdd: true);
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => Calculator(isAdd: true),
+                    );
                   },
                 ),
               ),
@@ -262,6 +271,143 @@ class Calculator extends ConsumerWidget {
   final bool isAdd;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container();
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 10,
+        right: 10,
+        top: 30,
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextFormField(
+            // autofocus: true,
+            initialValue: ref.watch(provDFlow).flowName,
+
+            onChanged: (e) {
+              ref.read(provDFlow).setFlowName(e);
+            },
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: ref.watch(provDFlow).currCat.name,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Flexible(
+                flex: 7,
+                child: TextFormField(
+                  // autofocus: true,
+                  initialValue: ref.watch(provDFlow).flowValue.toString(),
+                  keyboardType: TextInputType.number,
+                  onChanged: (e) {
+                    ref.read(provDFlow).setFlowValue(double.tryParse(e) ?? 0);
+                  },
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: ref.watch(provDFlow).flowName,
+                  ),
+                ),
+              ),
+              Flexible(
+                flex: 3,
+                child: DropdownButton<int>(
+                  style: MyTheme.textTheme.bodyText1!.merge(
+                    const TextStyle(color: Colors.black),
+                  ),
+                  value: ref.watch(provDFlow).flowMethod,
+                  icon: const Icon(Icons.arrow_downward),
+                  onChanged: (int? e) {
+                    ref.read(provDFlow).setFlowMethod(e!);
+                  },
+                  items: <String>['เงินสด', 'โอน', 'บัตรเครดิต']
+                      .map<DropdownMenuItem<int>>((String value) {
+                    return DropdownMenuItem<int>(
+                      value: _returnType(value),
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  height: 50,
+                  width: 150,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    color: Colors.red,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'ยกเลิก',
+                      style: MyTheme.whiteTextTheme.headline3,
+                    ),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  if (isAdd) {
+                    final flow = await ref.read(apiProvider).addFlow(
+                          ref.read(provDFlow).dfId,
+                          ref.read(provDFlow).currCat.id,
+                          ref.read(provDFlow).flowName,
+                          ref.read(provDFlow).flowValue,
+                          ref.read(provDFlow).flowMethod,
+                        );
+                    if (flow.id != '') {
+                      ref.read(provDFlow).addFlow(flow);
+                      ref.read(provDFlow).setNeedFetchAPI();
+                      AutoRouter.of(context).pop();
+                    }
+                  } else {
+                    final flow = await ref.read(apiProvider).editFlow(
+                          ref.read(provDFlow).flowId,
+                          ref.read(provDFlow).flowName,
+                          ref.read(provDFlow).flowValue,
+                          ref.read(provDFlow).flowMethod,
+                        );
+                    if (flow.id != '') {
+                      ref.read(provDFlow).editFlow(flow);
+                      ref.read(provDFlow).setNeedFetchAPI();
+                    }
+                  }
+                },
+                child: Container(
+                  height: 50,
+                  width: 150,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    color: Colors.green,
+                  ),
+                  child: Center(
+                    child: Text(
+                      'ยืนยัน',
+                      style: MyTheme.whiteTextTheme.headline3,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+
+  int _returnType(String value) {
+    if (value == 'เงินสด') return 2;
+    if (value == 'โอน') return 3;
+    return 4;
   }
 }

@@ -423,75 +423,93 @@ class IncAssetTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final incAssetList = ref.watch(provDFlow.select((e) => e.incAssetList));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('รายรับจากสินทรัพย์', style: MyTheme.textTheme.headline3),
-        GridView.builder(
-          physics: const ScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: incAssetList.length,
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 100,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-          ),
-          itemBuilder: (_, index) {
-            return Column(
-              children: [
-                Badge(
-                  animationType: BadgeAnimationType.scale,
-                  showBadge: incAssetList[index].flows.isEmpty ? false : true,
-                  badgeContent: Text(
-                    '${incAssetList[index].flows.length}',
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                  child: Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          ref.read(provDFlow).setColorBackground('income');
-                          ref.read(provDFlow).setCurrCat(incAssetList[index]);
-                          AutoRouter.of(context).push(DailyFlowCreateRoute());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0.0,
-                          shadowColor:
-                              Colors.transparent, //remove shadow on button
-                          primary: incAssetList[index].budgets.isEmpty
-                              ? MyTheme.positiveMinor
-                              : MyTheme.positiveMajor,
-                          textStyle: const TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 20),
-
-                          shape: const CircleBorder(),
-                        ),
-                        child: Column(
-                          //mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              HelperIcons.getIconData(incAssetList[index].icon),
-                              color: Colors.white,
-                            ),
-                            if (incAssetList[index].flows.isNotEmpty) ...[
-                              Text(
-                                _loopFlow(incAssetList[index].flows),
-                              ),
-                            ],
-                          ],
-                        ),
+    return Padding(
+      padding: const EdgeInsets.all(25.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('รายรับจากการทำงาน', style: MyTheme.textTheme.headline3),
+          GridView.builder(
+            physics: const ScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: incAssetList.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              mainAxisExtent: 100,
+            ),
+            itemBuilder: (_, index) {
+              return Column(
+                children: [
+                  Expanded(
+                    child: Badge(
+                      position: BadgePosition(top: 0, end: 10, isCenter: false),
+                      animationType: BadgeAnimationType.scale,
+                      showBadge:
+                          incAssetList[index].flows.isEmpty ? false : true,
+                      badgeContent: Text(
+                        '${incAssetList[index].flows.length}',
+                        style: const TextStyle(fontSize: 15),
                       ),
-                    ],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 75, //height of button
+                            width: 75, //width of button
+                            child: ElevatedButton(
+                              onPressed: () {
+                                ref
+                                    .read(provDFlow)
+                                    .setColorBackground('income');
+                                ref
+                                    .read(provDFlow)
+                                    .setCurrCat(incAssetList[index]);
+                                AutoRouter.of(context)
+                                    .push(const DailyFlowCreateRoute());
+                                ref.watch(provDFlow).currCat.flows;
+                              },
+                              style: ElevatedButton.styleFrom(
+                                elevation: 0.0,
+                                shadowColor: Colors
+                                    .transparent, //remove shadow on button
+                                primary: incAssetList[index].budgets.isEmpty
+                                    ? Color(0xffE0E0E0)
+                                    : MyTheme.positiveMajor,
+                                textStyle: const TextStyle(fontSize: 12),
+                                padding: const EdgeInsets.all(10),
+
+                                shape: const CircleBorder(),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    HelperIcons.getIconData(
+                                        incAssetList[index].icon),
+                                    color: Colors.white,
+                                  ),
+                                  if (incAssetList[index].flows.isNotEmpty) ...[
+                                    Text(
+                                      _loopFlow(incAssetList[index].flows),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                Text(incAssetList[index].name)
-              ],
-            );
-          },
-        ),
-      ],
+                  Text(incAssetList[index].name)
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -502,75 +520,93 @@ class IncOtherTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final incOtherList = ref.watch(provDFlow.select((e) => e.incOtherList));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('รายรับอื่นๆ', style: MyTheme.textTheme.headline3),
-        GridView.builder(
-          physics: const ScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: incOtherList.length,
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 100,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-          ),
-          itemBuilder: (_, index) {
-            return Column(
-              children: [
-                Badge(
-                  animationType: BadgeAnimationType.scale,
-                  showBadge: incOtherList[index].flows.isEmpty ? false : true,
-                  badgeContent: Text(
-                    '${incOtherList[index].flows.length}',
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                  child: Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          ref.read(provDFlow).setColorBackground('income');
-                          ref.read(provDFlow).setCurrCat(incOtherList[index]);
-                          AutoRouter.of(context).push(DailyFlowCreateRoute());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0.0,
-                          shadowColor:
-                              Colors.transparent, //remove shadow on button
-                          primary: incOtherList[index].budgets.isEmpty
-                              ? MyTheme.positiveMinor
-                              : MyTheme.positiveMajor,
-                          textStyle: const TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 20),
-
-                          shape: const CircleBorder(),
-                        ),
-                        child: Column(
-                          //mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              HelperIcons.getIconData(incOtherList[index].icon),
-                              color: Colors.white,
-                            ),
-                            if (incOtherList[index].flows.isNotEmpty) ...[
-                              Text(
-                                _loopFlow(incOtherList[index].flows),
-                              ),
-                            ],
-                          ],
-                        ),
+    return Padding(
+      padding: const EdgeInsets.all(25.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('รายรับจากการทำงาน', style: MyTheme.textTheme.headline3),
+          GridView.builder(
+            physics: const ScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: incOtherList.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              mainAxisExtent: 100,
+            ),
+            itemBuilder: (_, index) {
+              return Column(
+                children: [
+                  Expanded(
+                    child: Badge(
+                      position: BadgePosition(top: 0, end: 10, isCenter: false),
+                      animationType: BadgeAnimationType.scale,
+                      showBadge:
+                          incOtherList[index].flows.isEmpty ? false : true,
+                      badgeContent: Text(
+                        '${incOtherList[index].flows.length}',
+                        style: const TextStyle(fontSize: 15),
                       ),
-                    ],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 75, //height of button
+                            width: 75, //width of button
+                            child: ElevatedButton(
+                              onPressed: () {
+                                ref
+                                    .read(provDFlow)
+                                    .setColorBackground('income');
+                                ref
+                                    .read(provDFlow)
+                                    .setCurrCat(incOtherList[index]);
+                                AutoRouter.of(context)
+                                    .push(const DailyFlowCreateRoute());
+                                ref.watch(provDFlow).currCat.flows;
+                              },
+                              style: ElevatedButton.styleFrom(
+                                elevation: 0.0,
+                                shadowColor: Colors
+                                    .transparent, //remove shadow on button
+                                primary: incOtherList[index].budgets.isEmpty
+                                    ? Color(0xffE0E0E0)
+                                    : MyTheme.positiveMajor,
+                                textStyle: const TextStyle(fontSize: 12),
+                                padding: const EdgeInsets.all(10),
+
+                                shape: const CircleBorder(),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    HelperIcons.getIconData(
+                                        incOtherList[index].icon),
+                                    color: Colors.white,
+                                  ),
+                                  if (incOtherList[index].flows.isNotEmpty) ...[
+                                    Text(
+                                      _loopFlow(incOtherList[index].flows),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                Text(incOtherList[index].name)
-              ],
-            );
-          },
-        ),
-      ],
+                  Text(incOtherList[index].name)
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -583,75 +619,92 @@ class ExpConTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final expConList = ref.watch(provDFlow.select((e) => e.expConList));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('รายจ่ายคงที่', style: MyTheme.textTheme.headline3),
-        GridView.builder(
-          physics: const ScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: expConList.length,
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 100,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-          ),
-          itemBuilder: (_, index) {
-            return Column(
-              children: [
-                Badge(
-                  animationType: BadgeAnimationType.scale,
-                  showBadge: expConList[index].flows.isEmpty ? false : true,
-                  badgeContent: Text(
-                    '${expConList[index].flows.length}',
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                  child: Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          ref.read(provDFlow).setColorBackground('expense');
-                          ref.read(provDFlow).setCurrCat(expConList[index]);
-                          AutoRouter.of(context).push(DailyFlowCreateRoute());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0.0,
-                          shadowColor:
-                              Colors.transparent, //remove shadow on button
-                          primary: expConList[index].budgets.isEmpty
-                              ? MyTheme.negativeMinor
-                              : MyTheme.negativeMajor,
-                          textStyle: const TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 15),
-
-                          shape: const CircleBorder(),
-                        ),
-                        child: Column(
-                          //mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              HelperIcons.getIconData(expConList[index].icon),
-                              color: Colors.white,
-                            ),
-                            if (expConList[index].flows.isNotEmpty) ...[
-                              Text(
-                                _loopFlow(expConList[index].flows),
-                              ),
-                            ],
-                          ],
-                        ),
+    return Padding(
+      padding: const EdgeInsets.all(25.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('รายรับจากการทำงาน', style: MyTheme.textTheme.headline3),
+          GridView.builder(
+            physics: const ScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: expConList.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              mainAxisExtent: 100,
+            ),
+            itemBuilder: (_, index) {
+              return Column(
+                children: [
+                  Expanded(
+                    child: Badge(
+                      position: BadgePosition(top: 0, end: 10, isCenter: false),
+                      animationType: BadgeAnimationType.scale,
+                      showBadge: expConList[index].flows.isEmpty ? false : true,
+                      badgeContent: Text(
+                        '${expConList[index].flows.length}',
+                        style: const TextStyle(fontSize: 15),
                       ),
-                    ],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 75, //height of button
+                            width: 75, //width of button
+                            child: ElevatedButton(
+                              onPressed: () {
+                                ref
+                                    .read(provDFlow)
+                                    .setColorBackground('income');
+                                ref
+                                    .read(provDFlow)
+                                    .setCurrCat(expConList[index]);
+                                AutoRouter.of(context)
+                                    .push(const DailyFlowCreateRoute());
+                                ref.watch(provDFlow).currCat.flows;
+                              },
+                              style: ElevatedButton.styleFrom(
+                                elevation: 0.0,
+                                shadowColor: Colors
+                                    .transparent, //remove shadow on button
+                                primary: expConList[index].budgets.isEmpty
+                                    ? Color(0xffE0E0E0)
+                                    : MyTheme.positiveMajor,
+                                textStyle: const TextStyle(fontSize: 12),
+                                padding: const EdgeInsets.all(10),
+
+                                shape: const CircleBorder(),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    HelperIcons.getIconData(
+                                        expConList[index].icon),
+                                    color: Colors.white,
+                                  ),
+                                  if (expConList[index].flows.isNotEmpty) ...[
+                                    Text(
+                                      _loopFlow(expConList[index].flows),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                Text(expConList[index].name)
-              ],
-            );
-          },
-        ),
-      ],
+                  Text(expConList[index].name)
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -661,78 +714,93 @@ class ExpNonConTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final expNonConList = ref.watch(provDFlow.select((e) => e.expInconList));
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('รายจ่ายไม่คงที่', style: MyTheme.textTheme.headline3),
-        GridView.builder(
-          physics: const ScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: expNonConList.length,
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 100,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-          ),
-          itemBuilder: (_, index) {
-            return Column(
-              children: [
-                Badge(
-                  animationType: BadgeAnimationType.scale,
-                  showBadge: expNonConList[index].flows.isEmpty ? false : true,
-                  badgeContent: Text(
-                    '${expNonConList[index].flows.length}',
-                    style: const TextStyle(fontSize: 15),
-                  ),
-                  child: Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          ref.read(provDFlow).setColorBackground('expense');
-                          ref.read(provDFlow).setCurrCat(expNonConList[index]);
-                          AutoRouter.of(context).push(DailyFlowCreateRoute());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0.0,
-                          shadowColor:
-                              Colors.transparent, //remove shadow on button
-                          primary: expNonConList[index].budgets.isEmpty
-                              ? MyTheme.negativeMinor
-                              : MyTheme.negativeMajor,
-                          textStyle: const TextStyle(
-                              fontSize: 30, fontWeight: FontWeight.bold),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 15),
-
-                          shape: const CircleBorder(),
-                        ),
-                        child: Column(
-                          //mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              HelperIcons.getIconData(
-                                  expNonConList[index].icon),
-                              color: Colors.white,
-                            ),
-                            if (expNonConList[index].flows.isNotEmpty) ...[
-                              Text(
-                                _loopFlow(expNonConList[index].flows),
-                              ),
-                            ],
-                          ],
-                        ),
+    final expConList = ref.watch(provDFlow.select((e) => e.expConList));
+    return Padding(
+      padding: const EdgeInsets.all(25.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('รายรับจากการทำงาน', style: MyTheme.textTheme.headline3),
+          GridView.builder(
+            physics: const ScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: expConList.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              mainAxisExtent: 100,
+            ),
+            itemBuilder: (_, index) {
+              return Column(
+                children: [
+                  Expanded(
+                    child: Badge(
+                      position: BadgePosition(top: 0, end: 10, isCenter: false),
+                      animationType: BadgeAnimationType.scale,
+                      showBadge: expConList[index].flows.isEmpty ? false : true,
+                      badgeContent: Text(
+                        '${expConList[index].flows.length}',
+                        style: const TextStyle(fontSize: 15),
                       ),
-                    ],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 75, //height of button
+                            width: 75, //width of button
+                            child: ElevatedButton(
+                              onPressed: () {
+                                ref
+                                    .read(provDFlow)
+                                    .setColorBackground('income');
+                                ref
+                                    .read(provDFlow)
+                                    .setCurrCat(expConList[index]);
+                                AutoRouter.of(context)
+                                    .push(const DailyFlowCreateRoute());
+                                ref.watch(provDFlow).currCat.flows;
+                              },
+                              style: ElevatedButton.styleFrom(
+                                elevation: 0.0,
+                                shadowColor: Colors
+                                    .transparent, //remove shadow on button
+                                primary: expConList[index].budgets.isEmpty
+                                    ? Color(0xffE0E0E0)
+                                    : MyTheme.positiveMajor,
+                                textStyle: const TextStyle(fontSize: 12),
+                                padding: const EdgeInsets.all(10),
+
+                                shape: const CircleBorder(),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    HelperIcons.getIconData(
+                                        expConList[index].icon),
+                                    color: Colors.white,
+                                  ),
+                                  if (expConList[index].flows.isNotEmpty) ...[
+                                    Text(
+                                      _loopFlow(expConList[index].flows),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                Text(expNonConList[index].name)
-              ],
-            );
-          },
-        ),
-      ],
+                  Text(expConList[index].name)
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
