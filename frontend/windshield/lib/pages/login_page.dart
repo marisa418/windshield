@@ -109,7 +109,7 @@ class _PinState extends ConsumerState<Pin> {
                     onCompleted: (text) async {
                       final api = ref.read(apiProvider);
                       if (text.length > 4 && await api.loginByPin(text)) {
-                        AutoRouter.of(context).push(const RegisterInfoRoute());
+                        // AutoRouter.of(context).push(const RegisterInfoRoute());
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('เกิดข้อผิดพลาด')),

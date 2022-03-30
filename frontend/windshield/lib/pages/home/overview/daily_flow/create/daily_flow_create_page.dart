@@ -137,7 +137,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
                                               TextSpan(
                                                 text:
                                                     " ${currCat.flows[index].method.name}",
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   color: Colors.green,
                                                   fontSize: 18,
                                                 ),
@@ -176,8 +176,9 @@ class DailyFlowCreatePage extends ConsumerWidget {
 
                                     showModalBottomSheet(
                                       context: context,
+                                      isScrollControlled: true,
                                       builder: (context) =>
-                                          Calculator(isAdd: false),
+                                          const Calculator(isAdd: false),
                                     );
                                   },
                                 ),
@@ -245,7 +246,8 @@ class DailyFlowCreatePage extends ConsumerWidget {
                     ref.read(provDFlow).setFlowMethod(2);
                     showModalBottomSheet(
                       context: context,
-                      builder: (context) => Calculator(isAdd: true),
+                      isScrollControlled: true,
+                      builder: (context) => const Calculator(isAdd: true),
                     );
                   },
                 ),
@@ -289,7 +291,7 @@ class Calculator extends ConsumerWidget {
               ref.read(provDFlow).setFlowName(e);
             },
             decoration: InputDecoration(
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
               hintText: ref.watch(provDFlow).currCat.name,
             ),
           ),
@@ -306,7 +308,7 @@ class Calculator extends ConsumerWidget {
                     ref.read(provDFlow).setFlowValue(double.tryParse(e) ?? 0);
                   },
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
                     hintText: ref.watch(provDFlow).flowName,
                   ),
                 ),
@@ -379,6 +381,7 @@ class Calculator extends ConsumerWidget {
                     if (flow.id != '') {
                       ref.read(provDFlow).editFlow(flow);
                       ref.read(provDFlow).setNeedFetchAPI();
+                      AutoRouter.of(context).pop();
                     }
                   }
                 },

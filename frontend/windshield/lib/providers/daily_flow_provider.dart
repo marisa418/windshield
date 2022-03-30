@@ -153,6 +153,12 @@ class DailyFlowProvider extends ChangeNotifier {
     _expInconTotal = 0;
     _expConTotal = 0;
     _savAndInvTotal = 0;
+    _incWorkingList.clear();
+    _incAssetList.clear();
+    _incOtherList.clear();
+    _expInconList.clear();
+    _expConList.clear();
+    _savAndInvList.clear();
     for (var cat in _catList) {
       if (cat.ftype == '1') {
         _incWorkingList.add(cat);

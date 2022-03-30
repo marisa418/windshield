@@ -9,7 +9,6 @@ class BSheetDebt {
   DateTime debtTerm;
   double minimum;
   int suspend;
-  int impRanking;
   String bsId;
 
   BSheetDebt({
@@ -21,7 +20,6 @@ class BSheetDebt {
     required this.debtTerm,
     required this.minimum,
     required this.suspend,
-    required this.impRanking,
     required this.bsId,
   });
 
@@ -31,10 +29,9 @@ class BSheetDebt {
         balance: double.parse(json['balance']),
         creditor: json['creditor'],
         interest: double.parse(json['interest'] ?? '0'),
-        debtTerm: json['debt_term'] ?? DateTime.now(),
+        debtTerm: DateTime.tryParse(json['debt_term'] ?? '') ?? DateTime.now(),
         minimum: double.parse(json['minimum'] ?? '0'),
         suspend: json['suspend'] ?? 0,
-        impRanking: json['imp_ranking'],
         bsId: json['bsheet_id'],
       );
 }
