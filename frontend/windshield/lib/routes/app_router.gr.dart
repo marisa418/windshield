@@ -61,6 +61,10 @@ class _$AppRouter extends RootStackRouter {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const StatementEditPage());
     },
+    DailyFlowOverviewRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const DailyFlowOverviewPage());
+    },
     DailyFlowRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const DailyFlowPage());
@@ -96,6 +100,8 @@ class _$AppRouter extends RootStackRouter {
               path: 'statement-create-page', parent: EmptyRouterRoute.name),
           RouteConfig(StatementEditRoute.name,
               path: 'statement-edit-page', parent: EmptyRouterRoute.name),
+          RouteConfig(DailyFlowOverviewRoute.name,
+              path: 'daily-flow-overview-page', parent: EmptyRouterRoute.name),
           RouteConfig(DailyFlowRoute.name,
               path: 'daily-flow-page', parent: EmptyRouterRoute.name),
           RouteConfig(DailyFlowCreateRoute.name,
@@ -198,6 +204,15 @@ class StatementEditRoute extends PageRouteInfo<void> {
       : super(StatementEditRoute.name, path: 'statement-edit-page');
 
   static const String name = 'StatementEditRoute';
+}
+
+/// generated route for
+/// [DailyFlowOverviewPage]
+class DailyFlowOverviewRoute extends PageRouteInfo<void> {
+  const DailyFlowOverviewRoute()
+      : super(DailyFlowOverviewRoute.name, path: 'daily-flow-overview-page');
+
+  static const String name = 'DailyFlowOverviewRoute';
 }
 
 /// generated route for

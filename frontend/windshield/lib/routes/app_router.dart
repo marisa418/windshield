@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:windshield/pages/home/overview/daily_flow/overview/daily_flow_overview_page.dart';
 
 import '../pages/login_page.dart';
 import '../pages/home/home_page.dart';
@@ -41,6 +42,7 @@ part 'app_router.gr.dart';
         AutoRoute(page: StatementInfoPage),
         AutoRoute(page: StatementCreatePage),
         AutoRoute(page: StatementEditPage),
+        AutoRoute(page: DailyFlowOverviewPage),
         AutoRoute(page: DailyFlowPage),
         AutoRoute(page: DailyFlowCreatePage),
         AutoRoute(page: BalanceSheetPage),
