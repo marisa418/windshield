@@ -30,7 +30,7 @@ class Api extends ChangeNotifier {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.1.38:8000' + options.path;
+          options.path = 'http://192.168.1.36:8000' + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
@@ -469,8 +469,73 @@ class Api extends ChangeNotifier {
       final data = BSheetBalance.fromJson(res.data);
       return data;
     } catch (e) {
-      print(e);
       return null;
     }
   }
+
+  Future<bool> addAsset(String source, double recentVal, String catId) async {
+    try {
+      await dio.post(
+        '/api/asset/',
+        data: {"source": source, "recent_value": recentVal, "cat_id": catId},
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> editAsset(String source, double recentVal, String id) async {
+    try {
+      await dio.patch(
+        '/api/asset/$id/',
+        data: {"source": source, "recent_value": recentVal},
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> addDebt(double bal, String cred, String catId, double interest,
+      DateTime date) async {
+    try {
+      final str = DateFormat('y-MM-dd').format(date);
+      await dio.post(
+        '/api/debt/',
+        data: {
+          "balance": bal,
+          "creditor": cred,
+          "cat_id": catId,
+          "interest": interest,
+          "debt_term": str,
+        },
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> editDebt(double bal, String cred, String id, double interest,
+      DateTime date) async {
+    try {
+      final str = DateFormat('y-MM-dd').format(date);
+      await dio.patch(
+        '/api/debt/$id/',
+        data: {
+          "balance": bal,
+          "creditor": cred,
+          "interest": interest,
+          "debt_term": str,
+        },
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  //เป้าหมายทางการเงิน
+
 }

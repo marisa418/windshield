@@ -1,8 +1,8 @@
-import 'category.dart';
+import '../statement/category.dart';
 
 class BSheetDebt {
   String id;
-  BSheetCategory cat;
+  StmntCategory cat;
   double balance;
   String creditor;
   double interest;
@@ -25,7 +25,7 @@ class BSheetDebt {
 
   factory BSheetDebt.fromJson(Map<String, dynamic> json) => BSheetDebt(
         id: json['id'],
-        cat: BSheetCategory.fromJson(json['cat_id']),
+        cat: StmntCategory.fromJson(json['cat_id']),
         balance: double.parse(json['balance']),
         creditor: json['creditor'],
         interest: double.parse(json['interest'] ?? '0'),
