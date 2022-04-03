@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
+import 'package:windshield/models/financial_goal/financial_goal.dart';
 
 import '../../models/daily_flow/flow.dart';
 import '../../models/statement/budget.dart';
@@ -537,5 +538,14 @@ class Api extends ChangeNotifier {
   }
 
   //เป้าหมายทางการเงิน
-
+  Future<List<FGoal>> getAllGoals() async {
+    try {
+      final res = await dio.get('/api/financial-goal/');
+      final data = (res.data as List).map((i) => FGoal.fromJson(i)).toList();
+      return data;
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
 }
