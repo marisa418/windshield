@@ -8,6 +8,7 @@ from django.utils.timezone import now
 from user.models import NewUser, Province
 from django.core.exceptions import ValidationError
 import math
+import decimal
 
 # __validators__
 
@@ -153,7 +154,7 @@ class Asset(models.Model):
         aggr = Asset.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('recent_value'))
         if aggr["sum_value"] is None:
             aggr["sum_value"] = 0
-        new_value = aggr["sum_value"] - self.recent_value
+        new_value = aggr["sum_value"] - decimal.Decimal(self.recent_value)
         self.__save_log__(new_value)
         return super(Asset, self).delete(*args, kwargs)
     
@@ -169,7 +170,8 @@ class Asset(models.Model):
         aggr = Asset.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('recent_value'))
         if aggr["sum_value"] is None:
             aggr["sum_value"] = 0
-        new_value = aggr["sum_value"] - old_value + self.recent_value
+        print(type(self.recent_value))
+        new_value = aggr["sum_value"] - old_value + decimal.Decimal(self.recent_value)
         self.__save_log__(new_value)
         return super(Asset, self).save(*args, **kwargs)
 
@@ -207,7 +209,7 @@ class Debt(models.Model):
         aggr = Debt.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('balance'))
         if aggr["sum_value"] is None:
             aggr["sum_value"] = 0
-        new_value = aggr["sum_value"] - self.balance
+        new_value = aggr["sum_value"] - decimal.Decimal(self.balance)
         self.__save_log__(new_value)
         return super(Debt, self).delete(*args, kwargs)
     
@@ -223,7 +225,7 @@ class Debt(models.Model):
         aggr = Debt.objects.filter(bsheet_id=self.bsheet_id).aggregate(sum_value=models.Sum('balance'))
         if aggr["sum_value"] is None:
             aggr["sum_value"] = 0
-        new_value = aggr["sum_value"] - old_value + self.balance
+        new_value = aggr["sum_value"] - old_value + decimal.Decimal(self.balance)
         self.__save_log__(new_value)
         return super(Debt, self).save(*args, **kwargs)
 
