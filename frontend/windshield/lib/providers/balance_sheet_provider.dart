@@ -82,8 +82,11 @@ class BalanceSheetProvider extends ChangeNotifier {
   String get creditor => _creditor;
   double _interest = 0;
   double get interest => _interest;
-  DateTime _debtTerm = DateTime.now();
-  DateTime get debtTerm => _debtTerm;
+  DateTime? _debtTerm;
+  DateTime? get debtTerm => _debtTerm;
+
+  bool _isAdd =true;
+  bool get isAdd => _isAdd;
 
   void setBs(BSheetBalance value) {
     _bs = value;
@@ -212,8 +215,15 @@ class BalanceSheetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDebtTerm(DateTime value) {
+  void setDebtTerm(DateTime? value) {
     _debtTerm = value;
     notifyListeners();
   }
+
+  void setIsAdd(bool value){
+    _isAdd = value;
+    notifyListeners();
+  }
 }
+
+ 
