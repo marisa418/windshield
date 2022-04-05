@@ -20,6 +20,7 @@ urlpatterns = [
     
     #BALANCE SHEET
     path('balance-sheet/', views.BalanceSheet.as_view(), name='balance-sheet'),
+    path('balance-sheet-log/', views.BalanceSheetLog.as_view(), name='balance-sheet-log'),
     path('asset/', views.Asset.as_view(), name='asset'),
     path('asset/<str:pk>/', views.AssetInstance.as_view(), name='asset-instance'),
     path('debt/', views.Debt.as_view(), name='debt'),
