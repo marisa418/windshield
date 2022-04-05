@@ -13,7 +13,7 @@ import decimal
 # __validators__
 
 def validate_ispositive(value):
-    if value <= 0:
+    if value < 0:
         raise ValidationError("The field's value must can not be zero or negative")
 
 # __validators__
