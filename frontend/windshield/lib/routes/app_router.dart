@@ -18,6 +18,8 @@ import '../pages/home/overview/daily_flow/create/daily_flow_create_page.dart';
 
 import '../pages/home/overview/balance_sheet/balance_sheet_page.dart';
 
+import '../pages/home/overview/financial_goal/financial_goal_page.dart';
+
 part 'app_router.gr.dart';
 
 @MaterialAutoRouter(
@@ -46,6 +48,7 @@ part 'app_router.gr.dart';
         AutoRoute(page: DailyFlowPage),
         AutoRoute(page: DailyFlowCreatePage),
         AutoRoute(page: BalanceSheetPage),
+        AutoRoute(page: FinancialGoalPage),
       ],
     ),
   ],

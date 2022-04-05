@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
+import 'package:windshield/models/financial_goal/financial_goal.dart';
 
 import '../../models/daily_flow/flow.dart';
 import '../../models/statement/budget.dart';
@@ -30,7 +31,7 @@ class Api extends ChangeNotifier {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.1.38:8000' + options.path;
+          options.path = 'http://192.168.1.9:8000' + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
@@ -269,7 +270,8 @@ class Api extends ChangeNotifier {
 
   Future<List<StmntCategory>> getAllCategories(bool asUsed) async {
     try {
-      final res = await dio.get('/api/categories/?as_used=$asUsed');
+      final res = await dio
+          .get('/api/categories/?as_used=${asUsed ? "True" : "False"}');
       final data =
           (res.data as List).map((i) => StmntCategory.fromJson(i)).toList();
       return data;
@@ -468,8 +470,82 @@ class Api extends ChangeNotifier {
       final data = BSheetBalance.fromJson(res.data);
       return data;
     } catch (e) {
-      print(e);
       return null;
+    }
+  }
+
+  Future<bool> addAsset(String source, double recentVal, String catId) async {
+    try {
+      await dio.post(
+        '/api/asset/',
+        data: {"source": source, "recent_value": recentVal, "cat_id": catId},
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> editAsset(String source, double recentVal, String id) async {
+    try {
+      await dio.patch(
+        '/api/asset/$id/',
+        data: {"source": source, "recent_value": recentVal},
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> addDebt(double bal, String cred, String catId, double interest,
+      DateTime? date) async {
+    try {
+      
+      await dio.post(
+        '/api/debt/',
+        data: {
+          "balance": bal,
+          "creditor": cred,
+          "cat_id": catId,
+          "interest": interest,
+          "debt_term": date!=null?DateFormat('y-MM-dd').format(date):null,
+        },
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> editDebt(double bal, String cred, String id, double interest,
+      DateTime? date) async {
+    try {
+      
+      await dio.patch(
+        '/api/debt/$id/',
+        data: {
+          "balance": bal,
+          "creditor": cred,
+          "interest": interest,
+          "debt_term": date!=null?DateFormat('y-MM-dd').format(date):null,
+        },
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  //เป้าหมายทางการเงิน
+  Future<List<FGoal>> getAllGoals() async {
+    try {
+      final res = await dio.get('/api/financial-goal/');
+      final data = (res.data as List).map((i) => FGoal.fromJson(i)).toList();
+      return data;
+    } catch (e) {
+      print(e);
+      return [];
     }
   }
 }

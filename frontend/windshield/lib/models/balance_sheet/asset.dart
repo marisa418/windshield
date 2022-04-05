@@ -1,8 +1,8 @@
-import 'category.dart';
+import '../statement/category.dart';
 
 class BSheetAsset {
   String id;
-  BSheetCategory cat;
+  StmntCategory cat;
   String source;
   double recentVal;
   String benefitType;
@@ -21,7 +21,7 @@ class BSheetAsset {
 
   factory BSheetAsset.fromJson(Map<String, dynamic> json) => BSheetAsset(
         id: json['id'],
-        cat: BSheetCategory.fromJson(json['cat_id']),
+        cat: StmntCategory.fromJson(json['cat_id']),
         source: json['source'],
         recentVal: double.parse(json['recent_value']),
         benefitType: json['benefit_type'] ?? '',

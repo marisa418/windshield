@@ -76,6 +76,10 @@ class _$AppRouter extends RootStackRouter {
     BalanceSheetRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const BalanceSheetPage());
+    },
+    FinancialGoalRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const FinancialGoalPage());
     }
   };
 
@@ -107,7 +111,9 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(DailyFlowCreateRoute.name,
               path: 'daily-flow-create-page', parent: EmptyRouterRoute.name),
           RouteConfig(BalanceSheetRoute.name,
-              path: 'balance-sheet-page', parent: EmptyRouterRoute.name)
+              path: 'balance-sheet-page', parent: EmptyRouterRoute.name),
+          RouteConfig(FinancialGoalRoute.name,
+              path: 'financial-goal-page', parent: EmptyRouterRoute.name)
         ])
       ];
 }
@@ -239,4 +245,13 @@ class BalanceSheetRoute extends PageRouteInfo<void> {
       : super(BalanceSheetRoute.name, path: 'balance-sheet-page');
 
   static const String name = 'BalanceSheetRoute';
+}
+
+/// generated route for
+/// [FinancialGoalPage]
+class FinancialGoalRoute extends PageRouteInfo<void> {
+  const FinancialGoalRoute()
+      : super(FinancialGoalRoute.name, path: 'financial-goal-page');
+
+  static const String name = 'FinancialGoalRoute';
 }

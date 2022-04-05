@@ -475,6 +475,24 @@ class BalanceSheet(generics.RetrieveAPIView):
                                                    owner_id = owner)
         return bsheet
 
+class BalanceSheetLog(generics.ListAPIView):
+    permissions_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.BalanceSheetLogSerializer
+    
+    def list(self, request):
+        if request.user.uuid is None:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
+    def get_queryset(self):
+        uuid = self.request.user.uuid
+        bsheet = models.BalanceSheet.objects.get(owner_id=uuid)
+        queryset = models.BalanceSheetLog.objects.filter(bsheet_id=bsheet.id).order_by("-timestamp")
+        return queryset
+    
+
 class CategoryWithBudgetsAndFlows(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.CategoryWithBudgetAndFlowsSerializer

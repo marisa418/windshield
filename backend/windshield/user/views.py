@@ -7,7 +7,15 @@ from .models import NewUser
 class CustomUserCreate(APIView):
     permission_classes = [permissions.AllowAny]
 
+    def __validated_password__(self, password):
+        if len(password) < 8: return False
+        if all(char.isdigit() for char in password): return False
+        if not any(char.isdigit() for char in password): return False
+        return True
+
     def post(self, request):
+        if not self.__validated_password__(request.data["password"]):
+            return Response({"message": "invalid password"}, status=status.HTTP_400_BAD_REQUEST)
         serializer = serializers.RegisterUserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
