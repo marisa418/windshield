@@ -459,12 +459,12 @@ String getname(String value) {
   if (value == '7') {
     return 'สินทรัพย์สภาพคล่อง';
   } else if (value == '8') {
-    return 'สินทรัพย์สภาพคล่อง';
+    return 'สินทรัพย์ลงทุน';
   } else if (value == '9') {
-    return 'สินทรัพย์สภาพคล่อง';
+    return 'สินทรัพย์ส่วนตัว';
   } else if (value == '10') {
-    return 'สินทรัพย์สภาพคล่อง';
+    return 'หนี้สินระยะสั้น';
   } else {
-    return 'สินทรัพย์สภาพคล่อง';
+    return 'หนี้สินระยะยาว';
   }
 }
