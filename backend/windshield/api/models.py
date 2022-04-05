@@ -13,7 +13,7 @@ import decimal
 # __validators__
 
 def validate_ispositive(value):
-    if value <= 0:
+    if value < 0:
         raise ValidationError("The field's value must can not be zero or negative")
 
 # __validators__
@@ -126,7 +126,7 @@ class Asset(models.Model):
     id = models.CharField(max_length=19, primary_key=True)
     cat_id = models.ForeignKey(Category, on_delete=CASCADE)
     bsheet_id = models.ForeignKey(BalanceSheet, related_name='assets', on_delete=CASCADE)
-    source = models.CharField(max_length=30)
+    source = models.CharField(max_length=30, null=True)
     recent_value = models.DecimalField(max_digits=12, decimal_places=2, validators=[validate_ispositive])
     benefit_type = models.CharField(max_length=3, choices=benefit_type_choice, null=True)
     benefit_value = models.DecimalField(decimal_places=2, max_digits=12, null=True, validators=[validate_ispositive])
