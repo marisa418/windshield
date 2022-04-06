@@ -6,6 +6,7 @@ class SpeechFlow {
   String name;
   double value;
   int method;
+  String key;
 
   SpeechFlow({
     required this.dfId,
@@ -13,6 +14,7 @@ class SpeechFlow {
     required this.name,
     required this.value,
     required this.method,
+    required this.key,
   });
 
   Map<String, dynamic> toJson() => {

@@ -22,32 +22,32 @@ class DailyFlowProvider extends ChangeNotifier {
   String get colorBackground => _colorBackground;
 
   //1
-  List<DFlowCategory> _incWorkingList = [];
+  final List<DFlowCategory> _incWorkingList = [];
   List<DFlowCategory> get incWorkingList => _incWorkingList;
   double _incWorkingTotal = 0;
   double get incWorkingTotal => _incWorkingTotal;
   //2
-  List<DFlowCategory> _incAssetList = [];
+  final List<DFlowCategory> _incAssetList = [];
   List<DFlowCategory> get incAssetList => _incAssetList;
   double _incAssetTotal = 0;
   double get incAssetTotal => _incAssetTotal;
   //3
-  List<DFlowCategory> _incOtherList = [];
+  final List<DFlowCategory> _incOtherList = [];
   List<DFlowCategory> get incOtherList => _incOtherList;
   double _incOtherTotal = 0;
   double get incOtherTotal => _incOtherTotal;
   //4, 10
-  List<DFlowCategory> _expInconList = [];
+  final List<DFlowCategory> _expInconList = [];
   List<DFlowCategory> get expInconList => _expInconList;
   double _expInconTotal = 0;
   double get expInconTotal => _expInconTotal;
   //5, 11
-  List<DFlowCategory> _expConList = [];
+  final List<DFlowCategory> _expConList = [];
   List<DFlowCategory> get expConList => _expConList;
   double _expConTotal = 0;
   double get expConTotal => _expConTotal;
   //6, 12
-  List<DFlowCategory> _savAndInvList = [];
+  final List<DFlowCategory> _savAndInvList = [];
   List<DFlowCategory> get savAndInvList => _savAndInvList;
   double _savAndInvTotal = 0;
   double get savAndInvTotal => _savAndInvTotal;
@@ -104,6 +104,7 @@ class DailyFlowProvider extends ChangeNotifier {
 
   void setColorBackground(String value) {
     _colorBackground = value;
+    notifyListeners();
   }
 
   void setPageIdx(int value) {
@@ -117,7 +118,6 @@ class DailyFlowProvider extends ChangeNotifier {
 
   void setCurrCat(DFlowCategory value) {
     _currCat = value;
-    print('Yeah u using currCat');
     notifyListeners();
   }
 

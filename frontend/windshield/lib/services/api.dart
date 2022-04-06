@@ -31,7 +31,7 @@ class Api extends ChangeNotifier {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.1.9:8000' + options.path;
+          options.path = 'http://192.168.1.36:8000' + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
@@ -368,9 +368,10 @@ class Api extends ChangeNotifier {
   }
 
   //รายรับ-รายจ่าย
-  Future<String> getTodayDFId() async {
+  Future<String> getTodayDFId(DateTime date) async {
     try {
-      final res = await dio.get('/api/daily-flow-sheet/');
+      final str = DateFormat('y-MM-dd').format(date);
+      final res = await dio.get('/api/daily-flow-sheet/?date=$str');
       return res.data['id'];
     } catch (e) {
       return '';
@@ -387,7 +388,6 @@ class Api extends ChangeNotifier {
           (res.data as List).map((i) => DFlowCategory.fromJson(i)).toList();
       return data;
     } catch (e) {
-      print(e);
       return [];
     }
   }
@@ -515,7 +515,6 @@ class Api extends ChangeNotifier {
   Future<bool> addDebt(double bal, String cred, String catId, double interest,
       DateTime? date) async {
     try {
-      
       await dio.post(
         '/api/debt/',
         data: {
@@ -523,7 +522,7 @@ class Api extends ChangeNotifier {
           "creditor": cred,
           "cat_id": catId,
           "interest": interest,
-          "debt_term": date!=null?DateFormat('y-MM-dd').format(date):null,
+          "debt_term": date != null ? DateFormat('y-MM-dd').format(date) : null,
         },
       );
       return true;
@@ -535,14 +534,13 @@ class Api extends ChangeNotifier {
   Future<bool> editDebt(double bal, String cred, String id, double interest,
       DateTime? date) async {
     try {
-      
       await dio.patch(
         '/api/debt/$id/',
         data: {
           "balance": bal,
           "creditor": cred,
           "interest": interest,
-          "debt_term": date!=null?DateFormat('y-MM-dd').format(date):null,
+          "debt_term": date != null ? DateFormat('y-MM-dd').format(date) : null,
         },
       );
       return true;
