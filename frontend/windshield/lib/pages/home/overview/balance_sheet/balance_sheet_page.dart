@@ -16,10 +16,13 @@ import 'create_balance.dart';
 
 final apiBSheet = FutureProvider.autoDispose<BSheetBalance?>((ref) async {
   ref.watch(provBSheet.select((value) => value.needFetchAPI));
+  
   final data = await ref.read(apiProvider).getBalanceSheet();
   final data2 = await ref.read(apiProvider).getAllCategories(false);
+  final datalog = await ref.read(apiProvider).getBalanceSheetLog();
   ref.read(provBSheet).setBs(data!);
   ref.read(provBSheet).setCat(data2);
+  ref.read(provBSheet).setLog(datalog);
   ref.read(provBSheet).setBsType();
   ref.read(provBSheet).setCatType();
   return data;
@@ -33,6 +36,7 @@ class BalanceSheetPage extends ConsumerWidget {
     //ของจริง apiBsheet
     final api = ref.watch(apiBSheet);
     //final api = ref.watch(apiDFlow);
+    
     return api.when(
       error: (error, stackTrace) => Text(stackTrace.toString()),
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -118,8 +122,8 @@ class AssetHomepage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    //final incTotal = ref.watch(provDFlow.select((e) => e.incTotal));
     final baltotal = ref.watch(provBSheet.select((e) => e.balTotal));
+    final log = ref.watch(provBSheet.select((e) => e.log));
     //double assetToal= baltotal*2;
 
     var now = new DateTime.now();
@@ -194,7 +198,7 @@ class AssetHomepage extends ConsumerWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           //แก้วันที่ตรงนี้
-                          'ข้อมูลล่าสุด\n',
+                          'ข้อมูลล่าสุด\n ${(DateFormat('d MMM y').format(log.timestamp))}',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -379,12 +383,12 @@ class LiqAssetTab extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: 2),
             child:
                 Text('สินทรัพย์สภาพคล่อง', style: MyTheme.textTheme.headline3),
           ),
           SizedBox(
-            height: 100,
+            height: 111,
             child: ListView.builder(
               //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
@@ -464,7 +468,7 @@ class LiqAssetTab extends ConsumerWidget {
                           children: [
                             SizedBox(
                               height: 75, //height of button
-                              width: 75, //width of button
+                              width: 100, //width of button แก้จำนวนเงิน overflow
                               child: ElevatedButton(
                                 onPressed: () {
                                   ref.read(provBSheet).setValue(assLiquidList[i-1].recentVal);
@@ -504,13 +508,15 @@ class LiqAssetTab extends ConsumerWidget {
                                     Text(assLiquidList[i - 1]
                                         .recentVal
                                         .toString()),
+                                    
                                   ],
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        Text(assLiquidList[i - 1].source)
+                        Text(assLiquidList[i - 1].cat.name),
+                        Text(assLiquidList[i-1].source == '' ? "" : assLiquidList[i-1].source),
                       ],
                     ),
                   );
@@ -622,7 +628,7 @@ class InvestAssetTab extends ConsumerWidget {
                           children: [
                             SizedBox(
                               height: 75, //height of button
-                              width: 75, //width of button
+                              width: 100, //width of button แก้จำนวนเงิน overflow
                               child: ElevatedButton(
                                 onPressed: () {
                                   ref.read(provBSheet).setValue(assInvestList[i-1].recentVal);
@@ -668,7 +674,8 @@ class InvestAssetTab extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        Text(assInvestList[i - 1].source)
+                        Text(assInvestList[i - 1].cat.name),
+                        Text(assInvestList[i-1].source == '' ? "" : assInvestList[i-1].source),
                       ],
                     ),
                   );
@@ -780,7 +787,7 @@ class PrivateAssetTab extends ConsumerWidget {
                           children: [
                             SizedBox(
                               height: 75, //height of button
-                              width: 75, //width of button
+                              width: 100, //width of button แก้จำนวนเงิน overflow
                               child: ElevatedButton(
                                 onPressed: () {
                                   ref.read(provBSheet).setValue(assPrivateList[i-1].recentVal);
@@ -826,7 +833,8 @@ class PrivateAssetTab extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        Text(assPrivateList[i - 1].source)
+                        Text(assPrivateList[i - 1].cat.name),
+                        Text(assPrivateList[i-1].source == '' ? "" : assPrivateList[i-1].source),
                       ],
                     ),
                   );
@@ -995,7 +1003,8 @@ class DebtShortTab extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        Text(debtShortList[i - 1].creditor)
+                        Text(debtShortList[i - 1].cat.name), 
+                        Text(debtShortList[i-1].creditor == '' ? "" : debtShortList[i-1].creditor),
                       ],
                     ),
                   );
@@ -1110,7 +1119,7 @@ class DebtLongTab extends ConsumerWidget {
                           children: [
                             SizedBox(
                               height: 75, //height of button
-                              width: 75, //width of button
+                              width: 100, //width of button แก้จำนวนเงิน overflow
                               child: ElevatedButton(
                                 //แก้ไข
                                 onPressed: () {
@@ -1164,7 +1173,8 @@ class DebtLongTab extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        Text(debtLongList[i - 1].creditor)
+                        Text(debtLongList[i - 1].cat.name), 
+                        Text(debtLongList[i-1].creditor == '' ? "" : debtLongList[i-1].creditor),
                       ],
                     ),
                   );
