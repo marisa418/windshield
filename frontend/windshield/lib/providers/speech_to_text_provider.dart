@@ -44,6 +44,8 @@ class SpeechToTextProvider extends ChangeNotifier {
   int _flowIdx = 0;
   int get flowIdx => _flowIdx;
 
+  int _key = 0;
+
   Future<void> initSpeechState() async {
     try {
       var hasSpeech = await speech.initialize(
@@ -100,7 +102,7 @@ class SpeechToTextProvider extends ChangeNotifier {
   void resultListener(SpeechRecognitionResult result) {
     if (result.finalResult) {
       print(result.recognizedWords);
-      final numeratic = RegExp(r'^[0-9]+$');
+      final numeratic = RegExp(r'^\d*\.?\d*$');
       final splittedWords = result.recognizedWords.split(' ');
       String name = '';
       int priceIdx = -1;
@@ -142,7 +144,9 @@ class SpeechToTextProvider extends ChangeNotifier {
         name: name,
         value: double.parse(splittedWords[priceIdx]),
         method: method,
+        key: _key.toString(),
       ));
+      _key++;
       _lastWords = '$name ราคา ${splittedWords[priceIdx]} บาท ($methodName)';
       notifyListeners();
     }
@@ -196,14 +200,23 @@ class SpeechToTextProvider extends ChangeNotifier {
     _flowIdx = value;
   }
 
+  void removeFlow(int value) {
+    _flowList.removeAt(value);
+    notifyListeners();
+  }
+
   void addFlowList() {
-    _flowList.add(SpeechFlow(
-      dfId: _dfId,
-      cat: SpeechCat(id: '', icon: '', color: Colors.white),
-      name: 'ข้าวมันไก่',
-      value: 20,
-      method: 2,
-    ));
+    _flowList.add(
+      SpeechFlow(
+        dfId: _dfId,
+        cat: SpeechCat(id: '', icon: '', color: Colors.white),
+        name: 'ข้าวมันไก่',
+        value: 20,
+        method: 2,
+        key: _key.toString(),
+      ),
+    );
+    _key++;
     notifyListeners();
   }
 }
