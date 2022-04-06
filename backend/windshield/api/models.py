@@ -342,12 +342,14 @@ class DailyFlow(models.Model):
     
     def __update_budget__(self, date, category, change):
         try:
-            plan = FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
-            budget = Budget.objects.get(fplan=plan.id, cat_id=category.id)
+            plans = FinancialStatementPlan.objects.filter(owner_id=category.user_id.uuid)
+            plans = plans.filter(start__lte=date, end__gte=date)
+            budgets = Budget.objects.filter(fplan__in=plans, cat_id=category.id)
         except (FinancialStatementPlan.DoesNotExist, Budget.DoesNotExist):
             return False
-        budget.used_balance += change
-        budget.save()
+        for budget in budgets:
+            budget.used_balance += change
+            budget.save()
         return True
     
     def __update_goal__(self, category, change):

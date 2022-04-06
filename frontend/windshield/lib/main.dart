@@ -20,7 +20,7 @@ final provDFlow = ChangeNotifierProvider.autoDispose<DailyFlowProvider>(
 final apiDFlow = FutureProvider.autoDispose<List<DFlowCategory>>((ref) async {
   ref.watch(provDFlow.select((value) => value.needFetchAPI));
   final now = DateTime.now();
-  final id = await ref.read(apiProvider).getTodayDFId();
+  final id = await ref.read(apiProvider).getTodayDFId(now);
   final data = await ref.read(apiProvider).getAllCategoriesWithBudgetFlows(now);
   ref.read(provDFlow).setDfId(id);
   ref.read(provDFlow).setCatList(data);

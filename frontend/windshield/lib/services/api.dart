@@ -32,7 +32,9 @@ class Api extends ChangeNotifier {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
+
           options.path = 'http://192.168.1.9:8000' + options.path;
+       
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
@@ -269,6 +271,8 @@ class Api extends ChangeNotifier {
     }
   }
 
+  // Future<>
+
   Future<List<StmntCategory>> getAllCategories(bool asUsed) async {
     try {
       final res = await dio
@@ -304,8 +308,7 @@ class Api extends ChangeNotifier {
 
   Future<bool> deleteStatement(String id) async {
     try {
-      final res = await dio.delete('/api/statement/$id/');
-
+      await dio.delete('/api/statement/$id/');
       return true;
     } catch (e) {
       return false;
@@ -369,9 +372,10 @@ class Api extends ChangeNotifier {
   }
 
   //รายรับ-รายจ่าย
-  Future<String> getTodayDFId() async {
+  Future<String> getTodayDFId(DateTime date) async {
     try {
-      final res = await dio.get('/api/daily-flow-sheet/');
+      final str = DateFormat('y-MM-dd').format(date);
+      final res = await dio.get('/api/daily-flow-sheet/?date=$str');
       return res.data['id'];
     } catch (e) {
       return '';
@@ -388,7 +392,6 @@ class Api extends ChangeNotifier {
           (res.data as List).map((i) => DFlowCategory.fromJson(i)).toList();
       return data;
     } catch (e) {
-      print(e);
       return [];
     }
   }
@@ -437,7 +440,6 @@ class Api extends ChangeNotifier {
       );
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }
@@ -485,6 +487,7 @@ class Api extends ChangeNotifier {
       final data = BSheetBalance.fromJson(res.data);
       return data;
     } catch (e) {
+      print(e);
       return null;
     }
   }
@@ -581,7 +584,6 @@ class Api extends ChangeNotifier {
       final data = (res.data as List).map((i) => FGoal.fromJson(i)).toList();
       return data;
     } catch (e) {
-      print(e);
       return [];
     }
   }

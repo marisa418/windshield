@@ -64,13 +64,16 @@ class IncWorkingList extends ConsumerWidget {
                 ],
               ),
             ),
-            AutoSizeText(
-              incWorkingList[i].name,
-              style: MyTheme.textTheme.bodyText2,
-              minFontSize: 8,
-              maxLines: 2,
-              overflow: TextOverflow.visible,
-              textAlign: TextAlign.center,
+            SizedBox(
+              height: 25,
+              child: AutoSizeText(
+                incWorkingList[i].name,
+                style: MyTheme.textTheme.bodyText2,
+                minFontSize: 8,
+                maxLines: 2,
+                overflow: TextOverflow.visible,
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         );

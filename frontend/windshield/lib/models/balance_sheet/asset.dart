@@ -22,8 +22,8 @@ class BSheetAsset {
   factory BSheetAsset.fromJson(Map<String, dynamic> json) => BSheetAsset(
         id: json['id'],
         cat: StmntCategory.fromJson(json['cat_id']),
-        source: json['source']?? '',
-        recentVal: double.parse(json['recent_value']),
+        source: json['source'] ?? '',
+        recentVal: double.parse(json['recent_value'] ?? '0'),
         benefitType: json['benefit_type'] ?? '',
         benefitVal: double.parse(json['benefit_value'] ?? '0'),
         bsId: json['bsheet_id'],

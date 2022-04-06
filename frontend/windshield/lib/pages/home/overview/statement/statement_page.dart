@@ -19,9 +19,9 @@ final apiStatement =
   ref.watch(provStatement.select((value) => value.needFetchAPI));
   final now = DateTime.now();
   final data = await ref.read(apiProvider).getAllNotEndYetStatements(now);
-  print(data);
   ref.read(provStatement).setStatementList(data);
   if (data.isNotEmpty) {
+    // final data2 = await ref
     ref.read(provStatement).setStmntActiveList();
     ref.read(provStatement).setStmntDateChipList();
     ref.read(provStatement).setStmntDateList();
@@ -40,9 +40,9 @@ class StatementPage extends ConsumerWidget {
       error: (error, stackTrace) => Text(stackTrace.toString()),
       loading: () => const Center(child: CircularProgressIndicator()),
       data: (data) {
-        return Scaffold(
-          body: SafeArea(
-            child: Column(
+        return SafeArea(
+          child: Scaffold(
+            body: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
                 const Header(),
