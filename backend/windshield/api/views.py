@@ -521,7 +521,7 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
         if len(domain) > 0:
             queryset = queryset.filter(ftype__domain__in=domain)
         try:
-            fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date)
+            fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date, owner_id=uuid)
             fplan_id = fplan.id
         except models.FinancialStatementPlan.DoesNotExist:
             fplan_id = None

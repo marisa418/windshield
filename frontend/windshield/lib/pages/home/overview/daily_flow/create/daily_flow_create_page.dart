@@ -291,49 +291,49 @@ class DailyFlowCreatePage extends ConsumerWidget {
                 ),
               ),
               Container(
-                height: 85,
-                width: 500,
+                height: 100,
+                padding: const EdgeInsets.fromLTRB(15, 15, 15, 20),
                 color: Colors.white,
-                child: SizedBox(
-                  height: 80,
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: TextButton.icon(
-                      label: Text(
-                        'เพิ่มรายการใหม่ ',
-                        style: MyTheme.whiteTextTheme.headline3,
-                      ),
-                      icon: Icon(
-                        Icons.add,
+                child: TextButton.icon(
+                  label: Text(
+                    'เพิ่มรายการใหม่ ',
+                    style: MyTheme.whiteTextTheme.headline3!.merge(
+                      TextStyle(
                         color: ref.watch(provDFlow.select(
                                 (value) => value.colorBackground == 'income'))
                             ? MyTheme.positiveMajor
                             : MyTheme.negativeMajor,
                       ),
-                      style: TextButton.styleFrom(
-                        backgroundColor: MyTheme.primaryMajor,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(5),
-                            topRight: Radius.circular(5),
-                            bottomRight: Radius.circular(5),
-                            bottomLeft: Radius.circular(5),
-                          ),
-                        ),
-                      ),
-                      onPressed: () {
-                        ref.read(provDFlow).setFlowId('');
-                        ref.read(provDFlow).setFlowName(currCat.name);
-                        ref.read(provDFlow).setFlowValue(0);
-                        ref.read(provDFlow).setFlowMethod(2);
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (context) => const Calculator(isAdd: true),
-                        );
-                      },
                     ),
                   ),
+                  icon: Icon(
+                    Icons.add,
+                    color: ref.watch(provDFlow.select(
+                            (value) => value.colorBackground == 'income'))
+                        ? MyTheme.positiveMajor
+                        : MyTheme.negativeMajor,
+                  ),
+                  style: TextButton.styleFrom(
+                    backgroundColor: ref.watch(provDFlow.select(
+                            (value) => value.colorBackground == 'income'))
+                        ? MyTheme.positiveMinor
+                        : MyTheme.negativeMinor,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
+                    minimumSize: const Size(double.infinity, double.infinity),
+                  ),
+                  onPressed: () {
+                    ref.read(provDFlow).setFlowId('');
+                    ref.read(provDFlow).setFlowName(currCat.name);
+                    ref.read(provDFlow).setFlowValue(0);
+                    ref.read(provDFlow).setFlowMethod(2);
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) => const Calculator(isAdd: true),
+                    );
+                  },
                 ),
               ),
             ],

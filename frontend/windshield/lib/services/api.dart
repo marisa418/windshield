@@ -31,7 +31,7 @@ class Api extends ChangeNotifier {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.1.38:8000' + options.path;
+          options.path = 'http://192.168.1.36:8000' + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
@@ -268,6 +268,8 @@ class Api extends ChangeNotifier {
     }
   }
 
+  // Future<>
+
   Future<List<StmntCategory>> getAllCategories(bool asUsed) async {
     try {
       final res = await dio
@@ -303,8 +305,7 @@ class Api extends ChangeNotifier {
 
   Future<bool> deleteStatement(String id) async {
     try {
-      final res = await dio.delete('/api/statement/$id/');
-
+      await dio.delete('/api/statement/$id/');
       return true;
     } catch (e) {
       return false;
@@ -436,7 +437,6 @@ class Api extends ChangeNotifier {
       );
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }
@@ -556,7 +556,6 @@ class Api extends ChangeNotifier {
       final data = (res.data as List).map((i) => FGoal.fromJson(i)).toList();
       return data;
     } catch (e) {
-      print(e);
       return [];
     }
   }
