@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:intl/intl.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/routes/app_router.dart';
@@ -21,7 +22,10 @@ final apiStatement =
   final data = await ref.read(apiProvider).getAllNotEndYetStatements(now);
   ref.read(provStatement).setStatementList(data);
   if (data.isNotEmpty) {
-    // final data2 = await ref
+    final data2 = await ref
+        .read(apiProvider)
+        .getRangeDailyFlowSheet(data[0].start, data[0].end);
+    ref.read(provStatement).setFlowSheetList(data2);
     ref.read(provStatement).setStmntActiveList();
     ref.read(provStatement).setStmntDateChipList();
     ref.read(provStatement).setStmntDateList();
@@ -111,6 +115,28 @@ class Header extends ConsumerWidget {
                 Text(
                   DateFormat(' E d MMM y').format(DateTime.now()),
                   style: MyTheme.whiteTextTheme.headline4,
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CircularPercentIndicator(
+                  radius: 25,
+                  progressColor: Colors.white,
+                  percent: 0.5,
+                  animation: true,
+                  animationDuration: 1,
+                  lineWidth: 5,
+                  center: Text(
+                    '100%',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                    ),
+                    // overflow: TextOverflow.visible,
+                  ),
+                  backgroundColor: const Color(0x80ffffff),
                 ),
               ],
             ),

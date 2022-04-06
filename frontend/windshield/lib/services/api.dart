@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
+import 'package:windshield/models/balance_sheet/flow_sheet.dart';
 
 import '../../models/daily_flow/flow.dart';
 import '../../models/statement/budget.dart';
@@ -268,7 +269,20 @@ class Api extends ChangeNotifier {
     }
   }
 
-  // Future<>
+  Future<List<FlowSheet>> getRangeDailyFlowSheet(
+      DateTime start, DateTime end) async {
+    try {
+      final strStart = DateFormat('y-MM-dd').format(start);
+      final strEnd = DateFormat('y-MM-dd').format(end);
+      final res = await dio
+          .get('/api/daily-flow-sheet/list/?start=$strStart&end=$strEnd');
+      final data =
+          (res.data as List).map((i) => FlowSheet.fromJson(i)).toList();
+      return data;
+    } catch (e) {
+      return [];
+    }
+  }
 
   Future<List<StmntCategory>> getAllCategories(bool asUsed) async {
     try {
