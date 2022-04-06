@@ -22,7 +22,7 @@ class BalanceSheetProvider extends ChangeNotifier {
   double _debtTotal = 0;
   double get debtTotal => _debtTotal;
 
-  // ftype = 7
+  // ftype = 7 /
   final List<BSheetAsset> _assLiquidList = [];
   List<BSheetAsset> get assLiquidList => _assLiquidList;
   double _assLiquidTotal = 0;
