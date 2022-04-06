@@ -412,24 +412,22 @@ class LiqAssetTab extends ConsumerWidget {
                               width: 75, //width of button
                               child: ElevatedButton(
                                 onPressed: () {
-                                  final cat = ref.watch(provBSheet.select((e) => e.catAssLiquidList));
-                                  
+                                  final cat = ref.watch(provBSheet
+                                      .select((e) => e.catAssLiquidList));
+
                                   ref.read(provBSheet).setValue(0);
                                   ref.read(provBSheet).setSource('');
-                                  ref
-                                      .read(provBSheet)
-                                      .setCreateCatList(cat);
+                                  ref.read(provBSheet).setCreateCatList(cat);
                                   ref.read(provBSheet).setCreateIdx(0);
                                   ref.read(provBSheet).setIsAdd(true);
                                   showModalBottomSheet(
-                                    //useRootNavigator: true,
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (_){
-                                      return CreateBalance();
-                                      }
-                                    );
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return CreateBalance();
+                                      });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   elevation: 0.0,
@@ -467,21 +465,28 @@ class LiqAssetTab extends ConsumerWidget {
                               width: 75, //width of button
                               child: ElevatedButton(
                                 onPressed: () {
-                                  ref.read(provBSheet).setValue(assLiquidList[i-1].recentVal);
-                                  ref.read(provBSheet).setSource(assLiquidList[i-1].source);
-                                  ref.read(provBSheet).setId(assLiquidList[i-1].id);
-                                  ref.read(provBSheet).setCurrCat(assLiquidList[i-1].cat);
+                                  ref
+                                      .read(provBSheet)
+                                      .setValue(assLiquidList[i - 1].recentVal);
+                                  ref
+                                      .read(provBSheet)
+                                      .setSource(assLiquidList[i - 1].source);
+                                  ref
+                                      .read(provBSheet)
+                                      .setId(assLiquidList[i - 1].id);
+                                  ref
+                                      .read(provBSheet)
+                                      .setCurrCat(assLiquidList[i - 1].cat);
                                   ref.read(provBSheet).setCreateIdx(1);
                                   ref.read(provBSheet).setIsAdd(false);
                                   showModalBottomSheet(
-                                    //useRootNavigator: true,
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (_){
-                                      return CreateBalance();
-                                      }
-                                    );
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return CreateBalance();
+                                      });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   //elevation: 0.0,
@@ -538,8 +543,7 @@ class InvestAssetTab extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child:
-                Text('สินทรัพย์ลงทุน', style: MyTheme.textTheme.headline3),
+            child: Text('สินทรัพย์ลงทุน', style: MyTheme.textTheme.headline3),
           ),
           SizedBox(
             height: 100,
@@ -570,24 +574,22 @@ class InvestAssetTab extends ConsumerWidget {
                               width: 75, //width of button
                               child: ElevatedButton(
                                 onPressed: () {
-                                  final cat = ref.watch(provBSheet.select((e) => e.catAssInvestList));
-                                  
+                                  final cat = ref.watch(provBSheet
+                                      .select((e) => e.catAssInvestList));
+
                                   ref.read(provBSheet).setValue(0);
                                   ref.read(provBSheet).setSource('');
-                                  ref
-                                      .read(provBSheet)
-                                      .setCreateCatList(cat);
+                                  ref.read(provBSheet).setCreateCatList(cat);
                                   ref.read(provBSheet).setCreateIdx(0);
                                   ref.read(provBSheet).setIsAdd(true);
                                   showModalBottomSheet(
-                                    //useRootNavigator: true,
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (_){
-                                      return CreateBalance();
-                                      }
-                                    );
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return CreateBalance();
+                                      });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   elevation: 0.0,
@@ -625,21 +627,28 @@ class InvestAssetTab extends ConsumerWidget {
                               width: 75, //width of button
                               child: ElevatedButton(
                                 onPressed: () {
-                                  ref.read(provBSheet).setValue(assInvestList[i-1].recentVal);
-                                  ref.read(provBSheet).setSource(assInvestList[i-1].source);
-                                  ref.read(provBSheet).setId(assInvestList[i-1].id);
-                                  ref.read(provBSheet).setCurrCat(assInvestList[i-1].cat);
+                                  ref
+                                      .read(provBSheet)
+                                      .setValue(assInvestList[i - 1].recentVal);
+                                  ref
+                                      .read(provBSheet)
+                                      .setSource(assInvestList[i - 1].source);
+                                  ref
+                                      .read(provBSheet)
+                                      .setId(assInvestList[i - 1].id);
+                                  ref
+                                      .read(provBSheet)
+                                      .setCurrCat(assInvestList[i - 1].cat);
                                   ref.read(provBSheet).setCreateIdx(1);
                                   ref.read(provBSheet).setIsAdd(false);
                                   showModalBottomSheet(
-                                    //useRootNavigator: true,
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (_){
-                                      return CreateBalance();
-                                      }
-                                    );
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return CreateBalance();
+                                      });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   //elevation: 0.0,
@@ -687,7 +696,8 @@ class PrivateAssetTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final assPrivateList = ref.watch(provBSheet.select((e) => e.assPrivateList));
+    final assPrivateList =
+        ref.watch(provBSheet.select((e) => e.assPrivateList));
 
     return Padding(
       padding: const EdgeInsets.all(25.0),
@@ -696,8 +706,7 @@ class PrivateAssetTab extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child:
-                Text('สินทรัพย์ส่วนตัว', style: MyTheme.textTheme.headline3),
+            child: Text('สินทรัพย์ส่วนตัว', style: MyTheme.textTheme.headline3),
           ),
           SizedBox(
             height: 100,
@@ -728,24 +737,22 @@ class PrivateAssetTab extends ConsumerWidget {
                               width: 75, //width of button
                               child: ElevatedButton(
                                 onPressed: () {
-                                  final cat = ref.watch(provBSheet.select((e) => e.catAssPrivateList));
-                                  
+                                  final cat = ref.watch(provBSheet
+                                      .select((e) => e.catAssPrivateList));
+
                                   ref.read(provBSheet).setValue(0);
                                   ref.read(provBSheet).setSource('');
-                                  ref
-                                      .read(provBSheet)
-                                      .setCreateCatList(cat);
+                                  ref.read(provBSheet).setCreateCatList(cat);
                                   ref.read(provBSheet).setCreateIdx(0);
                                   ref.read(provBSheet).setIsAdd(true);
                                   showModalBottomSheet(
-                                    //useRootNavigator: true,
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (_){
-                                      return CreateBalance();
-                                      }
-                                    );
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return CreateBalance();
+                                      });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   elevation: 0.0,
@@ -783,21 +790,27 @@ class PrivateAssetTab extends ConsumerWidget {
                               width: 75, //width of button
                               child: ElevatedButton(
                                 onPressed: () {
-                                  ref.read(provBSheet).setValue(assPrivateList[i-1].recentVal);
-                                  ref.read(provBSheet).setSource(assPrivateList[i-1].source);
-                                  ref.read(provBSheet).setId(assPrivateList[i-1].id);
-                                  ref.read(provBSheet).setCurrCat(assPrivateList[i-1].cat);
+                                  ref.read(provBSheet).setValue(
+                                      assPrivateList[i - 1].recentVal);
+                                  ref
+                                      .read(provBSheet)
+                                      .setSource(assPrivateList[i - 1].source);
+                                  ref
+                                      .read(provBSheet)
+                                      .setId(assPrivateList[i - 1].id);
+                                  ref
+                                      .read(provBSheet)
+                                      .setCurrCat(assPrivateList[i - 1].cat);
                                   ref.read(provBSheet).setCreateIdx(1);
                                   ref.read(provBSheet).setIsAdd(false);
                                   showModalBottomSheet(
-                                    //useRootNavigator: true,
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (_){
-                                      return CreateBalance();
-                                      }
-                                    );
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return CreateBalance();
+                                      });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   //elevation: 0.0,
@@ -886,27 +899,25 @@ class DebtShortTab extends ConsumerWidget {
                               child: ElevatedButton(
                                 //เพิ่มรายการใหม่
                                 onPressed: () {
-                                  final cat = ref.watch(provBSheet.select((e) => e.catDebtShortList));
-                                  
+                                  final cat = ref.watch(provBSheet
+                                      .select((e) => e.catDebtShortList));
+
                                   ref.read(provBSheet).setBalance(0);
                                   ref.read(provBSheet).setCreditor('');
                                   ref.read(provBSheet).setInterest(0);
                                   ref.read(provBSheet).setDebtTerm(null);
 
-                                  ref
-                                      .read(provBSheet)
-                                      .setCreateCatList(cat);
+                                  ref.read(provBSheet).setCreateCatList(cat);
                                   ref.read(provBSheet).setCreateIdx(0);
                                   ref.read(provBSheet).setIsAdd(true);
                                   showModalBottomSheet(
-                                    //useRootNavigator: true,
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (_){
-                                      return CreateBalance();
-                                      }
-                                    );
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return CreateBalance();
+                                      });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   elevation: 0.0,
@@ -946,27 +957,33 @@ class DebtShortTab extends ConsumerWidget {
                                 //แก้ไข
                                 onPressed: () {
                                   //final cat = ref.watch(provBSheet.select((e) => e.catDebtShortList));
-                                  
-                                  ref.read(provBSheet).setBalance(debtShortList[i-1].balance);
-                                  ref.read(provBSheet).setCreditor(debtShortList[i-1].creditor);
-                                  ref.read(provBSheet).setInterest(debtShortList[i-1].interest);
-                                  ref.read(provBSheet).setDebtTerm(debtShortList[i-1].debtTerm);
 
                                   ref
                                       .read(provBSheet)
-                                      .setCurrCat(debtShortList[i-1].cat);
+                                      .setBalance(debtShortList[i - 1].balance);
+                                  ref.read(provBSheet).setCreditor(
+                                      debtShortList[i - 1].creditor);
+                                  ref.read(provBSheet).setInterest(
+                                      debtShortList[i - 1].interest);
+                                  ref.read(provBSheet).setDebtTerm(
+                                      debtShortList[i - 1].debtTerm);
+
+                                  ref
+                                      .read(provBSheet)
+                                      .setCurrCat(debtShortList[i - 1].cat);
                                   ref.read(provBSheet).setCreateIdx(1);
-                                  ref.read(provBSheet).setId(debtShortList[i-1].id);
+                                  ref
+                                      .read(provBSheet)
+                                      .setId(debtShortList[i - 1].id);
                                   ref.read(provBSheet).setIsAdd(false);
                                   showModalBottomSheet(
-                                    //useRootNavigator: true,
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (_){
-                                      return CreateBalance();
-                                      }
-                                    );
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return CreateBalance();
+                                      });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   //elevation: 0.0,
@@ -1055,27 +1072,25 @@ class DebtLongTab extends ConsumerWidget {
                               child: ElevatedButton(
                                 //เพิ่มรายการใหม่
                                 onPressed: () {
-                                  final cat = ref.watch(provBSheet.select((e) => e.catDebtLongList));
-                                  
+                                  final cat = ref.watch(provBSheet
+                                      .select((e) => e.catDebtLongList));
+
                                   ref.read(provBSheet).setBalance(0);
                                   ref.read(provBSheet).setCreditor('');
                                   ref.read(provBSheet).setInterest(0);
                                   ref.read(provBSheet).setDebtTerm(null);
 
-                                  ref
-                                      .read(provBSheet)
-                                      .setCreateCatList(cat);
+                                  ref.read(provBSheet).setCreateCatList(cat);
                                   ref.read(provBSheet).setCreateIdx(0);
                                   ref.read(provBSheet).setIsAdd(true);
                                   showModalBottomSheet(
-                                    //useRootNavigator: true,
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (_){
-                                      return CreateBalance();
-                                      }
-                                    );
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return CreateBalance();
+                                      });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   elevation: 0.0,
@@ -1115,27 +1130,33 @@ class DebtLongTab extends ConsumerWidget {
                                 //แก้ไข
                                 onPressed: () {
                                   //final cat = ref.watch(provBSheet.select((e) => e.catDebtShortList));
-                                  
-                                  ref.read(provBSheet).setBalance(debtLongList[i-1].balance);
-                                  ref.read(provBSheet).setCreditor(debtLongList[i-1].creditor);
-                                  ref.read(provBSheet).setInterest(debtLongList[i-1].interest);
-                                  ref.read(provBSheet).setDebtTerm(debtLongList[i-1].debtTerm);
 
                                   ref
                                       .read(provBSheet)
-                                      .setCurrCat(debtLongList[i-1].cat);
+                                      .setBalance(debtLongList[i - 1].balance);
+                                  ref.read(provBSheet).setCreditor(
+                                      debtLongList[i - 1].creditor);
+                                  ref.read(provBSheet).setInterest(
+                                      debtLongList[i - 1].interest);
+                                  ref.read(provBSheet).setDebtTerm(
+                                      debtLongList[i - 1].debtTerm);
+
+                                  ref
+                                      .read(provBSheet)
+                                      .setCurrCat(debtLongList[i - 1].cat);
                                   ref.read(provBSheet).setCreateIdx(1);
-                                  ref.read(provBSheet).setId(debtLongList[i-1].id);
+                                  ref
+                                      .read(provBSheet)
+                                      .setId(debtLongList[i - 1].id);
                                   ref.read(provBSheet).setIsAdd(false);
                                   showModalBottomSheet(
-                                    //useRootNavigator: true,
-                                    backgroundColor: Colors.transparent,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (_){
-                                      return CreateBalance();
-                                      }
-                                    );
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return CreateBalance();
+                                      });
                                 },
                                 style: ElevatedButton.styleFrom(
                                   //elevation: 0.0,
@@ -1155,9 +1176,8 @@ class DebtLongTab extends ConsumerWidget {
                                           debtLongList[i - 1].cat.icon),
                                       color: Colors.white,
                                     ),
-                                    Text(debtLongList[i - 1]
-                                        .balance
-                                        .toString()),
+                                    Text(
+                                        debtLongList[i - 1].balance.toString()),
                                   ],
                                 ),
                               ),

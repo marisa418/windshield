@@ -484,6 +484,7 @@ class Api extends ChangeNotifier {
       final data = BSheetBalance.fromJson(res.data);
       return data;
     } catch (e) {
+      print(e);
       return null;
     }
   }
