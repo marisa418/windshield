@@ -5,12 +5,18 @@ import 'package:windshield/models/balance_sheet/asset.dart';
 import 'package:windshield/models/balance_sheet/debt.dart';
 import 'package:windshield/models/statement/category.dart';
 
+
+import '../models/balance_sheet/log.dart';
+
 class BalanceSheetProvider extends ChangeNotifier {
   late BSheetBalance _bs;
   BSheetBalance get bs => _bs;
 
   List<StmntCategory> _cat = [];
   List<StmntCategory> get cat => _cat;
+
+  BSheetLog _log = BSheetLog(id: 0, timestamp: DateTime.now(), assetValue: 0, debtValue: 0, bsheetId: '');
+  BSheetLog get log => _log;
 
   int _pageIdx = 0;
   int get pageIdx => _pageIdx;
@@ -21,6 +27,7 @@ class BalanceSheetProvider extends ChangeNotifier {
   double get assTotal => _assTotal;
   double _debtTotal = 0;
   double get debtTotal => _debtTotal;
+  
 
   // ftype = 7 /
   final List<BSheetAsset> _assLiquidList = [];
@@ -87,6 +94,8 @@ class BalanceSheetProvider extends ChangeNotifier {
 
   bool _isAdd =true;
   bool get isAdd => _isAdd;
+
+  
 
   void setBs(BSheetBalance value) {
     _bs = value;
@@ -224,6 +233,13 @@ class BalanceSheetProvider extends ChangeNotifier {
     _isAdd = value;
     notifyListeners();
   }
+
+  void setLog(BSheetLog value) {
+    _log = value;
+    notifyListeners();
+  }
 }
+
+
 
  

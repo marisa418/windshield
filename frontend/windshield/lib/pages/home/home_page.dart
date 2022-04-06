@@ -57,7 +57,7 @@ class _HomeState extends ConsumerState<HomePage> {
           width: 70,
           child: FloatingActionButton(
             onPressed: () {
-              AutoRouter.of(context).push(const DailyFlowRoute());
+              AutoRouter.of(context).push(const DailyFlowOverviewRoute());
             },
             tooltip: 'Income Expense',
             child: const Icon(Icons.book),

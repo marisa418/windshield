@@ -15,6 +15,7 @@ import '../../models/daily_flow/category.dart';
 import '../../models/balance_sheet/balance_sheet.dart';
 import '../../models/financial_goal/financial_goal.dart';
 import '../../models/daily_flow/flow_speech.dart';
+import '../models/balance_sheet/log.dart';
 
 class Api extends ChangeNotifier {
   Dio dio = Dio();
@@ -32,7 +33,7 @@ class Api extends ChangeNotifier {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.1.36:8000' + options.path;
+          options.path = 'http://192.168.1.38:8000' + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
@@ -498,15 +499,38 @@ class Api extends ChangeNotifier {
       final data = BSheetBalance.fromJson(res.data);
       return data;
     } catch (e) {
+      print(e);
       return null;
+    }
+  }
+
+  //Log
+  Future<BSheetLog> getBalanceSheetLog() async {
+    try {
+      final res = await dio.get('/api/balance-sheet-log/');
+      final data =
+          (res.data as List).map((i) => BSheetLog.fromJson(i)).toList();
+      return data.last;
+    } catch (e) {
+      return BSheetLog(
+          id: 0,
+          timestamp: DateTime.now(),
+          assetValue: 0,
+          debtValue: 0,
+          bsheetId: '');
     }
   }
 
   Future<bool> addAsset(String source, double recentVal, String catId) async {
     try {
+      print(source);
       await dio.post(
         '/api/asset/',
-        data: {"source": source, "recent_value": recentVal, "cat_id": catId},
+        data: {
+          "source": source == '' ? null : source,
+          "recent_value": recentVal,
+          "cat_id": catId
+        },
       );
       return true;
     } catch (e) {
@@ -517,6 +541,19 @@ class Api extends ChangeNotifier {
   Future<bool> editAsset(String source, double recentVal, String id) async {
     try {
       await dio.patch(
+        '/api/asset/$id/',
+        data: {"source": source, "recent_value": recentVal},
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  //ลบ asset
+  Future<bool> deleteAsset(String source, double recentVal, String id) async {
+    try {
+      await dio.delete(
         '/api/asset/$id/',
         data: {"source": source, "recent_value": recentVal},
       );
