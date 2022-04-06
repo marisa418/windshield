@@ -492,7 +492,6 @@ class BalanceSheetLog(generics.ListAPIView):
         queryset = models.BalanceSheetLog.objects.filter(bsheet_id=bsheet.id).order_by("-timestamp")
         return queryset
     
-
 class CategoryWithBudgetsAndFlows(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.CategoryWithBudgetAndFlowsSerializer
@@ -521,13 +520,15 @@ class CategoryWithBudgetsAndFlows(generics.ListAPIView):
         if len(domain) > 0:
             queryset = queryset.filter(ftype__domain__in=domain)
         try:
-            fplan = models.FinancialStatementPlan.objects.get(chosen=True, start__lte=date, end__gte=date, owner_id=uuid)
+            fplan = models.FinancialStatementPlan.objects.filter(owner_id=uuid)
+            fplan = fplan.get(chosen=True, start__lte=date, end__gte=date)
             fplan_id = fplan.id
         except models.FinancialStatementPlan.DoesNotExist:
             fplan_id = None
         budgets = models.Budget.objects.filter(fplan=fplan_id)
         try:
-            dfsheet = models.DailyFlowSheet.objects.get(date=date)
+            dfsheet = models.DailyFlowSheet.objects.filter(owner_id=uuid)
+            dfsheet = dfsheet.get(date=date)
             df_id = dfsheet.id
         except models.DailyFlowSheet.DoesNotExist:
             df_id = None
