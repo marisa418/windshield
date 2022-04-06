@@ -49,6 +49,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   auto_size_text: ^3.0.0
   flutter_slidable: ^1.2.0
+  date_picker_timeline: ^1.2.3
   speech_to_text: ^5.4.3
 
 dev_dependencies:

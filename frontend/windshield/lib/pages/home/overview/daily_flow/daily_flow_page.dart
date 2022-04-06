@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
@@ -7,7 +5,6 @@ import 'package:badges/badges.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/models/daily_flow/flow.dart';
-import 'package:windshield/providers/daily_flow_provider.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/utility/icon_convertor.dart';
@@ -186,7 +183,14 @@ class DailyList extends ConsumerWidget {
                     ),
                   ],
                 ),
-                Container(color: Colors.white, height: 170),
+                GestureDetector(
+                  onTap: () =>
+                      AutoRouter.of(context).push(const SpeechToTextRoute()),
+                  child: Container(
+                    color: Colors.blue,
+                    height: 170,
+                  ),
+                ),
                 const IncWorkingTab(),
                 const IncAssetTab(),
                 const IncOtherTab(),
@@ -303,7 +307,14 @@ class DailyList extends ConsumerWidget {
                     ],
                   ),
                 ),
-                Container(color: Colors.white, height: 170),
+                GestureDetector(
+                  onTap: () =>
+                      AutoRouter.of(context).push(const SpeechToTextRoute()),
+                  child: Container(
+                    color: Colors.red,
+                    height: 170,
+                  ),
+                ),
                 const ExpConTab(),
                 const ExpNonConTab(),
               ],

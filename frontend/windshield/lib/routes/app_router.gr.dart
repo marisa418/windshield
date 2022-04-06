@@ -73,6 +73,10 @@ class _$AppRouter extends RootStackRouter {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const DailyFlowCreatePage());
     },
+    SpeechToTextRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const SpeechToTextPage());
+    },
     BalanceSheetRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const BalanceSheetPage());
@@ -110,6 +114,8 @@ class _$AppRouter extends RootStackRouter {
               path: 'daily-flow-page', parent: EmptyRouterRoute.name),
           RouteConfig(DailyFlowCreateRoute.name,
               path: 'daily-flow-create-page', parent: EmptyRouterRoute.name),
+          RouteConfig(SpeechToTextRoute.name,
+              path: 'speech-to-text-page', parent: EmptyRouterRoute.name),
           RouteConfig(BalanceSheetRoute.name,
               path: 'balance-sheet-page', parent: EmptyRouterRoute.name),
           RouteConfig(FinancialGoalRoute.name,
@@ -236,6 +242,15 @@ class DailyFlowCreateRoute extends PageRouteInfo<void> {
       : super(DailyFlowCreateRoute.name, path: 'daily-flow-create-page');
 
   static const String name = 'DailyFlowCreateRoute';
+}
+
+/// generated route for
+/// [SpeechToTextPage]
+class SpeechToTextRoute extends PageRouteInfo<void> {
+  const SpeechToTextRoute()
+      : super(SpeechToTextRoute.name, path: 'speech-to-text-page');
+
+  static const String name = 'SpeechToTextRoute';
 }
 
 /// generated route for
