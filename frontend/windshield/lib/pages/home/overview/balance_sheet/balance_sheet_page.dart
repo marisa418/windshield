@@ -1139,7 +1139,7 @@ class DebtLongTab extends ConsumerWidget {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   //elevation: 0.0,
-                                  //shadowColor: Colors
+                                  //shadowColor: Colors/
                                   //    .transparent, //remove shadow on button
                                   primary: MyTheme.negativeMajor,
                                   textStyle: MyTheme.whiteTextTheme.headline4,

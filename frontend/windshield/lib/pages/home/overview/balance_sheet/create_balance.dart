@@ -440,7 +440,7 @@ class DebtForm extends ConsumerWidget {
     );
   }
 }
-
+//change type
 Color getcolor(String value) {
   if (value == '7') {
     return MyTheme.assetLiquid[0];
