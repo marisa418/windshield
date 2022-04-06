@@ -128,14 +128,15 @@ class FlowList extends ConsumerWidget {
           physics: const ScrollPhysics(),
           itemCount: flowList.length,
           shrinkWrap: true,
-          separatorBuilder: (_, i) => const SizedBox(height: 20),
+          separatorBuilder: (_, i) => const SizedBox(height: 10),
           itemBuilder: (_, i) {
             return GestureDetector(
               onTap: () {
+                ref.read(provSpeech).setFlowIdx(i);
                 ref.read(provSpeech).setName(flowList[i].name);
                 ref.read(provSpeech).setValue(flowList[i].value);
                 ref.read(provSpeech).setMethod(flowList[i].method);
-                ref.read(provSpeech).setFlowIdx(i);
+
                 showModalBottomSheet(
                   context: context,
                   backgroundColor: Colors.transparent,
@@ -145,100 +146,174 @@ class FlowList extends ConsumerWidget {
               },
               child: Container(
                 height: 100,
-                padding: const EdgeInsets.all(15),
-                color: Colors.white,
-                child: Row(
-                  children: [
-                    Flexible(
-                      flex: 3,
-                      fit: FlexFit.tight,
-                      child: GestureDetector(
-                        onTap: () {
-                          ref.read(provSpeech).setFlowIdx(i);
-                          showModalBottomSheet(
-                            context: context,
-                            backgroundColor: Colors.transparent,
-                            isScrollControlled: true,
-                            builder: (_) => const ChooseCat(),
-                          );
-                        },
-                        child: Container(
-                          width: 75,
-                          height: 75,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: flowList[i].cat.id == ''
-                                ? Colors.grey.shade200
-                                : flowList[i].cat.color,
-                          ),
-                          child: Icon(
-                            flowList[i].cat.id == ''
-                                ? FontAwesomeIcons.question
-                                : HelperIcons.getIconData(flowList[i].cat.icon),
-                            color: flowList[i].cat.id == ''
-                                ? Colors.grey.shade500
-                                : Colors.white,
+                margin: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: MyTheme.dropShadow,
+                      blurRadius: 1,
+                      offset: const Offset(3, 3),
+                    ),
+                  ],
+                ),
+                child: Slidable(
+                  key: Key(flowList[i].key),
+                  endActionPane: ActionPane(
+                    extentRatio: 0.25,
+                    motion: const BehindMotion(),
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              useRootNavigator: false,
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('ท่านยืนยันที่จะลบหรือไม่?'),
+                                actions: [
+                                  TextButton(
+                                    child: const Text('ยกเลิก'),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                  ),
+                                  TextButton(
+                                    child: const Text('ยืนยัน'),
+                                    onPressed: () {
+                                      ref.read(provSpeech).removeFlow(i);
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: MyTheme.expenseBackground,
+                              ),
+                              borderRadius: const BorderRadius.only(
+                                topRight: Radius.circular(15),
+                                bottomRight: Radius.circular(15),
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(
+                                  Icons.delete,
+                                  color: Colors.white,
+                                ),
+                                Text('ลบ',
+                                    style: TextStyle(color: Colors.white)),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    Flexible(
-                      flex: 7,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                flowList[i].name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                      )
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 3,
+                          fit: FlexFit.tight,
+                          child: GestureDetector(
+                            onTap: () {
+                              ref.read(provSpeech).setFlowIdx(i);
+                              showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                builder: (_) => const ChooseCat(),
+                              );
+                            },
+                            child: Container(
+                              width: 75,
+                              height: 75,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: flowList[i].cat.id == ''
+                                    ? Colors.grey.shade200
+                                    : flowList[i].cat.color,
                               ),
-                              const SizedBox(width: 10),
-                              Wrap(
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                spacing: 10,
+                              child: Icon(
+                                flowList[i].cat.id == ''
+                                    ? FontAwesomeIcons.question
+                                    : HelperIcons.getIconData(
+                                        flowList[i].cat.icon),
+                                color: flowList[i].cat.id == ''
+                                    ? Colors.grey.shade500
+                                    : Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 7,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
                                 children: [
-                                  Icon(
-                                    getIcon(flowList[i].method),
-                                    size: 15,
+                                  Text(
+                                    flowList[i].name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    spacing: 10,
+                                    children: [
+                                      Icon(
+                                        getIcon(flowList[i].method),
+                                        size: 15,
+                                        color: flowList[i].cat.id == ''
+                                            ? (idx == 0
+                                                ? MyTheme.positiveMajor
+                                                : MyTheme.negativeMajor)
+                                            : flowList[i].cat.color,
+                                      ),
+                                      Text(
+                                        getMethod(flowList[i].method),
+                                        style: TextStyle(
+                                          color: flowList[i].cat.id == ''
+                                              ? (idx == 0
+                                                  ? MyTheme.positiveMajor
+                                                  : MyTheme.negativeMajor)
+                                              : flowList[i].cat.color,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                '${flowList[i].value.toString()} บ.',
+                                style: MyTheme.textTheme.headline2!.merge(
+                                  TextStyle(
                                     color: flowList[i].cat.id == ''
                                         ? (idx == 0
                                             ? MyTheme.positiveMajor
                                             : MyTheme.negativeMajor)
                                         : flowList[i].cat.color,
                                   ),
-                                  Text(
-                                    getMethod(flowList[i].method),
-                                    style: TextStyle(
-                                      color: flowList[i].cat.id == ''
-                                          ? (idx == 0
-                                              ? MyTheme.positiveMajor
-                                              : MyTheme.negativeMajor)
-                                          : flowList[i].cat.color,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
-                          Text(
-                            '${flowList[i].value.toString()} บ.',
-                            style: MyTheme.textTheme.headline2!.merge(
-                              TextStyle(
-                                color: flowList[i].cat.id == ''
-                                    ? (idx == 0
-                                        ? MyTheme.positiveMajor
-                                        : MyTheme.negativeMajor)
-                                    : flowList[i].cat.color,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             );
@@ -503,11 +578,11 @@ class Footer extends ConsumerWidget {
     return Container(
       height: 100,
       padding: const EdgeInsets.all(15),
-      margin: const EdgeInsets.only(top: 10.0),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          primary: idx == 0 ? MyTheme.positiveMinor : MyTheme.negativeMinor,
-          shadowColor: Colors.transparent,
+      // margin: const EdgeInsets.only(top: 10.0),
+      child: TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor:
+              idx == 0 ? MyTheme.positiveMinor : MyTheme.negativeMinor,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
@@ -515,7 +590,11 @@ class Footer extends ConsumerWidget {
         ),
         // onPressed: () => ref.read(provSpeech).addFlowList(),
         onPressed: () async {
-          if (flowList.any((e) => e.cat.id == '')) {
+          if (flowList.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('กรุณาสร้างอย่างน้อยหนึ่งรายการ')),
+            );
+          } else if (flowList.any((e) => e.cat.id == '')) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('กรุณากำหนดหมวดหมู่ให้ครบถ้วน')),
             );

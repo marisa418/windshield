@@ -368,9 +368,10 @@ class Api extends ChangeNotifier {
   }
 
   //รายรับ-รายจ่าย
-  Future<String> getTodayDFId() async {
+  Future<String> getTodayDFId(DateTime date) async {
     try {
-      final res = await dio.get('/api/daily-flow-sheet/');
+      final str = DateFormat('y-MM-dd').format(date);
+      final res = await dio.get('/api/daily-flow-sheet/?date=$str');
       return res.data['id'];
     } catch (e) {
       return '';
@@ -387,7 +388,6 @@ class Api extends ChangeNotifier {
           (res.data as List).map((i) => DFlowCategory.fromJson(i)).toList();
       return data;
     } catch (e) {
-      print(e);
       return [];
     }
   }
