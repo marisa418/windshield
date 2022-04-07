@@ -49,10 +49,13 @@ class BalanceSheetPage extends ConsumerWidget {
               //แสดง widget หนี้สิน กับ ทรัพย์สิน
 
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(7.0),
                 child: Row(
                   children: const [
                     Assettable(),
+                    SizedBox(
+                      width:10
+                    ),
                     Depttable(),
                   ],
                 ),
@@ -254,6 +257,7 @@ class Assettable extends ConsumerWidget {
       child: GestureDetector(
         onTap: () => ref.read(provBSheet).setPageIdx(),
         child: Container(
+          height: 75, //ขนาดกรอบ asset
           decoration: BoxDecoration(
             gradient: const LinearGradient(
                 begin: Alignment.centerLeft,
@@ -293,7 +297,7 @@ class Assettable extends ConsumerWidget {
                     '$assTotal' + ' บ.',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 25,
+                      fontSize: 20,
                     ),
                   ),
                 ],
@@ -318,6 +322,7 @@ class Depttable extends ConsumerWidget {
       child: GestureDetector(
         onTap: () => ref.read(provBSheet).setPageIdx(),
         child: Container(
+          height: 75, //ขนาดกรอบ asset
           decoration: BoxDecoration(
             gradient: const LinearGradient(
                 begin: Alignment.centerLeft,
@@ -357,7 +362,7 @@ class Depttable extends ConsumerWidget {
                     '$debtTotal' + ' บ.',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 25,
+                      fontSize: 20,
                     ),
                   ),
                 ],
@@ -388,7 +393,7 @@ class LiqAssetTab extends ConsumerWidget {
                 Text('สินทรัพย์สภาพคล่อง', style: MyTheme.textTheme.headline3),
           ),
           SizedBox(
-            height: 111,
+            height: 70, //ขนาดแถว asset 
             child: ListView.builder(
               //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
@@ -458,7 +463,7 @@ class LiqAssetTab extends ConsumerWidget {
                 } else {
                   return SizedBox(
                     height: 100,
-                    width: 110,
+                    width: 90, //ระยะห่างระหว่างสินทรัพย์
                     child: Column(
                       children: [
                         Column(
@@ -552,7 +557,7 @@ class InvestAssetTab extends ConsumerWidget {
             child: Text('สินทรัพย์ลงทุน', style: MyTheme.textTheme.headline3),
           ),
           SizedBox(
-            height: 100,
+            height: 70, //ขนาดแถว asset 
             child: ListView.builder(
               //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
@@ -622,7 +627,7 @@ class InvestAssetTab extends ConsumerWidget {
                 } else {
                   return SizedBox(
                     height: 100,
-                    width: 110,
+                    width: 90, //ระยะห่างระหว่างสินทรัพย์
                     child: Column(
                       children: [
                         Column(
@@ -716,7 +721,7 @@ class PrivateAssetTab extends ConsumerWidget {
             child: Text('สินทรัพย์ส่วนตัว', style: MyTheme.textTheme.headline3),
           ),
           SizedBox(
-            height: 100,
+            height: 70, //ขนาดแถว asset 
             child: ListView.builder(
               //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
@@ -786,7 +791,7 @@ class PrivateAssetTab extends ConsumerWidget {
                 } else {
                   return SizedBox(
                     height: 100,
-                    width: 110,
+                    width: 90, //ระยะห่างระหว่างสินทรัพย์
                     child: Column(
                       children: [
                         Column(
@@ -952,7 +957,7 @@ class DebtShortTab extends ConsumerWidget {
                 } else {
                   return SizedBox(
                     height: 100,
-                    width: 110,
+                    width: 90, //ระยะห่างระหว่างสินทรัพย์
                     child: Column(
                       children: [
                         Column(
@@ -1126,7 +1131,7 @@ class DebtLongTab extends ConsumerWidget {
                 } else {
                   return SizedBox(
                     height: 100,
-                    width: 110,
+                    width: 90, //ระยะห่างระหว่างสินทรัพย์
                     child: Column(
                       children: [
                         Column(
