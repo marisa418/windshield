@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -118,6 +119,7 @@ class FirstStatement extends ConsumerWidget {
                         ),
                         Container(
                           padding: const EdgeInsets.all(7.0),
+                          height: 70,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.centerLeft,
@@ -130,38 +132,58 @@ class FirstStatement extends ConsumerWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              CircularPercentIndicator(
-                                radius: 25,
-                                progressColor: Colors.white,
-                                percent: double.parse(getPerc(
-                                        incWorking, incAsset, incOther)) /
-                                    100,
-                                animation: true,
-                                animationDuration: 1,
-                                lineWidth: 5,
-                                center: Text(
-                                  '${getPerc(incWorking, incAsset, incOther)}%',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
+                              Flexible(
+                                flex: 4,
+                                child: CircularPercentIndicator(
+                                  radius: 25,
+                                  progressColor: Colors.white,
+                                  percent: double.parse(getPerc(
+                                          incWorking, incAsset, incOther)) /
+                                      100,
+                                  animation: true,
+                                  animationDuration: 1,
+                                  lineWidth: 5,
+                                  center: Text(
+                                    '${getPerc(incWorking, incAsset, incOther)}%',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                    ),
+                                    // overflow: TextOverflow.visible,
                                   ),
-                                  // overflow: TextOverflow.visible,
+                                  backgroundColor: const Color(0x80ffffff),
                                 ),
-                                backgroundColor: const Color(0x80ffffff),
                               ),
-                              Wrap(
-                                direction: Axis.vertical,
-                                crossAxisAlignment: WrapCrossAlignment.end,
-                                children: [
-                                  Text(
-                                    'เป้ารายรับที่เหลือ',
-                                    style: MyTheme.whiteTextTheme.bodyText2,
-                                  ),
-                                  Text(
-                                    '${leftAmount(incWorking, incAsset, incOther)} บ.',
-                                    style: MyTheme.whiteTextTheme.headline4,
-                                  ),
-                                ],
+                              Flexible(
+                                flex: 6,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Flexible(
+                                      flex: 1,
+                                      child: Text(
+                                        'เป้ารายรับที่เหลือ',
+                                        style: MyTheme.whiteTextTheme.bodyText2!
+                                            .merge(
+                                          TextStyle(
+                                            color: Colors.white.withOpacity(
+                                              0.7,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Flexible(
+                                      flex: 1,
+                                      child: AutoSizeText(
+                                        '${leftAmount(incWorking, incAsset, incOther)} บ.',
+                                        maxLines: 1,
+                                        style: MyTheme.whiteTextTheme.headline4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -200,6 +222,7 @@ class FirstStatement extends ConsumerWidget {
                         ),
                         Container(
                           padding: const EdgeInsets.all(7.0),
+                          height: 70,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.centerLeft,
@@ -212,38 +235,58 @@ class FirstStatement extends ConsumerWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              CircularPercentIndicator(
-                                radius: 25,
-                                progressColor: Colors.white,
-                                percent: double.parse(
-                                        getPerc(expIncon, expCon, savInv)) /
-                                    100,
-                                animation: true,
-                                animationDuration: 1,
-                                lineWidth: 5,
-                                center: Text(
-                                  '${getPerc(expIncon, expCon, savInv)}%',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
+                              Flexible(
+                                flex: 4,
+                                child: CircularPercentIndicator(
+                                  radius: 25,
+                                  progressColor: Colors.white,
+                                  percent: double.parse(
+                                          getPerc(expIncon, expCon, savInv)) /
+                                      100,
+                                  animation: true,
+                                  animationDuration: 1,
+                                  lineWidth: 5,
+                                  center: Text(
+                                    '${getPerc(expIncon, expCon, savInv)}%',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                    ),
+                                    // overflow: TextOverflow.visible,
                                   ),
-                                  // overflow: TextOverflow.visible,
+                                  backgroundColor: const Color(0x80ffffff),
                                 ),
-                                backgroundColor: const Color(0x80ffffff),
                               ),
-                              Wrap(
-                                direction: Axis.vertical,
-                                crossAxisAlignment: WrapCrossAlignment.end,
-                                children: [
-                                  Text(
-                                    'เป้ารายจ่ายที่เหลือ',
-                                    style: MyTheme.whiteTextTheme.bodyText2,
-                                  ),
-                                  Text(
-                                    '${leftAmount(expIncon, expCon, savInv)} บ.',
-                                    style: MyTheme.whiteTextTheme.headline4,
-                                  ),
-                                ],
+                              Flexible(
+                                flex: 6,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Flexible(
+                                      flex: 1,
+                                      child: Text(
+                                        'เป้ารายจ่ายที่เหลือ',
+                                        style: MyTheme.whiteTextTheme.bodyText2!
+                                            .merge(
+                                          TextStyle(
+                                            color: Colors.white.withOpacity(
+                                              0.7,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Flexible(
+                                      flex: 1,
+                                      child: AutoSizeText(
+                                        '${leftAmount(expIncon, expCon, savInv)} บ.',
+                                        maxLines: 1,
+                                        style: MyTheme.whiteTextTheme.headline4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -334,7 +377,7 @@ Text total(
     );
   } else if (amount < 0) {
     return Text(
-      '-${amount.toStringAsFixed(2)} บ.',
+      '${amount.toStringAsFixed(2)} บ.',
       style: MyTheme.textTheme.headline3!.merge(
         TextStyle(
           color: MyTheme.negativeMajor,
@@ -482,7 +525,7 @@ class ExpIncon extends ConsumerWidget {
         ),
         children: [
           TextSpan(
-            text: '+${expIncon[0]}',
+            text: '-${expIncon[0]}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.expenseInconsist[0]),
             ),
@@ -520,7 +563,7 @@ class ExpCon extends ConsumerWidget {
         ),
         children: [
           TextSpan(
-            text: '+${expCon[0]}',
+            text: '-${expCon[0]}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.expenseConsist[0]),
             ),
@@ -558,7 +601,7 @@ class SavInv extends ConsumerWidget {
         ),
         children: [
           TextSpan(
-            text: '+${savInv[0]}',
+            text: '-${savInv[0]}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.savingAndInvest[0]),
             ),
