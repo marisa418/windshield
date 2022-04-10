@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:badges/badges.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/models/daily_flow/flow.dart';
+import 'package:windshield/pages/home/overview/statement/first_statement.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/utility/icon_convertor.dart';
@@ -66,13 +68,17 @@ class DailyFlowPage extends ConsumerWidget {
 class DailyList extends ConsumerWidget {
   const DailyList({Key? key}) : super(key: key);
 
-  get child => null;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
     final incTotal = ref.watch(provDFlow.select((e) => e.incTotal));
     final expTotal = ref.watch(provDFlow.select((e) => e.expTotal));
+    final incWorking = ref.watch(provDFlow.select((e) => e.incWorkingTotal));
+    final incAsset = ref.watch(provDFlow.select((e) => e.incAssetTotal));
+    final incOther = ref.watch(provDFlow.select((e) => e.incOtherTotal));
+    final expIncon = ref.watch(provDFlow.select((e) => e.expInconTotal));
+    final expCon = ref.watch(provDFlow.select((e) => e.expConTotal));
+    final savInv = ref.watch(provDFlow.select((e) => e.savAndInvTotal));
     if (idx == 0) {
       return Expanded(
         child: SingleChildScrollView(
@@ -167,12 +173,118 @@ class DailyList extends ConsumerWidget {
                   ),
                 ],
               ),
-              GestureDetector(
-                onTap: () =>
-                    AutoRouter.of(context).push(const SpeechToTextRoute()),
-                child: Container(
-                  color: Colors.blue,
-                  height: 170,
+              SizedBox(
+                height: 150,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25),
+                      child: Text(
+                        'สัดส่วนรายรับ',
+                        style: MyTheme.textTheme.headline3,
+                        // textAlign: TextAlign.l,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Flexible(
+                          flex: 4,
+                          child: Center(
+                            child: GestureDetector(
+                              onTap: () => AutoRouter.of(context)
+                                  .push(const SpeechToTextRoute()),
+                              child: CircularPercentIndicator(
+                                radius: 50,
+                                lineWidth: 8,
+                                percent: 1,
+                                progressColor: MyTheme.positiveMajor,
+                                center: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.mic,
+                                      size: 45,
+                                      color: MyTheme.positiveMajor,
+                                    ),
+                                    Text(
+                                      'เพิ่มด้วยเสียง',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: MyTheme.positiveMajor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 6,
+                          fit: FlexFit.tight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 30.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'รายรับจากการทำงาน',
+                                    ),
+                                    Text(
+                                      '$incWorking บ.',
+                                      style: TextStyle(
+                                        color: MyTheme.positiveMajor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'รายรับจากสินทรัพย์',
+                                    ),
+                                    Text(
+                                      '$incAsset บ.',
+                                      style: TextStyle(
+                                        color: MyTheme.positiveMajor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'รายรับจากแหล่งอื่นๆ',
+                                    ),
+                                    Text(
+                                      '$incOther บ.',
+                                      style: TextStyle(
+                                        color: MyTheme.positiveMajor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
               const IncWorkingTab(),
@@ -272,12 +384,118 @@ class DailyList extends ConsumerWidget {
                   ],
                 ),
               ),
-              GestureDetector(
-                onTap: () =>
-                    AutoRouter.of(context).push(const SpeechToTextRoute()),
-                child: Container(
-                  color: Colors.red,
-                  height: 170,
+              SizedBox(
+                height: 150,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 25),
+                      child: Text(
+                        'สัดส่วนรายจ่าย',
+                        style: MyTheme.textTheme.headline3,
+                        // textAlign: TextAlign.l,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Flexible(
+                          flex: 4,
+                          child: Center(
+                            child: GestureDetector(
+                              onTap: () => AutoRouter.of(context)
+                                  .push(const SpeechToTextRoute()),
+                              child: CircularPercentIndicator(
+                                radius: 50,
+                                lineWidth: 8,
+                                percent: 1,
+                                progressColor: MyTheme.negativeMajor,
+                                center: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.mic,
+                                      size: 45,
+                                      color: MyTheme.negativeMajor,
+                                    ),
+                                    Text(
+                                      'เพิ่มด้วยเสียง',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: MyTheme.negativeMajor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 6,
+                          fit: FlexFit.tight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 30.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'รายจ่ายไม่คงที่',
+                                    ),
+                                    Text(
+                                      '$expIncon บ.',
+                                      style: TextStyle(
+                                        color: MyTheme.negativeMajor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'รายจ่ายคงที่',
+                                    ),
+                                    Text(
+                                      '$expCon บ.',
+                                      style: TextStyle(
+                                        color: MyTheme.negativeMajor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'การออมและการลงทุน',
+                                    ),
+                                    Text(
+                                      '$savInv บ.',
+                                      style: TextStyle(
+                                        color: MyTheme.negativeMajor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
               const ExpNonConTab(),
@@ -301,7 +519,7 @@ class IncWorkingTab extends ConsumerWidget {
     final incWorkingList = ref.watch(provDFlow.select((e) => e.incWorkingList));
 
     return Padding(
-      padding: const EdgeInsets.all(25.0),
+      padding: const EdgeInsets.fromLTRB(25, 10, 25, 25),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -651,7 +869,7 @@ class ExpNonConTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final expNonConList = ref.watch(provDFlow.select((e) => e.expInconList));
     return Padding(
-      padding: const EdgeInsets.all(25.0),
+      padding: const EdgeInsets.fromLTRB(25, 10, 25, 25),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
