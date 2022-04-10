@@ -91,22 +91,21 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              Container(
-                                color: Colors.white.withOpacity(0.5),
-                                child: DatePicker(
-                                  DateTime.now().subtract(Duration(days: 5)),
-                                  initialSelectedDate: DateTime.now(),
-                                  selectionColor: Colors.white,
-                                  selectedTextColor: MyTheme.primaryMajor,
-                                  daysCount: 7,
-                                  locale: "th_TH",
-                                  onDateChange: (date) {
-                                    // New date selected
-                                    /*setState(() {
-                                      _selectedValue = date;
-                                    });*/
-                                  },
-                                ),
+                              DatePicker(
+                                DateTime.now()
+                                    .subtract(const Duration(days: 5)),
+                                height: 90,
+                                initialSelectedDate: DateTime.now(),
+                                selectionColor: Colors.white,
+                                selectedTextColor: MyTheme.primaryMajor,
+                                daysCount: 7,
+                                locale: "th_TH",
+                                onDateChange: (date) {
+                                  // New date selected
+                                  /*setState(() {
+                                    _selectedValue = date;
+                                  });*/
+                                },
                               ),
                             ],
                           ),
@@ -281,7 +280,7 @@ class ExpenseIncome extends ConsumerWidget {
     final incTotal = ref.watch(provDFlow.select((e) => e.incTotal));
     final expTotal = ref.watch(provDFlow.select((e) => e.expTotal));
     return Padding(
-      padding: const EdgeInsets.only(top: 35),
+      padding: const EdgeInsets.only(top: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
