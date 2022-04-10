@@ -102,9 +102,10 @@ class Header extends ConsumerWidget {
           colors: MyTheme.majorBackground,
         ),
       ),
-      height: 190,
+      height: 160,
       child: Padding(
-        padding: const EdgeInsets.all(15.0),
+        // padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.fromLTRB(15, 15, 15, 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -118,27 +119,73 @@ class Header extends ConsumerWidget {
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CircularPercentIndicator(
-                  radius: 25,
-                  progressColor: Colors.white,
-                  percent: 0.5,
-                  animation: true,
-                  animationDuration: 1,
-                  lineWidth: 5,
-                  center: Text(
-                    '100%',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircularPercentIndicator(
+                    radius: 27,
+                    progressColor: Colors.white,
+                    percent: 0.5,
+                    animation: true,
+                    animationDuration: 1,
+                    lineWidth: 7,
+                    center: const Text(
+                      'XX.X%',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
                     ),
-                    // overflow: TextOverflow.visible,
+                    backgroundColor: const Color(0x80ffffff),
                   ),
-                  backgroundColor: const Color(0x80ffffff),
-                ),
-              ],
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'สภาพคล่องสุทธิปัจจุบัน',
+                          style: MyTheme.whiteTextTheme.headline4!.merge(
+                            TextStyle(
+                              color: Colors.white.withOpacity(.7),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'XX,XXX บ.',
+                              style: MyTheme.whiteTextTheme.headline2,
+                            ),
+                            Wrap(
+                              direction: Axis.vertical,
+                              // alignment: WrapAlignment.end,
+                              crossAxisAlignment: WrapCrossAlignment.end,
+                              children: [
+                                Text(
+                                  'สิ้นสุดงบ',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(.7),
+                                  ),
+                                ),
+                                Text(
+                                  'XX XXX 2022',
+                                  style: MyTheme.whiteTextTheme.bodyText1,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

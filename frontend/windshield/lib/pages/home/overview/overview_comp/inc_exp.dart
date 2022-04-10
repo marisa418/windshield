@@ -280,7 +280,7 @@ class Liquidity extends ConsumerWidget {
                   ),
                 ),
                 Text(
-                  '$liquid บ.',
+                  '${liquid.toStringAsFixed(2)} บ.',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 35,
@@ -309,7 +309,9 @@ String leftAmount(
   final amount = (incWorking[1] + incAsset[1] + incOther[1]) -
       (incWorking[0] + incAsset[0] + incOther[0]);
   if (amount == 0) return '0';
-  return amount <= -1 ? 'เกิน ${amount * -1}' : 'อีก $amount';
+  return amount <= -1
+      ? 'เกิน ${(amount * -1).toStringAsFixed(2)}'
+      : 'อีก ${amount.toStringAsFixed(2)}';
 }
 
 String getPerc(

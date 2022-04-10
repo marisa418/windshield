@@ -176,6 +176,7 @@ class StatementList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final stmntListLength =
         ref.watch(provStatement.select((e) => e.stmntDateList.length));
+    final date = ref.watch(provStatement.select((e) => e.stmntDateList[0].end));
     return Expanded(
       child: SingleChildScrollView(
         child: Padding(
@@ -185,8 +186,21 @@ class StatementList extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('แผนงบการเงินที่ใช้อยู่',
-                      style: MyTheme.textTheme.headline3),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'แผนงบการเงินที่ใช้อยู่',
+                        style: MyTheme.textTheme.headline4,
+                      ),
+                      Text(
+                        'สิ้นสุดงบ ${DateFormat.yMMMd().format(date)}',
+                        style: MyTheme.textTheme.headline4!.merge(
+                          TextStyle(color: MyTheme.primaryMajor),
+                        ),
+                      ),
+                    ],
+                  ),
                   const Statement(index: 0),
                   const SizedBox(height: 20),
                 ],
@@ -195,8 +209,10 @@ class StatementList extends ConsumerWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('แผนงบการเงินอื่นๆ',
-                        style: MyTheme.textTheme.headline3),
+                    Text(
+                      'แผนงบการเงินอื่นๆ',
+                      style: MyTheme.textTheme.headline4,
+                    ),
                     ListView.builder(
                       padding: EdgeInsets.zero,
                       physics: const ScrollPhysics(),
