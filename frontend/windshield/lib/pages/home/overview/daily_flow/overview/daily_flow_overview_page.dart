@@ -87,23 +87,26 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
                         child: Container(
-                          //color: Colors.white,
+                          //color: Colors.red,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
-                              DatePicker(
-                                DateTime.now().subtract(Duration(days: 5)),
-                                initialSelectedDate: DateTime.now(),
-                                selectionColor: Colors.white,
-                                selectedTextColor: MyTheme.primaryMajor,
-                                daysCount: 7,
-                                locale: "th_TH",
-                                onDateChange: (date) {
-                                  // New date selected
-                                  /*setState(() {
-                                    _selectedValue = date;
-                                  });*/
-                                },
+                              Container(
+                                color: Colors.white.withOpacity(0.5),
+                                child: DatePicker(
+                                  DateTime.now().subtract(Duration(days: 5)),
+                                  initialSelectedDate: DateTime.now(),
+                                  selectionColor: Colors.white,
+                                  selectedTextColor: MyTheme.primaryMajor,
+                                  daysCount: 7,
+                                  locale: "th_TH",
+                                  onDateChange: (date) {
+                                    // New date selected
+                                    /*setState(() {
+                                      _selectedValue = date;
+                                    });*/
+                                  },
+                                ),
                               ),
                             ],
                           ),
