@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:badges/badges.dart';
+import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -31,7 +32,7 @@ class DailyFlowOverviewPage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 250,
+                  height: 350,
                   width: 450,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -83,7 +84,31 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      //DatePickerTimeline(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
+                        child: Container(
+                          //color: Colors.white,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              DatePicker(
+                                DateTime.now().subtract(Duration(days: 5)),
+                                initialSelectedDate: DateTime.now(),
+                                selectionColor: Colors.white,
+                                selectedTextColor: MyTheme.primaryMajor,
+                                daysCount: 7,
+                                locale: "th_TH",
+                                onDateChange: (date) {
+                                  // New date selected
+                                  /*setState(() {
+                                    _selectedValue = date;
+                                  });*/
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                       const ExpenseIncome(),
                     ],
                   ),
@@ -401,7 +426,7 @@ class OverviewIncomeToday extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0.0, 20.0, 30.0, 0.0),
+      padding: const EdgeInsets.fromLTRB(20.0, 20.0, 10.0, 0.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -414,96 +439,99 @@ class OverviewIncomeToday extends ConsumerWidget {
               crossAxisCount: 4,
               mainAxisSpacing: 10,
               crossAxisSpacing: 10,
-              mainAxisExtent: 100,
+              mainAxisExtent: 120,
             ),
             itemBuilder: (_, index) {
-              return Column(
-                children: [
-                  Expanded(
-                    child: Badge(
-                      position: const BadgePosition(
-                        top: -9,
-                        end: 2,
-                        isCenter: false,
-                      ),
-                      animationType: BadgeAnimationType.scale,
-                      showBadge: true,
-                      badgeContent: Text(
-                        '3',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: Colors.white,
+              return Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Badge(
+                        position: const BadgePosition(
+                          top: -9,
+                          end: 2,
+                          isCenter: false,
                         ),
-                      ),
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 75, //height of button
-                            width: 75, //width of button
-                            child: ElevatedButton(
-                              onPressed: () {
-                                /*ref
-                                    .read(provDFlow)
-                                    .setColorBackground('income');
-                                ref
-                                    .read(provDFlow)
-                                    .setCurrCat(incWorkingList[index]);
-                                AutoRouter.of(context)
-                                    .push(const DailyFlowCreateRoute());
-                                ref.watch(provDFlow).currCat.flows;*/
-                              },
-                              style: ElevatedButton.styleFrom(
-                                elevation: 0.0,
-                                shadowColor: Colors
-                                    .transparent, //remove shadow on button
-                                primary: //incWorkingList[index].budgets.isEmpty ?
-                                    const Color(0xffE0E0E0),
-                                //: MyTheme.incomeWorking[0],
-                                textStyle: const TextStyle(fontSize: 12),
-                                padding: const EdgeInsets.all(10),
+                        animationType: BadgeAnimationType.scale,
+                        showBadge: true,
+                        badgeContent: Text(
+                          '3',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 80, //height of button
+                              width: 80, //width of button
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  /*ref
+                                      .read(provDFlow)
+                                      .setColorBackground('income');
+                                  ref
+                                      .read(provDFlow)
+                                      .setCurrCat(incWorkingList[index]);
+                                  AutoRouter.of(context)
+                                      .push(const DailyFlowCreateRoute());
+                                  ref.watch(provDFlow).currCat.flows;*/
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 0.0,
+                                  shadowColor: Colors
+                                      .transparent, //remove shadow on button
+                                  primary: //incWorkingList[index].budgets.isEmpty ?
+                                      const Color(0xffE0E0E0),
+                                  //: MyTheme.incomeWorking[0],
+                                  textStyle: const TextStyle(fontSize: 12),
+                                  padding: const EdgeInsets.all(10),
 
-                                shape: const CircleBorder(),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(
-                                    Icons.access_alarms,
-                                    color: Colors.white,
-                                  ),
-                                  Text('น้ำเต้าปูปลา',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                      ))
-                                  /*if (incWorkingList[index]
-                                      .flows
-                                      .isNotEmpty) ...[
-                                    Text(
-                                      _loopFlow(incWorkingList[index].flows),
+                                  shape: const CircleBorder(),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Icon(
+                                      Icons.access_alarms,
+                                      color: Colors.white,
                                     ),
-                                  ],*/
-                                ],
+                                    Text('น้ำเต้า',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                        ))
+                                    /*if (incWorkingList[index]
+                                        .flows
+                                        .isNotEmpty) ...[
+                                      Text(
+                                        _loopFlow(incWorkingList[index].flows),
+                                      ),
+                                    ],*/
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 25,
-                    child: AutoSizeText(
-                      'Hew A',
-                      style: MyTheme.textTheme.bodyText2,
-                      minFontSize: 8,
-                      maxLines: 2,
-                      overflow: TextOverflow.visible,
-                      textAlign: TextAlign.center,
+                    SizedBox(
+                      height: 25,
+                      child: AutoSizeText(
+                        'Sexy Bookie',
+                        style: MyTheme.textTheme.bodyText2,
+                        minFontSize: 8,
+                        maxLines: 2,
+                        overflow: TextOverflow.visible,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),
@@ -519,7 +547,7 @@ class OverviewExpenseToday extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(0.0, 20.0, 30.0, 0.0),
+      padding: const EdgeInsets.fromLTRB(20.0, 20.0, 10.0, 0.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -532,96 +560,99 @@ class OverviewExpenseToday extends ConsumerWidget {
               crossAxisCount: 4,
               mainAxisSpacing: 10,
               crossAxisSpacing: 10,
-              mainAxisExtent: 100,
+              mainAxisExtent: 120,
             ),
             itemBuilder: (_, index) {
-              return Column(
-                children: [
-                  Expanded(
-                    child: Badge(
-                      position: const BadgePosition(
-                        top: -9,
-                        end: 2,
-                        isCenter: false,
-                      ),
-                      animationType: BadgeAnimationType.scale,
-                      showBadge: true,
-                      badgeContent: Text(
-                        '3',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: Colors.white,
+              return Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Badge(
+                        position: const BadgePosition(
+                          top: -9,
+                          end: 2,
+                          isCenter: false,
                         ),
-                      ),
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 75, //height of button
-                            width: 75, //width of button
-                            child: ElevatedButton(
-                              onPressed: () {
-                                /*ref
-                                    .read(provDFlow)
-                                    .setColorBackground('income');
-                                ref
-                                    .read(provDFlow)
-                                    .setCurrCat(incWorkingList[index]);
-                                AutoRouter.of(context)
-                                    .push(const DailyFlowCreateRoute());
-                                ref.watch(provDFlow).currCat.flows;*/
-                              },
-                              style: ElevatedButton.styleFrom(
-                                elevation: 0.0,
-                                shadowColor: Colors
-                                    .transparent, //remove shadow on button
-                                primary: //incWorkingList[index].budgets.isEmpty ?
-                                    const Color(0xffE0E0E0),
-                                //: MyTheme.incomeWorking[0],
-                                textStyle: const TextStyle(fontSize: 12),
-                                padding: const EdgeInsets.all(10),
+                        animationType: BadgeAnimationType.scale,
+                        showBadge: true,
+                        badgeContent: Text(
+                          '3',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 80, //height of button
+                              width: 80, //width of button
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  /*ref
+                                      .read(provDFlow)
+                                      .setColorBackground('income');
+                                  ref
+                                      .read(provDFlow)
+                                      .setCurrCat(incWorkingList[index]);
+                                  AutoRouter.of(context)
+                                      .push(const DailyFlowCreateRoute());
+                                  ref.watch(provDFlow).currCat.flows;*/
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 0.0,
+                                  shadowColor: Colors
+                                      .transparent, //remove shadow on button
+                                  primary: //incWorkingList[index].budgets.isEmpty ?
+                                      const Color(0xffE0E0E0),
+                                  //: MyTheme.incomeWorking[0],
+                                  textStyle: const TextStyle(fontSize: 12),
+                                  padding: const EdgeInsets.all(10),
 
-                                shape: const CircleBorder(),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(
-                                    Icons.access_alarms,
-                                    color: Colors.white,
-                                  ),
-                                  Text('น้ำเต้าปูปลา',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                      ))
-                                  /*if (incWorkingList[index]
-                                      .flows
-                                      .isNotEmpty) ...[
-                                    Text(
-                                      _loopFlow(incWorkingList[index].flows),
+                                  shape: const CircleBorder(),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Icon(
+                                      Icons.access_alarms,
+                                      color: Colors.white,
                                     ),
-                                  ],*/
-                                ],
+                                    Text('น้ำเต้าปูปลา',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                        ))
+                                    /*if (incWorkingList[index]
+                                        .flows
+                                        .isNotEmpty) ...[
+                                      Text(
+                                        _loopFlow(incWorkingList[index].flows),
+                                      ),
+                                    ],*/
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 25,
-                    child: AutoSizeText(
-                      'Hew A',
-                      style: MyTheme.textTheme.bodyText2,
-                      minFontSize: 8,
-                      maxLines: 2,
-                      overflow: TextOverflow.visible,
-                      textAlign: TextAlign.center,
+                    SizedBox(
+                      height: 25,
+                      child: AutoSizeText(
+                        'Sexy Bookie',
+                        style: MyTheme.textTheme.bodyText2,
+                        minFontSize: 8,
+                        maxLines: 2,
+                        overflow: TextOverflow.visible,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),
