@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:intl/intl.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/routes/app_router.dart';
@@ -19,9 +20,12 @@ final apiStatement =
   ref.watch(provStatement.select((value) => value.needFetchAPI));
   final now = DateTime.now();
   final data = await ref.read(apiProvider).getAllNotEndYetStatements(now);
-  print(data);
   ref.read(provStatement).setStatementList(data);
   if (data.isNotEmpty) {
+    final data2 = await ref
+        .read(apiProvider)
+        .getRangeDailyFlowSheet(data[0].start, data[0].end);
+    ref.read(provStatement).setFlowSheetList(data2);
     ref.read(provStatement).setStmntActiveList();
     ref.read(provStatement).setStmntDateChipList();
     ref.read(provStatement).setStmntDateList();
@@ -40,9 +44,9 @@ class StatementPage extends ConsumerWidget {
       error: (error, stackTrace) => Text(stackTrace.toString()),
       loading: () => const Center(child: CircularProgressIndicator()),
       data: (data) {
-        return Scaffold(
-          body: SafeArea(
-            child: Column(
+        return SafeArea(
+          child: Scaffold(
+            body: Column(
               mainAxisSize: MainAxisSize.max,
               children: [
                 const Header(),
@@ -98,9 +102,10 @@ class Header extends ConsumerWidget {
           colors: MyTheme.majorBackground,
         ),
       ),
-      height: 190,
+      height: 160,
       child: Padding(
-        padding: const EdgeInsets.all(15.0),
+        // padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.fromLTRB(15, 15, 15, 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -113,6 +118,74 @@ class Header extends ConsumerWidget {
                   style: MyTheme.whiteTextTheme.headline4,
                 ),
               ],
+            ),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircularPercentIndicator(
+                    radius: 27,
+                    progressColor: Colors.white,
+                    percent: 0.5,
+                    animation: true,
+                    animationDuration: 1,
+                    lineWidth: 7,
+                    center: const Text(
+                      'XX.X%',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
+                    ),
+                    backgroundColor: const Color(0x80ffffff),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'สภาพคล่องสุทธิปัจจุบัน',
+                          style: MyTheme.whiteTextTheme.headline4!.merge(
+                            TextStyle(
+                              color: Colors.white.withOpacity(.7),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              'XX,XXX บ.',
+                              style: MyTheme.whiteTextTheme.headline2,
+                            ),
+                            Wrap(
+                              direction: Axis.vertical,
+                              // alignment: WrapAlignment.end,
+                              crossAxisAlignment: WrapCrossAlignment.end,
+                              children: [
+                                Text(
+                                  'สิ้นสุดงบ',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(.7),
+                                  ),
+                                ),
+                                Text(
+                                  'XX XXX 2022',
+                                  style: MyTheme.whiteTextTheme.bodyText1,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

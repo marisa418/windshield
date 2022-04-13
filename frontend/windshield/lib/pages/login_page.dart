@@ -29,8 +29,10 @@ class LoginPage extends ConsumerWidget {
           error: (error, stackTrace) => Text(error.toString()),
           loading: () => const Center(child: CircularProgressIndicator()),
           data: (refreshAlive) {
-            return Scaffold(
-              body: refreshAlive ? const Pin() : const Credential(),
+            return SafeArea(
+              child: Scaffold(
+                body: refreshAlive ? const Pin() : const Credential(),
+              ),
             );
           },
         );
@@ -51,6 +53,7 @@ class _PinState extends ConsumerState<Pin> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -58,130 +61,123 @@ class _PinState extends ConsumerState<Pin> {
           colors: MyTheme.majorBackground,
         ),
       ),
-      child: SingleChildScrollView(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          child: Column(
-            // mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                flex: 3,
-                child: Container(
-                  margin: const EdgeInsets.all(20.0),
-                  padding: const EdgeInsets.all(20.0),
-                  child: Pinput(
-                    useNativeKeyboard: false,
-                    length: 6,
-                    followingPinTheme: PinTheme(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20.0),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(.5),
-                        ),
-                      ),
-                    ),
-                    focusedPinTheme: PinTheme(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.0),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(.5),
-                        ),
-                        color: Colors.white.withOpacity(.5),
-                      ),
-                    ),
-                    submittedPinTheme: PinTheme(
-                      width: 40,
-                      height: 40,
-                      textStyle: MyTheme.whiteTextTheme.headline4,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.0),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(.5),
-                        ),
-                      ),
-                    ),
-                    focusNode: focusNode,
-                    controller: pinController,
-                    onCompleted: (text) async {
-                      final api = ref.read(apiProvider);
-                      if (text.length > 4 && await api.loginByPin(text)) {
-                        // AutoRouter.of(context).push(const RegisterInfoRoute());
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('เกิดข้อผิดพลาด')),
-                        );
-                      }
-                    },
+      child: Column(
+        // mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 200,
+            margin: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(20.0),
+            child: Pinput(
+              useNativeKeyboard: false,
+              length: 6,
+              followingPinTheme: PinTheme(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.0),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(.5),
                   ),
                 ),
               ),
-              Flexible(
-                flex: 3,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        _keyPad('7'),
-                        _keyPad('8'),
-                        _keyPad('9'),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        _keyPad('4'),
-                        _keyPad('5'),
-                        _keyPad('6'),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        _keyPad('1'),
-                        _keyPad('2'),
-                        _keyPad('3'),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        const SizedBox(width: 92, height: 60),
-                        _keyPad('0'),
-                        _keyPad('-1'),
-                      ],
-                    ),
+              focusedPinTheme: PinTheme(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(.5),
+                  ),
+                  color: Colors.white.withOpacity(.5),
+                ),
+              ),
+              submittedPinTheme: PinTheme(
+                width: 40,
+                height: 40,
+                textStyle: MyTheme.whiteTextTheme.headline4,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5.0),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(.5),
+                  ),
+                ),
+              ),
+              focusNode: focusNode,
+              controller: pinController,
+              onCompleted: (text) async {
+                final api = ref.read(apiProvider);
+                if (text.length > 4 && await api.loginByPin(text)) {
+                  // AutoRouter.of(context).push(const RegisterInfoRoute());
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+                  );
+                }
+              },
+            ),
+          ),
+          Expanded(
+            // flex: 4,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _keyPad('7'),
+                    _keyPad('8'),
+                    _keyPad('9'),
                   ],
                 ),
-              ),
-              Flexible(
-                flex: 1,
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: GestureDetector(
-                    onTap: () {
-                      ref.read(apiProvider).logout();
-                      ref.refresh(refreshAlive);
-                    },
-                    child: Text(
-                      'ออกจากระบบ   ',
-                      style: MyTheme.whiteTextTheme.headline4,
-                    ),
-                  ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _keyPad('4'),
+                    _keyPad('5'),
+                    _keyPad('6'),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    _keyPad('1'),
+                    _keyPad('2'),
+                    _keyPad('3'),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    const SizedBox(width: 92, height: 60),
+                    _keyPad('0'),
+                    _keyPad('-1'),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 100,
+            child: Align(
+              alignment: Alignment.bottomRight,
+              child: GestureDetector(
+                onTap: () {
+                  ref.read(apiProvider).logout();
+                  ref.refresh(refreshAlive);
+                },
+                child: Text(
+                  'ออกจากระบบ   ',
+                  style: MyTheme.whiteTextTheme.headline4,
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

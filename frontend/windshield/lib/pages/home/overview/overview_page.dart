@@ -3,7 +3,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:windshield/routes/app_router.dart';
 
-import 'package:windshield/main.dart';
 import 'package:windshield/styles/theme.dart';
 import './overview_comp/inc_exp.dart';
 

@@ -78,7 +78,7 @@ class ChoseCat extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(
-                                height: 75, //height of button
+                                height: 60, //height of button แก้ตอนเลือกประเภท overflow
                                 width: 75, //width of button
                                 child: ElevatedButton(
                                   onPressed: () {
@@ -247,6 +247,30 @@ class AssetForm extends ConsumerWidget {
                     ),
                     child:
                         Text('บันทึก', style: MyTheme.whiteTextTheme.headline3),
+                  ),
+                  //ลบออก
+                  ElevatedButton(
+                    onPressed: () async {                     
+                        final asset = await ref.read(apiProvider).deleteAsset(
+                              ref.read(provBSheet).source,
+                              ref.read(provBSheet).value,
+                              ref.read(provBSheet).id,
+                            );
+                        if (asset) {
+                          ref.read(provBSheet).setNeedFetchAPI();
+                          AutoRouter.of(context).pop();
+                        }
+                      },
+                    
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0),
+                        ),
+                      ),
+                    ),
+                    child:
+                        Text('ลบ', style: MyTheme.whiteTextTheme.headline3),
                   ),
                 ],
               ),
@@ -431,6 +455,8 @@ class DebtForm extends ConsumerWidget {
                     child:
                         Text('บันทึก', style: MyTheme.whiteTextTheme.headline3),
                   ),
+                  
+                  
                 ],
               ),
             ),

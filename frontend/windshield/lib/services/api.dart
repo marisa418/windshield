@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
+import 'package:windshield/models/balance_sheet/flow_sheet.dart';
 
 import '../../models/daily_flow/flow.dart';
 import '../../models/statement/budget.dart';
@@ -14,6 +15,7 @@ import '../../models/daily_flow/category.dart';
 import '../../models/balance_sheet/balance_sheet.dart';
 import '../../models/financial_goal/financial_goal.dart';
 import '../../models/daily_flow/flow_speech.dart';
+import '../models/balance_sheet/log.dart';
 
 class Api extends ChangeNotifier {
   Dio dio = Dio();
@@ -268,6 +270,21 @@ class Api extends ChangeNotifier {
     }
   }
 
+  Future<List<FlowSheet>> getRangeDailyFlowSheet(
+      DateTime start, DateTime end) async {
+    try {
+      final strStart = DateFormat('y-MM-dd').format(start);
+      final strEnd = DateFormat('y-MM-dd').format(end);
+      final res = await dio
+          .get('/api/daily-flow-sheet/list/?start=$strStart&end=$strEnd');
+      final data =
+          (res.data as List).map((i) => FlowSheet.fromJson(i)).toList();
+      return data;
+    } catch (e) {
+      return [];
+    }
+  }
+
   Future<List<StmntCategory>> getAllCategories(bool asUsed) async {
     try {
       final res = await dio
@@ -303,8 +320,7 @@ class Api extends ChangeNotifier {
 
   Future<bool> deleteStatement(String id) async {
     try {
-      final res = await dio.delete('/api/statement/$id/');
-
+      await dio.delete('/api/statement/$id/');
       return true;
     } catch (e) {
       return false;
@@ -436,7 +452,6 @@ class Api extends ChangeNotifier {
       );
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }
@@ -484,15 +499,38 @@ class Api extends ChangeNotifier {
       final data = BSheetBalance.fromJson(res.data);
       return data;
     } catch (e) {
+      print(e);
       return null;
+    }
+  }
+
+  //Log
+  Future<BSheetLog> getBalanceSheetLog() async {
+    try {
+      final res = await dio.get('/api/balance-sheet-log/');
+      final data =
+          (res.data as List).map((i) => BSheetLog.fromJson(i)).toList();
+      return data.last;
+    } catch (e) {
+      return BSheetLog(
+          id: 0,
+          timestamp: DateTime.now(),
+          assetValue: 0,
+          debtValue: 0,
+          bsheetId: '');
     }
   }
 
   Future<bool> addAsset(String source, double recentVal, String catId) async {
     try {
+      print(source);
       await dio.post(
         '/api/asset/',
-        data: {"source": source, "recent_value": recentVal, "cat_id": catId},
+        data: {
+          "source": source == '' ? null : source,
+          "recent_value": recentVal,
+          "cat_id": catId
+        },
       );
       return true;
     } catch (e) {
@@ -503,6 +541,19 @@ class Api extends ChangeNotifier {
   Future<bool> editAsset(String source, double recentVal, String id) async {
     try {
       await dio.patch(
+        '/api/asset/$id/',
+        data: {"source": source, "recent_value": recentVal},
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  //ลบ asset
+  Future<bool> deleteAsset(String source, double recentVal, String id) async {
+    try {
+      await dio.delete(
         '/api/asset/$id/',
         data: {"source": source, "recent_value": recentVal},
       );
@@ -556,7 +607,6 @@ class Api extends ChangeNotifier {
       final data = (res.data as List).map((i) => FGoal.fromJson(i)).toList();
       return data;
     } catch (e) {
-      print(e);
       return [];
     }
   }
