@@ -8,7 +8,7 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import datetime, timedelta
 from pytz import timezone
-from django.db.models import Exists, OuterRef, Q, F, Prefetch
+from django.db.models import Sum, Exists, OuterRef, Q, F, Prefetch
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -914,5 +914,3 @@ class FinancialStatus(APIView):
             "Financial Health": None
             } 
         return Response(finstatus)
-    
-    

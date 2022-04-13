@@ -265,7 +265,7 @@ class Budget(models.Model):
     id = models.CharField(max_length=26, primary_key=True)
     cat_id = models.ForeignKey(Category, related_name="budgets",on_delete=CASCADE)
     fplan = models.ForeignKey(FinancialStatementPlan, related_name="budgets", on_delete=CASCADE)
-    used_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    # used_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_budget = models.DecimalField(max_digits=12, decimal_places=2)
     budget_per_period = models.DecimalField(max_digits=12, decimal_places=2, validators=[validate_ispositive])
     frequency = models.CharField(max_length=3, choices=freq_choices, default=freq_choices[2][0])
@@ -340,18 +340,6 @@ class DailyFlow(models.Model):
     def __str__(self):
         return self.id + " " + self.name
     
-    def __update_budget__(self, date, category, change):
-        try:
-            plans = FinancialStatementPlan.objects.filter(owner_id=category.user_id.id)
-            plans = plans.filter(start__lte=date, end__gte=date)
-            budgets = Budget.objects.filter(fplan__in=plans, cat_id=category.id)
-        except (FinancialStatementPlan.DoesNotExist, Budget.DoesNotExist):
-            return False
-        for budget in budgets:
-            budget.used_balance += change
-            budget.save()
-        return True
-    
     def __update_goal__(self, category, change):
         try:
             goal = FinancialGoal.objects.get(category_id=category.id)
@@ -371,7 +359,6 @@ class DailyFlow(models.Model):
         change = -self.value
         cat.used_count -= 1
         cat.save()
-        self.__update_budget__(dfsheet.date, cat, change)
         self.__update_goal__(cat, change)
         return super(DailyFlow, self).delete()
     
@@ -394,7 +381,6 @@ class DailyFlow(models.Model):
         else:
             flow = DailyFlow.objects.get(id=self.id)
             change = self.value - flow.value
-        self.__update_budget__(dfsheet.date, cat, change)
         self.__update_goal__(cat, change)
         return super(DailyFlow, self).save(*args, **kwargs)
 
