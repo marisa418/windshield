@@ -1,3 +1,4 @@
+from crypt import methods
 from django.urls import path
 from . import views
 
@@ -47,6 +48,12 @@ urlpatterns = [
     #FINANCIAL STATUS
     path('financial-status/', views.FinancialStatus.as_view(), name="financial-status"),
     
+    #FINANCIAL ARTICLE
+    path('articles/', views.Articles.as_view(), name="article"),
+    path('article/<int:pk>/', views.Article.as_view(), name="article-read"),
+    
     #FOR ADMIN
-    path('default-categories/', views.DefaultCategories.as_view(), name='default-categories')
+    path('admin/default-categories/', views.DefaultCategories.as_view(), name='default-categories'),
+    # path('admin/article/', views.ArticleCreate.as_view(), name="create-article"),
+    # path('admin/article/<int:pk>/', views.ArticleUpdate.as_view(), name="update-article")
 ]

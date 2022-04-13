@@ -914,3 +914,34 @@ class FinancialStatus(APIView):
             "Financial Health": None
             } 
         return Response(finstatus)
+    
+class Articles(generics.ListAPIView):
+    serializer_class = serializers.KnowledgeArticleSerializer
+    queryset = models.KnowledgeArticle.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    
+class Article(generics.RetrieveUpdateAPIView):
+    serializer_class = serializers.KnowledgeArticleSerializer
+    queryset = models.KnowledgeArticle.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def retrieve(self, request, pk=None):
+        object = self.get_object()
+        if object:
+            object.view += 1
+            object.save()
+        serializer = self.serializer_class(object, many=False)
+        return Response(serializer.data)
+    
+# class ArticleUpdate(generics.RetrieveUpdateDestroyAPIView):
+#     serializer_class = serializers.KnowledgeArticleSerializer
+#     queryset = models.KnowledgeArticle.objects.all()
+#     permission_classes = [permissions.IsAdminUser]
+
+# class ArticleCreate(generics.CreateAPIView):
+#     serializer_class = serializers.KnowledgeArticleSerializer
+#     queryset = models.KnowledgeArticle.objects.all()
+#     permission_classes = [permissions.IsAdminUser]
+    
+#     def perform_create(self, serializer):
+#         serializer.save(author = self.request.user.uuid, **self.request.data)
