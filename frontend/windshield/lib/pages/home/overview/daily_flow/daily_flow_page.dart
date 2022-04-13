@@ -4,14 +4,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:badges/badges.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/models/daily_flow/flow.dart';
-import 'package:windshield/pages/home/overview/statement/first_statement.dart';
+import 'package:windshield/models/daily_flow/category.dart';
+import 'package:windshield/pages/home/overview/daily_flow/overview/daily_flow_overview_page.dart';
+import 'package:windshield/providers/daily_flow_provider.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+
+final provDFlow = ChangeNotifierProvider.autoDispose<DailyFlowProvider>(
+    (ref) => DailyFlowProvider());
+
+final apiDFlow = FutureProvider.autoDispose<List<DFlowCategory>>((ref) async {
+  ref.watch(provDFlow.select((value) => value.needFetchAPI));
+  final date = ref.read(provOverFlow).date;
+  final data =
+      await ref.read(apiProvider).getAllCategoriesWithBudgetFlows(date);
+  ref.read(provDFlow).setCatList(data);
+  ref.read(provDFlow).setCatType();
+  return data;
+});
 
 class DailyFlowPage extends ConsumerWidget {
   const DailyFlowPage({Key? key}) : super(key: key);
@@ -70,7 +86,7 @@ class DailyList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
+    final idx = ref.watch(provOverFlow.select((e) => e.pageIdx));
     final incTotal = ref.watch(provDFlow.select((e) => e.incTotal));
     final expTotal = ref.watch(provDFlow.select((e) => e.expTotal));
     final incWorking = ref.watch(provDFlow.select((e) => e.incWorkingTotal));
@@ -112,7 +128,9 @@ class DailyList extends ConsumerWidget {
                           ],
                         ),
                         Text(
-                          'รายรับวันนี้',
+                          'รายรับ ${DateFormat('E d MMM y').format(
+                            ref.watch(provOverFlow.select((e) => e.date)),
+                          )}',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.7),
                             fontSize: 12,
@@ -138,7 +156,7 @@ class DailyList extends ConsumerWidget {
                                 ), // Background color
                               ),
                               onPressed: () =>
-                                  ref.read(provDFlow).setPageIdx(1),
+                                  ref.read(provOverFlow).setPageIdx(1),
                               // Respond to button press
                               child: Row(
                                 children: [
@@ -150,7 +168,7 @@ class DailyList extends ConsumerWidget {
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
-                                      'รายจ่ายวันนี้\n-$expTotal บ.',
+                                      'รายจ่าย\n-$expTotal บ.',
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w700,
@@ -325,7 +343,9 @@ class DailyList extends ConsumerWidget {
                       ],
                     ),
                     Text(
-                      'รายจ่ายวันนี้',
+                      'รายจ่าย ${DateFormat('E d MMM y').format(
+                        ref.watch(provOverFlow.select((e) => e.date)),
+                      )}',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.7),
                         fontSize: 12,
@@ -350,7 +370,7 @@ class DailyList extends ConsumerWidget {
                               ),
                             ), // Background color
                           ),
-                          onPressed: () => ref.read(provDFlow).setPageIdx(0)
+                          onPressed: () => ref.read(provOverFlow).setPageIdx(0)
                           // Respond to button press
                           ,
                           child: Row(
@@ -363,7 +383,7 @@ class DailyList extends ConsumerWidget {
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  'รายรับวันนี้\n+$incTotal บ.',
+                                  'รายรับ\n+$incTotal บ.',
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,

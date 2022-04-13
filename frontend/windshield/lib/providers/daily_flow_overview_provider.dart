@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:windshield/models/daily_flow/budget.dart';
 
 import 'package:windshield/models/daily_flow/category.dart';
-import 'package:windshield/models/daily_flow/flow.dart';
 
-class DailyFlowProvider extends ChangeNotifier {
+class DailyFlowOverviewProvider extends ChangeNotifier {
   List<DFlowCategory> _catList = [];
   List<DFlowCategory> get catList => _catList;
 
+  String _dfId = '';
+  String get dfId => _dfId;
+
+  int _pageIdx = 0;
+  int get pageIdx => _pageIdx;
+
   double _incTotal = 0;
   double get incTotal => _incTotal;
+  int _incFlowsLen = 0;
+  int get incFlowsLen => _incFlowsLen;
   double _expTotal = 0;
   double get expTotal => _expTotal;
-  String _colorBackground = 'income';
-  String get colorBackground => _colorBackground;
+  int _expFlowsLen = 0;
+  int get expFlowsLen => _expFlowsLen;
+
+  DateTime _date = DateTime.now();
+  DateTime get date => _date;
 
   //1
   final List<DFlowCategory> _incWorkingList = [];
@@ -46,82 +55,24 @@ class DailyFlowProvider extends ChangeNotifier {
   double _savAndInvTotal = 0;
   double get savAndInvTotal => _savAndInvTotal;
 
-  DFlowCategory _currCat = DFlowCategory(
-    id: '',
-    name: '',
-    usedCount: 0,
-    ftype: '',
-    icon: '',
-    budgets: [
-      DFlowBudget(
-        id: '',
-        catId: '',
-        total: 0,
-        budPerPeriod: 0,
-        freq: '',
-        fplan: '',
-      ),
-    ],
-    flows: [
-      DFlowFlow(
-        id: '',
-        method: Method(id: 0, name: '', icon: ''),
-        name: '',
-        value: 0,
-        detail: '',
-        dfId: '',
-        cat: Cat(id: '', name: '', usedCount: 0, icon: '', ftype: ''),
-      ),
-    ],
-  );
-  DFlowCategory get currCat => _currCat;
-
-  String _flowId = '';
-  String get flowId => _flowId;
-
-  String _flowName = '';
-  String get flowName => _flowName;
-
-  double _flowValue = 0;
-  double get flowValue => _flowValue;
-
-  int _flowMethod = 0;
-  int get flowMethod => _flowMethod;
-
   bool _needFetchAPI = false;
   bool get needFetchAPI => _needFetchAPI;
+
+  final List<DFlowCategory> _tdIncList = [];
+  List<DFlowCategory> get tdIncList => _tdIncList;
+  final List<DFlowCategory> _tdExpList = [];
+  List<DFlowCategory> get tdExpList => _tdExpList;
 
   void setCatList(List<DFlowCategory> value) {
     _catList = value;
   }
 
-  void setColorBackground(String value) {
-    _colorBackground = value;
-    notifyListeners();
+  void setDfId(String value) {
+    _dfId = value;
   }
 
-  void setCurrCat(DFlowCategory value) {
-    _currCat = value;
-    notifyListeners();
-  }
-
-  void setFlowId(String value) {
-    _flowId = value;
-    notifyListeners();
-  }
-
-  void setFlowName(String value) {
-    _flowName = value;
-    notifyListeners();
-  }
-
-  void setFlowValue(double value) {
-    _flowValue = value;
-    notifyListeners();
-  }
-
-  void setFlowMethod(int value) {
-    _flowMethod = value;
+  void setPageIdx(int value) {
+    _pageIdx = value;
     notifyListeners();
   }
 
@@ -137,42 +88,64 @@ class DailyFlowProvider extends ChangeNotifier {
     _expInconTotal = 0;
     _expConTotal = 0;
     _savAndInvTotal = 0;
+    _incFlowsLen = 0;
+    _expFlowsLen = 0;
     _incWorkingList.clear();
     _incAssetList.clear();
     _incOtherList.clear();
     _expInconList.clear();
     _expConList.clear();
     _savAndInvList.clear();
+    _tdIncList.clear();
+    _tdExpList.clear();
     for (var cat in _catList) {
       if (cat.ftype == '1') {
         _incWorkingList.add(cat);
         for (var flow in cat.flows) {
           _incWorkingTotal += flow.value;
+          _incFlowsLen++;
+          if (_tdIncList.any((e) => e.id == cat.id)) continue;
+          _tdIncList.add(cat);
         }
       } else if (cat.ftype == '2') {
         _incAssetList.add(cat);
         for (var flow in cat.flows) {
           _incAssetTotal += flow.value;
+          _incFlowsLen++;
+          if (_tdIncList.any((e) => e.id == cat.id)) continue;
+          _tdIncList.add(cat);
         }
       } else if (cat.ftype == '3') {
         _incOtherList.add(cat);
         for (var flow in cat.flows) {
           _incOtherTotal += flow.value;
+          _incFlowsLen++;
+          if (_tdIncList.any((e) => e.id == cat.id)) continue;
+          _tdIncList.add(cat);
         }
       } else if (cat.ftype == '4' || cat.ftype == '10') {
         _expInconList.add(cat);
         for (var flow in cat.flows) {
           _expInconTotal += flow.value;
+          _expFlowsLen++;
+          if (_tdExpList.any((e) => e.id == cat.id)) continue;
+          _tdExpList.add(cat);
         }
       } else if (cat.ftype == '5' || cat.ftype == '11') {
         _expConList.add(cat);
         for (var flow in cat.flows) {
           _expConTotal += flow.value;
+          _expFlowsLen++;
+          if (_tdExpList.any((e) => e.id == cat.id)) continue;
+          _tdExpList.add(cat);
         }
       } else if (cat.ftype == '6' || cat.ftype == '12') {
         _savAndInvList.add(cat);
         for (var flow in cat.flows) {
           _savAndInvTotal += flow.value;
+          _expFlowsLen++;
+          if (_tdExpList.any((e) => e.id == cat.id)) continue;
+          _tdExpList.add(cat);
         }
       }
     }
@@ -181,26 +154,8 @@ class DailyFlowProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addFlow(DFlowFlow flow) {
-    _currCat.flows.add(flow);
-    notifyListeners();
-  }
-
-  void editFlow(DFlowFlow flow) {
-    final found = _currCat.flows.firstWhere((e) => e.id == flow.id);
-    found.cat = flow.cat;
-    found.detail = flow.detail;
-    found.dfId = flow.dfId;
-    found.id = flow.id;
-    found.method = flow.method;
-    found.methodId = flow.methodId;
-    found.name = flow.name;
-    found.value = flow.value;
-    notifyListeners();
-  }
-
-  void removeFlow(String flowId) {
-    _currCat.flows.removeWhere((e) => e.id == flowId);
+  void setDate(DateTime value) {
+    _date = value;
     notifyListeners();
   }
 }
