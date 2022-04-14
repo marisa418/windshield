@@ -1,11 +1,12 @@
 from datetime import datetime
-from operator import mod
 import os
+import zoneinfo
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.db.models.deletion import CASCADE, SET_NULL
 from django.utils.timezone import now
+from pytz import timezone
 from user.models import NewUser, Province
 from django.core.exceptions import ValidationError
 import math
@@ -517,7 +518,8 @@ class Subject(models.Model):
         return self.name
 
 def nameFile(instance, filename):
-    filename = "%s_%s.%s" % (filename.split('.')[0], instance.topic, filename.split('.')[-1])
+    timestamp =  datetime.now(tz= timezone('Asia/Bangkok'))
+    filename = "%s_%s.%s" % (timestamp.strftime("%d-%m-%Y_%H-%M-%S"), instance.topic, filename.split('.')[-1])
     return os.path.join('images/', filename)
 
 class KnowledgeArticle(models.Model):
@@ -526,9 +528,8 @@ class KnowledgeArticle(models.Model):
     subject = models.ManyToManyField(Subject, related_name="subject")
     body = models.TextField()
     image = models.ImageField(upload_to=nameFile)
-    like = models.PositiveIntegerField(default=0)
     view = models.PositiveIntegerField(default=0)
-    isexclusive = models.BooleanField(default=False)
+    exclusive_price = models.PositiveIntegerField(default=0)
     author = models.ForeignKey(NewUser, on_delete=SET_NULL, null=True)
 
     class Meta:
@@ -536,3 +537,26 @@ class KnowledgeArticle(models.Model):
 
     def __str__(self):
         return str(self.id) + " " + self.topic
+    
+class Viewer(models.Model):
+    id = models.AutoField(primary_key=True)
+    timestamp = models.DateTimeField(default=now)
+    viewer = models.ForeignKey(NewUser, on_delete=CASCADE)
+    article = models.ForeignKey(KnowledgeArticle, on_delete=CASCADE)
+    
+    class Meta:
+        db_table = 'viewer'
+    
+    def __str__(self):
+        return str(self.id) + ": " + self.viewer.user_id + " view " + self.article.topic + " at " + str(self.timestamp) 
+
+class Liker(models.Model):
+    id = models.AutoField(primary_key=True)
+    liker = models.ForeignKey(NewUser, on_delete=CASCADE)
+    article = models.ForeignKey(KnowledgeArticle, on_delete=CASCADE, related_name="article")
+    
+    class Meta:
+        db_table = 'liker'
+        
+    def __str__(self):
+        return str(self.id) + ": " + self.liker.user_id + " like " + self.article.topic

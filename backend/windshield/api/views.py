@@ -920,16 +920,45 @@ class Articles(generics.ListAPIView):
     queryset = models.KnowledgeArticle.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     
-class Article(generics.RetrieveUpdateAPIView):
+class Article(generics.RetrieveAPIView):
     serializer_class = serializers.KnowledgeArticleSerializer
     queryset = models.KnowledgeArticle.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     
     def retrieve(self, request, pk=None):
         object = self.get_object()
-        if object:
-            object.view += 1
-            object.save()
+        models.Viewer.objects.create(viewer=request.user, article=object)
+        object.like = models.Liker.objects.filter(liker=request.user.uuid, article=object.id)
+        serializer = self.serializer_class(object, many=False)
+        return Response(serializer.data)
+
+class ReadArticle(generics.RetrieveAPIView):
+    serializer_class = serializers.KnowledgeArticleSerializer
+    queryset = models.KnowledgeArticle.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def retrieve(self, request, pk=None):
+        object = self.get_object()
+        object.view += 1
+        object.save()
+        models.Viewer.objects.create(viewer=request.user, article=object)
+        object.like = models.Liker.objects.filter(liker=request.user.uuid, article=object.id)
+        serializer = self.serializer_class(object, many=False)
+        return Response(serializer.data)
+
+class LikeArticle(generics.RetrieveAPIView):
+    serializer_class = serializers.KnowledgeArticleSerializer
+    queryset = models.KnowledgeArticle.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def retrieve(self, request, pk=None):
+        object = self.get_object()
+        liker = models.Liker.objects.filter(liker=request.user.uuid, article=object.id)
+        if liker:
+            liker.delete()
+        else:
+            models.Liker.objects.create(liker=request.user, article=object)
+        object.like = models.Liker.objects.filter(liker=request.user.uuid, article=object.id)  
         serializer = self.serializer_class(object, many=False)
         return Response(serializer.data)
     

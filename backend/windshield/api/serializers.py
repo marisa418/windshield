@@ -169,6 +169,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 
 class KnowledgeArticleSerializer(serializers.ModelSerializer):
     subject = SubjectSerializer(many=True)
+    like = serializers.BooleanField()
     
     class Meta:
         model = models.KnowledgeArticle
