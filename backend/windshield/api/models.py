@@ -1,4 +1,5 @@
 from datetime import datetime
+from email.policy import default
 import os
 import zoneinfo
 from django.db import models
@@ -531,6 +532,7 @@ class KnowledgeArticle(models.Model):
     view = models.PositiveIntegerField(default=0)
     exclusive_price = models.PositiveIntegerField(default=0)
     author = models.ForeignKey(NewUser, on_delete=SET_NULL, null=True)
+    upload_on = models.DateTimeField(default=now)
 
     class Meta:
         db_table = 'knowledge_article'

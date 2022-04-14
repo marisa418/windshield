@@ -169,6 +169,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 
 class ArticlesSerializer(serializers.ModelSerializer):
     subject = SubjectSerializer(many=True)
+    isunlock = serializers.BooleanField()
 
     class Meta:
         model = models.KnowledgeArticle

@@ -8,7 +8,7 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import datetime, timedelta
 from pytz import timezone
-from django.db.models import Sum, Exists, OuterRef, Q, F, Prefetch
+from django.db.models import Exists, OuterRef, Q, F, Prefetch
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -917,8 +917,46 @@ class FinancialStatus(APIView):
     
 class Articles(generics.ListAPIView):
     serializer_class = serializers.ArticlesSerializer
-    queryset = models.KnowledgeArticle.objects.all()
     permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = models.KnowledgeArticle.objects.all()
+        ignore = self.request.query_params.getlist('ignore')
+        if len(ignore) > 0:
+            queryset = queryset.exclude(subject__name__in=ignore)
+        readable = eval(self.request.query_params.get("lower_price", "False"))
+        if readable:
+            queryset = queryset.filter(
+                Q(exclusive_price=0) |
+                Exists(models.ExclusiveArticleOwner.objects.filter(
+                    owner__uuid=self.request.user.uuid, 
+                    article__id=OuterRef('pk')
+                    ))
+            )
+        lower_price = self.request.query_params.get("lower_price", None)
+        if lower_price:
+            queryset = queryset.filter(exclusive_price__gte=lower_price)
+        upper_price = self.request.query_params.get("upper_price", None)
+        if upper_price:
+            queryset = queryset.filter(exclusive_price__lte=upper_price)
+        search_text = self.request.query_params.get("search", None)
+        if search_text:
+            queryset = queryset.filter(
+                Q(topic__contains=search_text) |
+                Q(subject__name__contains=search_text)
+            )
+        sort_by = self.request.query_params.get("sort_by", None)
+        if sort_by:
+            try:
+                queryset = queryset.order_by(sort_by)
+            except:
+                pass
+        queryset = queryset.annotate(
+            isunlock=Exists(models.ExclusiveArticleOwner.objects.filter(
+                    owner__uuid=self.request.user.uuid, 
+                    article__id=OuterRef('pk')
+                    )))
+        return queryset
     
 class Article(generics.RetrieveAPIView):
     serializer_class = serializers.KnowledgeArticleSerializer
