@@ -53,6 +53,7 @@ urlpatterns = [
     path('article/<int:pk>/', views.Article.as_view(), name="article"),
     path('article/<int:pk>/read', views.ReadArticle.as_view(), name="article-read"),
     path('article/<int:pk>/like', views.LikeArticle.as_view(), name="article-like"),
+    path('article/<int:pk>/unlock', views.UnlockExclusive.as_view(), name="article-unlock"),
     
     #FOR ADMIN
     path('admin/default-categories/', views.DefaultCategories.as_view(), name='default-categories'),

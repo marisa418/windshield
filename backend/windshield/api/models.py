@@ -571,3 +571,11 @@ class ExclusiveArticleOwner(models.Model):
         
     def __str__(self):
         return str(self.id) + ": " + self.owner.user_id + " own " + self.article.topic
+
+@receiver(pre_save, sender=ExclusiveArticleOwner, dispatch_uid="decrease_point_to_unlock_exclusive_article")
+def decrease_user_point(sender, instance, *args, **kwargs):
+    user = NewUser.objects.get(uuid=instance.owner.uuid)
+    if user.points < instance.article.exclusive_price:
+        raise Exception("points are not enought")
+    user.points -= instance.article.exclusive_price
+    user.save()

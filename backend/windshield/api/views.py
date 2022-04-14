@@ -976,6 +976,32 @@ class LikeArticle(generics.RetrieveAPIView):
         serializer = self.serializer_class(object, many=False)
         return Response(serializer.data)
     
+class UnlockExclusive(generics.RetrieveAPIView):
+    serializer_class = serializers.KnowledgeArticleSerializer
+    queryset = models.KnowledgeArticle.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def retrieve(self, request, pk=None):
+        object = self.get_object()
+        if object.exclusive_price > 0:
+            isowned = models.ExclusiveArticleOwner.objects.filter(owner=request.user.uuid, article=object.id)
+            if not isowned:
+                if request.user.points < object.exclusive_price:
+                    return Response(
+                        {
+                            "message": "your point is not enought (want " + str(object.exclusive_price) + " points)",
+                            "points": request.user.points
+                         },
+                        status=status.HTTP_423_LOCKED
+                    )
+                models.ExclusiveArticleOwner.objects.create(owner=request.user, article=object)
+        object.view += 1
+        object.save()
+        models.Viewer.objects.create(viewer=request.user, article=object)
+        object.like = models.Liker.objects.filter(liker=request.user.uuid, article=object.id)
+        serializer = self.serializer_class(object, many=False)
+        return Response(serializer.data)
+    
 # class ArticleUpdate(generics.RetrieveUpdateDestroyAPIView):
 #     serializer_class = serializers.KnowledgeArticleSerializer
 #     queryset = models.KnowledgeArticle.objects.all()
