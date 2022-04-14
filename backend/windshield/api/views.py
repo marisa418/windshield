@@ -916,14 +916,14 @@ class FinancialStatus(APIView):
         return Response(finstatus)
     
 class Articles(generics.ListAPIView):
-    serializer_class = serializers.KnowledgeArticleSerializer
+    serializer_class = serializers.ArticlesSerializer
     queryset = models.KnowledgeArticle.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     
 class Article(generics.RetrieveAPIView):
     serializer_class = serializers.KnowledgeArticleSerializer
     queryset = models.KnowledgeArticle.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
     
     def retrieve(self, request, pk=None):
         object = self.get_object()
@@ -939,6 +939,13 @@ class ReadArticle(generics.RetrieveAPIView):
     
     def retrieve(self, request, pk=None):
         object = self.get_object()
+        if object.exclusive_price > 0:
+            isowned = models.ExclusiveArticleOwner.objects.filter(owner=request.user.uuid, article=object.id)
+            if not isowned:
+                return Response(
+                    {"message": "must unlock this article to read it (using " + str(object.exclusive_price) + " points)"},
+                    status=status.HTTP_423_LOCKED
+                )
         object.view += 1
         object.save()
         models.Viewer.objects.create(viewer=request.user, article=object)
@@ -953,6 +960,13 @@ class LikeArticle(generics.RetrieveAPIView):
     
     def retrieve(self, request, pk=None):
         object = self.get_object()
+        if object.exclusive_price > 0:
+            isowned = models.ExclusiveArticleOwner.objects.filter(owner=request.user.uuid, article=object.id)
+            if not isowned:
+                return Response(
+                    {"message": "must unlock this article to like it (using " + str(object.exclusive_price) + " points)"},
+                    status=status.HTTP_423_LOCKED
+                )
         liker = models.Liker.objects.filter(liker=request.user.uuid, article=object.id)
         if liker:
             liker.delete()

@@ -167,6 +167,14 @@ class SubjectSerializer(serializers.ModelSerializer):
         model = models.Subject
         fields = "__all__"
 
+class ArticlesSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer(many=True)
+
+    class Meta:
+        model = models.KnowledgeArticle
+        exclude = ["body"]
+        read_only_fields = ["id", "like", "view", "creator"]
+
 class KnowledgeArticleSerializer(serializers.ModelSerializer):
     subject = SubjectSerializer(many=True)
     like = serializers.BooleanField()
@@ -174,4 +182,3 @@ class KnowledgeArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.KnowledgeArticle
         fields = "__all__"
-        read_only_fields = ["id", "like", "view", "creator"]

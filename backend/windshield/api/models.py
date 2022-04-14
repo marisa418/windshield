@@ -560,3 +560,14 @@ class Liker(models.Model):
         
     def __str__(self):
         return str(self.id) + ": " + self.liker.user_id + " like " + self.article.topic
+    
+class ExclusiveArticleOwner(models.Model):
+    id = models.AutoField(primary_key=True)
+    owner = models.ForeignKey(NewUser, on_delete=CASCADE, related_name="owner")
+    article = models.ForeignKey(KnowledgeArticle, on_delete=CASCADE, related_name="exclusive_article")
+    
+    class Meta:
+        db_table = 'exclusive_article_owner'
+        
+    def __str__(self):
+        return str(self.id) + ": " + self.owner.user_id + " own " + self.article.topic
