@@ -133,30 +133,27 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
-                        child: Container(
-                          //color: Colors.red,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              DatePicker(
-                                DateTime.now()
-                                    .subtract(const Duration(days: 5)),
-                                height: 90,
-                                initialSelectedDate: DateTime.now(),
-                                selectionColor: Colors.white,
-                                selectedTextColor: MyTheme.primaryMajor,
-                                daysCount: 7,
-                                locale: "th_TH",
-                                onDateChange: (date) {
-                                  // New date selected
-                                  /*setState(() {
-                                    _selectedValue = date;
-                                  });*/
-                                },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            DatePicker(
+                              DateTime.now()
+                                  .subtract(const Duration(days: 5)),
+                              height: 90,
+                              initialSelectedDate: DateTime.now(),
+                              selectionColor: Colors.white,
+                              selectedTextColor: MyTheme.primaryMajor,
+                              daysCount: 7,
+                              locale: "th_TH",
+                              onDateChange: (date) {
+                                // New date selected
+                                /*setState(() {
+                                  _selectedValue = date;
+                                });*/
+                              },
                         const DateList(),
                       ],
                     ),
-                  ),
                   const ExpenseIncome(),
                   Expanded(
                     child: ListView(
