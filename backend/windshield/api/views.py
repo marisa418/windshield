@@ -1,3 +1,4 @@
+import math
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -8,7 +9,7 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import datetime, timedelta
 from pytz import timezone
-from django.db.models import Sum, Exists, OuterRef, Q, F, Prefetch
+from django.db.models import Exists, OuterRef, Q, F, Prefetch
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -916,20 +917,138 @@ class FinancialStatus(APIView):
         return Response(finstatus)
     
 class Articles(generics.ListAPIView):
-    serializer_class = serializers.KnowledgeArticleSerializer
-    queryset = models.KnowledgeArticle.objects.all()
+    serializer_class = serializers.ArticlesSerializer
     permission_classes = [permissions.IsAuthenticated]
     
-class Article(generics.RetrieveUpdateAPIView):
+    def get_queryset(self):
+        queryset = models.KnowledgeArticle.objects.all()
+        ignore = self.request.query_params.getlist('ignore')
+        if len(ignore) > 0:
+            queryset = queryset.exclude(subject__name__in=ignore)
+        readable = eval(self.request.query_params.get("lower_price", "False"))
+        if readable:
+            queryset = queryset.filter(
+                Q(exclusive_price=0) |
+                Exists(models.ExclusiveArticleOwner.objects.filter(
+                    owner__uuid=self.request.user.uuid, 
+                    article__id=OuterRef('pk')
+                    ))
+            )
+        lower_price = self.request.query_params.get("lower_price", None)
+        if lower_price:
+            queryset = queryset.filter(exclusive_price__gte=lower_price)
+        upper_price = self.request.query_params.get("upper_price", None)
+        if upper_price:
+            queryset = queryset.filter(exclusive_price__lte=upper_price)
+        search_text = self.request.query_params.get("search", None)
+        if search_text:
+            queryset = queryset.filter(
+                Q(topic__contains=search_text) |
+                Q(subject__name__contains=search_text)
+            )
+        sort_by = self.request.query_params.get("sort_by", None)
+        if sort_by:
+            try:
+                queryset = queryset.order_by(sort_by)
+            except:
+                pass
+        queryset = queryset.annotate(
+            isunlock=Exists(models.ExclusiveArticleOwner.objects.filter(
+                    owner__uuid=self.request.user.uuid, 
+                    article__id=OuterRef('pk')
+                    )))
+        
+        page = int(self.request.query_params.get("page", None))
+        limit = int(self.request.query_params.get("limit", 5))
+        if page:
+            total_page = math.ceil(float(queryset.count()) / limit)
+            if page > total_page: page = total_page
+            if page < 1:  page = 1
+            start = limit * (page - 1)
+            end = limit * page
+            if end > queryset.count(): end = queryset.count()
+            queryset = queryset[start:end]
+        return queryset
+    
+class Article(generics.RetrieveAPIView):
+    serializer_class = serializers.KnowledgeArticleSerializer
+    queryset = models.KnowledgeArticle.objects.all()
+    permission_classes = [permissions.IsAdminUser]
+    
+    def retrieve(self, request, pk=None):
+        object = self.get_object()
+        models.Viewer.objects.create(viewer=request.user, article=object)
+        object.like = models.Liker.objects.filter(liker=request.user.uuid, article=object.id)
+        serializer = self.serializer_class(object, many=False)
+        return Response(serializer.data)
+
+class ReadArticle(generics.RetrieveAPIView):
     serializer_class = serializers.KnowledgeArticleSerializer
     queryset = models.KnowledgeArticle.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     
     def retrieve(self, request, pk=None):
         object = self.get_object()
-        if object:
-            object.view += 1
-            object.save()
+        if object.exclusive_price > 0:
+            isowned = models.ExclusiveArticleOwner.objects.filter(owner=request.user.uuid, article=object.id)
+            if not isowned:
+                return Response(
+                    {"message": "must unlock this article to read it (using " + str(object.exclusive_price) + " points)"},
+                    status=status.HTTP_423_LOCKED
+                )
+        object.view += 1
+        object.save()
+        models.Viewer.objects.create(viewer=request.user, article=object)
+        object.like = models.Liker.objects.filter(liker=request.user.uuid, article=object.id)
+        serializer = self.serializer_class(object, many=False)
+        return Response(serializer.data)
+
+class LikeArticle(generics.RetrieveAPIView):
+    serializer_class = serializers.KnowledgeArticleSerializer
+    queryset = models.KnowledgeArticle.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def retrieve(self, request, pk=None):
+        object = self.get_object()
+        if object.exclusive_price > 0:
+            isowned = models.ExclusiveArticleOwner.objects.filter(owner=request.user.uuid, article=object.id)
+            if not isowned:
+                return Response(
+                    {"message": "must unlock this article to like it (using " + str(object.exclusive_price) + " points)"},
+                    status=status.HTTP_423_LOCKED
+                )
+        liker = models.Liker.objects.filter(liker=request.user.uuid, article=object.id)
+        if liker:
+            liker.delete()
+        else:
+            models.Liker.objects.create(liker=request.user, article=object)
+        object.like = models.Liker.objects.filter(liker=request.user.uuid, article=object.id)  
+        serializer = self.serializer_class(object, many=False)
+        return Response(serializer.data)
+    
+class UnlockExclusive(generics.RetrieveAPIView):
+    serializer_class = serializers.KnowledgeArticleSerializer
+    queryset = models.KnowledgeArticle.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def retrieve(self, request, pk=None):
+        object = self.get_object()
+        if object.exclusive_price > 0:
+            isowned = models.ExclusiveArticleOwner.objects.filter(owner=request.user.uuid, article=object.id)
+            if not isowned:
+                if request.user.points < object.exclusive_price:
+                    return Response(
+                        {
+                            "message": "your point is not enought (want " + str(object.exclusive_price) + " points)",
+                            "points": request.user.points
+                         },
+                        status=status.HTTP_423_LOCKED
+                    )
+                models.ExclusiveArticleOwner.objects.create(owner=request.user, article=object)
+        object.view += 1
+        object.save()
+        models.Viewer.objects.create(viewer=request.user, article=object)
+        object.like = models.Liker.objects.filter(liker=request.user.uuid, article=object.id)
         serializer = self.serializer_class(object, many=False)
         return Response(serializer.data)
     
