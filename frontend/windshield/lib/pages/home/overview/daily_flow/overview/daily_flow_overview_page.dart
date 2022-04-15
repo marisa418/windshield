@@ -130,7 +130,6 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                             ),
                           ),
                         ),
-<<<<<<< HEAD
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
@@ -154,7 +153,6 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                                     _selectedValue = date;
                                   });*/
                                 },
-=======
                         const DateList(),
                       ],
                     ),
@@ -191,7 +189,6 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                                   topRight: Radius.circular(20),
                                   bottomRight: Radius.circular(20),
                                 ),
->>>>>>> 175a3f62b88a1a5e21a8be177870a42bbf8d9d9f
                               ),
                             ),
                             onPressed: () => AutoRouter.of(context).pop(),
