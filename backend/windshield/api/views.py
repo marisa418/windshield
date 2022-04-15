@@ -1,3 +1,4 @@
+import math
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -956,6 +957,17 @@ class Articles(generics.ListAPIView):
                     owner__uuid=self.request.user.uuid, 
                     article__id=OuterRef('pk')
                     )))
+        
+        page = int(self.request.query_params.get("page", None))
+        limit = int(self.request.query_params.get("limit", 5))
+        if page:
+            total_page = math.ceil(float(queryset.count()) / limit)
+            if page > total_page: page = total_page
+            if page < 1:  page = 1
+            start = limit * (page - 1)
+            end = limit * page
+            if end > queryset.count(): end = queryset.count()
+            queryset = queryset[start:end]
         return queryset
     
 class Article(generics.RetrieveAPIView):
