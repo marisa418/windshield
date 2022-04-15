@@ -34,6 +34,7 @@ urlpatterns = [
     #DAILY FLOW SHEET
     path('daily-flow-sheet/', views.DailyFlowSheet.as_view(), name="daily-flow_sheet"),
     path('daily-flow-sheet/list/', views.DailyFlowSheetList.as_view(), name="daily-flow-sheet-list"),
+    path('daily-flow-sheet/graph/', views.GraphDailyFlow.as_view(), name='daily-flow_sheet-graph'),
     
     #DAILY FLOW
     path('method/', views.Method.as_view(), name='method'),
