@@ -97,7 +97,6 @@ class BudgetProvider extends ChangeNotifier {
     StmntBudget budget = StmntBudget(
       id: '',
       cat: StmntCategory(id: '', name: '', usedCount: 0, ftype: '', icon: ''),
-      balance: 0,
       total: total,
       budPerPeriod: _budPerPeriod,
       freq: _budType,

@@ -1,3 +1,4 @@
+from dataclasses import field
 from unicodedata import category
 from rest_framework import serializers
 from . import models
@@ -159,3 +160,26 @@ class FinancialGoalsSerializer(serializers.ModelSerializer):
         model = models.FinancialGoal
         exclude = ["user_id"]
         read_only_fields = ["id", "reward", "total_progress"]
+
+class SubjectSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = models.Subject
+        fields = "__all__"
+
+class ArticlesSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer(many=True)
+    isunlock = serializers.BooleanField()
+
+    class Meta:
+        model = models.KnowledgeArticle
+        exclude = ["body"]
+        read_only_fields = ["id", "like", "view", "creator"]
+
+class KnowledgeArticleSerializer(serializers.ModelSerializer):
+    subject = SubjectSerializer(many=True)
+    like = serializers.BooleanField()
+    
+    class Meta:
+        model = models.KnowledgeArticle
+        fields = "__all__"

@@ -8,25 +8,9 @@ import 'routes/app_router.dart';
 import 'styles/theme.dart';
 import 'services/api.dart';
 
-import 'models/daily_flow/category.dart';
-import 'providers/daily_flow_provider.dart';
 import 'providers/balance_sheet_provider.dart';
 
 final apiProvider = ChangeNotifierProvider<Api>((ref) => Api());
-
-final provDFlow = ChangeNotifierProvider.autoDispose<DailyFlowProvider>(
-    (ref) => DailyFlowProvider());
-
-final apiDFlow = FutureProvider.autoDispose<List<DFlowCategory>>((ref) async {
-  ref.watch(provDFlow.select((value) => value.needFetchAPI));
-  final now = DateTime.now();
-  final id = await ref.read(apiProvider).getTodayDFId(now);
-  final data = await ref.read(apiProvider).getAllCategoriesWithBudgetFlows(now);
-  ref.read(provDFlow).setDfId(id);
-  ref.read(provDFlow).setCatList(data);
-  ref.read(provDFlow).setCatType();
-  return data;
-});
 
 final provBSheet = ChangeNotifierProvider.autoDispose<BalanceSheetProvider>(
     (ref) => BalanceSheetProvider());

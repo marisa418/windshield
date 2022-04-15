@@ -33,7 +33,7 @@ class HelperColor {
   };
 
   static Color getFtColor(String ftype, int opacity) {
-    if (opacity == 50) {
+    if (opacity == 1) {
       return colors50[ftype] ?? Colors.white;
     }
     return colors100[ftype] ?? Colors.white;
