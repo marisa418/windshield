@@ -1,5 +1,3 @@
-from dataclasses import field
-from unicodedata import category
 from rest_framework import serializers
 from . import models
 
