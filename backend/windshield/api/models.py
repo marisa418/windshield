@@ -1,9 +1,10 @@
 from datetime import datetime
 from operator import mod
+import os
 from django.db import models
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django.db.models.deletion import CASCADE
+from django.db.models.deletion import CASCADE, SET_NULL
 from django.utils.timezone import now
 from user.models import NewUser, Province
 from django.core.exceptions import ValidationError
@@ -265,7 +266,7 @@ class Budget(models.Model):
     id = models.CharField(max_length=26, primary_key=True)
     cat_id = models.ForeignKey(Category, related_name="budgets",on_delete=CASCADE)
     fplan = models.ForeignKey(FinancialStatementPlan, related_name="budgets", on_delete=CASCADE)
-    used_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    # used_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_budget = models.DecimalField(max_digits=12, decimal_places=2)
     budget_per_period = models.DecimalField(max_digits=12, decimal_places=2, validators=[validate_ispositive])
     frequency = models.CharField(max_length=3, choices=freq_choices, default=freq_choices[2][0])
@@ -340,18 +341,6 @@ class DailyFlow(models.Model):
     def __str__(self):
         return self.id + " " + self.name
     
-    def __update_budget__(self, date, category, change):
-        try:
-            plans = FinancialStatementPlan.objects.filter(owner_id=category.user_id.uuid)
-            plans = plans.filter(start__lte=date, end__gte=date)
-            budgets = Budget.objects.filter(fplan__in=plans, cat_id=category.id)
-        except (FinancialStatementPlan.DoesNotExist, Budget.DoesNotExist):
-            return False
-        for budget in budgets:
-            budget.used_balance += change
-            budget.save()
-        return True
-    
     def __update_goal__(self, category, change):
         try:
             goal = FinancialGoal.objects.get(category_id=category.id)
@@ -371,7 +360,6 @@ class DailyFlow(models.Model):
         change = -self.value
         cat.used_count -= 1
         cat.save()
-        self.__update_budget__(dfsheet.date, cat, change)
         self.__update_goal__(cat, change)
         return super(DailyFlow, self).delete()
     
@@ -394,7 +382,6 @@ class DailyFlow(models.Model):
         else:
             flow = DailyFlow.objects.get(id=self.id)
             change = self.value - flow.value
-        self.__update_budget__(dfsheet.date, cat, change)
         self.__update_goal__(cat, change)
         return super(DailyFlow, self).save(*args, **kwargs)
 
@@ -459,78 +446,93 @@ class FinancialGoal(models.Model):
 #     def __str__(self):
 #         return self.id
 
-class Achievement(models.Model):
-    id = models.CharField(max_length=5, primary_key=True)
-    name = models.CharField(max_length=30)
-    detail = models.TextField()
-    reward = models.PositiveIntegerField(null=True)
-    recomm_count = models.PositiveIntegerField(default=0)
-    achieve_count = models.PositiveIntegerField(default=0)
-    complete_count = models.PositiveIntegerField(default=0)
-    creator = models.ForeignKey(NewUser, on_delete=CASCADE)
+# class Achievement(models.Model):
+#     id = models.CharField(max_length=5, primary_key=True)
+#     name = models.CharField(max_length=30)
+#     detail = models.TextField()
+#     reward = models.PositiveIntegerField(null=True)
+#     recomm_count = models.PositiveIntegerField(default=0)
+#     achieve_count = models.PositiveIntegerField(default=0)
+#     complete_count = models.PositiveIntegerField(default=0)
+#     creator = models.ForeignKey(NewUser, on_delete=CASCADE)
 
-    class Meta:
-        db_table = 'achievement'
+#     class Meta:
+#         db_table = 'achievement'
 
-    def __str__(self):
-        return self.id
+#     def __str__(self):
+#         return self.id
 
-class RecommendBoard(models.Model):
-    status_choices = [
-        ('UNA', 'Unachived'),
-        ('ACH', 'Achived'),
-        ('COM', 'Complete'),
-    ]
+# class RecommendBoard(models.Model):
+#     status_choices = [
+#         ('UNA', 'Unachived'),
+#         ('ACH', 'Achived'),
+#         ('COM', 'Complete'),
+#     ]
+#     id = models.AutoField(primary_key=True)
+#     ach_id = models.ForeignKey(Achievement, on_delete=CASCADE)
+#     recomm_user = models.ForeignKey(NewUser, on_delete=CASCADE)
+#     status = models.CharField(max_length=3, choices=status_choices, default=status_choices[0][0])
+
+#     class Meta:
+#         db_table = 'recommend_board'
+
+#     def __str__(self):
+#         return self.id
+
+# class Suggestion(models.Model):
+#     id = models.CharField(max_length=5, primary_key=True)
+#     name = models.CharField(max_length=30)
+#     detail = models.TextField()
+#     # image = models.FilePathField()
+#     like = models.PositiveIntegerField()
+#     recomm_count = models.PositiveIntegerField()
+#     creator = models.ForeignKey(NewUser, on_delete=CASCADE)
+
+#     class Meta:
+#         db_table = 'suggestion'
+
+#     def __str__(self):
+#         return self.id
+
+# class SuggestionBoard(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     sugg_id = models.ForeignKey(Suggestion, on_delete=CASCADE)
+#     sugg_user = models.ForeignKey(NewUser, on_delete=CASCADE)
+#     liked = models.BooleanField()
+
+#     class Meta:
+#         db_table = 'suggestion_board'
+
+#     def __str__(self):
+#         return self.id
+
+class Subject(models.Model):
     id = models.AutoField(primary_key=True)
-    ach_id = models.ForeignKey(Achievement, on_delete=CASCADE)
-    recomm_user = models.ForeignKey(NewUser, on_delete=CASCADE)
-    status = models.CharField(max_length=3, choices=status_choices, default=status_choices[0][0])
-
+    name = models.CharField(max_length=20)
+    
     class Meta:
-        db_table = 'recommend_board'
+        db_table = 'subject'
 
     def __str__(self):
-        return self.id
+        return self.name
 
-class Suggestion(models.Model):
-    id = models.CharField(max_length=5, primary_key=True)
-    name = models.CharField(max_length=30)
-    detail = models.TextField()
-    # image = models.FilePathField()
-    like = models.PositiveIntegerField()
-    recomm_count = models.PositiveIntegerField()
-    creator = models.ForeignKey(NewUser, on_delete=CASCADE)
-
-    class Meta:
-        db_table = 'suggestion'
-
-    def __str__(self):
-        return self.id
-
-class SuggestionBoard(models.Model):
-    id = models.AutoField(primary_key=True)
-    sugg_id = models.ForeignKey(Suggestion, on_delete=CASCADE)
-    sugg_user = models.ForeignKey(NewUser, on_delete=CASCADE)
-    liked = models.BooleanField()
-
-    class Meta:
-        db_table = 'suggestion_board'
-
-    def __str__(self):
-        return self.id
+def nameFile(instance, filename):
+    filename = "%s_%s.%s" % (filename.split('.')[0], instance.topic, filename.split('.')[-1])
+    return os.path.join('images/', filename)
 
 class KnowledgeArticle(models.Model):
-    id = models.CharField(max_length=5, primary_key=True)
+    id = models.AutoField(primary_key=True)
     topic = models.CharField(max_length=30)
-    # subject = ArrayField(models.CharField(), size=10)
-    detail = models.TextField()
-    # body = models.FilePathField()
-    like = models.PositiveIntegerField()
-    view = models.PositiveIntegerField()
-    creator = models.ForeignKey(NewUser, on_delete=CASCADE)
+    subject = models.ManyToManyField(Subject, related_name="subject")
+    body = models.TextField()
+    image = models.ImageField(upload_to=nameFile)
+    like = models.PositiveIntegerField(default=0)
+    view = models.PositiveIntegerField(default=0)
+    isexclusive = models.BooleanField(default=False)
+    author = models.ForeignKey(NewUser, on_delete=SET_NULL, null=True)
 
     class Meta:
         db_table = 'knowledge_article'
 
     def __str__(self):
-        return self.id
+        return str(self.id) + " " + self.topic

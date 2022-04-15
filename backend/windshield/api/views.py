@@ -8,7 +8,7 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import datetime, timedelta
 from pytz import timezone
-from django.db.models import Exists, OuterRef, Q, F, Prefetch
+from django.db.models import Sum, Exists, OuterRef, Q, F, Prefetch
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -915,4 +915,33 @@ class FinancialStatus(APIView):
             } 
         return Response(finstatus)
     
+class Articles(generics.ListAPIView):
+    serializer_class = serializers.KnowledgeArticleSerializer
+    queryset = models.KnowledgeArticle.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
     
+class Article(generics.RetrieveUpdateAPIView):
+    serializer_class = serializers.KnowledgeArticleSerializer
+    queryset = models.KnowledgeArticle.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def retrieve(self, request, pk=None):
+        object = self.get_object()
+        if object:
+            object.view += 1
+            object.save()
+        serializer = self.serializer_class(object, many=False)
+        return Response(serializer.data)
+    
+# class ArticleUpdate(generics.RetrieveUpdateDestroyAPIView):
+#     serializer_class = serializers.KnowledgeArticleSerializer
+#     queryset = models.KnowledgeArticle.objects.all()
+#     permission_classes = [permissions.IsAdminUser]
+
+# class ArticleCreate(generics.CreateAPIView):
+#     serializer_class = serializers.KnowledgeArticleSerializer
+#     queryset = models.KnowledgeArticle.objects.all()
+#     permission_classes = [permissions.IsAdminUser]
+    
+#     def perform_create(self, serializer):
+#         serializer.save(author = self.request.user.uuid, **self.request.data)
