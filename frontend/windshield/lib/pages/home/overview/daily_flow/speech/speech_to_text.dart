@@ -4,9 +4,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:windshield/main.dart';
+import 'package:windshield/pages/home/overview/daily_flow/overview/daily_flow_overview_page.dart';
 import 'package:windshield/providers/speech_to_text_provider.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+import '../daily_flow_page.dart';
 import 'cat_type.dart';
 
 final provSpeech = ChangeNotifierProvider.autoDispose<SpeechToTextProvider>(
@@ -24,7 +26,7 @@ class _SpeechToTextPageState extends ConsumerState<SpeechToTextPage> {
   @override
   void initState() {
     super.initState();
-    final id = ref.read(provDFlow).dfId;
+    final id = ref.read(provOverFlow).dfId;
     ref.read(provSpeech).initSpeechState();
     ref.read(provSpeech).setDfId(id);
   }
@@ -51,7 +53,7 @@ class Header extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
+    final idx = ref.watch(provOverFlow.select((e) => e.pageIdx));
     final isListening =
         ref.watch(provSpeech.select((e) => e.speech.isListening));
     final hasSpeech = ref.watch(provSpeech.select((e) => e.hasSpeech));
@@ -120,7 +122,7 @@ class FlowList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(provSpeech);
     final flowList = ref.watch(provSpeech.select((e) => e.flowList));
-    final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
+    final idx = ref.watch(provOverFlow.select((e) => e.pageIdx));
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(30),
@@ -329,7 +331,7 @@ class ChooseCat extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
+    final idx = ref.watch(provOverFlow.select((e) => e.pageIdx));
     return SizedBox(
       height: MediaQuery.of(context).size.height / 2,
       child: Column(
@@ -374,7 +376,7 @@ class CatList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
+    final idx = ref.watch(provOverFlow.select((e) => e.pageIdx));
     if (idx == 0) {
       return ListView(
         shrinkWrap: true,
@@ -421,7 +423,7 @@ class Calculator extends ConsumerWidget {
     final name = ref.watch(provSpeech.select((e) => e.name));
     final value = ref.watch(provSpeech.select((e) => e.value));
     final method = ref.watch(provSpeech.select((e) => e.method));
-    final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
+    final idx = ref.watch(provOverFlow.select((e) => e.pageIdx));
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -573,7 +575,7 @@ class Footer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(provSpeech);
-    final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
+    final idx = ref.watch(provOverFlow.select((e) => e.pageIdx));
     final flowList = ref.watch(provSpeech.select((e) => e.flowList));
     return Container(
       height: 100,
@@ -604,6 +606,8 @@ class Footer extends ConsumerWidget {
             if (flow) {
               // ref.read(provDFlow).addFlow(flow);
               ref.read(provDFlow).setNeedFetchAPI();
+              ref.read(provOverFlow).setNeedFetchAPI();
+              ref.refresh(apiDateChange);
               Navigator.of(context).pop();
             }
           }

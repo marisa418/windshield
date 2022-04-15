@@ -11,6 +11,8 @@ import 'package:windshield/models/daily_flow/flow.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/utility/ftype_coler.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+import '../daily_flow_page.dart';
+import '../overview/daily_flow_overview_page.dart';
 
 class DailyFlowCreatePage extends ConsumerWidget {
   const DailyFlowCreatePage({Key? key}) : super(key: key);
@@ -159,6 +161,9 @@ class DailyFlowCreatePage extends ConsumerWidget {
                                                   ref
                                                       .read(provDFlow)
                                                       .setNeedFetchAPI();
+                                                  ref
+                                                      .read(provOverFlow)
+                                                      .setNeedFetchAPI();
                                                   Navigator.of(context).pop();
                                                 }
                                               },
@@ -212,7 +217,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
                                         shape: BoxShape.circle,
                                         color: HelperColor.getFtColor(
                                           currCat.ftype,
-                                          100,
+                                          0,
                                         ),
                                       ),
                                       child: Icon(
@@ -247,7 +252,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
                                                   size: 15,
                                                   color: HelperColor.getFtColor(
                                                     currCat.ftype,
-                                                    100,
+                                                    0,
                                                   ),
                                                 ),
                                                 Text(
@@ -257,7 +262,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
                                                     color:
                                                         HelperColor.getFtColor(
                                                       currCat.ftype,
-                                                      100,
+                                                      0,
                                                     ),
                                                   ),
                                                 ),
@@ -272,7 +277,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
                                             TextStyle(
                                               color: HelperColor.getFtColor(
                                                 currCat.ftype,
-                                                100,
+                                                0,
                                               ),
                                             ),
                                           ),
@@ -456,7 +461,7 @@ class Calculator extends ConsumerWidget {
                 onTap: () async {
                   if (isAdd) {
                     final flow = await ref.read(apiProvider).addFlow(
-                          ref.read(provDFlow).dfId,
+                          ref.read(provOverFlow).dfId,
                           ref.read(provDFlow).currCat.id,
                           ref.read(provDFlow).flowName,
                           ref.read(provDFlow).flowValue,
@@ -466,6 +471,8 @@ class Calculator extends ConsumerWidget {
                     if (flow.id != '') {
                       ref.read(provDFlow).addFlow(flow);
                       ref.read(provDFlow).setNeedFetchAPI();
+                      ref.read(provOverFlow).setNeedFetchAPI();
+                      ref.refresh(apiDateChange);
                       AutoRouter.of(context).pop();
                     }
                   } else {
@@ -478,6 +485,8 @@ class Calculator extends ConsumerWidget {
                     if (flow.id != '') {
                       ref.read(provDFlow).editFlow(flow);
                       ref.read(provDFlow).setNeedFetchAPI();
+                      ref.read(provOverFlow).setNeedFetchAPI();
+                      ref.refresh(apiDateChange);
                       AutoRouter.of(context).pop();
                     }
                   }
