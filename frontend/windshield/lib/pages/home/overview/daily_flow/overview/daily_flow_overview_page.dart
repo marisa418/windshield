@@ -50,135 +50,134 @@ class DailyFlowOverviewPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final api = ref.watch(apiOverFlow);
     return api.when(
-        error: (error, stackTrace) => Text(error.toString()),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        data: (_) {
-          return SafeArea(
-            child: Scaffold(
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 225,
-                    // padding: const EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: MyTheme.majorBackground,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: const [
-                            Text(
-                              'บัญชีรายรับ-รายจ่าย',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 25,
-                                  decoration: TextDecoration.none),
-                            ),
-                          ],
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now().subtract(
-                                const Duration(days: 365),
-                              ),
-                              lastDate: DateTime.now().add(
-                                const Duration(days: 365),
-                              ),
-                            );
-                            if (picked != null) {
-                              final date = ref.read(provOverFlow).date;
-                              final id = await ref
-                                  .read(apiProvider)
-                                  .getTodayDFId(date);
-                              ref.read(provOverFlow).setDfId(id);
-                              ref.read(provOverFlow).setDate(picked);
-                              ref.read(provOverFlow).setPageIdx(0);
-                              AutoRouter.of(context)
-                                  .push(const DailyFlowRoute());
-                            }
-                          },
-                          child: Text.rich(
-                            TextSpan(
-                              style: const TextStyle(
-                                fontSize: 17,
-                                color: Colors.white,
-                                decoration: TextDecoration.none,
-                              ),
-                              children: [
-                                const WidgetSpan(
-                                  child: Icon(
-                                    Icons.calendar_today,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: DateFormat(' E d MMMM y').format(
-                                    DateTime.now(),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                        const DateList(),
-                      ],
+      error: (error, stackTrace) => Text(error.toString()),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      data: (_) {
+        return SafeArea(
+          child: Scaffold(
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 225,
+                  // padding: const EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: MyTheme.majorBackground,
                     ),
                   ),
-                  const ExpenseIncome(),
-                  Expanded(
-                    child: ListView(
-                      children: const [
-                        OverviewIncomeToday(),
-                        OverviewExpenseToday(),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: 75,
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: TextButton.icon(
-                            label: Text(
-                              'ย้อนกลับ  ',
-                              style: MyTheme.whiteTextTheme.headline3,
+                      Row(
+                        children: const [
+                          Text(
+                            'บัญชีรายรับ-รายจ่าย',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 25,
+                                decoration: TextDecoration.none),
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now().subtract(
+                              const Duration(days: 365),
                             ),
-                            icon: const Icon(
-                              Icons.arrow_left,
+                            lastDate: DateTime.now().add(
+                              const Duration(days: 365),
+                            ),
+                          );
+                          if (picked != null) {
+                            final date = ref.read(provOverFlow).date;
+                            final id =
+                                await ref.read(apiProvider).getTodayDFId(date);
+                            ref.read(provOverFlow).setDfId(id);
+                            ref.read(provOverFlow).setDate(picked);
+                            ref.read(provOverFlow).setPageIdx(0);
+                            AutoRouter.of(context).push(const DailyFlowRoute());
+                          }
+                        },
+                        child: Text.rich(
+                          TextSpan(
+                            style: const TextStyle(
+                              fontSize: 17,
                               color: Colors.white,
+                              decoration: TextDecoration.none,
                             ),
-                            style: TextButton.styleFrom(
-                              backgroundColor: MyTheme.primaryMajor,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(20),
-                                  bottomRight: Radius.circular(20),
+                            children: [
+                              const WidgetSpan(
+                                child: Icon(
+                                  Icons.calendar_today,
+                                  color: Colors.white,
                                 ),
                               ),
-                            ),
-                            onPressed: () => AutoRouter.of(context).pop(),
+                              TextSpan(
+                                text: DateFormat(' E d MMMM y').format(
+                                  DateTime.now(),
+                                ),
+                              )
+                            ],
                           ),
                         ),
                       ),
+                      const DateList(),
                     ],
                   ),
-                ],
-              ),
+                ),
+                const ExpenseIncome(),
+                Expanded(
+                  child: ListView(
+                    children: const [
+                      OverviewIncomeToday(),
+                      OverviewExpenseToday(),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      height: 75,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          label: Text(
+                            'ย้อนกลับ  ',
+                            style: MyTheme.whiteTextTheme.headline3,
+                          ),
+                          icon: const Icon(
+                            Icons.arrow_left,
+                            color: Colors.white,
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor: MyTheme.primaryMajor,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(20),
+                                bottomRight: Radius.circular(20),
+                              ),
+                            ),
+                          ),
+                          onPressed: () => AutoRouter.of(context).pop(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 }
 

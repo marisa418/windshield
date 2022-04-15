@@ -7,6 +7,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/routes/app_router.dart';
+import 'package:windshield/utility/number_formatter.dart';
 import 'statement_page.dart';
 
 class FirstStatement extends ConsumerWidget {
@@ -109,7 +110,7 @@ class FirstStatement extends ConsumerWidget {
                             children: [
                               TextSpan(
                                 text:
-                                    '+${incWorking[0] + incAsset[0] + incOther[0]} บ.',
+                                    '+${HelperNumber.format(incWorking[0] + incAsset[0] + incOther[0])} บ.',
                                 style: MyTheme.textTheme.headline2!.merge(
                                   TextStyle(color: MyTheme.positiveMajor),
                                 ),
@@ -162,15 +163,12 @@ class FirstStatement extends ConsumerWidget {
                                   children: [
                                     Flexible(
                                       flex: 1,
-                                      child: Text(
+                                      child: AutoSizeText(
                                         'เป้ารายรับที่เหลือ',
-                                        style: MyTheme.whiteTextTheme.bodyText2!
-                                            .merge(
-                                          TextStyle(
-                                            color: Colors.white.withOpacity(
-                                              0.7,
-                                            ),
-                                          ),
+                                        maxLines: 1,
+                                        minFontSize: 0,
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(.7),
                                         ),
                                       ),
                                     ),
@@ -179,6 +177,7 @@ class FirstStatement extends ConsumerWidget {
                                       child: AutoSizeText(
                                         '${leftAmount(incWorking, incAsset, incOther)} บ.',
                                         maxLines: 1,
+                                        minFontSize: 0,
                                         style: MyTheme.whiteTextTheme.headline4,
                                       ),
                                     ),
@@ -212,7 +211,7 @@ class FirstStatement extends ConsumerWidget {
                             children: [
                               TextSpan(
                                 text:
-                                    '+${expIncon[0] + expCon[0] + savInv[0]} บ.',
+                                    '+${HelperNumber.format(expIncon[0] + expCon[0] + savInv[0])} บ.',
                                 style: MyTheme.textTheme.headline2!.merge(
                                   TextStyle(color: MyTheme.negativeMajor),
                                 ),
@@ -265,15 +264,12 @@ class FirstStatement extends ConsumerWidget {
                                   children: [
                                     Flexible(
                                       flex: 1,
-                                      child: Text(
+                                      child: AutoSizeText(
                                         'เป้ารายจ่ายที่เหลือ',
-                                        style: MyTheme.whiteTextTheme.bodyText2!
-                                            .merge(
-                                          TextStyle(
-                                            color: Colors.white.withOpacity(
-                                              0.7,
-                                            ),
-                                          ),
+                                        maxLines: 1,
+                                        minFontSize: 0,
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(.7),
                                         ),
                                       ),
                                     ),
@@ -282,6 +278,7 @@ class FirstStatement extends ConsumerWidget {
                                       child: AutoSizeText(
                                         '${leftAmount(expIncon, expCon, savInv)} บ.',
                                         maxLines: 1,
+                                        minFontSize: 0,
                                         style: MyTheme.whiteTextTheme.headline4,
                                       ),
                                     ),
@@ -332,7 +329,8 @@ String leftAmount(
 ) {
   final amount = (incWorking[1] + incAsset[1] + incOther[1]) -
       (incWorking[0] + incAsset[0] + incOther[0]);
-  return amount <= -1 ? 'เกิน ${amount * -1}' : 'อีก $amount';
+  final amountStr = HelperNumber.format(amount <= -1 ? amount * -1 : amount);
+  return amount <= -1 ? 'เกิน $amountStr' : 'อีก $amountStr';
 }
 
 String getPerc(
@@ -368,7 +366,7 @@ Text total(
           savInv[1]);
   if (amount > 0) {
     return Text(
-      '+${amount.toStringAsFixed(2)} บ.',
+      '+${HelperNumber.format(amount)} บ.',
       style: MyTheme.textTheme.headline3!.merge(
         TextStyle(
           color: MyTheme.positiveMajor,
@@ -377,7 +375,7 @@ Text total(
     );
   } else if (amount < 0) {
     return Text(
-      '${amount.toStringAsFixed(2)} บ.',
+      '${HelperNumber.format(amount)} บ.',
       style: MyTheme.textTheme.headline3!.merge(
         TextStyle(
           color: MyTheme.negativeMajor,
@@ -386,7 +384,7 @@ Text total(
     );
   } else {
     return Text(
-      '${amount.toStringAsFixed(0)} บ.',
+      '${HelperNumber.format(amount)} บ.',
       style: MyTheme.textTheme.headline3!.merge(
         TextStyle(
           color: MyTheme.positiveMajor,
@@ -411,13 +409,13 @@ class IncWorking extends ConsumerWidget {
         ),
         children: [
           TextSpan(
-            text: '+${incWorking[0]}',
+            text: '+${HelperNumber.format(incWorking[0])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.incomeWorking[0]),
             ),
           ),
           TextSpan(
-            text: '/${incWorking[1]}',
+            text: '/${HelperNumber.format(incWorking[1])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.incomeWorking[1]),
             ),
@@ -449,13 +447,13 @@ class IncAsset extends ConsumerWidget {
         ),
         children: [
           TextSpan(
-            text: '+${incAsset[0]}',
+            text: '+${HelperNumber.format(incAsset[0])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.incomeAsset[0]),
             ),
           ),
           TextSpan(
-            text: '/${incAsset[1]}',
+            text: '/${HelperNumber.format(incAsset[1])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.incomeAsset[1]),
             ),
@@ -487,13 +485,13 @@ class IncOther extends ConsumerWidget {
         ),
         children: [
           TextSpan(
-            text: '+${incOther[0]}',
+            text: '+${HelperNumber.format(incOther[0])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.incomeOther[0]),
             ),
           ),
           TextSpan(
-            text: '/${incOther[1]}',
+            text: '/${HelperNumber.format(incOther[1])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.incomeOther[1]),
             ),
@@ -525,13 +523,13 @@ class ExpIncon extends ConsumerWidget {
         ),
         children: [
           TextSpan(
-            text: '-${expIncon[0]}',
+            text: '-${HelperNumber.format(expIncon[0])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.expenseInconsist[0]),
             ),
           ),
           TextSpan(
-            text: '/${expIncon[1]}',
+            text: '/${HelperNumber.format(expIncon[1])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.expenseInconsist[1]),
             ),
@@ -563,13 +561,13 @@ class ExpCon extends ConsumerWidget {
         ),
         children: [
           TextSpan(
-            text: '-${expCon[0]}',
+            text: '-${HelperNumber.format(expCon[0])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.expenseConsist[0]),
             ),
           ),
           TextSpan(
-            text: '/${expCon[1]}',
+            text: '/${HelperNumber.format(expCon[1])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.expenseConsist[1]),
             ),
@@ -601,13 +599,13 @@ class SavInv extends ConsumerWidget {
         ),
         children: [
           TextSpan(
-            text: '-${savInv[0]}',
+            text: '-${HelperNumber.format(savInv[0])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.savingAndInvest[0]),
             ),
           ),
           TextSpan(
-            text: '/${savInv[1]}',
+            text: '/${HelperNumber.format(savInv[1])}',
             style: MyTheme.textTheme.headline4!.merge(
               TextStyle(color: MyTheme.savingAndInvest[1]),
             ),
