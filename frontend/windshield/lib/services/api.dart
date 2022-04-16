@@ -600,6 +600,25 @@ class Api extends ChangeNotifier {
     }
   }
 
+    //ลบ debt
+  Future<bool> deleteDebt(double bal, String cred, String id, double interest,
+      DateTime? date) async {
+    try {
+      await dio.delete(
+        '/api/debt/$id/',
+        data: {
+          "balance": bal,
+          "creditor": cred,
+          "interest": interest,
+          "debt_term": date != null ? DateFormat('y-MM-dd').format(date) : null,
+        },
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   //เป้าหมายทางการเงิน
   Future<List<FGoal>> getAllGoals() async {
     try {
