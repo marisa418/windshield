@@ -50,155 +50,134 @@ class DailyFlowOverviewPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final api = ref.watch(apiOverFlow);
     return api.when(
-        error: (error, stackTrace) => Text(error.toString()),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        data: (_) {
-          return SafeArea(
-            child: Scaffold(
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 225,
-                    // padding: const EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: MyTheme.majorBackground,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: const [
-                            Text(
-                              'บัญชีรายรับ-รายจ่าย',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 25,
-                                  decoration: TextDecoration.none),
-                            ),
-                          ],
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            final picked = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now().subtract(
-                                const Duration(days: 365),
-                              ),
-                              lastDate: DateTime.now().add(
-                                const Duration(days: 365),
-                              ),
-                            );
-                            if (picked != null) {
-                              final date = ref.read(provOverFlow).date;
-                              final id = await ref
-                                  .read(apiProvider)
-                                  .getTodayDFId(date);
-                              ref.read(provOverFlow).setDfId(id);
-                              ref.read(provOverFlow).setDate(picked);
-                              ref.read(provOverFlow).setPageIdx(0);
-                              AutoRouter.of(context)
-                                  .push(const DailyFlowRoute());
-                            }
-                          },
-                          child: Text.rich(
-                            TextSpan(
-                              style: const TextStyle(
-                                fontSize: 17,
-                                color: Colors.white,
-                                decoration: TextDecoration.none,
-                              ),
-                              children: [
-                                const WidgetSpan(
-                                  child: Icon(
-                                    Icons.calendar_today,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: DateFormat(' E d MMMM y').format(
-                                    DateTime.now(),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            DatePicker(
-                              DateTime.now()
-                                  .subtract(const Duration(days: 5)),
-                              height: 90,
-                              initialSelectedDate: DateTime.now(),
-                              selectionColor: Colors.white,
-                              selectedTextColor: MyTheme.primaryMajor,
-                              daysCount: 7,
-                              locale: "th_TH",
-                              onDateChange: (date) {
-                                // New date selected
-                                /*setState(() {
-                                  _selectedValue = date;
-                                });*/
-                              },
-                        const DateList(),
-                      ],
-                    ),
-                  const ExpenseIncome(),
-                  Expanded(
-                    child: ListView(
-                      children: const [
-                        OverviewIncomeToday(),
-                        OverviewExpenseToday(),
-                      ],
+      error: (error, stackTrace) => Text(error.toString()),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      data: (_) {
+        return SafeArea(
+          child: Scaffold(
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 225,
+                  // padding: const EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: MyTheme.majorBackground,
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: 75,
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: TextButton.icon(
-                            label: Text(
-                              'ย้อนกลับ  ',
-                              style: MyTheme.whiteTextTheme.headline3,
+                      Row(
+                        children: const [
+                          Text(
+                            'บัญชีรายรับ-รายจ่าย',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 25,
+                                decoration: TextDecoration.none),
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now().subtract(
+                              const Duration(days: 365),
                             ),
-                            icon: const Icon(
-                              Icons.arrow_left,
+                            lastDate: DateTime.now().add(
+                              const Duration(days: 365),
+                            ),
+                          );
+                          if (picked != null) {
+                            final date = ref.read(provOverFlow).date;
+                            final id =
+                                await ref.read(apiProvider).getTodayDFId(date);
+                            ref.read(provOverFlow).setDfId(id);
+                            ref.read(provOverFlow).setDate(picked);
+                            ref.read(provOverFlow).setPageIdx(0);
+                            AutoRouter.of(context).push(const DailyFlowRoute());
+                          }
+                        },
+                        child: Text.rich(
+                          TextSpan(
+                            style: const TextStyle(
+                              fontSize: 17,
                               color: Colors.white,
+                              decoration: TextDecoration.none,
                             ),
-                            style: TextButton.styleFrom(
-                              backgroundColor: MyTheme.primaryMajor,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.only(
-                                  topRight: Radius.circular(20),
-                                  bottomRight: Radius.circular(20),
+                            children: [
+                              const WidgetSpan(
+                                child: Icon(
+                                  Icons.calendar_today,
+                                  color: Colors.white,
                                 ),
                               ),
-                            ),
-                            onPressed: () => AutoRouter.of(context).pop(),
+                              TextSpan(
+                                text: DateFormat(' E d MMMM y').format(
+                                  DateTime.now(),
+                                ),
+                              )
+                            ],
                           ),
                         ),
                       ),
+                      const DateList(),
                     ],
                   ),
-                ],
-              ),
+                ),
+                const ExpenseIncome(),
+                Expanded(
+                  child: ListView(
+                    children: const [
+                      OverviewIncomeToday(),
+                      OverviewExpenseToday(),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      height: 75,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          label: Text(
+                            'ย้อนกลับ  ',
+                            style: MyTheme.whiteTextTheme.headline3,
+                          ),
+                          icon: const Icon(
+                            Icons.arrow_left,
+                            color: Colors.white,
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor: MyTheme.primaryMajor,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(20),
+                                bottomRight: Radius.circular(20),
+                              ),
+                            ),
+                          ),
+                          onPressed: () => AutoRouter.of(context).pop(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -246,40 +225,6 @@ class ExpenseIncome extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-<<<<<<< HEAD
-    final idx = ref.watch(provDFlow.select((e) => e.pageIdx));
-    final incTotal = ref.watch(provDFlow.select((e) => e.incTotal));
-    final expTotal = ref.watch(provDFlow.select((e) => e.expTotal));
-    return Padding(
-      padding: const EdgeInsets.only(top: 15),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Badge(
-            position: BadgePosition(top: 0, end: 0, isCenter: false),
-            animationType: BadgeAnimationType.scale,
-            showBadge: true,
-            badgeContent: const Text(
-              '3',
-              style: TextStyle(fontSize: 15),
-            ),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 75, //height of button
-                  width: 75, //width of button
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0.0,
-                      shadowColor: Colors.transparent, //remove shadow on button
-                      primary: Colors.white,
-
-                      textStyle: const TextStyle(fontSize: 12),
-                      padding: const EdgeInsets.all(6),
-
-                      shape: const CircleBorder(),
-=======
     final incTotal = ref.watch(provOverFlow.select((e) => e.incTotal));
     final expTotal = ref.watch(provOverFlow.select((e) => e.expTotal));
     final incLength = ref.watch(provOverFlow.select((e) => e.incFlowsLen));
@@ -293,11 +238,11 @@ class ExpenseIncome extends ConsumerWidget {
         ),
       ),
       data: (_) => Container(
-        height: 200,
-        color: Colors.black,
+        height: 220,
+        color: Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          //crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             GestureDetector(
               onTap: () {
@@ -306,68 +251,118 @@ class ExpenseIncome extends ConsumerWidget {
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const Text('รายรับรวม ',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700)),
+                  Text(
+                    '+${incTotal} บ.',
+                    style: MyTheme.whiteTextTheme.headline2!.merge(
+                      TextStyle(color: MyTheme.positiveMajor),
+                    ),
+                  ),
                   Badge(
                     position: const BadgePosition(top: -10, end: -8),
-                    padding: const EdgeInsets.all(8),
+                    //padding: const EdgeInsets.all(8),
                     animationType: BadgeAnimationType.scale,
-                    showBadge: true,
+                    showBadge: false,
                     badgeContent: Text(
                       incLength.toString(),
                       style: MyTheme.whiteTextTheme.headline4,
->>>>>>> 175a3f62b88a1a5e21a8be177870a42bbf8d9d9f
                     ),
-                    child: SizedBox(
-                      height: 60, //height of button
-                      width: 60, //width of button
+                    child: Container(
+                      height: 70, //height of button
+                      width: 160,
+                      decoration: const BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black26,
+                              offset: Offset(0, 4),
+                              blurRadius: 5.0)
+                        ],
+                      ),
+                      //width of button
                       child: ElevatedButton(
                         onPressed: () {
                           ref.read(provOverFlow).setPageIdx(0);
                           AutoRouter.of(context).push(const DailyFlowRoute());
                         },
                         style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+
                           elevation: 0.0,
-                          shadowColor:
-                              Colors.transparent, //remove shadow on button
-                          primary: Colors.white,
+                          //remove shadow on button
+                          primary: MyTheme.positiveMajor,
 
                           textStyle: const TextStyle(fontSize: 12),
                           padding: const EdgeInsets.all(6),
 
-                          shape: const CircleBorder(),
+                          //shape: const CircleBorder(),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Icon(
                               HelperIcons.getIconData('hand-holding-usd'),
-                              color: MyTheme.positiveMajor,
+                              color: Colors.white,
+                              size: 25,
                             ),
-                            SizedBox(
-                              width: 60,
-                              child: AutoSizeText(
-                                '+${HelperNumber.format(incTotal)}',
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                minFontSize: 0,
-                                style: TextStyle(
-                                  color: MyTheme.positiveMajor,
+                            Column(
+                              //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(2, 8, 0, 0),
+                                  child: Text(
+                                    'บัญชีรายรับ',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      decoration: TextDecoration.none,
+                                      color: Colors.white.withAlpha(200),
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Text(
+                                  expLength.toString() + ' รายการ',
+                                  style:
+                                      MyTheme.whiteTextTheme.headline3!.merge(
+                                    const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ),
                   ),
-                  Text(
-                    'รายรับ',
-                    style: MyTheme.whiteTextTheme.bodyText1,
-                  ),
-                  Text(
-                    incLength.toString() + ' รายการ',
-                    style: MyTheme.whiteTextTheme.bodyText2!.merge(
-                      TextStyle(color: Colors.white.withAlpha(200)),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                        backgroundColor: MyTheme.positiveMinor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.0),
+                        ),
+                      ),
+                      onPressed: () => {
+                        AutoRouter.of(context).push(const SpeechToTextRoute()),
+                      },
+                      icon: Icon(
+                        Icons.mic,
+                        color: MyTheme.positiveMajor,
+                        size: 15,
+                      ),
+                      label: Text('เพิ่มรายการใหม่ด้วยเสียง',
+                          style: TextStyle(
+                              color: MyTheme.positiveMajor, fontSize: 12)),
                     ),
                   ),
                 ],
@@ -380,71 +375,117 @@ class ExpenseIncome extends ConsumerWidget {
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const Text('รายจ่ายรวม ',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700)),
+                  Text(
+                    '-$expTotal บ.',
+                    style: MyTheme.whiteTextTheme.headline2!.merge(
+                      TextStyle(color: MyTheme.negativeMajor),
+                    ),
+                  ),
                   Badge(
                     position: const BadgePosition(top: -10, end: -8),
-                    padding: const EdgeInsets.all(8),
+                    //padding: const EdgeInsets.all(8),
                     animationType: BadgeAnimationType.scale,
-                    showBadge: true,
+                    showBadge: false,
                     badgeContent: Text(
                       expLength.toString(),
                       style: MyTheme.whiteTextTheme.headline4,
                     ),
-                    child: SizedBox(
-                      height: 60, //height of button
-                      width: 60, //width of button
+                    child: Container(
+                      height: 70, //height of button
+                      width: 160,
+                      decoration: const BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black26,
+                              offset: Offset(0, 4),
+                              blurRadius: 5.0)
+                        ],
+                      ), //width of button
                       child: ElevatedButton(
                         onPressed: () {
                           ref.read(provOverFlow).setPageIdx(1);
                           AutoRouter.of(context).push(const DailyFlowRoute());
                         },
                         style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
                           elevation: 0.0,
-                          shadowColor:
-                              Colors.transparent, //remove shadow on button
-                          primary: Colors.white,
+                          primary: MyTheme.negativeMajor,
 
-                          textStyle: const TextStyle(fontSize: 12),
+                          textStyle: const TextStyle(fontSize: 15),
                           padding: const EdgeInsets.all(6),
 
-                          shape: const CircleBorder(),
+                          //shape: const CircleBorder(),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.receipt,
-                              color: MyTheme.negativeMajor,
+                              color: Colors.white,
+                              size: 30,
                             ),
-                            SizedBox(
-                              width: 60,
-                              child: AutoSizeText(
-                                '+${HelperNumber.format(expTotal)}',
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                minFontSize: 0,
-                                style: TextStyle(
-                                  color: MyTheme.negativeMajor,
+
+                            // const Text(
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(2, 8, 2, 0),
+                                  child: Text(
+                                    'บัญชีรายจ่าย',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      decoration: TextDecoration.none,
+                                      color: Colors.white.withAlpha(200),
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Text(
+                                  expLength.toString() + ' รายการ',
+                                  style:
+                                      MyTheme.whiteTextTheme.headline3!.merge(
+                                    const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ),
                   ),
-                  const Text(
-                    'รายจ่าย',
-                    style: TextStyle(
-                      fontSize: 12,
-                      decoration: TextDecoration.none,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    expLength.toString() + ' รายการ',
-                    style: MyTheme.whiteTextTheme.bodyText2!.merge(
-                      TextStyle(color: Colors.white.withAlpha(200)),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                        backgroundColor: MyTheme.negativeMinor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.0),
+                        ),
+                      ),
+                      onPressed: () => {
+                        AutoRouter.of(context).push(const SpeechToTextRoute())
+                      },
+                      icon: Icon(
+                        Icons.mic,
+                        color: MyTheme.negativeMajor,
+                        size: 15,
+                      ),
+                      label: Text('เพิ่มรายการใหม่ด้วยเสียง',
+                          style: TextStyle(
+                              color: MyTheme.negativeMajor, fontSize: 12)),
                     ),
                   ),
                 ],
