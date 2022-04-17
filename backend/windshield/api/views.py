@@ -9,7 +9,7 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import datetime, timedelta
 from pytz import timezone
-from django.db.models import Exists, OuterRef, Q, F, Prefetch
+from django.db.models import Sum, Exists, OuterRef, Q, F, Prefetch
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -915,7 +915,27 @@ class FinancialStatus(APIView):
             "Financial Health": None
             } 
         return Response(finstatus)
+
+class GraphDailyFlow(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.DailyFlowSheetGraphSerializer
+    back_day = 7
     
+    def get_queryset(self):
+        self.back_day = int(self.request.query_params.get("day", self.back_day))
+        today = datetime.now(tz= timezone('Asia/Bangkok'))
+        backto = today - timedelta(days=self.back_day)
+        df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
+        df_sheets = df_sheets.annotate(incomes=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="INC") | 
+                                                    Q(flows__category__ftype__domain="ASS")
+                                                    ))
+        df_sheets = df_sheets.annotate(expenses=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="EXP") | 
+                                                    Q(flows__category__ftype__domain="DEB")
+                                                    ))
+        return df_sheets
+
 class Articles(generics.ListAPIView):
     serializer_class = serializers.ArticlesSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -958,9 +978,10 @@ class Articles(generics.ListAPIView):
                     article__id=OuterRef('pk')
                     )))
         
-        page = int(self.request.query_params.get("page", None))
+        page = self.request.query_params.get("page", None)
         limit = int(self.request.query_params.get("limit", 5))
         if page:
+            page = int(page)
             total_page = math.ceil(float(queryset.count()) / limit)
             if page > total_page: page = total_page
             if page < 1:  page = 1

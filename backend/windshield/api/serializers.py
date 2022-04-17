@@ -1,5 +1,3 @@
-from dataclasses import field
-from unicodedata import category
 from rest_framework import serializers
 from . import models
 
@@ -54,6 +52,15 @@ class DailyFlowSheetCreateSerializer(serializers.ModelSerializer):
 
 class DailyFlowSheetSerializer(serializers.ModelSerializer):
     flows = DailyFlowSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = models.DailyFlowSheet
+        exclude = ["owner_id"]
+        read_only_fields = ['id']
+        
+class DailyFlowSheetGraphSerializer(serializers.ModelSerializer):
+    incomes = serializers.DecimalField(max_digits=12, decimal_places=2)
+    expenses = serializers.DecimalField(max_digits=12, decimal_places=2)
     
     class Meta:
         model = models.DailyFlowSheet

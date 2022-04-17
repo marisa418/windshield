@@ -96,9 +96,10 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                             ),
                           );
                           if (picked != null) {
-                            final date = ref.read(provOverFlow).date;
-                            final id =
-                                await ref.read(apiProvider).getTodayDFId(date);
+                            // final date = ref.read(provOverFlow).date;
+                            final id = await ref
+                                .read(apiProvider)
+                                .getTodayDFId(picked);
                             ref.read(provOverFlow).setDfId(id);
                             ref.read(provOverFlow).setDate(picked);
                             ref.read(provOverFlow).setPageIdx(0);

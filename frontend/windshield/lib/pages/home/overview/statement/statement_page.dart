@@ -10,6 +10,7 @@ import 'package:windshield/styles/theme.dart';
 import 'package:windshield/providers/statement_provider.dart';
 import 'package:windshield/models/statement/budget.dart';
 import 'package:windshield/models/statement/statement.dart';
+import 'package:windshield/utility/number_formatter.dart';
 import 'first_statement.dart';
 
 final provStatement = ChangeNotifierProvider.autoDispose<StatementProvider>(
@@ -371,7 +372,7 @@ class ActiveStatements extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '${sum[0]} บ.',
+                                '${HelperNumber.format(sum[0])} บ.',
                                 style: MyTheme.whiteTextTheme.headline4,
                               ),
                               Text(
@@ -412,7 +413,7 @@ class ActiveStatements extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '${sum[1]} บ.',
+                                '${HelperNumber.format(sum[1])} บ.',
                                 style: MyTheme.whiteTextTheme.headline4,
                               ),
                               Text(
@@ -434,14 +435,14 @@ class ActiveStatements extends ConsumerWidget {
                 Text('สภาพคล่องสุทธิ', style: MyTheme.textTheme.bodyText1),
                 if (sum[0] - sum[1] > 0)
                   Text(
-                    '+${sum[0] - sum[1]}',
+                    '+${HelperNumber.format(sum[0] - sum[1])} บ.',
                     style: MyTheme.textTheme.headline3!.merge(
                       TextStyle(color: MyTheme.positiveMajor),
                     ),
                   )
                 else
                   Text(
-                    '${sum[0] - sum[1]}',
+                    '${HelperNumber.format(sum[0] - sum[1])} บ.',
                     style: sum[0] - sum[1] != 0
                         ? MyTheme.textTheme.headline3!.merge(
                             TextStyle(color: MyTheme.negativeMajor),
