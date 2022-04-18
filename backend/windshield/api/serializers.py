@@ -66,7 +66,29 @@ class DailyFlowSheetGraphSerializer(serializers.ModelSerializer):
         model = models.DailyFlowSheet
         exclude = ["owner_id"]
         read_only_fields = ['id']
+
+class MonthlyFlowSheetGraphSerializer(serializers.ModelSerializer):
+    month = serializers.IntegerField()
+    year = serializers.IntegerField()
+    incomes = serializers.DecimalField(max_digits=12, decimal_places=2)
+    expenses = serializers.DecimalField(max_digits=12, decimal_places=2)
+    
+    class Meta:
+        model = models.DailyFlowSheet
+        exclude = ["owner_id"]
+        read_only_fields = ['id']
+     
+class AnnuallyFlowSheetGraphSerializer(serializers.ModelSerializer):
+    year = serializers.IntegerField()
+    incomes = serializers.DecimalField(max_digits=12, decimal_places=2)
+    expenses = serializers.DecimalField(max_digits=12, decimal_places=2)
+    
+    class Meta:
+        model = models.DailyFlowSheet
+        exclude = ["owner_id"]
+        read_only_fields = ['id']
         
+   
 class FinancialTypeSerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True, read_only=True)
     

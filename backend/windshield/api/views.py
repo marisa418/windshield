@@ -1,3 +1,4 @@
+import calendar
 import math
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
@@ -7,9 +8,9 @@ from . import models
 from user.models import Province, NewUser
 from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pytz import timezone
-from django.db.models import Sum, Exists, OuterRef, Q, F, Prefetch
+from django.db.models import Sum, Exists, OuterRef, Q, F, Prefetch, functions
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -919,21 +920,76 @@ class FinancialStatus(APIView):
 class GraphDailyFlow(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DailyFlowSheetGraphSerializer
-    back_day = 7
+    back = 7
     
     def get_queryset(self):
-        self.back_day = int(self.request.query_params.get("day", self.back_day))
+        self.back = int(self.request.query_params.get("day", self.back))
         today = datetime.now(tz= timezone('Asia/Bangkok'))
-        backto = today - timedelta(days=self.back_day)
+        backto = today - timedelta(days=self.back)
         df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
         df_sheets = df_sheets.annotate(incomes=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="INC") | 
                                                     Q(flows__category__ftype__domain="ASS")
-                                                    ))
-        df_sheets = df_sheets.annotate(expenses=Sum("flows__value", filter=
+                                                    ),
+                                       expenses=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="EXP") | 
                                                     Q(flows__category__ftype__domain="DEB")
-                                                    ))
+                                                    )
+                                       )
+        return df_sheets
+
+class GraphMonthlyFlow(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.MonthlyFlowSheetGraphSerializer
+    back = 7
+    
+    def monthdelta(self, date, delta):
+        m, y = (date.month + delta) % 12, date.year + ((date.month)+delta-1) // 12
+        if not m: m = 12
+        d = min(date.day, calendar.monthrange(y, m)[1])
+        return date.replace(day=d,month=m, year=y)
+    
+    def get_queryset(self):
+        self.back = int(self.request.query_params.get("month", self.back))
+        today = datetime.now(tz= timezone('Asia/Bangkok'))
+        backto = self.monthdelta(today, -self.back)
+        backto = backto.replace(day=1)
+        df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
+        df_sheets = df_sheets.annotate(
+            month=functions.ExtractMonth("date"),
+            year=functions.ExtractYear("date")
+            ).values('month', 'year').annotate(incomes=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="INC") | 
+                                                    Q(flows__category__ftype__domain="ASS")
+                                                    ),
+                                               expenses=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="EXP") | 
+                                                    Q(flows__category__ftype__domain="DEB")
+                                                    )
+                                               )
+        return df_sheets
+    
+class GraphAnnuallyFlow(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.AnnuallyFlowSheetGraphSerializer
+    back = 7
+    
+    def get_queryset(self):
+        self.back = int(self.request.query_params.get("year", self.back))
+        today = datetime.now(tz= timezone('Asia/Bangkok'))
+        backto = datetime(year=today.year - self.back, month=1, day=1)
+        df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
+        df_sheets = df_sheets.annotate(
+            year=functions.ExtractYear("date")
+            ).values('year').annotate(incomes=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="INC") | 
+                                                    Q(flows__category__ftype__domain="ASS")
+                                                    ),
+                                               expenses=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="EXP") | 
+                                                    Q(flows__category__ftype__domain="DEB")
+                                                    )
+                                               )
         return df_sheets
 
 class Articles(generics.ListAPIView):
