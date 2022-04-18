@@ -974,7 +974,7 @@ class AverageMonthlyFlow(APIView):
         today = datetime.now(tz= timezone('Asia/Bangkok'))
         backto = self.monthdelta(today, -self.past_months)
         backto = backto.replace(day=1)
-        print(today, backto)
+        # print(today, backto)
         df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
         result = df_sheets.aggregate(avg_income=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="INC") | 
