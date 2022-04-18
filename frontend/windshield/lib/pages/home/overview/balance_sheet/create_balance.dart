@@ -78,7 +78,8 @@ class ChoseCat extends ConsumerWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SizedBox(
-                                height: 60, //height of button แก้ตอนเลือกประเภท overflow
+                                height:
+                                    60, //height of button แก้ตอนเลือกประเภท overflow
                                 width: 75, //width of button
                                 child: ElevatedButton(
                                   onPressed: () {
@@ -200,57 +201,65 @@ class AssetForm extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  TextFormField(
-                    //value : value,
-                    initialValue: source,
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration.collapsed(
-                      hintText: 'เข้าถึงสินทรัพย์นี้ผ่าน',
-                      fillColor: Colors.grey.withOpacity(0.2),
-                      filled: true,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      //value : value,
+                      initialValue: source,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration.collapsed(
+                        hintText: 'เข้าถึงสินทรัพย์นี้ผ่าน',
+                        fillColor: Colors.grey.withOpacity(0.2),
+                        filled: true,
+                      ),
+                      onChanged: (e) {
+                        ref.read(provBSheet).setSource(e);
+                      },
                     ),
-                    onChanged: (e) {
-                      ref.read(provBSheet).setSource(e);
-                    },
                   ),
                   //บันทึกลงฟอร์ม
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (ref.watch(provBSheet.select((e) => e.isAdd))) {
-                        final asset = await ref.read(apiProvider).addAsset(
-                              ref.read(provBSheet).source,
-                              ref.read(provBSheet).value,
-                              ref.read(provBSheet).currCat.id,
-                            );
-                        if (asset) {
-                          ref.read(provBSheet).setNeedFetchAPI();
-                          AutoRouter.of(context).pop();
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (ref.watch(provBSheet.select((e) => e.isAdd))) {
+                          final asset = await ref.read(apiProvider).addAsset(
+                                ref.read(provBSheet).source,
+                                ref.read(provBSheet).value,
+                                ref.read(provBSheet).currCat.id,
+                              );
+                          if (asset) {
+                            ref.read(provBSheet).setNeedFetchAPI();
+                            AutoRouter.of(context).pop();
+                          }
+                        } else {
+                          final asset = await ref.read(apiProvider).editAsset(
+                                ref.read(provBSheet).source,
+                                ref.read(provBSheet).value,
+                                ref.read(provBSheet).id,
+                              );
+                          if (asset) {
+                            ref.read(provBSheet).setNeedFetchAPI();
+                            AutoRouter.of(context).pop();
+                          }
                         }
-                      } else {
-                        final asset = await ref.read(apiProvider).editAsset(
-                              ref.read(provBSheet).source,
-                              ref.read(provBSheet).value,
-                              ref.read(provBSheet).id,
-                            );
-                        if (asset) {
-                          ref.read(provBSheet).setNeedFetchAPI();
-                          AutoRouter.of(context).pop();
-                        }
-                      }
-                    },
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18.0),
+                      },
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                          ),
                         ),
                       ),
+                      child:
+                          Text('บันทึก', style: MyTheme.whiteTextTheme.headline3),
                     ),
-                    child:
-                        Text('บันทึก', style: MyTheme.whiteTextTheme.headline3),
                   ),
                   //ลบออก
-                  ElevatedButton(
-                    onPressed: () async {                     
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      onPressed: () async {
                         final asset = await ref.read(apiProvider).deleteAsset(
                               ref.read(provBSheet).source,
                               ref.read(provBSheet).value,
@@ -261,16 +270,15 @@ class AssetForm extends ConsumerWidget {
                           AutoRouter.of(context).pop();
                         }
                       },
-                    
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18.0),
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                          ),
                         ),
                       ),
+                      child: Text('ลบ', style: MyTheme.whiteTextTheme.headline3),
                     ),
-                    child:
-                        Text('ลบ', style: MyTheme.whiteTextTheme.headline3),
                   ),
                 ],
               ),
@@ -353,68 +361,84 @@ class DebtForm extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  TextFormField(
-                    //value : value,
-                    initialValue: creditor,
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration.collapsed(
-                      hintText: 'เจ้าหนี้',
-                      fillColor: Colors.grey.withOpacity(0.2),
-                      filled: true,
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      //value : value,
+                      initialValue: creditor,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration.collapsed(
+                        hintText: 'เจ้าหนี้',
+                        fillColor: Colors.grey.withOpacity(0.2),
+                        filled: true,
+                      ),
+                      onChanged: (e) {
+                        ref.read(provBSheet).setCreditor(e);
+                      },
                     ),
-                    onChanged: (e) {
-                      ref.read(provBSheet).setCreditor(e);
-                    },
                   ),
 
-                  TextFormField(
-                    //value : value,
-                    initialValue: interest == 0 ? '' : interest.toString(),
-                    keyboardType: TextInputType.number,
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration.collapsed(
-                      hintText: 'ดอกเบี้ย %',
-                      fillColor: Colors.grey.withOpacity(0.2),
-                      filled: true,
-                    ),
-                    onChanged: (e) {
-                      ref.read(provBSheet).setInterest(double.tryParse(e) ?? 0);
-                    },
-                  ),
-                  GestureDetector(
-                      onTap: () {
-                        showDialog<void>(
-                          context: context,
-                          builder: (BuildContext context) => Center(
-                            child: Container(
-                              //ปรับขนาดปฏิทิน
-                              height: 500,
-                              padding: const EdgeInsets.only(top: 6.0),
-                              // The Bottom margin is provided to align the popup above the system navigation bar.
-                              // margin: EdgeInsets.only(
-                              //   bottom: MediaQuery.of(context)
-                              //       .viewInsets
-                              //       .bottom,
-                              // ),
-                              color: Colors.white,
-                              // Provide a background color for the popup.
-                              // Use a SafeArea widget to avoid system overlaps.
-                              child: CupertinoDatePicker(
-                                initialDateTime: DateTime.now(),
-                                mode: CupertinoDatePickerMode.date,
-                                use24hFormat: true,
-                                // This is called when the user changes the date.
-                                onDateTimeChanged: (DateTime newDate) {
-                                  ref.read(provBSheet).setDebtTerm(newDate);
-                                },
-                              ),
-                            ),
-                          ),
-                        );
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    
+                    child: TextFormField(    
+                      //value : value,
+                      
+                      initialValue: interest == 0 ? '' : interest.toString(),
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration.collapsed(
+                        hintText: 'ดอกเบี้ย %',
+                        fillColor: Colors.grey.withOpacity(0.2),
+                        filled: true,
+                        
+                      ),
+                      onChanged: (e) {
+                        ref.read(provBSheet).setInterest(double.tryParse(e) ?? 0);
                       },
-                      child: Text(debtTerm != null
-                          ? DateFormat.yMMMMd().format(debtTerm)
-                          : 'ต้องชำระให้หมดภายใน')),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                      
+                      child: GestureDetector(
+                          onTap: () {
+                            showDialog<void>(
+                              context: context,
+                              builder: (BuildContext context) => Center(
+                                child: Container(
+                                  //ปรับขนาดปฏิทิน
+                                  height: 500,
+                                  padding: const EdgeInsets.only(top: 6.0),
+                                  // The Bottom margin is provided to align the popup above the system navigation bar.
+                                  // margin: EdgeInsets.only(
+                                  //   bottom: MediaQuery.of(context)
+                                  //       .viewInsets
+                                  //       .bottom,
+                                  // ),
+                                  color: Colors.white,
+                                  // Provide a background color for the popup.
+                                  // Use a SafeArea widget to avoid system overlaps.
+                                  child: CupertinoDatePicker(
+                                    initialDateTime: DateTime.now(),
+                                    mode: CupertinoDatePickerMode.date,
+                                    use24hFormat: true,
+                                    // This is called when the user changes the date.
+                                    onDateTimeChanged: (DateTime newDate) {
+                                      ref.read(provBSheet).setDebtTerm(newDate);
+                                    },
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(debtTerm != null
+                              ? DateFormat.yMMMMd().format(debtTerm)
+                              : 'ต้องชำระให้หมดภายใน',style: MyTheme.textTheme.headline4)
+                              ),
+                    ),
+                  ),
 
                   //บันทึกลงฟอร์ม
                   ElevatedButton(
@@ -455,8 +479,30 @@ class DebtForm extends ConsumerWidget {
                     child:
                         Text('บันทึก', style: MyTheme.whiteTextTheme.headline3),
                   ),
-                  
-                  
+                  //ลบออก
+                  ElevatedButton(
+                    onPressed: () async {
+                      final asset = await ref.read(apiProvider).deleteDebt(
+                            ref.read(provBSheet).balance,
+                            ref.read(provBSheet).creditor,
+                            ref.read(provBSheet).id,
+                            ref.read(provBSheet).interest,
+                            ref.read(provBSheet).debtTerm,
+                          );
+                      if (asset) {
+                        ref.read(provBSheet).setNeedFetchAPI();
+                        AutoRouter.of(context).pop();
+                      }
+                    },
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0),
+                        ),
+                      ),
+                    ),
+                    child: Text('ลบ', style: MyTheme.whiteTextTheme.headline3),
+                  ),
                 ],
               ),
             ),
@@ -466,6 +512,7 @@ class DebtForm extends ConsumerWidget {
     );
   }
 }
+
 //change type
 Color getcolor(String value) {
   if (value == '7') {

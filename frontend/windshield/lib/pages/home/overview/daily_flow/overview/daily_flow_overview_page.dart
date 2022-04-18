@@ -239,11 +239,11 @@ class ExpenseIncome extends ConsumerWidget {
         ),
       ),
       data: (_) => Container(
-        height: 200,
-        color: Colors.black,
+        height: 220,
+        color: Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          //crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             GestureDetector(
               onTap: () {
@@ -252,67 +252,118 @@ class ExpenseIncome extends ConsumerWidget {
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const Text('รายรับรวม ',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700)),
+                  Text(
+                    '+${incTotal} บ.',
+                    style: MyTheme.whiteTextTheme.headline2!.merge(
+                      TextStyle(color: MyTheme.positiveMajor),
+                    ),
+                  ),
                   Badge(
                     position: const BadgePosition(top: -10, end: -8),
-                    padding: const EdgeInsets.all(8),
+                    //padding: const EdgeInsets.all(8),
                     animationType: BadgeAnimationType.scale,
-                    showBadge: true,
+                    showBadge: false,
                     badgeContent: Text(
                       incLength.toString(),
                       style: MyTheme.whiteTextTheme.headline4,
                     ),
-                    child: SizedBox(
-                      height: 60, //height of button
-                      width: 60, //width of button
+                    child: Container(
+                      height: 70, //height of button
+                      width: 160,
+                      decoration: const BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black26,
+                              offset: Offset(0, 4),
+                              blurRadius: 5.0)
+                        ],
+                      ),
+                      //width of button
                       child: ElevatedButton(
                         onPressed: () {
                           ref.read(provOverFlow).setPageIdx(0);
                           AutoRouter.of(context).push(const DailyFlowRoute());
                         },
                         style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+
                           elevation: 0.0,
-                          shadowColor:
-                              Colors.transparent, //remove shadow on button
-                          primary: Colors.white,
+                          //remove shadow on button
+                          primary: MyTheme.positiveMajor,
 
                           textStyle: const TextStyle(fontSize: 12),
                           padding: const EdgeInsets.all(6),
 
-                          shape: const CircleBorder(),
+                          //shape: const CircleBorder(),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             Icon(
                               HelperIcons.getIconData('hand-holding-usd'),
-                              color: MyTheme.positiveMajor,
+                              color: Colors.white,
+                              size: 25,
                             ),
-                            SizedBox(
-                              width: 60,
-                              child: AutoSizeText(
-                                '+${HelperNumber.format(incTotal)}',
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                minFontSize: 0,
-                                style: TextStyle(
-                                  color: MyTheme.positiveMajor,
+                            Column(
+                              //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(2, 8, 0, 0),
+                                  child: Text(
+                                    'บัญชีรายรับ',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      decoration: TextDecoration.none,
+                                      color: Colors.white.withAlpha(200),
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Text(
+                                  expLength.toString() + ' รายการ',
+                                  style:
+                                      MyTheme.whiteTextTheme.headline3!.merge(
+                                    const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ),
                   ),
-                  Text(
-                    'รายรับ',
-                    style: MyTheme.whiteTextTheme.bodyText1,
-                  ),
-                  Text(
-                    incLength.toString() + ' รายการ',
-                    style: MyTheme.whiteTextTheme.bodyText2!.merge(
-                      TextStyle(color: Colors.white.withAlpha(200)),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                        backgroundColor: MyTheme.positiveMinor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.0),
+                        ),
+                      ),
+                      onPressed: () => {
+                        AutoRouter.of(context).push(const SpeechToTextRoute()),
+                      },
+                      icon: Icon(
+                        Icons.mic,
+                        color: MyTheme.positiveMajor,
+                        size: 15,
+                      ),
+                      label: Text('เพิ่มรายการใหม่ด้วยเสียง',
+                          style: TextStyle(
+                              color: MyTheme.positiveMajor, fontSize: 12)),
                     ),
                   ),
                 ],
@@ -325,71 +376,117 @@ class ExpenseIncome extends ConsumerWidget {
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const Text('รายจ่ายรวม ',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700)),
+                  Text(
+                    '-$expTotal บ.',
+                    style: MyTheme.whiteTextTheme.headline2!.merge(
+                      TextStyle(color: MyTheme.negativeMajor),
+                    ),
+                  ),
                   Badge(
                     position: const BadgePosition(top: -10, end: -8),
-                    padding: const EdgeInsets.all(8),
+                    //padding: const EdgeInsets.all(8),
                     animationType: BadgeAnimationType.scale,
-                    showBadge: true,
+                    showBadge: false,
                     badgeContent: Text(
                       expLength.toString(),
                       style: MyTheme.whiteTextTheme.headline4,
                     ),
-                    child: SizedBox(
-                      height: 60, //height of button
-                      width: 60, //width of button
+                    child: Container(
+                      height: 70, //height of button
+                      width: 160,
+                      decoration: const BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black26,
+                              offset: Offset(0, 4),
+                              blurRadius: 5.0)
+                        ],
+                      ), //width of button
                       child: ElevatedButton(
                         onPressed: () {
                           ref.read(provOverFlow).setPageIdx(1);
                           AutoRouter.of(context).push(const DailyFlowRoute());
                         },
                         style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
                           elevation: 0.0,
-                          shadowColor:
-                              Colors.transparent, //remove shadow on button
-                          primary: Colors.white,
+                          primary: MyTheme.negativeMajor,
 
-                          textStyle: const TextStyle(fontSize: 12),
+                          textStyle: const TextStyle(fontSize: 15),
                           padding: const EdgeInsets.all(6),
 
-                          shape: const CircleBorder(),
+                          //shape: const CircleBorder(),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.receipt,
-                              color: MyTheme.negativeMajor,
+                              color: Colors.white,
+                              size: 30,
                             ),
-                            SizedBox(
-                              width: 60,
-                              child: AutoSizeText(
-                                '+${HelperNumber.format(expTotal)}',
-                                textAlign: TextAlign.center,
-                                maxLines: 1,
-                                minFontSize: 0,
-                                style: TextStyle(
-                                  color: MyTheme.negativeMajor,
+
+                            // const Text(
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(2, 8, 2, 0),
+                                  child: Text(
+                                    'บัญชีรายจ่าย',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      decoration: TextDecoration.none,
+                                      color: Colors.white.withAlpha(200),
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Text(
+                                  expLength.toString() + ' รายการ',
+                                  style:
+                                      MyTheme.whiteTextTheme.headline3!.merge(
+                                    const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ),
                   ),
-                  const Text(
-                    'รายจ่าย',
-                    style: TextStyle(
-                      fontSize: 12,
-                      decoration: TextDecoration.none,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    expLength.toString() + ' รายการ',
-                    style: MyTheme.whiteTextTheme.bodyText2!.merge(
-                      TextStyle(color: Colors.white.withAlpha(200)),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                        backgroundColor: MyTheme.negativeMinor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.0),
+                        ),
+                      ),
+                      onPressed: () => {
+                        AutoRouter.of(context).push(const SpeechToTextRoute())
+                      },
+                      icon: Icon(
+                        Icons.mic,
+                        color: MyTheme.negativeMajor,
+                        size: 15,
+                      ),
+                      label: Text('เพิ่มรายการใหม่ด้วยเสียง',
+                          style: TextStyle(
+                              color: MyTheme.negativeMajor, fontSize: 12)),
                     ),
                   ),
                 ],
