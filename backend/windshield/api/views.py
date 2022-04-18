@@ -10,7 +10,7 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import date, datetime, timedelta
 from pytz import timezone
-from django.db.models import Sum, Exists, OuterRef, Q, F, Prefetch, functions
+from django.db.models import Avg, Sum, Exists, OuterRef, Q, F, Prefetch, functions
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -916,6 +916,25 @@ class FinancialStatus(APIView):
             "Financial Health": None
             } 
         return Response(finstatus)
+
+class AverageFlow(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    past_days = 30
+    
+    def get(self, request):
+        self.past_days = int(request.query_params.get("days", self.past_days))
+        today = datetime.now(tz= timezone('Asia/Bangkok'))
+        backto = today - timedelta(days=self.past_days)
+        df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
+        result = df_sheets.aggregate(total_avg_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="INC") | 
+                                                    Q(flows__category__ftype__domain="ASS")
+                                                    ) / self.past_days,
+                                    total_avg_expense=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="EXP") | 
+                                                    Q(flows__category__ftype__domain="DEB")
+                                                    ) / self.past_days)
+        return Response(result)
 
 class GraphDailyFlow(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
