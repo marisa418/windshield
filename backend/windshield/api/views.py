@@ -926,14 +926,37 @@ class AverageFlow(APIView):
         today = datetime.now(tz= timezone('Asia/Bangkok'))
         backto = today - timedelta(days=self.past_days)
         df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
-        result = df_sheets.aggregate(total_avg_income=Sum("flows__value", filter=
+        result = df_sheets.aggregate(avg_income=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="INC") | 
                                                     Q(flows__category__ftype__domain="ASS")
                                                     ) / self.past_days,
-                                    total_avg_expense=Sum("flows__value", filter=
+                                    avg_working_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=1)
+                                                    ) / self.past_days,
+                                    avg_invest_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=2) |
+                                                    Q(flows__category__ftype__domain="ASS")
+                                                    ) / self.past_days,
+                                    avg_other_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=3)
+                                                    ) / self.past_days,
+                                    avg_expense=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="EXP") | 
                                                     Q(flows__category__ftype__domain="DEB")
-                                                    ) / self.past_days)
+                                                    ) / self.past_days,
+                                    avg_inconsist_expense=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=4) | 
+                                                    Q(flows__category__ftype=10)
+                                                    ) / self.past_days,
+                                    avg_consist_expense=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=5) | 
+                                                    Q(flows__category__ftype=11)
+                                                    ) / self.past_days,
+                                    avg_saving=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=6) | 
+                                                    Q(flows__category__ftype=12)
+                                                    ) / self.past_days
+                                    )
         return Response(result)
 
 class GraphDailyFlow(generics.ListAPIView):
