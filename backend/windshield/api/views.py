@@ -917,7 +917,7 @@ class FinancialStatus(APIView):
             } 
         return Response(finstatus)
 
-class AverageFlow(APIView):
+class AverageDailyFlow(APIView):
     permission_classes = [permissions.IsAuthenticated]
     past_days = 30
     
@@ -929,33 +929,83 @@ class AverageFlow(APIView):
         result = df_sheets.aggregate(avg_income=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="INC") | 
                                                     Q(flows__category__ftype__domain="ASS")
-                                                    ) / self.past_days,
+                                                    ) / (self.past_days + 1),
                                     avg_working_income=Sum("flows__value", filter=
                                                     Q(flows__category__ftype=1)
-                                                    ) / self.past_days,
+                                                    ) / (self.past_days + 1),
                                     avg_invest_income=Sum("flows__value", filter=
                                                     Q(flows__category__ftype=2) |
                                                     Q(flows__category__ftype__domain="ASS")
-                                                    ) / self.past_days,
+                                                    ) / (self.past_days + 1),
                                     avg_other_income=Sum("flows__value", filter=
                                                     Q(flows__category__ftype=3)
-                                                    ) / self.past_days,
+                                                    ) / (self.past_days + 1),
                                     avg_expense=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="EXP") | 
                                                     Q(flows__category__ftype__domain="DEB")
-                                                    ) / self.past_days,
+                                                    ) / (self.past_days + 1),
                                     avg_inconsist_expense=Sum("flows__value", filter=
                                                     Q(flows__category__ftype=4) | 
                                                     Q(flows__category__ftype=10)
-                                                    ) / self.past_days,
+                                                    ) / (self.past_days + 1),
                                     avg_consist_expense=Sum("flows__value", filter=
                                                     Q(flows__category__ftype=5) | 
                                                     Q(flows__category__ftype=11)
-                                                    ) / self.past_days,
+                                                    ) / (self.past_days + 1),
                                     avg_saving=Sum("flows__value", filter=
                                                     Q(flows__category__ftype=6) | 
                                                     Q(flows__category__ftype=12)
-                                                    ) / self.past_days
+                                                    ) / (self.past_days + 1)
+                                    )
+        return Response(result)
+
+class AverageMonthlyFlow(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    past_months = 3
+
+    def monthdelta(self, date, delta):
+        m, y = (date.month + delta) % 12, date.year + ((date.month)+delta-1) // 12
+        if not m: m = 12
+        d = min(date.day, calendar.monthrange(y, m)[1])
+        return date.replace(day=d,month=m, year=y)
+    
+    def get(self, request):
+        self.past_months = int(request.query_params.get("months", self.past_months))
+        today = datetime.now(tz= timezone('Asia/Bangkok'))
+        backto = self.monthdelta(today, -self.past_months)
+        backto = backto.replace(day=1)
+        print(today, backto)
+        df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
+        result = df_sheets.aggregate(avg_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="INC") | 
+                                                    Q(flows__category__ftype__domain="ASS")
+                                                    ) / (self.past_months + 1),
+                                                avg_working_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=1)
+                                                    ) / (self.past_months + 1),
+                                                avg_invest_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=2) |
+                                                    Q(flows__category__ftype__domain="ASS")
+                                                    ) / (self.past_months + 1),
+                                                avg_other_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=3)
+                                                    ) / (self.past_months + 1),
+                                                avg_expense=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="EXP") | 
+                                                    Q(flows__category__ftype__domain="DEB")
+                                                    ) / (self.past_months + 1),
+                                                avg_inconsist_expense=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=4) | 
+                                                    Q(flows__category__ftype=10)
+                                                    ) / (self.past_months + 1),
+                                                avg_consist_expense=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=5) | 
+                                                    Q(flows__category__ftype=11)
+                                                    ) / (self.past_months + 1),
+                                                avg_saving=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=6) | 
+                                                    Q(flows__category__ftype=12)
+                                                    ) / (self.past_months + 1)
                                     )
         return Response(result)
 
@@ -992,7 +1042,7 @@ class GraphMonthlyFlow(generics.ListAPIView):
         return date.replace(day=d,month=m, year=y)
     
     def get_queryset(self):
-        self.back = int(self.request.query_params.get("month", self.back))
+        self.back = int(self.request.query_params.get("months", self.back))
         today = datetime.now(tz= timezone('Asia/Bangkok'))
         backto = self.monthdelta(today, -self.back)
         backto = backto.replace(day=1)

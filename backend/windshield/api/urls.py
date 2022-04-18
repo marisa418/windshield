@@ -36,8 +36,9 @@ urlpatterns = [
     path('daily-flow-sheet/list/', views.DailyFlowSheetList.as_view(), name="daily-flow-sheet-list"),
     path('daily-flow-sheet/graph/daily/', views.GraphDailyFlow.as_view(), name='daily-flow_sheet-graph'),
     path('daily-flow-sheet/graph/monthly/', views.GraphMonthlyFlow.as_view(), name='monthly-flow_sheet-graph'),
-    path('daily-flow-sheet/graph/annually/', views.GraphAnnuallyFlow.as_view(), name='annually-flow_sheet-graph'),
-    path('daily-flow-sheet/average/', views.AverageFlow.as_view(), name='average-flow_sheet'),
+    path('daily-flow-sheet/graph/annually/', views.GraphAnnuallyFlow.as_view(), name='annually-flow-sheet-graph'),
+    path('daily-flow-sheet/average/daily/', views.AverageDailyFlow.as_view(), name='average-daily-flow-sheet'),
+    path('daily-flow-sheet/average/monthly/', views.AverageMonthlyFlow.as_view(), name='average-monthly-flow-sheet'),
     
     #DAILY FLOW
     path('method/', views.Method.as_view(), name='method'),
