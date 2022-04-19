@@ -557,7 +557,6 @@ class OverviewIncomeToday extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final inc = ref.watch(provOverFlow.select((e) => e.tdIncList));
     final inc = ref.watch(provOverFlow).tdIncList;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20.0, 20.0, 10.0, 0.0),
@@ -578,7 +577,10 @@ class OverviewIncomeToday extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
-                  onPressed: () => {},
+                  onPressed: () {
+                    ref.read(provOverFlow).setPageIdx(0);
+                    AutoRouter.of(context).push(const DailyFlowRoute());
+                  },
                   child: const Text('ดูทั้งหมด')),
             ],
           ),
@@ -721,7 +723,10 @@ class OverviewExpenseToday extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(20.0),
                     ),
                   ),
-                  onPressed: () => {},
+                  onPressed: () {
+                    ref.read(provOverFlow).setPageIdx(1);
+                    AutoRouter.of(context).push(const DailyFlowRoute());
+                  },
                   child: const Text('ดูทั้งหมด')),
             ],
           ),
