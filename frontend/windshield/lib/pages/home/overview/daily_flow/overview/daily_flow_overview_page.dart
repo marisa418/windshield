@@ -48,6 +48,7 @@ class DailyFlowOverviewPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    bool isSwitched = false;
     final api = ref.watch(apiOverFlow);
     return api.when(
       error: (error, stackTrace) => Text(error.toString()),
@@ -146,7 +147,7 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
-                      height: 75,
+                      height: 70,
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: TextButton.icon(
@@ -171,6 +172,45 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                         ),
                       ),
                     ),
+                    SizedBox(
+                      height: 55,
+                      width: 200,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          label: Padding(
+                            padding: const EdgeInsets.all(1.0),
+                            child: Column(
+                              children: [
+                                const Text(
+                                  'ตั้งเวลาเเจ้งเตือน',
+                                  style: TextStyle(
+                                      fontSize: 8, color: Colors.white),
+                                ),
+                                Text(
+                                  '22.00 น.  ',
+                                  style: MyTheme.whiteTextTheme.headline4,
+                                ),
+                              ],
+                            ),
+                          ),
+                          icon: const Icon(
+                            Icons.access_time_filled,
+                            color: Colors.white,
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor: MyTheme.primaryMajor,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(25),
+                                bottomLeft: Radius.circular(25),
+                              ),
+                            ),
+                          ),
+                          onPressed: () => AutoRouter.of(context).pop(),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -178,6 +218,25 @@ class DailyFlowOverviewPage extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class SwitchFlutter extends State<MyApp> {
+  bool isSwitched = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Switch(
+      value: isSwitched,
+      onChanged: (value) {
+        setState(() {
+          isSwitched = value;
+          print(isSwitched);
+        });
+      },
+      activeTrackColor: Colors.lightGreenAccent,
+      activeColor: Colors.green,
     );
   }
 }
@@ -511,14 +570,31 @@ class OverviewIncomeToday extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('รายรับวันนี้', style: MyTheme.textTheme.headline3),
-          if (inc.isEmpty) ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('รายรับวันนี้', style: MyTheme.textTheme.headline3),
+              TextButton(
+                  style: TextButton.styleFrom(
+                    textStyle: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: MyTheme.primaryMajor),
+                    backgroundColor: MyTheme.primaryMinor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                  ),
+                  onPressed: () => {},
+                  child: const Text('ดูทั้งหมด')),
+            ],
+          ),
+          if (inc.isEmpty) ...const [
             Center(
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: EdgeInsets.all(20.0),
                 child: Text(
                   'ไม่มีรายการ',
-                  style: MyTheme.textTheme.headline4,
+                  style: TextStyle(color: Colors.grey),
                 ),
               ),
             ),
@@ -637,14 +713,31 @@ class OverviewExpenseToday extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('รายจ่ายวันนี้', style: MyTheme.textTheme.headline3),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('รายรับวันนี้', style: MyTheme.textTheme.headline3),
+              TextButton(
+                  style: TextButton.styleFrom(
+                    textStyle: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: MyTheme.primaryMajor),
+                    backgroundColor: MyTheme.primaryMinor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                  ),
+                  onPressed: () => {},
+                  child: const Text('ดูทั้งหมด')),
+            ],
+          ),
           if (exp.isEmpty) ...[
-            Center(
+            const Center(
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: EdgeInsets.all(20.0),
                 child: Text(
                   'ไม่มีรายการ',
-                  style: MyTheme.textTheme.headline4,
+                  style: TextStyle(color: Colors.grey),
                 ),
               ),
             ),
