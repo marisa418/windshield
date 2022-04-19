@@ -48,7 +48,8 @@ class DailyFlowOverviewPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool isSwitched = false;
+    bool _enable = false;
+
     final api = ref.watch(apiOverFlow);
     return api.when(
       error: (error, stackTrace) => Text(error.toString()),
@@ -172,45 +173,38 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: 55,
-                      width: 200,
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton.icon(
-                          label: Padding(
-                            padding: const EdgeInsets.all(1.0),
-                            child: Column(
+                    Container(
+                        height: 50,
+                        width: 200,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: MyTheme.primaryMajor,
+                        ),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.access_time_filled,
+                                  color: Colors.white),
+                              onPressed: () {/* Your code */},
+                            ),
+                            Column(
                               children: [
-                                const Text(
-                                  'ตั้งเวลาเเจ้งเตือน',
-                                  style: TextStyle(
-                                      fontSize: 8, color: Colors.white),
-                                ),
-                                Text(
-                                  '22.00 น.  ',
-                                  style: MyTheme.whiteTextTheme.headline4,
-                                ),
+                                const Text('ตั้งเวลาเเจ้งเตือน ',
+                                    style: TextStyle(fontSize: 12)),
+                                Text('22.00 น.',
+                                    style: MyTheme.textTheme.headline3),
                               ],
                             ),
-                          ),
-                          icon: const Icon(
-                            Icons.access_time_filled,
-                            color: Colors.white,
-                          ),
-                          style: TextButton.styleFrom(
-                            backgroundColor: MyTheme.primaryMajor,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(25),
-                                bottomLeft: Radius.circular(25),
-                              ),
+                            CustomSwitch(
+                              value: _enable,
+                              onChanged: (bool val) {
+                                /*setState(() {
+                              _enable = val;
+                            });*/
+                              },
                             ),
-                          ),
-                          onPressed: () => AutoRouter.of(context).pop(),
-                        ),
-                      ),
-                    ),
+                          ],
+                        )),
                   ],
                 ),
               ],
@@ -222,21 +216,76 @@ class DailyFlowOverviewPage extends ConsumerWidget {
   }
 }
 
-class SwitchFlutter extends State<MyApp> {
-  bool isSwitched = false;
+class CustomSwitch extends StatefulWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const CustomSwitch({Key? key, required this.value, required this.onChanged})
+      : super(key: key);
+
+  @override
+  _CustomSwitchState createState() => _CustomSwitchState();
+}
+
+class _CustomSwitchState extends State<CustomSwitch>
+    with SingleTickerProviderStateMixin {
+  Animation? _circleAnimation;
+  AnimationController? _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 60));
+    _circleAnimation = AlignmentTween(
+            begin: widget.value ? Alignment.centerRight : Alignment.centerLeft,
+            end: widget.value ? Alignment.centerLeft : Alignment.centerRight)
+        .animate(CurvedAnimation(
+            parent: _animationController!, curve: Curves.linear));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Switch(
-      value: isSwitched,
-      onChanged: (value) {
-        setState(() {
-          isSwitched = value;
-          print(isSwitched);
-        });
+    return AnimatedBuilder(
+      animation: _animationController!,
+      builder: (context, child) {
+        return GestureDetector(
+          onTap: () {
+            if (_animationController!.isCompleted) {
+              _animationController!.reverse();
+            } else {
+              _animationController!.forward();
+            }
+            widget.value == false
+                ? widget.onChanged(true)
+                : widget.onChanged(false);
+          },
+          child: Container(
+            width: 45.0,
+            height: 28.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24.0),
+              color: _circleAnimation!.value == Alignment.centerLeft
+                  ? Colors.grey
+                  : Colors.blue,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  top: 2.0, bottom: 2.0, right: 2.0, left: 2.0),
+              child: Container(
+                alignment:
+                    widget.value ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: 20.0,
+                  height: 20.0,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle, color: Colors.white),
+                ),
+              ),
+            ),
+          ),
+        );
       },
-      activeTrackColor: Colors.lightGreenAccent,
-      activeColor: Colors.green,
     );
   }
 }
