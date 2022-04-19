@@ -14,7 +14,7 @@ class StatementProvider extends ChangeNotifier {
   List<StmntStatement> _stmntActiveList = [];
   List<StmntStatement> get stmntActiveList => _stmntActiveList;
 
-  List<String> _stmntDateChipList = [];
+  final List<String> _stmntDateChipList = [];
   List<String> get stmntDateChipList => _stmntDateChipList;
 
   int _stmntDateChipIdx = 0;
@@ -50,27 +50,8 @@ class StatementProvider extends ChangeNotifier {
   List<StmntBudget> _stmntBudgets = [];
   List<StmntBudget> get stmntBudgets => _stmntBudgets;
 
-  // TEMP ======================================================================
-  // StmntStatement stmntTemp = StmntStatement(
-  //   id: '',
-  //   name: '',
-  //   chosen: false,
-  //   start: DateTime.now(),
-  //   end: DateTime.now(),
-  //   budgets: [
-  //     StmntBudget(
-  //       id: '',
-  //       catId: '',
-  //       balance: 0,
-  //       total: 0,
-  //       budPerPeriod: 0,
-  //       freq: '',
-  //       fplan: '',
-  //       cat: StmntCategory(id: '', name: '', usedCount: 0, ftype: '', icon: ''),
-  //     ),
-  //   ],
-  // );
-  //============================================================================
+  bool _editSpecial = false;
+  bool get editSpecial => _editSpecial;
 
   void setStatementList(List<StmntStatement> value) {
     _stmntList = value;
@@ -165,16 +146,22 @@ class StatementProvider extends ChangeNotifier {
     return _end.difference(_start).inDays + 1;
   }
 
-  bool canCreateStmnt() {
-    if (getDateDiff() <= 35 && getDateDiff() >= 21) {
-      return true;
+  String canCreateStmnt() {
+    if (getDateDiff() < 21) {
+      return 'กรุณาสร้างแผนอย่างต่ำ 21 วัน';
     }
-    return false;
+    if (getDateDiff() > 35) {
+      return 'กรุณาสร้างแผนไม่เกิน 35 วัน';
+    }
+    return '';
   }
 
   void setAvailableDate(DateTime min, DateTime max) {
     _minDate = min;
     _maxDate = max;
+    if (_stmntActiveList.isEmpty) {
+      _maxDate = DateTime.now().add(const Duration(days: 365));
+    }
   }
 
   void setDate(DateTime start, DateTime end) {
@@ -183,21 +170,32 @@ class StatementProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  final List<double> _incWorking = [0, 0];
+  void setEditSpecial(bool value) {
+    _editSpecial = value;
+    notifyListeners();
+  }
+
+  List<double> _incWorking = [0, 0];
   List<double> get incWorking => _incWorking;
-  final List<double> _incAsset = [0, 0];
+  List<double> _incAsset = [0, 0];
   List<double> get incAsset => _incAsset;
-  final List<double> _incOther = [0, 0];
+  List<double> _incOther = [0, 0];
   List<double> get incOther => _incOther;
-  final List<double> _expIncon = [0, 0];
+  List<double> _expIncon = [0, 0];
   List<double> get expIncon => _expIncon;
-  final List<double> _expCon = [0, 0];
+  List<double> _expCon = [0, 0];
   List<double> get expCon => _expCon;
-  final List<double> _savInv = [0, 0];
+  List<double> _savInv = [0, 0];
   List<double> get savInv => _savInv;
 
   void setFlowSheetList(List<FlowSheet> value) {
     _flowSheetList = value;
+    _incWorking = [0, 0];
+    _incAsset = [0, 0];
+    _incOther = [0, 0];
+    _expIncon = [0, 0];
+    _expCon = [0, 0];
+    _savInv = [0, 0];
     for (var sheet in _flowSheetList) {
       for (var flow in sheet.flows) {
         if (flow.cat.ftype == '1') {
