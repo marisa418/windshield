@@ -197,12 +197,4 @@ class BudgetEditProvider extends ChangeNotifier {
       }
     }
   }
-
-  // int findCatIndex(StmntCategory cat) {
-  //   return _categoryList.indexWhere((e) => e.id == cat.id);
-  // }
-
-  // bool isActive(StmntCategory cat, int catIndex) {
-  //   return _categoryList[catIndex].active;
-  // }
 }

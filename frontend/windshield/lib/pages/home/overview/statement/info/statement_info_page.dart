@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
@@ -8,6 +9,7 @@ import 'package:windshield/main.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/models/statement/budget.dart';
 import 'package:windshield/routes/app_router.dart';
+import 'package:windshield/utility/number_formatter.dart';
 import '../statement_page.dart';
 
 class StatementInfoPage extends ConsumerWidget {
@@ -302,10 +304,14 @@ class Statement extends ConsumerWidget {
             stmntList[index].start,
             stmntList[index].end,
           );
+          provStmnt.setEditSpecial(false);
+          if (provStmnt.stmntId == provStmnt.stmntActiveList[0].id) {
+            provStmnt.setEditSpecial(true);
+          }
           AutoRouter.of(context).push(const StatementEditRoute());
         },
         child: Container(
-          height: 150,
+          height: 160,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
@@ -412,93 +418,105 @@ class Statement extends ConsumerWidget {
                     ],
                   ),
                   const Divider(thickness: 1),
-                  Row(
-                    children: [
-                      Flexible(
-                        flex: 5,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: MyTheme.incomeBackground,
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 5,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: MyTheme.incomeBackground,
+                              ),
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(15),
+                                bottomLeft: Radius.circular(15),
+                              ),
                             ),
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              bottomLeft: Radius.circular(15),
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(7.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'งบรายรับ',
-                                  style: MyTheme.whiteTextTheme.bodyText1,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      '${sum[0]} บ.',
-                                      style: MyTheme.whiteTextTheme.headline4,
-                                    ),
-                                    Text(
-                                      '${perc[0].toStringAsFixed(2)}%',
-                                      style: MyTheme.whiteTextTheme.bodyText1,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Flexible(
-                        flex: 5,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: MyTheme.expenseBackground,
-                            ),
-                            borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(15),
-                              bottomRight: Radius.circular(15),
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(7.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'งบรายจ่าย',
-                                  style: MyTheme.whiteTextTheme.bodyText1,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      '${sum[1]} บ.',
-                                      style: MyTheme.whiteTextTheme.headline4,
-                                    ),
-                                    Text(
-                                      '${perc[1].toStringAsFixed(2)}%',
-                                      style: MyTheme.whiteTextTheme.bodyText1,
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            child: Padding(
+                              padding: const EdgeInsets.all(7.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'งบรายรับ',
+                                    style: MyTheme.whiteTextTheme.bodyText1,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: AutoSizeText(
+                                          '${HelperNumber.format(sum[0])} บ.',
+                                          maxLines: 1,
+                                          minFontSize: 0,
+                                          style:
+                                              MyTheme.whiteTextTheme.headline4,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${perc[0].toStringAsFixed(2)}%',
+                                        style: MyTheme.whiteTextTheme.bodyText1,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                        Flexible(
+                          flex: 5,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: MyTheme.expenseBackground,
+                              ),
+                              borderRadius: const BorderRadius.only(
+                                topRight: Radius.circular(15),
+                                bottomRight: Radius.circular(15),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(7.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'งบรายจ่าย',
+                                    style: MyTheme.whiteTextTheme.bodyText1,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: AutoSizeText(
+                                          '${HelperNumber.format(sum[1])} บ.',
+                                          maxLines: 1,
+                                          minFontSize: 0,
+                                          style:
+                                              MyTheme.whiteTextTheme.headline4,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${perc[1].toStringAsFixed(2)}%',
+                                        style: MyTheme.whiteTextTheme.bodyText1,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -507,14 +525,14 @@ class Statement extends ConsumerWidget {
                           style: MyTheme.textTheme.bodyText1),
                       if (sum[0] - sum[1] > 0)
                         Text(
-                          '+${sum[0] - sum[1]}',
+                          '+${HelperNumber.format(sum[0] - sum[1])} บ.',
                           style: MyTheme.textTheme.headline3!.merge(
                             TextStyle(color: MyTheme.positiveMajor),
                           ),
                         )
                       else
                         Text(
-                          '${sum[0] - sum[1]}',
+                          '${HelperNumber.format(sum[0] - sum[1])} บ.',
                           style: sum[0] - sum[1] != 0
                               ? MyTheme.textTheme.headline3!.merge(
                                   TextStyle(color: MyTheme.negativeMajor),

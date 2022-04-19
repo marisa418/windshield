@@ -214,25 +214,47 @@ class Footer extends ConsumerWidget {
               ),
             ),
             onTap: () async {
-              if (ref.read(provStatement).canCreateStmnt()) {
-                final id = await ref.read(apiProvider).createStatement(
-                      'แผนการเงิน',
-                      ref.read(provStatement).start,
-                      ref.read(provStatement).end,
-                    );
-                if (id != '') {
-                  ref.read(provStatement).setStmntId(id);
-                  ref.read(provStatement).setStmntCreatePageIdx(1);
-                  ref.read(provStatement).setNeedFetchAPI();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('เกิดข้อผิดพลาด')),
-                  );
-                }
-              } else {
+              final canCreate = ref.read(provStatement).canCreateStmnt();
+              if (canCreate.isNotEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('โปรดเลือกระยะเวลาอย่างต่ำ 21 วัน'),
+                  SnackBar(content: Text(canCreate)),
+                );
+              } else {
+                showDialog(
+                  useRootNavigator: false,
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text(
+                        'เมื่อกดปุ่มยืนยันแล้วท่านจะไม่สามารถกลับมาแก้ไขระยะเวลาได้'),
+                    actions: [
+                      TextButton(
+                        child: const Text('ยกเลิก'),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      TextButton(
+                        child: const Text('ยืนยัน'),
+                        onPressed: () async {
+                          final id =
+                              await ref.read(apiProvider).createStatement(
+                                    'แผนการเงิน',
+                                    ref.read(provStatement).start,
+                                    ref.read(provStatement).end,
+                                  );
+                          if (id != '') {
+                            AutoRouter.of(context).pop();
+                            ref.read(provStatement).setStmntId(id);
+                            ref.read(provStatement).setStmntCreatePageIdx(1);
+                            ref.read(provStatement).setNeedFetchAPI();
+                          } else {
+                            AutoRouter.of(context).pop();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+                            );
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 );
               }

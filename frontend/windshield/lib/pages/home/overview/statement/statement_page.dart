@@ -11,6 +11,7 @@ import 'package:windshield/providers/statement_provider.dart';
 import 'package:windshield/models/statement/budget.dart';
 import 'package:windshield/models/statement/statement.dart';
 import 'package:windshield/utility/number_formatter.dart';
+import 'package:windshield/utility/progress.dart';
 import 'first_statement.dart';
 
 final provStatement = ChangeNotifierProvider.autoDispose<StatementProvider>(
@@ -95,6 +96,12 @@ class Header extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final incWorking = ref.watch(provStatement.select((e) => e.incWorking));
+    final incAsset = ref.watch(provStatement.select((e) => e.incAsset));
+    final incOther = ref.watch(provStatement.select((e) => e.incOther));
+    final expIncon = ref.watch(provStatement.select((e) => e.expIncon));
+    final expCon = ref.watch(provStatement.select((e) => e.expCon));
+    final savInv = ref.watch(provStatement.select((e) => e.savInv));
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -103,14 +110,13 @@ class Header extends ConsumerWidget {
           colors: MyTheme.majorBackground,
         ),
       ),
-      height: 160,
+      height: 190,
       child: Padding(
-        // padding: const EdgeInsets.all(15.0),
         padding: const EdgeInsets.fromLTRB(15, 15, 15, 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('แผนงบการเงินของคุณ', style: MyTheme.whiteTextTheme.headline3),
+            Text('แผนงบการเงินของคุณ', style: MyTheme.whiteTextTheme.headline2),
             Wrap(
               children: [
                 const Icon(Icons.calendar_today, color: Colors.white),
@@ -127,13 +133,21 @@ class Header extends ConsumerWidget {
                   CircularPercentIndicator(
                     radius: 27,
                     progressColor: Colors.white,
-                    percent: 0.5,
+                    percent: HelperProgress.getPercent(
+                      (incWorking[0] + incAsset[0] + incOther[0]) -
+                          (expIncon[0] + expCon[0] + savInv[0]),
+                      incWorking[0] + incAsset[0] + incOther[0],
+                    ),
                     animation: true,
                     animationDuration: 1,
                     lineWidth: 7,
-                    center: const Text(
-                      'XX.X%',
-                      style: TextStyle(
+                    center: Text(
+                      '${(HelperProgress.getPercent(
+                            (incWorking[0] + incAsset[0] + incOther[0]) -
+                                (expIncon[0] + expCon[0] + savInv[0]),
+                            incWorking[0] + incAsset[0] + incOther[0],
+                          ) * 100).toStringAsFixed(2)}%',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
                       ),
@@ -160,7 +174,7 @@ class Header extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'XX,XXX บ.',
+                              '${HelperNumber.format((incWorking[0] + incAsset[0] + incOther[0]) - (expIncon[0] + expCon[0] + savInv[0]))} บ.',
                               style: MyTheme.whiteTextTheme.headline2,
                             ),
                             Wrap(
@@ -175,7 +189,15 @@ class Header extends ConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  'XX XXX 2022',
+                                  ref
+                                          .watch(provStatement
+                                              .select((e) => e.stmntActiveList))
+                                          .isNotEmpty
+                                      ? DateFormat('d MMM y').format(ref
+                                          .watch(provStatement.select(
+                                              (e) => e.stmntActiveList[0]))
+                                          .end)
+                                      : (''),
                                   style: MyTheme.whiteTextTheme.bodyText1,
                                 ),
                               ],
@@ -281,6 +303,7 @@ class ActiveStatements extends ConsumerWidget {
           stmntActiveList[index].start,
           stmntActiveList[index].end,
         );
+        provStmnt.setEditSpecial(false);
         AutoRouter.of(context).push(const StatementEditRoute());
       },
       child: Container(
