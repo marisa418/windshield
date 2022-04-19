@@ -299,10 +299,10 @@ class ExpenseIncome extends ConsumerWidget {
       ),
       data: (_) => Container(
         height: 220,
+        padding: const EdgeInsets.all(8),
         color: Colors.white,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             GestureDetector(
               onTap: () {
@@ -319,65 +319,58 @@ class ExpenseIncome extends ConsumerWidget {
                           fontSize: 15,
                           fontWeight: FontWeight.w700)),
                   Text(
-                    '+${incTotal} บ.',
+                    '+$incTotal บ.',
                     style: MyTheme.whiteTextTheme.headline2!.merge(
                       TextStyle(color: MyTheme.positiveMajor),
                     ),
                   ),
-                  Badge(
-                    position: const BadgePosition(top: -10, end: -8),
-                    //padding: const EdgeInsets.all(8),
-                    animationType: BadgeAnimationType.scale,
-                    showBadge: false,
-                    badgeContent: Text(
-                      incLength.toString(),
-                      style: MyTheme.whiteTextTheme.headline4,
+                  Container(
+                    height: 75, //height of button
+                    width: 160,
+                    decoration: const BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 4),
+                            blurRadius: 5.0)
+                      ],
                     ),
-                    child: Container(
-                      height: 70, //height of button
-                      width: 160,
-                      decoration: const BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black26,
-                              offset: Offset(0, 4),
-                              blurRadius: 5.0)
-                        ],
-                      ),
-                      //width of button
-                      child: ElevatedButton(
-                        onPressed: () {
-                          ref.read(provOverFlow).setPageIdx(0);
-                          AutoRouter.of(context).push(const DailyFlowRoute());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-
-                          elevation: 0.0,
-                          //remove shadow on button
-                          primary: MyTheme.positiveMajor,
-
-                          textStyle: const TextStyle(fontSize: 12),
-                          padding: const EdgeInsets.all(6),
-
-                          //shape: const CircleBorder(),
+                    //width of button
+                    child: ElevatedButton(
+                      onPressed: () {
+                        ref.read(provOverFlow).setPageIdx(0);
+                        AutoRouter.of(context).push(const DailyFlowRoute());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Icon(
-                              HelperIcons.getIconData('hand-holding-usd'),
-                              color: Colors.white,
-                              size: 25,
-                            ),
-                            Column(
+
+                        elevation: 0.0,
+                        //remove shadow on button
+                        primary: MyTheme.positiveMajor,
+
+                        textStyle: const TextStyle(fontSize: 12),
+                        padding: const EdgeInsets.all(6),
+
+                        //shape: const CircleBorder(),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Icon(
+                            HelperIcons.getIconData('hand-holding-usd'),
+                            color: Colors.white,
+                            size: 25,
+                          ),
+                          Expanded(
+                            child: Column(
                               //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.fromLTRB(2, 8, 0, 0),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(2, 8, 0, 0),
                                   child: Text(
                                     'บัญชีรายรับ',
                                     style: TextStyle(
@@ -388,21 +381,21 @@ class ExpenseIncome extends ConsumerWidget {
                                     ),
                                   ),
                                 ),
-                                Text(
-                                  expLength.toString() + ' รายการ',
-                                  style:
-                                      MyTheme.whiteTextTheme.headline3!.merge(
-                                    const TextStyle(color: Colors.white),
-                                  ),
+                                AutoSizeText(
+                                  incLength.toString() + ' รายการ',
+                                  minFontSize: 0,
+                                  maxLines: 1,
+                                  style: MyTheme.whiteTextTheme.headline3,
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  Padding(
+                  Container(
+                    width: 160,
                     padding: const EdgeInsets.only(top: 8),
                     child: TextButton.icon(
                       style: TextButton.styleFrom(
@@ -412,8 +405,12 @@ class ExpenseIncome extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(24.0),
                         ),
                       ),
-                      onPressed: () => {
-                        AutoRouter.of(context).push(const SpeechToTextRoute()),
+                      onPressed: () {
+                        ref.read(provOverFlow).setPageIdx(0);
+                        AutoRouter.of(context).pushAll(const [
+                          DailyFlowRoute(),
+                          SpeechToTextRoute(),
+                        ]);
                       },
                       icon: Icon(
                         Icons.mic,
@@ -422,7 +419,7 @@ class ExpenseIncome extends ConsumerWidget {
                       ),
                       label: Text('เพิ่มรายการใหม่ด้วยเสียง',
                           style: TextStyle(
-                              color: MyTheme.positiveMajor, fontSize: 12)),
+                              color: MyTheme.positiveMajor, fontSize: 10)),
                     ),
                   ),
                 ],
@@ -448,59 +445,52 @@ class ExpenseIncome extends ConsumerWidget {
                       TextStyle(color: MyTheme.negativeMajor),
                     ),
                   ),
-                  Badge(
-                    position: const BadgePosition(top: -10, end: -8),
-                    //padding: const EdgeInsets.all(8),
-                    animationType: BadgeAnimationType.scale,
-                    showBadge: false,
-                    badgeContent: Text(
-                      expLength.toString(),
-                      style: MyTheme.whiteTextTheme.headline4,
-                    ),
-                    child: Container(
-                      height: 70, //height of button
-                      width: 160,
-                      decoration: const BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black26,
-                              offset: Offset(0, 4),
-                              blurRadius: 5.0)
-                        ],
-                      ), //width of button
-                      child: ElevatedButton(
-                        onPressed: () {
-                          ref.read(provOverFlow).setPageIdx(1);
-                          AutoRouter.of(context).push(const DailyFlowRoute());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          elevation: 0.0,
-                          primary: MyTheme.negativeMajor,
-
-                          textStyle: const TextStyle(fontSize: 15),
-                          padding: const EdgeInsets.all(6),
-
-                          //shape: const CircleBorder(),
+                  Container(
+                    height: 75, //height of button
+                    width: 160,
+                    decoration: const BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 4),
+                            blurRadius: 5.0)
+                      ],
+                    ), //width of button
+                    child: ElevatedButton(
+                      onPressed: () {
+                        ref.read(provOverFlow).setPageIdx(1);
+                        AutoRouter.of(context).push(const DailyFlowRoute());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            const Icon(
-                              Icons.receipt,
-                              color: Colors.white,
-                              size: 30,
-                            ),
+                        elevation: 0.0,
+                        primary: MyTheme.negativeMajor,
 
-                            // const Text(
-                            Column(
+                        textStyle: const TextStyle(fontSize: 15),
+                        padding: const EdgeInsets.all(6),
+
+                        //shape: const CircleBorder(),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const Icon(
+                            Icons.receipt,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+
+                          // const Text(
+                          Expanded(
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Padding(
-                                  padding: EdgeInsets.fromLTRB(2, 8, 2, 0),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(2, 8, 2, 0),
                                   child: Text(
                                     'บัญชีรายจ่าย',
                                     style: TextStyle(
@@ -511,21 +501,21 @@ class ExpenseIncome extends ConsumerWidget {
                                     ),
                                   ),
                                 ),
-                                Text(
+                                AutoSizeText(
                                   expLength.toString() + ' รายการ',
-                                  style:
-                                      MyTheme.whiteTextTheme.headline3!.merge(
-                                    const TextStyle(color: Colors.white),
-                                  ),
+                                  minFontSize: 0,
+                                  maxLines: 1,
+                                  style: MyTheme.whiteTextTheme.headline3,
                                 ),
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  Padding(
+                  Container(
+                    width: 160,
                     padding: const EdgeInsets.only(top: 8),
                     child: TextButton.icon(
                       style: TextButton.styleFrom(
@@ -535,8 +525,12 @@ class ExpenseIncome extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(24.0),
                         ),
                       ),
-                      onPressed: () => {
-                        AutoRouter.of(context).push(const SpeechToTextRoute())
+                      onPressed: () {
+                        ref.read(provOverFlow).setPageIdx(1);
+                        AutoRouter.of(context).pushAll(const [
+                          DailyFlowRoute(),
+                          SpeechToTextRoute(),
+                        ]);
                       },
                       icon: Icon(
                         Icons.mic,
@@ -545,7 +539,7 @@ class ExpenseIncome extends ConsumerWidget {
                       ),
                       label: Text('เพิ่มรายการใหม่ด้วยเสียง',
                           style: TextStyle(
-                              color: MyTheme.negativeMajor, fontSize: 12)),
+                              color: MyTheme.negativeMajor, fontSize: 10)),
                     ),
                   ),
                 ],
