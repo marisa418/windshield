@@ -8,6 +8,7 @@ import 'package:windshield/providers/home_provider.dart';
 import 'package:windshield/routes/app_router.dart';
 import './overview/overview_page.dart';
 import './setting/setting_page.dart';
+import 'analysis/analysis_page.dart';
 
 final provHome =
     ChangeNotifierProvider.autoDispose<HomeProvider>((ref) => HomeProvider());
@@ -41,7 +42,7 @@ class _HomeState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
     pageList.add(const Overview());
-    pageList.add(Container(color: Colors.red));
+    pageList.add(const Analysis());
     pageList.add(Container(color: Colors.blue));
     pageList.add(const SettingPage());
   }
@@ -68,7 +69,7 @@ class _HomeState extends ConsumerState<HomePage> {
             ),
             bottomNavigationBar: FABBottomAppBar(
               onTabSelected: _updateIndex,
-              centerItemText: 'บัญชีรายรับ\nรายจ่าย',
+              centerItemText: 'บัญชีรายรับ-รายจ่าย',
               items: [
                 FABBottomAppBarItem(iconData: Icons.home, text: 'ภาพรวม'),
                 FABBottomAppBarItem(

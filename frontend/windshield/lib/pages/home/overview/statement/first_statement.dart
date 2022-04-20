@@ -8,6 +8,8 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/utility/number_formatter.dart';
+import 'package:windshield/utility/progress.dart';
+import 'package:windshield/utility/statement_plan_calc.dart';
 import 'statement_page.dart';
 
 class FirstStatement extends ConsumerWidget {
@@ -32,6 +34,7 @@ class FirstStatement extends ConsumerWidget {
           stmnt.start,
           stmnt.end,
         );
+        provStmnt.setEditSpecial(true);
         AutoRouter.of(context).push(const StatementEditRoute());
       },
       child: Container(
@@ -138,14 +141,27 @@ class FirstStatement extends ConsumerWidget {
                                 child: CircularPercentIndicator(
                                   radius: 25,
                                   progressColor: Colors.white,
-                                  percent: double.parse(getPerc(
-                                          incWorking, incAsset, incOther)) /
-                                      100,
+                                  percent: HelperProgress.getPercent(
+                                    getFlowsProg(incWorking[0], incWorking[1]) +
+                                        getFlowsProg(incAsset[0], incAsset[1]) +
+                                        getFlowsProg(incOther[0], incOther[1]),
+                                    incWorking[1] + incAsset[1] + incOther[1],
+                                  ),
                                   animation: true,
                                   animationDuration: 1,
                                   lineWidth: 5,
                                   center: Text(
-                                    '${getPerc(incWorking, incAsset, incOther)}%',
+                                    '${HelperNumber.format(HelperProgress.getPercent(
+                                          getFlowsProg(incWorking[0],
+                                                  incWorking[1]) +
+                                              getFlowsProg(
+                                                  incAsset[0], incAsset[1]) +
+                                              getFlowsProg(
+                                                  incOther[0], incOther[1]),
+                                          incWorking[1] +
+                                              incAsset[1] +
+                                              incOther[1],
+                                        ) * 100)}%',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 10,
@@ -175,7 +191,8 @@ class FirstStatement extends ConsumerWidget {
                                     Flexible(
                                       flex: 1,
                                       child: AutoSizeText(
-                                        '${leftAmount(incWorking, incAsset, incOther)} บ.',
+                                        leftAmount(
+                                            incWorking, incAsset, incOther),
                                         maxLines: 1,
                                         minFontSize: 0,
                                         style: MyTheme.whiteTextTheme.headline4,
@@ -189,7 +206,9 @@ class FirstStatement extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                         const IncWorking(),
+                        const SizedBox(height: 10),
                         const IncAsset(),
+                        const SizedBox(height: 10),
                         const IncOther(),
                       ],
                     ),
@@ -211,7 +230,7 @@ class FirstStatement extends ConsumerWidget {
                             children: [
                               TextSpan(
                                 text:
-                                    '+${HelperNumber.format(expIncon[0] + expCon[0] + savInv[0])} บ.',
+                                    '-${HelperNumber.format(expIncon[0] + expCon[0] + savInv[0])} บ.',
                                 style: MyTheme.textTheme.headline2!.merge(
                                   TextStyle(color: MyTheme.negativeMajor),
                                 ),
@@ -239,14 +258,25 @@ class FirstStatement extends ConsumerWidget {
                                 child: CircularPercentIndicator(
                                   radius: 25,
                                   progressColor: Colors.white,
-                                  percent: double.parse(
-                                          getPerc(expIncon, expCon, savInv)) /
-                                      100,
+                                  percent: HelperProgress.getPercent(
+                                    getFlowsProg(expIncon[0], expIncon[1]) +
+                                        getFlowsProg(expCon[0], expCon[1]) +
+                                        getFlowsProg(savInv[0], savInv[1]),
+                                    expIncon[1] + expCon[1] + savInv[1],
+                                  ),
                                   animation: true,
                                   animationDuration: 1,
                                   lineWidth: 5,
                                   center: Text(
-                                    '${getPerc(expIncon, expCon, savInv)}%',
+                                    '${HelperNumber.format(HelperProgress.getPercent(
+                                          getFlowsProg(
+                                                  expIncon[0], expIncon[1]) +
+                                              getFlowsProg(
+                                                  expCon[0], expCon[1]) +
+                                              getFlowsProg(
+                                                  savInv[0], savInv[1]),
+                                          expIncon[1] + expCon[1] + savInv[1],
+                                        ) * 100)}%',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 10,
@@ -276,7 +306,7 @@ class FirstStatement extends ConsumerWidget {
                                     Flexible(
                                       flex: 1,
                                       child: AutoSizeText(
-                                        '${leftAmount(expIncon, expCon, savInv)} บ.',
+                                        leftAmount(expIncon, expCon, savInv),
                                         maxLines: 1,
                                         minFontSize: 0,
                                         style: MyTheme.whiteTextTheme.headline4,
@@ -290,7 +320,9 @@ class FirstStatement extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10),
                         const ExpIncon(),
+                        const SizedBox(height: 10),
                         const ExpCon(),
+                        const SizedBox(height: 10),
                         const SavInv(),
                       ],
                     ),
@@ -322,112 +354,53 @@ class FirstStatement extends ConsumerWidget {
   }
 }
 
-String leftAmount(
-  List<double> incWorking,
-  List<double> incAsset,
-  List<double> incOther,
-) {
-  final amount = (incWorking[1] + incAsset[1] + incOther[1]) -
-      (incWorking[0] + incAsset[0] + incOther[0]);
-  final amountStr = HelperNumber.format(amount <= -1 ? amount * -1 : amount);
-  return amount <= -1 ? 'เกิน $amountStr' : 'อีก $amountStr';
-}
-
-String getPerc(
-  List<double> incWorking,
-  List<double> incAsset,
-  List<double> incOther,
-) {
-  final perc = (incWorking[0] + incAsset[0] + incOther[0]) /
-      (incWorking[1] + incAsset[1] + incOther[1]) *
-      100;
-  return perc >= 100 ? '100' : perc.toStringAsFixed(2);
-}
-
-Text total(
-  List<double> incWorking,
-  List<double> incAsset,
-  List<double> incOther,
-  List<double> expIncon,
-  List<double> expCon,
-  List<double> savInv,
-) {
-  final amount = (incWorking[0] +
-          incWorking[1] +
-          incAsset[0] +
-          incAsset[1] +
-          incOther[0] +
-          incOther[1]) -
-      (expIncon[0] +
-          expIncon[1] +
-          expCon[0] +
-          expCon[1] +
-          savInv[0] +
-          savInv[1]);
-  if (amount > 0) {
-    return Text(
-      '+${HelperNumber.format(amount)} บ.',
-      style: MyTheme.textTheme.headline3!.merge(
-        TextStyle(
-          color: MyTheme.positiveMajor,
-        ),
-      ),
-    );
-  } else if (amount < 0) {
-    return Text(
-      '${HelperNumber.format(amount)} บ.',
-      style: MyTheme.textTheme.headline3!.merge(
-        TextStyle(
-          color: MyTheme.negativeMajor,
-        ),
-      ),
-    );
-  } else {
-    return Text(
-      '${HelperNumber.format(amount)} บ.',
-      style: MyTheme.textTheme.headline3!.merge(
-        TextStyle(
-          color: MyTheme.positiveMajor,
-        ),
-      ),
-    );
-  }
-}
-
 class IncWorking extends ConsumerWidget {
   const IncWorking({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ref.watch(provStatement.select((e) => e.needFetchAPI));
     final incWorking = ref.watch(provStatement.select((e) => e.incWorking));
-    return RichText(
-      text: TextSpan(
-        text: 'รายรับจากการทำงาน\n',
-        style: MyTheme.textTheme.bodyText1!.merge(
-          const TextStyle(color: Colors.black),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'รายรับจากการทำงาน\n',
+            style: MyTheme.textTheme.bodyText1!.merge(
+              const TextStyle(color: Colors.black),
+            ),
+            children: [
+              TextSpan(
+                text: '+${HelperNumber.format(incWorking[0])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.incomeWorking[0]),
+                ),
+              ),
+              TextSpan(
+                text: '/${HelperNumber.format(incWorking[1])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.incomeWorking[1]),
+                ),
+              ),
+              TextSpan(
+                text: ' บ.',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.incomeWorking[0]),
+                ),
+              ),
+            ],
+          ),
         ),
-        children: [
-          TextSpan(
-            text: '+${HelperNumber.format(incWorking[0])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.incomeWorking[0]),
-            ),
-          ),
-          TextSpan(
-            text: '/${HelperNumber.format(incWorking[1])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.incomeWorking[1]),
-            ),
-          ),
-          TextSpan(
-            text: ' บ.',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.incomeWorking[0]),
-            ),
-          ),
-        ],
-      ),
+        const SizedBox(height: 5),
+        LinearPercentIndicator(
+          lineHeight: 8,
+          percent: HelperProgress.getPercent(incWorking[0], incWorking[1]),
+          progressColor: MyTheme.incomeWorking[0],
+          backgroundColor: MyTheme.incomeWorking[1],
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          barRadius: const Radius.circular(5),
+        ),
+      ],
     );
   }
 }
@@ -437,35 +410,48 @@ class IncAsset extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ref.watch(provStatement.select((e) => e.needFetchAPI));
     final incAsset = ref.watch(provStatement.select((e) => e.incAsset));
-    return RichText(
-      text: TextSpan(
-        text: 'รายรับจากสินทรัพย์\n',
-        style: MyTheme.textTheme.bodyText1!.merge(
-          const TextStyle(color: Colors.black),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'รายรับจากสินทรัพย์\n',
+            style: MyTheme.textTheme.bodyText1!.merge(
+              const TextStyle(color: Colors.black),
+            ),
+            children: [
+              TextSpan(
+                text: '+${HelperNumber.format(incAsset[0])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.incomeAsset[0]),
+                ),
+              ),
+              TextSpan(
+                text: '/${HelperNumber.format(incAsset[1])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.incomeAsset[1]),
+                ),
+              ),
+              TextSpan(
+                text: ' บ.',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.incomeAsset[0]),
+                ),
+              ),
+            ],
+          ),
         ),
-        children: [
-          TextSpan(
-            text: '+${HelperNumber.format(incAsset[0])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.incomeAsset[0]),
-            ),
-          ),
-          TextSpan(
-            text: '/${HelperNumber.format(incAsset[1])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.incomeAsset[1]),
-            ),
-          ),
-          TextSpan(
-            text: ' บ.',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.incomeAsset[0]),
-            ),
-          ),
-        ],
-      ),
+        const SizedBox(height: 5),
+        LinearPercentIndicator(
+          lineHeight: 8,
+          percent: HelperProgress.getPercent(incAsset[0], incAsset[1]),
+          progressColor: MyTheme.incomeAsset[0],
+          backgroundColor: MyTheme.incomeAsset[1],
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          barRadius: const Radius.circular(5),
+        ),
+      ],
     );
   }
 }
@@ -475,35 +461,48 @@ class IncOther extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ref.watch(provStatement.select((e) => e.needFetchAPI));
     final incOther = ref.watch(provStatement.select((e) => e.incOther));
-    return RichText(
-      text: TextSpan(
-        text: 'รายรับจากแหล่งอื่นๆ\n',
-        style: MyTheme.textTheme.bodyText1!.merge(
-          const TextStyle(color: Colors.black),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'รายรับจากแหล่งอื่นๆ\n',
+            style: MyTheme.textTheme.bodyText1!.merge(
+              const TextStyle(color: Colors.black),
+            ),
+            children: [
+              TextSpan(
+                text: '+${HelperNumber.format(incOther[0])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.incomeOther[0]),
+                ),
+              ),
+              TextSpan(
+                text: '/${HelperNumber.format(incOther[1])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.incomeOther[1]),
+                ),
+              ),
+              TextSpan(
+                text: ' บ.',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.incomeOther[0]),
+                ),
+              ),
+            ],
+          ),
         ),
-        children: [
-          TextSpan(
-            text: '+${HelperNumber.format(incOther[0])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.incomeOther[0]),
-            ),
-          ),
-          TextSpan(
-            text: '/${HelperNumber.format(incOther[1])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.incomeOther[1]),
-            ),
-          ),
-          TextSpan(
-            text: ' บ.',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.incomeOther[0]),
-            ),
-          ),
-        ],
-      ),
+        const SizedBox(height: 5),
+        LinearPercentIndicator(
+          lineHeight: 8,
+          percent: HelperProgress.getPercent(incOther[0], incOther[1]),
+          progressColor: MyTheme.incomeOther[0],
+          backgroundColor: MyTheme.incomeOther[1],
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          barRadius: const Radius.circular(5),
+        ),
+      ],
     );
   }
 }
@@ -513,35 +512,48 @@ class ExpIncon extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ref.watch(provStatement.select((e) => e.needFetchAPI));
     final expIncon = ref.watch(provStatement.select((e) => e.expIncon));
-    return RichText(
-      text: TextSpan(
-        text: 'รายจ่ายไม่คงที่\n',
-        style: MyTheme.textTheme.bodyText1!.merge(
-          const TextStyle(color: Colors.black),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'รายจ่ายไม่คงที่\n',
+            style: MyTheme.textTheme.bodyText1!.merge(
+              const TextStyle(color: Colors.black),
+            ),
+            children: [
+              TextSpan(
+                text: '-${HelperNumber.format(expIncon[0])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.expenseInconsist[0]),
+                ),
+              ),
+              TextSpan(
+                text: '/${HelperNumber.format(expIncon[1])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.expenseInconsist[1]),
+                ),
+              ),
+              TextSpan(
+                text: ' บ.',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.expenseInconsist[0]),
+                ),
+              ),
+            ],
+          ),
         ),
-        children: [
-          TextSpan(
-            text: '-${HelperNumber.format(expIncon[0])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.expenseInconsist[0]),
-            ),
-          ),
-          TextSpan(
-            text: '/${HelperNumber.format(expIncon[1])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.expenseInconsist[1]),
-            ),
-          ),
-          TextSpan(
-            text: ' บ.',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.expenseInconsist[0]),
-            ),
-          ),
-        ],
-      ),
+        const SizedBox(height: 5),
+        LinearPercentIndicator(
+          lineHeight: 8,
+          percent: HelperProgress.getPercent(expIncon[0], expIncon[1]),
+          progressColor: MyTheme.expenseInconsist[0],
+          backgroundColor: MyTheme.expenseInconsist[1],
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          barRadius: const Radius.circular(5),
+        ),
+      ],
     );
   }
 }
@@ -551,35 +563,48 @@ class ExpCon extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ref.watch(provStatement.select((e) => e.needFetchAPI));
     final expCon = ref.watch(provStatement.select((e) => e.expCon));
-    return RichText(
-      text: TextSpan(
-        text: 'รายจ่ายคงที่\n',
-        style: MyTheme.textTheme.bodyText1!.merge(
-          const TextStyle(color: Colors.black),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'รายจ่ายคงที่\n',
+            style: MyTheme.textTheme.bodyText1!.merge(
+              const TextStyle(color: Colors.black),
+            ),
+            children: [
+              TextSpan(
+                text: '-${HelperNumber.format(expCon[0])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.expenseConsist[0]),
+                ),
+              ),
+              TextSpan(
+                text: '/${HelperNumber.format(expCon[1])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.expenseConsist[1]),
+                ),
+              ),
+              TextSpan(
+                text: ' บ.',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.expenseConsist[0]),
+                ),
+              ),
+            ],
+          ),
         ),
-        children: [
-          TextSpan(
-            text: '-${HelperNumber.format(expCon[0])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.expenseConsist[0]),
-            ),
-          ),
-          TextSpan(
-            text: '/${HelperNumber.format(expCon[1])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.expenseConsist[1]),
-            ),
-          ),
-          TextSpan(
-            text: ' บ.',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.expenseConsist[0]),
-            ),
-          ),
-        ],
-      ),
+        const SizedBox(height: 5),
+        LinearPercentIndicator(
+          lineHeight: 8,
+          percent: HelperProgress.getPercent(expCon[0], expCon[1]),
+          progressColor: MyTheme.expenseConsist[0],
+          backgroundColor: MyTheme.expenseConsist[1],
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          barRadius: const Radius.circular(5),
+        ),
+      ],
     );
   }
 }
@@ -589,35 +614,48 @@ class SavInv extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ref.watch(provStatement.select((e) => e.needFetchAPI));
     final savInv = ref.watch(provStatement.select((e) => e.savInv));
-    return RichText(
-      text: TextSpan(
-        text: 'การออมและการลงทุน\n',
-        style: MyTheme.textTheme.bodyText1!.merge(
-          const TextStyle(color: Colors.black),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: 'การออมและการลงทุน\n',
+            style: MyTheme.textTheme.bodyText1!.merge(
+              const TextStyle(color: Colors.black),
+            ),
+            children: [
+              TextSpan(
+                text: '-${HelperNumber.format(savInv[0])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.savingAndInvest[0]),
+                ),
+              ),
+              TextSpan(
+                text: '/${HelperNumber.format(savInv[1])}',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.savingAndInvest[1]),
+                ),
+              ),
+              TextSpan(
+                text: ' บ.',
+                style: MyTheme.textTheme.headline4!.merge(
+                  TextStyle(color: MyTheme.savingAndInvest[0]),
+                ),
+              ),
+            ],
+          ),
         ),
-        children: [
-          TextSpan(
-            text: '-${HelperNumber.format(savInv[0])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.savingAndInvest[0]),
-            ),
-          ),
-          TextSpan(
-            text: '/${HelperNumber.format(savInv[1])}',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.savingAndInvest[1]),
-            ),
-          ),
-          TextSpan(
-            text: ' บ.',
-            style: MyTheme.textTheme.headline4!.merge(
-              TextStyle(color: MyTheme.savingAndInvest[0]),
-            ),
-          ),
-        ],
-      ),
+        const SizedBox(height: 5),
+        LinearPercentIndicator(
+          lineHeight: 8,
+          percent: HelperProgress.getPercent(savInv[0], savInv[1]),
+          progressColor: MyTheme.savingAndInvest[0],
+          backgroundColor: MyTheme.savingAndInvest[1],
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          barRadius: const Radius.circular(5),
+        ),
+      ],
     );
   }
 }

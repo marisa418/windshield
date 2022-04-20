@@ -1,13 +1,6 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-TextStyle get _textStyle {
-  return GoogleFonts.kanit(
-    color: Colors.black,
-    fontSize: 12,
-    fontWeight: FontWeight.w500,
-  );
-}
+import 'package:windshield/styles/theme.dart';
 
 class FABBottomAppBarItem {
   FABBottomAppBarItem({required this.iconData, required this.text});
@@ -68,8 +61,9 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
     return BottomAppBar(
       // shape: widget.notchedShape,
       child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        // mainAxisSize: MainAxisSize.max,
+
+        // mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: items,
       ),
       color: widget.backgroundColor,
@@ -77,21 +71,27 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
   }
 
   Widget _buildMiddleTabItem() {
-    return Expanded(
+    return Flexible(
+      flex: 26,
+      fit: FlexFit.tight,
       child: SizedBox(
         height: widget.height,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
+          // mainAxisSize: MainAxisSize.min,
+          // crossAxisAlignment: CrossAxisAlignment.start,
+          // mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(height: widget.iconSize),
-            Text(
-              widget.centerItemText ?? '',
-              textAlign: TextAlign.center,
-              style: _textStyle.copyWith(
-                fontSize: 11,
-                // fontWeight: FontWeight.w200,
+            Expanded(
+              child: Center(
+                child: AutoSizeText(
+                  widget.centerItemText ?? '',
+                  maxFontSize: 11,
+                  minFontSize: 0,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  style: MyTheme.textTheme.bodyText2,
+                ),
               ),
             ),
           ],
@@ -107,7 +107,9 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
   }) {
     Color? color =
         _selectedIndex == index ? widget.selectedColor : widget.color;
-    return Expanded(
+    return Flexible(
+      flex: 16,
+      fit: FlexFit.tight,
       child: SizedBox(
         height: widget.height,
         child: Material(
@@ -121,7 +123,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
                 Icon(item.iconData, color: color, size: widget.iconSize),
                 Text(
                   item.text,
-                  style: _textStyle,
+                  style: MyTheme.textTheme.bodyText2,
                 )
               ],
             ),

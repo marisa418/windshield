@@ -5,12 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:collection/collection.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/models/daily_flow/flow.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/utility/ftype_coler.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+import 'package:windshield/utility/progress.dart';
 import '../daily_flow_page.dart';
 import '../overview/daily_flow_overview_page.dart';
 
@@ -46,9 +48,12 @@ class DailyFlowCreatePage extends ConsumerWidget {
                     CircularPercentIndicator(
                       radius: 35,
                       progressColor: Colors.white,
-                      percent: 0.5,
+                      percent: HelperProgress.getPercent(
+                        currCat.flows.map((e) => e.value).sum,
+                        currCat.budgets.map((e) => e.total).sum,
+                      ),
                       animation: true,
-                      animationDuration: 2000,
+                      animationDuration: 1,
                       lineWidth: 6.5,
                       center: Icon(
                         HelperIcons.getIconData(currCat.icon),
@@ -403,14 +408,18 @@ class Calculator extends ConsumerWidget {
                 flex: 7,
                 child: TextFormField(
                   // autofocus: true,
-                  initialValue: ref.watch(provDFlow).flowValue.toString(),
+                  initialValue: ref.watch(provDFlow).flowValue == 0
+                      ? null
+                      : ref.watch(provDFlow).flowValue.toString(),
+
                   keyboardType: TextInputType.number,
                   onChanged: (e) {
                     ref.read(provDFlow).setFlowValue(double.tryParse(e) ?? 0);
                   },
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    hintText: ref.watch(provDFlow).flowName,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    // hintText: ref.watch(provDFlow).flowName,
+                    hintText: 'โปรดกรอกจำนวนเงิน',
                   ),
                 ),
               ),
@@ -459,6 +468,20 @@ class Calculator extends ConsumerWidget {
               ),
               GestureDetector(
                 onTap: () async {
+                  if (ref.watch(provDFlow).flowValue == 0) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const AlertDialog(
+                          title: Text(
+                            'โปรดกรอกจำนวนเงิน',
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      },
+                    );
+                    return;
+                  }
                   if (isAdd) {
                     final flow = await ref.read(apiProvider).addFlow(
                           ref.read(provOverFlow).dfId,
