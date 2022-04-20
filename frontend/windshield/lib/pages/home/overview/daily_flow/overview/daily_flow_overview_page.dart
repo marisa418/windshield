@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/providers/daily_flow_overview_provider.dart';
@@ -174,37 +175,31 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                       ),
                     ),
                     Container(
-                        height: 50,
-                        width: 200,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: MyTheme.primaryMajor,
-                        ),
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.access_time_filled,
-                                  color: Colors.white),
-                              onPressed: () {/* Your code */},
-                            ),
-                            Column(
-                              children: [
-                                const Text('ตั้งเวลาเเจ้งเตือน ',
-                                    style: TextStyle(fontSize: 12)),
-                                Text('22.00 น.',
-                                    style: MyTheme.textTheme.headline3),
-                              ],
-                            ),
-                            CustomSwitch(
-                              value: _enable,
-                              onChanged: (bool val) {
-                                /*setState(() {
-                              _enable = val;
-                            });*/
-                              },
-                            ),
-                          ],
-                        )),
+                      height: 50,
+                      width: 215,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: MyTheme.primaryMajor,
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.access_time_filled,
+                                color: Colors.white),
+                            onPressed: () {/* Your code */},
+                          ),
+                          Column(
+                            children: [
+                              const Text('ตั้งเวลาเเจ้งเตือน ',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('22.00 น.',
+                                  style: MyTheme.textTheme.headline3),
+                            ],
+                          ),
+                          MyHomePage()
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -216,75 +211,31 @@ class DailyFlowOverviewPage extends ConsumerWidget {
   }
 }
 
-class CustomSwitch extends StatefulWidget {
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  const CustomSwitch({Key? key, required this.value, required this.onChanged})
-      : super(key: key);
-
+class MyHomePage extends StatefulWidget {
   @override
-  _CustomSwitchState createState() => _CustomSwitchState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _CustomSwitchState extends State<CustomSwitch>
-    with SingleTickerProviderStateMixin {
-  Animation? _circleAnimation;
-  AnimationController? _animationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 60));
-    _circleAnimation = AlignmentTween(
-            begin: widget.value ? Alignment.centerRight : Alignment.centerLeft,
-            end: widget.value ? Alignment.centerLeft : Alignment.centerRight)
-        .animate(CurvedAnimation(
-            parent: _animationController!, curve: Curves.linear));
-  }
+class _MyHomePageState extends State<MyHomePage> {
+  bool status = false;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animationController!,
-      builder: (context, child) {
-        return GestureDetector(
-          onTap: () {
-            if (_animationController!.isCompleted) {
-              _animationController!.reverse();
-            } else {
-              _animationController!.forward();
-            }
-            widget.value == false
-                ? widget.onChanged(true)
-                : widget.onChanged(false);
-          },
-          child: Container(
-            width: 45.0,
-            height: 28.0,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24.0),
-              color: _circleAnimation!.value == Alignment.centerLeft
-                  ? Colors.grey
-                  : Colors.blue,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                  top: 2.0, bottom: 2.0, right: 2.0, left: 2.0),
-              child: Container(
-                alignment:
-                    widget.value ? Alignment.centerRight : Alignment.centerLeft,
-                child: Container(
-                  width: 20.0,
-                  height: 20.0,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-        );
+    return FlutterSwitch(
+      width: 70.0,
+      height: 30.0,
+      activeToggleColor: Colors.white,
+      activeColor: Colors.yellow,
+      valueFontSize: 20.0,
+      toggleSize: 28.0,
+      value: status,
+      borderRadius: 30.0,
+      padding: 3.0,
+      showOnOff: false,
+      onToggle: (val) {
+        setState(() {
+          status = val;
+        });
       },
     );
   }
