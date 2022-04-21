@@ -195,19 +195,40 @@ class DailyList extends ConsumerWidget {
                 ],
               ),
               SizedBox(
-                height: 150,
+                height: 155,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 25),
-                      child: Text(
-                        'สัดส่วนรายรับ',
-                        style: MyTheme.textTheme.headline3,
-                        // textAlign: TextAlign.l,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 25),
+                          child: Text(
+                            'สัดส่วนรายรับ',
+                            style: MyTheme.textTheme.headline3,
+                            // textAlign: TextAlign.l,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: GestureDetector(
+                            child: Row(children: [
+                              Icon(Icons.refresh_rounded,
+                                  color: MyTheme.positiveMajor),
+                              Text('เหมือนวันก่อน',
+                                  style:
+                                      TextStyle(color: MyTheme.positiveMajor)),
+                            ]),
+                            onTap: () {
+                              AutoRouter.of(context)
+                                  .push(const SpeechToTextRoute());
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     Row(
                       children: [
@@ -546,7 +567,25 @@ class IncWorkingTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('รายรับจากการทำงาน', style: MyTheme.textTheme.headline3),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('รายรับจากการทำงาน', style: MyTheme.textTheme.headline3),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: GestureDetector(
+                  child: Row(children: [
+                    Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
+                    Text('เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.positiveMajor)),
+                  ]),
+                  onTap: () {
+                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                  },
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 30),
           GridView.builder(
             physics: const ScrollPhysics(),
@@ -672,7 +711,25 @@ class IncAssetTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('รายรับจากสินทรัพย์', style: MyTheme.textTheme.headline3),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('รายรับจากสินทรัพย์', style: MyTheme.textTheme.headline3),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: GestureDetector(
+                  child: Row(children: [
+                    Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
+                    Text('เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.positiveMajor)),
+                  ]),
+                  onTap: () {
+                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                  },
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 30),
           GridView.builder(
             physics: const ScrollPhysics(),
@@ -794,7 +851,25 @@ class IncOtherTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('รายรับอื่นๆ', style: MyTheme.textTheme.headline3),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('รายรับจากการลงทุน', style: MyTheme.textTheme.headline3),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: GestureDetector(
+                  child: Row(children: [
+                    Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
+                    Text('เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.positiveMajor)),
+                  ]),
+                  onTap: () {
+                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                  },
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 30),
           GridView.builder(
             physics: const ScrollPhysics(),
@@ -916,7 +991,25 @@ class ExpNonConTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('รายจ่ายไม่คงที่', style: MyTheme.textTheme.headline3),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('รายจ่ายไม่คงที่', style: MyTheme.textTheme.headline3),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: GestureDetector(
+                  child: Row(children: [
+                    Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
+                    Text('เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.negativeMajor)),
+                  ]),
+                  onTap: () {
+                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                  },
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 30),
           GridView.builder(
             physics: const ScrollPhysics(),
@@ -1041,7 +1134,25 @@ class ExpConTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('รายจ่ายคงที่', style: MyTheme.textTheme.headline3),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('รายจ่ายคงที่', style: MyTheme.textTheme.headline3),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: GestureDetector(
+                  child: Row(children: [
+                    Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
+                    Text('เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.negativeMajor)),
+                  ]),
+                  onTap: () {
+                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                  },
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 30),
           GridView.builder(
             physics: const ScrollPhysics(),
@@ -1161,7 +1272,25 @@ class SavAndInvTab extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('การออมและการลงทุน', style: MyTheme.textTheme.headline3),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('การออมเเละการลงทุน', style: MyTheme.textTheme.headline3),
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: GestureDetector(
+                  child: Row(children: [
+                    Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
+                    Text('เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.negativeMajor)),
+                  ]),
+                  onTap: () {
+                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                  },
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 30),
           GridView.builder(
             physics: const ScrollPhysics(),

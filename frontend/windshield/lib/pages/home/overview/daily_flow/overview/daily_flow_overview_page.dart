@@ -18,6 +18,8 @@ import 'package:windshield/utility/icon_convertor.dart';
 import 'package:windshield/utility/number_formatter.dart';
 import 'package:windshield/utility/progress.dart';
 
+import '../daily_flow_page.dart';
+
 final provOverFlow =
     ChangeNotifierProvider.autoDispose<DailyFlowOverviewProvider>(
         (ref) => DailyFlowOverviewProvider());
@@ -176,27 +178,14 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                     ),
                     Container(
                       height: 50,
-                      width: 215,
+                      width: 200,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
                         color: MyTheme.primaryMajor,
                       ),
                       child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.access_time_filled,
-                                color: Colors.white),
-                            onPressed: () {/* Your code */},
-                          ),
-                          Column(
-                            children: [
-                              const Text('ตั้งเวลาเเจ้งเตือน ',
-                                  style: TextStyle(fontSize: 12)),
-                              Text('22.00 น.',
-                                  style: MyTheme.textTheme.headline3),
-                            ],
-                          ),
-                          MyHomePage()
+                        children: const [
+                          MyStatefulWidget(),
                         ],
                       ),
                     ),
@@ -211,12 +200,87 @@ class DailyFlowOverviewPage extends ConsumerWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyStatefulWidget extends StatefulWidget {
+  const MyStatefulWidget({Key? key}) : super(key: key);
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  bool selected = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selected = !selected;
+        });
+      },
+      child: Expanded(
+        child: SingleChildScrollView(
+          child: Container(
+            width: 340.0,
+            height: 50.0,
+            color: Color.fromARGB(255, 255, 255, 255),
+            child: AnimatedAlign(
+              alignment: selected ? Alignment.topLeft : Alignment.topRight,
+              duration: const Duration(seconds: 1),
+              curve: Curves.fastOutSlowIn,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: MyTheme.primaryMajor,
+                      ),
+                      child: Row(
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Icon(Icons.access_alarm_rounded,
+                                color: Colors.white),
+                          ),
+                          Column(
+                            children: [
+                              const Text('ตั้งเวลาเเจ้งเตือน ',
+                                  style: TextStyle(fontSize: 12)),
+                              GestureDetector(
+                                child: Text('22.00 น.',
+                                    style: MyTheme.textTheme.headline3),
+                                onTap: () {
+                                  AutoRouter.of(context)
+                                      .push(const NotificationRoute());
+                                },
+                              ),
+                            ],
+                          ),
+                          SwitchButton(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SwitchButton extends StatefulWidget {
+  @override
+  _SwitchButtonState createState() => _SwitchButtonState();
+}
+
+class _SwitchButtonState extends State<SwitchButton> {
   bool status = false;
 
   @override
