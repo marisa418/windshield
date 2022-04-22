@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,6 +9,7 @@ import 'package:windshield/pages/home/overview/daily_flow/overview/daily_flow_ov
 import 'package:windshield/providers/speech_to_text_provider.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+import '../../../../../routes/app_router.dart';
 import '../daily_flow_page.dart';
 import 'cat_type.dart';
 
@@ -70,14 +72,27 @@ class Header extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          GestureDetector(
+            onTap: () {
+              AutoRouter.of(context).pop();
+            },
+            child: const Padding(
+              padding: EdgeInsets.only(left: 315.0),
+              child: Icon(Icons.close, color: Colors.white, size: 30),
+            ),
+          ),
           isListening
               ? Text(
                   "ฉันกำลังฟัง...",
                   style: MyTheme.whiteTextTheme.headline4,
                 )
-              : Text(
-                  'กดข้างล่างเพื่อเพิ่มรายการ',
-                  style: MyTheme.whiteTextTheme.headline4,
+              : Column(
+                  children: [
+                    Text(
+                      'กดข้างล่างเพื่อเพิ่มรายการ',
+                      style: MyTheme.whiteTextTheme.headline4,
+                    ),
+                  ],
                 ),
           Container(
             width: MediaQuery.of(context).size.width - 50,
@@ -101,10 +116,16 @@ class Header extends ConsumerWidget {
                         style: MyTheme.whiteTextTheme.headline4,
                         textAlign: TextAlign.center,
                       )
-                    : Text(
-                        'ชื่อรายการ ราคา (บาท) (วิธีชำระ)',
-                        style: MyTheme.whiteTextTheme.headline4,
-                        textAlign: TextAlign.center,
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const Icon(Icons.mic, color: Colors.white),
+                          Text(
+                            'ชื่อรายการ ราคา (บาท) (วิธีชำระ)',
+                            style: MyTheme.whiteTextTheme.headline4,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
               ),
             ),

@@ -56,6 +56,9 @@ dependencies:
   syncfusion_flutter_datepicker: ^20.1.50
   syncfusion_flutter_charts: ^20.1.50
   input_calculator: ^2.0.0
+  flutter_alarm_clock: ^0.0.2
+  wakelock: ^0.6.1+2
+  ripple_animation: ^0.0.1+2
 
 dev_dependencies:
   flutter_test:
