@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:windshield/styles/theme.dart';
-import 'statement_edit_page.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+import 'statement_edit_page.dart';
 import 'budget_inc.dart';
 
 class ExpenseInconsistTab extends ConsumerWidget {
@@ -39,11 +39,13 @@ class ExpenseInconsistTab extends ConsumerWidget {
                     if (bud.active) {
                       ref.read(provBudget).removeBudget(bud);
                     } else {
+                      ref.read(provBudget).setBudgetPerPeriod(0);
+                      ref.read(provBudget).setBudgetType('MLY');
                       showModalBottomSheet(
                         isScrollControlled: true,
                         context: context,
                         builder: (_) {
-                          return Calculator(bud: bud);
+                          return CalculatorEdit(bud: bud);
                         },
                       );
                     }
@@ -127,11 +129,13 @@ class ExpenseConsistTab extends ConsumerWidget {
                     if (bud.active) {
                       ref.read(provBudget).removeBudget(bud);
                     } else {
+                      ref.read(provBudget).setBudgetPerPeriod(0);
+                      ref.read(provBudget).setBudgetType('MLY');
                       showModalBottomSheet(
                         isScrollControlled: true,
                         context: context,
                         builder: (_) {
-                          return Calculator(bud: bud);
+                          return CalculatorEdit(bud: bud);
                         },
                       );
                     }
@@ -215,11 +219,13 @@ class SavingInvestTab extends ConsumerWidget {
                     if (bud.active) {
                       ref.read(provBudget).removeBudget(bud);
                     } else {
+                      ref.read(provBudget).setBudgetPerPeriod(0);
+                      ref.read(provBudget).setBudgetType('MLY');
                       showModalBottomSheet(
                         isScrollControlled: true,
                         context: context,
                         builder: (_) {
-                          return Calculator(bud: bud);
+                          return CalculatorEdit(bud: bud);
                         },
                       );
                     }

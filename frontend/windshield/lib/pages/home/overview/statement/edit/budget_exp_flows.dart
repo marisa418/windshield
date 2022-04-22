@@ -1,12 +1,12 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:windshield/pages/home/overview/statement/edit/budget_inc.dart';
-import 'package:windshield/pages/home/overview/statement/statement_page.dart';
 
+import 'package:windshield/pages/home/overview/statement/statement_page.dart';
 import 'package:windshield/styles/theme.dart';
 import 'statement_edit_page.dart';
 import 'budget_inc_flows.dart';
+import 'budget_inc.dart';
 
 class ExpenseInconsistFlowsTab extends ConsumerWidget {
   const ExpenseInconsistFlowsTab({Key? key}) : super(key: key);
@@ -44,11 +44,13 @@ class ExpenseInconsistFlowsTab extends ConsumerWidget {
                       if (bud.active) {
                         ref.read(provBudget).removeBudget(bud);
                       } else {
+                        ref.read(provBudget).setBudgetPerPeriod(0);
+                        ref.read(provBudget).setBudgetType('MLY');
                         showModalBottomSheet(
                           isScrollControlled: true,
                           context: context,
                           builder: (_) {
-                            return Calculator(bud: bud);
+                            return CalculatorEdit(bud: bud);
                           },
                         );
                       }
@@ -116,11 +118,13 @@ class ExpenseConsistFlowsTab extends ConsumerWidget {
                       if (bud.active) {
                         ref.read(provBudget).removeBudget(bud);
                       } else {
+                        ref.read(provBudget).setBudgetPerPeriod(0);
+                        ref.read(provBudget).setBudgetType('MLY');
                         showModalBottomSheet(
                           isScrollControlled: true,
                           context: context,
                           builder: (_) {
-                            return Calculator(bud: bud);
+                            return CalculatorEdit(bud: bud);
                           },
                         );
                       }
@@ -188,11 +192,13 @@ class SavingInvestFlowsTab extends ConsumerWidget {
                       if (bud.active) {
                         ref.read(provBudget).removeBudget(bud);
                       } else {
+                        ref.read(provBudget).setBudgetPerPeriod(0);
+                        ref.read(provBudget).setBudgetType('MLY');
                         showModalBottomSheet(
                           isScrollControlled: true,
                           context: context,
                           builder: (_) {
-                            return Calculator(bud: bud);
+                            return CalculatorEdit(bud: bud);
                           },
                         );
                       }

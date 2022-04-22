@@ -2,17 +2,17 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+
 import 'package:windshield/models/balance_sheet/flow_sheet.dart';
 import 'package:windshield/models/statement/category.dart';
-import 'package:windshield/pages/home/overview/statement/edit/budget_inc.dart';
 import 'package:windshield/pages/home/overview/statement/statement_page.dart';
-
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/utility/ftype_coler.dart';
 import 'package:windshield/utility/icon_convertor.dart';
 import 'package:windshield/utility/number_formatter.dart';
 import 'package:windshield/utility/progress.dart';
 import 'statement_edit_page.dart';
+import 'budget_inc.dart';
 
 class IncomeWorkingFlowsTab extends ConsumerWidget {
   const IncomeWorkingFlowsTab({Key? key}) : super(key: key);
@@ -50,11 +50,13 @@ class IncomeWorkingFlowsTab extends ConsumerWidget {
                       if (bud.active) {
                         ref.read(provBudget).removeBudget(bud);
                       } else {
+                        ref.read(provBudget).setBudgetPerPeriod(0);
+                        ref.read(provBudget).setBudgetType('MLY');
                         showModalBottomSheet(
                           isScrollControlled: true,
                           context: context,
                           builder: (_) {
-                            return Calculator(bud: bud);
+                            return CalculatorEdit(bud: bud);
                           },
                         );
                       }
@@ -122,11 +124,13 @@ class IncomeAssetFlowsTab extends ConsumerWidget {
                       if (bud.active) {
                         ref.read(provBudget).removeBudget(bud);
                       } else {
+                        ref.read(provBudget).setBudgetPerPeriod(0);
+                        ref.read(provBudget).setBudgetType('MLY');
                         showModalBottomSheet(
                           isScrollControlled: true,
                           context: context,
                           builder: (_) {
-                            return Calculator(bud: bud);
+                            return CalculatorEdit(bud: bud);
                           },
                         );
                       }
@@ -194,11 +198,13 @@ class IncomeOtherFlowsTab extends ConsumerWidget {
                       if (bud.active) {
                         ref.read(provBudget).removeBudget(bud);
                       } else {
+                        ref.read(provBudget).setBudgetPerPeriod(0);
+                        ref.read(provBudget).setBudgetType('MLY');
                         showModalBottomSheet(
                           isScrollControlled: true,
                           context: context,
                           builder: (_) {
-                            return Calculator(bud: bud);
+                            return CalculatorEdit(bud: bud);
                           },
                         );
                       }
