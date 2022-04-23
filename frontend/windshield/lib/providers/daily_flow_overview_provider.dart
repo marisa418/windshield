@@ -107,7 +107,7 @@ class DailyFlowOverviewProvider extends ChangeNotifier {
           if (_tdIncList.any((e) => e.id == cat.id)) continue;
           _tdIncList.add(cat);
         }
-      } else if (cat.ftype == '2') {
+      } else if (cat.ftype == '2' || cat.ftype == '8' || cat.ftype == '9') {
         _incAssetList.add(cat);
         for (var flow in cat.flows) {
           _incAssetTotal += flow.value;

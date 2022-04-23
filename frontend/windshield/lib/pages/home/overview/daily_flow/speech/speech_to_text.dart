@@ -1,7 +1,9 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:windshield/components/loading.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/pages/home/overview/daily_flow/overview/daily_flow_overview_page.dart';
@@ -70,14 +72,27 @@ class Header extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          GestureDetector(
+            onTap: () {
+              AutoRouter.of(context).pop();
+            },
+            child: const Padding(
+              padding: EdgeInsets.only(left: 315.0),
+              child: Icon(Icons.close, color: Colors.white, size: 30),
+            ),
+          ),
           isListening
               ? Text(
                   "ฉันกำลังฟัง...",
                   style: MyTheme.whiteTextTheme.headline4,
                 )
-              : Text(
-                  'กดข้างล่างเพื่อเพิ่มรายการ',
-                  style: MyTheme.whiteTextTheme.headline4,
+              : Column(
+                  children: [
+                    Text(
+                      'กดข้างล่างเพื่อเพิ่มรายการ',
+                      style: MyTheme.whiteTextTheme.headline4,
+                    ),
+                  ],
                 ),
           Container(
             width: MediaQuery.of(context).size.width - 50,
@@ -101,10 +116,16 @@ class Header extends ConsumerWidget {
                         style: MyTheme.whiteTextTheme.headline4,
                         textAlign: TextAlign.center,
                       )
-                    : Text(
-                        'ชื่อรายการ ราคา (บาท) (วิธีชำระ)',
-                        style: MyTheme.whiteTextTheme.headline4,
-                        textAlign: TextAlign.center,
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const Icon(Icons.mic, color: Colors.white),
+                          Text(
+                            'ชื่อรายการ ราคา (บาท) (วิธีชำระ)',
+                            style: MyTheme.whiteTextTheme.headline4,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
               ),
             ),
@@ -602,13 +623,18 @@ class Footer extends ConsumerWidget {
             );
             return;
           } else {
+            showLoading(context);
             final flow = await ref.read(apiProvider).addFlowList(flowList);
             if (flow) {
-              // ref.read(provDFlow).addFlow(flow);
               ref.read(provDFlow).setNeedFetchAPI();
               ref.read(provOverFlow).setNeedFetchAPI();
               ref.refresh(apiDateChange);
-              Navigator.of(context).pop();
+              AutoRouter.of(context).popUntilRouteWithName('DailyFlowRoute');
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+              );
+              AutoRouter.of(context).pop();
             }
           }
         },

@@ -1,3 +1,4 @@
+import calendar
 import math
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
@@ -7,9 +8,9 @@ from . import models
 from user.models import Province, NewUser
 from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pytz import timezone
-from django.db.models import Sum, Exists, OuterRef, Q, F, Prefetch
+from django.db.models import Max, Min, Avg, Sum, Exists, OuterRef, Q, F, Prefetch, functions
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -916,25 +917,183 @@ class FinancialStatus(APIView):
             } 
         return Response(finstatus)
 
+class AverageFlow(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    past = 30
+    
+    def monthdelta(self, date, delta):
+        m, y = (date.month + delta) % 12, date.year + ((date.month)+delta-1) // 12
+        if not m: m = 12
+        d = min(date.day, calendar.monthrange(y, m)[1])
+        return date.replace(day=d,month=m, year=y)
+    
+    def get(self, request):
+        today = datetime.now(tz= timezone('Asia/Bangkok'))
+        past_days = request.query_params.get("days", None)
+        backto = today - timedelta(days=self.past)
+        if past_days:
+            self.past = int(past_days)
+            backto = today - timedelta(days=self.past)
+        past_months = request.query_params.get("months", None)
+        if past_months:
+            self.past = int(past_months)
+            backto = self.monthdelta(today, -self.past)
+            backto = backto.replace(day=1)
+        past_year = request.query_params.get("years", None)
+        if past_year:
+            self.past = int(past_year)
+            backto = datetime(year=today.year - self.past, month=1, day=1)
+        df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
+        result = df_sheets.aggregate(avg_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="INC") | 
+                                                    Q(flows__category__ftype__domain="ASS")
+                                                    ) / (self.past + 1),
+                                    avg_working_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=1)
+                                                    ) / (self.past + 1),
+                                    avg_invest_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=2) |
+                                                    Q(flows__category__ftype__domain="ASS")
+                                                    ) / (self.past + 1),
+                                    avg_other_income=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=3)
+                                                    ) / (self.past + 1),
+                                    avg_expense=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="EXP") | 
+                                                    Q(flows__category__ftype__domain="DEB")
+                                                    ) / (self.past + 1),
+                                    avg_inconsist_expense=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=4) | 
+                                                    Q(flows__category__ftype=10)
+                                                    ) / (self.past + 1),
+                                    avg_consist_expense=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=5) | 
+                                                    Q(flows__category__ftype=11)
+                                                    ) / (self.past + 1),
+                                    avg_saving=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype=6) | 
+                                                    Q(flows__category__ftype=12)
+                                                    ) / (self.past + 1)
+                                    )
+        return Response(result)
+
 class GraphDailyFlow(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.DailyFlowSheetGraphSerializer
-    back_day = 7
+    back = 7
     
     def get_queryset(self):
-        self.back_day = int(self.request.query_params.get("day", self.back_day))
+        self.back = int(self.request.query_params.get("day", self.back))
         today = datetime.now(tz= timezone('Asia/Bangkok'))
-        backto = today - timedelta(days=self.back_day)
+        backto = today - timedelta(days=self.back)
         df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
         df_sheets = df_sheets.annotate(incomes=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="INC") | 
                                                     Q(flows__category__ftype__domain="ASS")
-                                                    ))
-        df_sheets = df_sheets.annotate(expenses=Sum("flows__value", filter=
+                                                    ),
+                                       expenses=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="EXP") | 
                                                     Q(flows__category__ftype__domain="DEB")
-                                                    ))
+                                                    )
+                                       )
         return df_sheets
+
+class GraphMonthlyFlow(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.MonthlyFlowSheetGraphSerializer
+    back = 7
+    
+    def monthdelta(self, date, delta):
+        m, y = (date.month + delta) % 12, date.year + ((date.month)+delta-1) // 12
+        if not m: m = 12
+        d = min(date.day, calendar.monthrange(y, m)[1])
+        return date.replace(day=d,month=m, year=y)
+    
+    def get_queryset(self):
+        self.back = int(self.request.query_params.get("months", self.back))
+        today = datetime.now(tz= timezone('Asia/Bangkok'))
+        backto = self.monthdelta(today, -self.back)
+        backto = backto.replace(day=1)
+        df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
+        df_sheets = df_sheets.annotate(
+            month=functions.ExtractMonth("date"),
+            year=functions.ExtractYear("date")
+            ).values('month', 'year').annotate(incomes=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="INC") | 
+                                                    Q(flows__category__ftype__domain="ASS")
+                                                    ),
+                                               expenses=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="EXP") | 
+                                                    Q(flows__category__ftype__domain="DEB")
+                                                    )
+                                               )
+        return df_sheets
+    
+class GraphAnnuallyFlow(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.AnnuallyFlowSheetGraphSerializer
+    back = 7
+    
+    def get_queryset(self):
+        self.back = int(self.request.query_params.get("year", self.back))
+        today = datetime.now(tz= timezone('Asia/Bangkok'))
+        backto = datetime(year=today.year - self.back, month=1, day=1)
+        df_sheets = models.DailyFlowSheet.objects.filter(date__gte=backto, owner_id=self.request.user.uuid)
+        df_sheets = df_sheets.annotate(
+            year=functions.ExtractYear("date")
+            ).values('year').annotate(incomes=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="INC") | 
+                                                    Q(flows__category__ftype__domain="ASS")
+                                                    ),
+                                               expenses=Sum("flows__value", filter=
+                                                    Q(flows__category__ftype__domain="EXP") | 
+                                                    Q(flows__category__ftype__domain="DEB")
+                                                    )
+                                               )
+        return df_sheets
+
+class SummaryBalanceSheet(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def __avg_changed_asset__(self, logs):
+        if logs.count() <= 1:
+            return 0
+        logs = list(logs)
+        sum = 0
+        n = 1
+        for i in range(1, len(logs)):
+            sum += logs[i].asset_value - logs[i - 1].asset_value
+            if logs[i].asset_value - logs[i - 1].asset_value != 0: n += 1
+        return sum / n
+    
+    def __avg_changed_debt__(self, logs):
+        if logs.count() <= 1:
+            return 0
+        logs = list(logs)
+        sum = 0
+        n = 1
+        for i in range(1, len(logs)):
+            sum += logs[i].debt_balance - logs[i - 1].debt_balance
+            if logs[i].debt_balance - logs[i - 1].debt_balance != 0: n += 1
+        return sum / n
+    
+    def get(self, request):
+        b_sheet = models.BalanceSheet.objects.get(owner_id__uuid=request.user.uuid)
+        logs = models.BalanceSheetLog.objects.filter(bsheet_id=b_sheet)
+        changed_asset = self.__avg_changed_asset__(logs)
+        changed_debt = self.__avg_changed_debt__(logs)
+        result = logs.aggregate(
+                                max_asset = Max('asset_value'),
+                                max_debt = Max('debt_balance'),
+                                max_balance = Max('asset_value') - Min('debt_balance', filter=Q(debt_balance__gt=0)),
+                                min_asset = Min('asset_value', filter=Q(asset_value__gt=0)),
+                                min_debt = Min('debt_balance', filter=Q(debt_balance__gt=0)),
+                                min_balance = Min('asset_value', filter=Q(asset_value__gt=0)) - Max('debt_balance')
+                                )
+        result["avg_changed_asset"] = changed_asset
+        result["avg_changed_debt"] = changed_debt
+        result["avg_changed_balance"] = changed_asset - changed_debt
+        return Response(result)
 
 class Articles(generics.ListAPIView):
     serializer_class = serializers.ArticlesSerializer

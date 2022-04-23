@@ -20,6 +20,7 @@ urlpatterns = [
     
     #BALANCE SHEET
     path('balance-sheet/', views.BalanceSheet.as_view(), name='balance-sheet'),
+    path('balance-sheet/summary/', views.SummaryBalanceSheet.as_view(), name='balance-sheet-summary'),
     path('balance-sheet-log/', views.BalanceSheetLog.as_view(), name='balance-sheet-log'),
     path('asset/', views.Asset.as_view(), name='asset'),
     path('asset/<str:pk>/', views.AssetInstance.as_view(), name='asset-instance'),
@@ -34,7 +35,10 @@ urlpatterns = [
     #DAILY FLOW SHEET
     path('daily-flow-sheet/', views.DailyFlowSheet.as_view(), name="daily-flow_sheet"),
     path('daily-flow-sheet/list/', views.DailyFlowSheetList.as_view(), name="daily-flow-sheet-list"),
-    path('daily-flow-sheet/graph/', views.GraphDailyFlow.as_view(), name='daily-flow_sheet-graph'),
+    path('daily-flow-sheet/graph/daily/', views.GraphDailyFlow.as_view(), name='daily-flow_sheet-graph'),
+    path('daily-flow-sheet/graph/monthly/', views.GraphMonthlyFlow.as_view(), name='monthly-flow_sheet-graph'),
+    path('daily-flow-sheet/graph/annually/', views.GraphAnnuallyFlow.as_view(), name='annually-flow-sheet-graph'),
+    path('daily-flow-sheet/average/', views.AverageFlow.as_view(), name='average-flow-sheet'),
     
     #DAILY FLOW
     path('method/', views.Method.as_view(), name='method'),
