@@ -18,8 +18,6 @@ import 'package:windshield/utility/icon_convertor.dart';
 import 'package:windshield/utility/number_formatter.dart';
 import 'package:windshield/utility/progress.dart';
 
-import '../daily_flow_page.dart';
-
 final provOverFlow =
     ChangeNotifierProvider.autoDispose<DailyFlowOverviewProvider>(
         (ref) => DailyFlowOverviewProvider());
@@ -176,13 +174,9 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    Container(
-                      height: 50,
+                    SizedBox(
+                      height: 60,
                       width: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: MyTheme.primaryMajor,
-                      ),
                       child: Row(
                         children: const [
                           MyStatefulWidget(),
@@ -218,57 +212,60 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           selected = !selected;
         });
       },
-      child: Expanded(
-        child: SingleChildScrollView(
-          child: Container(
-            width: 340.0,
-            height: 50.0,
-            color: Color.fromARGB(255, 255, 255, 255),
-            child: AnimatedAlign(
-              alignment: selected ? Alignment.topLeft : Alignment.topRight,
-              duration: const Duration(seconds: 1),
-              curve: Curves.fastOutSlowIn,
-              child: Stack(
-                clipBehavior: Clip.none,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        transform: selected
+            ? Matrix4.translationValues(0, 0, 0)
+            : Matrix4.translationValues(140, 0, 0),
+        height: 70,
+        width: 200,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+          ),
+          color: MyTheme.primaryMajor,
+        ),
+        child: Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Icon(
+                Icons.access_alarm_rounded,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Container(
-                      height: 50,
-                      width: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: MyTheme.primaryMajor,
-                      ),
-                      child: Row(
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(Icons.access_alarm_rounded,
-                                color: Colors.white),
-                          ),
-                          Column(
-                            children: [
-                              const Text('ตั้งเวลาเเจ้งเตือน ',
-                                  style: TextStyle(fontSize: 12)),
-                              GestureDetector(
-                                child: Text('22.00 น.',
-                                    style: MyTheme.textTheme.headline3),
-                                onTap: () {
-                                  AutoRouter.of(context)
-                                      .push(const NotificationRoute());
-                                },
-                              ),
-                            ],
-                          ),
-                          SwitchButton(),
-                        ],
-                      ),
-                    ),
+                  AutoSizeText(
+                    'ตั้งเวลาเเจ้งเตือน',
+                    style: MyTheme.whiteTextTheme.bodyText2,
+                    minFontSize: 0,
+                    maxLines: 1,
                   ),
+                  GestureDetector(
+                    onTap: () {
+                      AutoRouter.of(context).push(const NotificationRoute());
+                    },
+                    child: AutoSizeText(
+                      '22.00 น.',
+                      minFontSize: 0,
+                      maxLines: 1,
+                      style: MyTheme.whiteTextTheme.headline4,
+                    ),
+                  )
                 ],
               ),
             ),
-          ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: SwitchButton(),
+            ),
+          ],
         ),
       ),
     );
@@ -276,6 +273,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 }
 
 class SwitchButton extends StatefulWidget {
+  const SwitchButton({Key? key}) : super(key: key);
+
   @override
   _SwitchButtonState createState() => _SwitchButtonState();
 }
@@ -286,8 +285,8 @@ class _SwitchButtonState extends State<SwitchButton> {
   @override
   Widget build(BuildContext context) {
     return FlutterSwitch(
-      width: 70.0,
-      height: 30.0,
+      width: 60.0,
+      height: 28.0,
       activeToggleColor: Colors.white,
       activeColor: Colors.yellow,
       valueFontSize: 20.0,

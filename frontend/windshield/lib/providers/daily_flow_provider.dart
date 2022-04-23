@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:windshield/models/balance_sheet/flow_sheet.dart';
 import 'package:windshield/models/daily_flow/budget.dart';
 
 import 'package:windshield/models/daily_flow/category.dart';
 import 'package:windshield/models/daily_flow/flow.dart';
+import 'package:windshield/models/statement/category.dart';
 
 class DailyFlowProvider extends ChangeNotifier {
   List<DFlowCategory> _catList = [];
@@ -45,6 +47,9 @@ class DailyFlowProvider extends ChangeNotifier {
   List<DFlowCategory> get savAndInvList => _savAndInvList;
   double _savAndInvTotal = 0;
   double get savAndInvTotal => _savAndInvTotal;
+
+  List<FlowSheet> _oldFlowSheetList = [];
+  List<FlowSheet> get oldFlowSheetList => _oldFlowSheetList;
 
   DFlowCategory _currCat = DFlowCategory(
     id: '',
@@ -179,6 +184,32 @@ class DailyFlowProvider extends ChangeNotifier {
     _incTotal = _incWorkingTotal + _incAssetTotal + _incOtherTotal;
     _expTotal = _expInconTotal + _expConTotal + _savAndInvTotal;
     notifyListeners();
+  }
+
+  void setOldFlowSheetList(List<FlowSheet> value) {
+    _oldFlowSheetList = value;
+    notifyListeners();
+  }
+
+  List<StmntCategory> categorizeOldFlow(FlowSheet value) {
+    List<StmntCategory> catList = [];
+    for (var flow in value.flows) {
+      final catIdx = catList.indexWhere((e) => e.id == flow.cat.id);
+      if (catIdx == -1) {
+        final StmntCategory cat = StmntCategory(
+          id: flow.cat.id,
+          name: flow.cat.name,
+          usedCount: flow.cat.usedCount,
+          ftype: flow.cat.ftype,
+          icon: flow.cat.icon,
+        );
+        cat.total = flow.value;
+        catList.add(cat);
+      } else {
+        catList[catIdx].total += flow.value;
+      }
+    }
+    return catList;
   }
 
   void addFlow(DFlowFlow flow) {
