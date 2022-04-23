@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:collection/collection.dart';
+import 'package:windshield/components/loading.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/models/daily_flow/category.dart';
@@ -215,7 +216,7 @@ class DailyList extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(left: 25),
+                          padding: const EdgeInsets.only(left: 15),
                           child: Text(
                             'สัดส่วนรายรับ',
                             style: MyTheme.textTheme.headline3,
@@ -223,7 +224,7 @@ class DailyList extends ConsumerWidget {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(right: 10),
+                          padding: const EdgeInsets.only(right: 15),
                           child: GestureDetector(
                             onTap: () {
                               showDialog(
@@ -457,13 +458,46 @@ class DailyList extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 25),
-                      child: Text(
-                        'สัดส่วนรายจ่าย',
-                        style: MyTheme.textTheme.headline3,
-                        // textAlign: TextAlign.l,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15),
+                          child: Text(
+                            'สัดส่วนรายจ่าย',
+                            style: MyTheme.textTheme.headline3,
+                            // textAlign: TextAlign.l,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 15),
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                useRootNavigator: false,
+                                context: context,
+                                builder: (context) => const OldFlowSheetModal(
+                                  name: 'รายจ่าย',
+                                ),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.refresh_rounded,
+                                  color: MyTheme.negativeMajor,
+                                ),
+                                Text(
+                                  'เหมือนวันก่อน',
+                                  style: TextStyle(
+                                    color: MyTheme.negativeMajor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     Row(
                       children: [
@@ -596,14 +630,24 @@ class IncWorkingTab extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: GestureDetector(
-                  child: Row(children: [
-                    Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
-                    Text('เหมือนวันก่อน',
-                        style: TextStyle(color: MyTheme.positiveMajor)),
-                  ]),
                   onTap: () {
-                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                    showDialog(
+                      useRootNavigator: false,
+                      context: context,
+                      builder: (context) => const OldFlowSheetModal(
+                        name: 'รายรับจากการทำงาน',
+                      ),
+                    );
                   },
+                  child: Row(
+                    children: [
+                      Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
+                      Text(
+                        'เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.positiveMajor),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -632,7 +676,7 @@ class IncWorkingTab extends ConsumerWidget {
                       },
                       child: Badge(
                         position: const BadgePosition(
-                          top: -9,
+                          top: -5,
                           end: 2,
                           isCenter: false,
                         ),
@@ -740,14 +784,24 @@ class IncAssetTab extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: GestureDetector(
-                  child: Row(children: [
-                    Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
-                    Text('เหมือนวันก่อน',
-                        style: TextStyle(color: MyTheme.positiveMajor)),
-                  ]),
                   onTap: () {
-                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                    showDialog(
+                      useRootNavigator: false,
+                      context: context,
+                      builder: (context) => const OldFlowSheetModal(
+                        name: 'รายรับจากสินทรัพย์',
+                      ),
+                    );
                   },
+                  child: Row(
+                    children: [
+                      Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
+                      Text(
+                        'เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.positiveMajor),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -776,7 +830,7 @@ class IncAssetTab extends ConsumerWidget {
                       },
                       child: Badge(
                         position: const BadgePosition(
-                          top: -9,
+                          top: -5,
                           end: 2,
                           isCenter: false,
                         ),
@@ -880,14 +934,24 @@ class IncOtherTab extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: GestureDetector(
-                  child: Row(children: [
-                    Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
-                    Text('เหมือนวันก่อน',
-                        style: TextStyle(color: MyTheme.positiveMajor)),
-                  ]),
                   onTap: () {
-                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                    showDialog(
+                      useRootNavigator: false,
+                      context: context,
+                      builder: (context) => const OldFlowSheetModal(
+                        name: 'รายรับอื่นๆ',
+                      ),
+                    );
                   },
+                  child: Row(
+                    children: [
+                      Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
+                      Text(
+                        'เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.positiveMajor),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -916,7 +980,7 @@ class IncOtherTab extends ConsumerWidget {
                       },
                       child: Badge(
                         position: const BadgePosition(
-                          top: -9,
+                          top: -5,
                           end: 2,
                           isCenter: false,
                         ),
@@ -1020,14 +1084,24 @@ class ExpNonConTab extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: GestureDetector(
-                  child: Row(children: [
-                    Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
-                    Text('เหมือนวันก่อน',
-                        style: TextStyle(color: MyTheme.negativeMajor)),
-                  ]),
                   onTap: () {
-                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                    showDialog(
+                      useRootNavigator: false,
+                      context: context,
+                      builder: (context) => const OldFlowSheetModal(
+                        name: 'รายจ่ายไม่คงที่',
+                      ),
+                    );
                   },
+                  child: Row(
+                    children: [
+                      Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
+                      Text(
+                        'เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.negativeMajor),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -1056,7 +1130,7 @@ class ExpNonConTab extends ConsumerWidget {
                       },
                       child: Badge(
                         position: const BadgePosition(
-                          top: -9,
+                          top: -5,
                           end: 2,
                           isCenter: false,
                         ),
@@ -1163,14 +1237,24 @@ class ExpConTab extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: GestureDetector(
-                  child: Row(children: [
-                    Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
-                    Text('เหมือนวันก่อน',
-                        style: TextStyle(color: MyTheme.negativeMajor)),
-                  ]),
                   onTap: () {
-                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                    showDialog(
+                      useRootNavigator: false,
+                      context: context,
+                      builder: (context) => const OldFlowSheetModal(
+                        name: 'รายจ่ายคงที่',
+                      ),
+                    );
                   },
+                  child: Row(
+                    children: [
+                      Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
+                      Text(
+                        'เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.negativeMajor),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -1199,7 +1283,7 @@ class ExpConTab extends ConsumerWidget {
                       },
                       child: Badge(
                         position: const BadgePosition(
-                          top: -9,
+                          top: -5,
                           end: 2,
                           isCenter: false,
                         ),
@@ -1301,14 +1385,24 @@ class SavAndInvTab extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: GestureDetector(
-                  child: Row(children: [
-                    Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
-                    Text('เหมือนวันก่อน',
-                        style: TextStyle(color: MyTheme.negativeMajor)),
-                  ]),
                   onTap: () {
-                    AutoRouter.of(context).push(const SpeechToTextRoute());
+                    showDialog(
+                      useRootNavigator: false,
+                      context: context,
+                      builder: (context) => const OldFlowSheetModal(
+                        name: 'การออมและการลงทุน',
+                      ),
+                    );
                   },
+                  child: Row(
+                    children: [
+                      Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
+                      Text(
+                        'เหมือนวันก่อน',
+                        style: TextStyle(color: MyTheme.negativeMajor),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -1337,7 +1431,7 @@ class SavAndInvTab extends ConsumerWidget {
                       },
                       child: Badge(
                         position: const BadgePosition(
-                          top: -9,
+                          top: -5,
                           end: 2,
                           isCenter: false,
                         ),
@@ -1464,7 +1558,7 @@ class OldFlowSheetModal extends ConsumerWidget {
                   itemCount: oldSheets.length,
                   shrinkWrap: true,
                   itemBuilder: (_, i) {
-                    return FlowSheetTile(i: i);
+                    return FlowSheetTile(i: i, name: name);
                   },
                 ),
               ),
@@ -1477,33 +1571,47 @@ class OldFlowSheetModal extends ConsumerWidget {
 }
 
 class FlowSheetTile extends ConsumerWidget {
-  const FlowSheetTile({required this.i, Key? key}) : super(key: key);
+  const FlowSheetTile({
+    required this.i,
+    required this.name,
+    Key? key,
+  }) : super(key: key);
   final int i;
+  final String name;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final sheet = ref.watch(provDFlow.select((e) => e.oldFlowSheetList[i]));
-    final cat = ref.read(provDFlow).categorizeOldFlow(sheet);
+    final cat = ref.read(provDFlow).categorizeOldFlow(sheet, name);
     if (sheet.flows.isEmpty) return Container();
     return GestureDetector(
       onTap: () async {
+        if (cat.isEmpty) return;
+        showLoading(context);
         List<SpeechFlow> flows = [];
+        final ftype = ref.read(provDFlow).convertNameToFtype(name);
         for (var flow in sheet.flows) {
-          final temp = SpeechFlow(
-            dfId: ref.read(provOverFlow).dfId,
-            cat: SpeechCat(id: flow.cat.id, icon: '', color: Colors.white),
-            name: flow.name,
-            value: flow.value,
-            method: flow.method.id,
-            key: '',
-          );
-          flows.add(temp);
+          if (ftype.contains(flow.cat.ftype)) {
+            final temp = SpeechFlow(
+              dfId: ref.read(provOverFlow).dfId,
+              cat: SpeechCat(id: flow.cat.id, icon: '', color: Colors.white),
+              name: flow.name,
+              value: flow.value,
+              method: flow.method.id,
+              key: '',
+            );
+            flows.add(temp);
+          }
         }
         final complete = await ref.read(apiProvider).addFlowList(flows);
-
         if (complete) {
           ref.read(provDFlow).setNeedFetchAPI();
           ref.read(provOverFlow).setNeedFetchAPI();
           ref.refresh(apiDateChange);
+          AutoRouter.of(context).popUntilRouteWithName('DailyFlowRoute');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+          );
           AutoRouter.of(context).pop();
         }
       },
@@ -1531,56 +1639,63 @@ class FlowSheetTile extends ConsumerWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: ListView.separated(
-                  separatorBuilder: (_, __) => const SizedBox(width: 10),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: cat.length,
-                  itemBuilder: (_, i) => SizedBox(
-                    height: 100,
-                    width: 75,
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 75,
+                child: cat.isEmpty
+                    ? Center(
+                        child: Text(
+                          'ไม่มีรายการ',
+                          style: MyTheme.textTheme.headline4,
+                        ),
+                      )
+                    : ListView.separated(
+                        separatorBuilder: (_, __) => const SizedBox(width: 10),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: cat.length,
+                        itemBuilder: (_, i) => SizedBox(
+                          height: 100,
                           width: 75,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: HelperColor.getFtColor(
-                              cat[i].ftype,
-                              0,
-                            ),
-                          ),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                HelperIcons.getIconData(cat[i].icon),
-                                color: Colors.white,
+                              Container(
+                                height: 75,
+                                width: 75,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: HelperColor.getFtColor(
+                                    cat[i].ftype,
+                                    0,
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      HelperIcons.getIconData(cat[i].icon),
+                                      color: Colors.white,
+                                    ),
+                                    AutoSizeText(
+                                      HelperNumber.format(cat[i].total),
+                                      style: MyTheme.whiteTextTheme.bodyText1,
+                                      minFontSize: 0,
+                                      maxLines: 1,
+                                    ),
+                                  ],
+                                ),
                               ),
-                              AutoSizeText(
-                                HelperNumber.format(cat[i].total),
-                                style: MyTheme.whiteTextTheme.bodyText1,
-                                minFontSize: 0,
-                                maxLines: 1,
+                              Expanded(
+                                child: Center(
+                                  child: AutoSizeText(
+                                    cat[i].name,
+                                    style: MyTheme.textTheme.bodyText2,
+                                    minFontSize: 0,
+                                    maxLines: 2,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        Expanded(
-                          child: Center(
-                            child: AutoSizeText(
-                              cat[i].name,
-                              style: MyTheme.textTheme.bodyText2,
-                              minFontSize: 0,
-                              maxLines: 2,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                      ),
               ),
             ),
           ],

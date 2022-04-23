@@ -154,7 +154,7 @@ class DailyFlowProvider extends ChangeNotifier {
         for (var flow in cat.flows) {
           _incWorkingTotal += flow.value;
         }
-      } else if (cat.ftype == '2') {
+      } else if (cat.ftype == '2' || cat.ftype == '8' || cat.ftype == '9') {
         _incAssetList.add(cat);
         for (var flow in cat.flows) {
           _incAssetTotal += flow.value;
@@ -191,11 +191,12 @@ class DailyFlowProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<StmntCategory> categorizeOldFlow(FlowSheet value) {
+  List<StmntCategory> categorizeOldFlow(FlowSheet value, String name) {
     List<StmntCategory> catList = [];
     for (var flow in value.flows) {
       final catIdx = catList.indexWhere((e) => e.id == flow.cat.id);
-      if (catIdx == -1) {
+      final ftype = convertNameToFtype(name);
+      if (catIdx == -1 && ftype.contains(flow.cat.ftype)) {
         final StmntCategory cat = StmntCategory(
           id: flow.cat.id,
           name: flow.cat.name,
@@ -206,10 +207,24 @@ class DailyFlowProvider extends ChangeNotifier {
         cat.total = flow.value;
         catList.add(cat);
       } else {
-        catList[catIdx].total += flow.value;
+        if (ftype.contains(flow.cat.ftype)) {
+          catList[catIdx].total += flow.value;
+        }
       }
     }
     return catList;
+  }
+
+  List<String> convertNameToFtype(String value) {
+    if (value == 'รายรับ') return ['1', '2', '3', '8', '9'];
+    if (value == 'รายจ่าย') return ['4', '5', '6', '10', '11', '12'];
+    if (value == 'รายรับจากการทำงาน') return ['1'];
+    if (value == 'รายรับจากสินทรัพย์') return ['2', '8', '9'];
+    if (value == 'รายรับอื่นๆ') return ['3'];
+    if (value == 'รายจ่ายไม่คงที่') return ['4', '10'];
+    if (value == 'รายจ่ายคงที่') return ['5', '11'];
+    if (value == 'การออมและการลงทุน') return ['6', '12'];
+    return [];
   }
 
   void addFlow(DFlowFlow flow) {
