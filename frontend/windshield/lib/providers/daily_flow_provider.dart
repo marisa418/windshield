@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:windshield/models/balance_sheet/flow_sheet.dart';
 import 'package:windshield/models/daily_flow/budget.dart';
 
 import 'package:windshield/models/daily_flow/category.dart';
 import 'package:windshield/models/daily_flow/flow.dart';
+import 'package:windshield/models/statement/category.dart';
 
 class DailyFlowProvider extends ChangeNotifier {
   List<DFlowCategory> _catList = [];
@@ -45,6 +47,9 @@ class DailyFlowProvider extends ChangeNotifier {
   List<DFlowCategory> get savAndInvList => _savAndInvList;
   double _savAndInvTotal = 0;
   double get savAndInvTotal => _savAndInvTotal;
+
+  List<FlowSheet> _oldFlowSheetList = [];
+  List<FlowSheet> get oldFlowSheetList => _oldFlowSheetList;
 
   DFlowCategory _currCat = DFlowCategory(
     id: '',
@@ -149,7 +154,7 @@ class DailyFlowProvider extends ChangeNotifier {
         for (var flow in cat.flows) {
           _incWorkingTotal += flow.value;
         }
-      } else if (cat.ftype == '2') {
+      } else if (cat.ftype == '2' || cat.ftype == '8' || cat.ftype == '9') {
         _incAssetList.add(cat);
         for (var flow in cat.flows) {
           _incAssetTotal += flow.value;
@@ -179,6 +184,47 @@ class DailyFlowProvider extends ChangeNotifier {
     _incTotal = _incWorkingTotal + _incAssetTotal + _incOtherTotal;
     _expTotal = _expInconTotal + _expConTotal + _savAndInvTotal;
     notifyListeners();
+  }
+
+  void setOldFlowSheetList(List<FlowSheet> value) {
+    _oldFlowSheetList = value;
+    notifyListeners();
+  }
+
+  List<StmntCategory> categorizeOldFlow(FlowSheet value, String name) {
+    List<StmntCategory> catList = [];
+    for (var flow in value.flows) {
+      final catIdx = catList.indexWhere((e) => e.id == flow.cat.id);
+      final ftype = convertNameToFtype(name);
+      if (catIdx == -1 && ftype.contains(flow.cat.ftype)) {
+        final StmntCategory cat = StmntCategory(
+          id: flow.cat.id,
+          name: flow.cat.name,
+          usedCount: flow.cat.usedCount,
+          ftype: flow.cat.ftype,
+          icon: flow.cat.icon,
+        );
+        cat.total = flow.value;
+        catList.add(cat);
+      } else {
+        if (ftype.contains(flow.cat.ftype)) {
+          catList[catIdx].total += flow.value;
+        }
+      }
+    }
+    return catList;
+  }
+
+  List<String> convertNameToFtype(String value) {
+    if (value == 'รายรับ') return ['1', '2', '3', '8', '9'];
+    if (value == 'รายจ่าย') return ['4', '5', '6', '10', '11', '12'];
+    if (value == 'รายรับจากการทำงาน') return ['1'];
+    if (value == 'รายรับจากสินทรัพย์') return ['2', '8', '9'];
+    if (value == 'รายรับอื่นๆ') return ['3'];
+    if (value == 'รายจ่ายไม่คงที่') return ['4', '10'];
+    if (value == 'รายจ่ายคงที่') return ['5', '11'];
+    if (value == 'การออมและการลงทุน') return ['6', '12'];
+    return [];
   }
 
   void addFlow(DFlowFlow flow) {

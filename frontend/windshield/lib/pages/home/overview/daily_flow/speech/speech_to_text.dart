@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:windshield/components/loading.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/pages/home/overview/daily_flow/overview/daily_flow_overview_page.dart';
 import 'package:windshield/providers/speech_to_text_provider.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/utility/icon_convertor.dart';
-import '../../../../../routes/app_router.dart';
 import '../daily_flow_page.dart';
 import 'cat_type.dart';
 
@@ -623,13 +623,18 @@ class Footer extends ConsumerWidget {
             );
             return;
           } else {
+            showLoading(context);
             final flow = await ref.read(apiProvider).addFlowList(flowList);
             if (flow) {
-              // ref.read(provDFlow).addFlow(flow);
               ref.read(provDFlow).setNeedFetchAPI();
               ref.read(provOverFlow).setNeedFetchAPI();
               ref.refresh(apiDateChange);
-              Navigator.of(context).pop();
+              AutoRouter.of(context).popUntilRouteWithName('DailyFlowRoute');
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+              );
+              AutoRouter.of(context).pop();
             }
           }
         },
