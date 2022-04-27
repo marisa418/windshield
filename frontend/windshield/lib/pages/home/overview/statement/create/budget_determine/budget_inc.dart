@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:windshield/models/statement/category.dart';
+import 'package:flutter_simple_calculator/flutter_simple_calculator.dart';
+import 'package:flutter_simple_calculator/src/calc_controller.dart';
 
+import 'package:windshield/models/statement/category.dart';
 import 'package:windshield/styles/theme.dart';
-import '../../statement_page.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+import 'package:windshield/utility/number_formatter.dart';
+import '../../statement_page.dart';
 import '../statement_create_page.dart';
 
 class IncomeWorkingTab extends ConsumerWidget {
@@ -269,7 +272,7 @@ class IncomeOtherTab extends ConsumerWidget {
   }
 }
 
-class Calculator extends ConsumerWidget {
+class Calculator extends ConsumerStatefulWidget {
   const Calculator({
     required this.bud,
     Key? key,
@@ -277,7 +280,20 @@ class Calculator extends ConsumerWidget {
   final StmntCategory bud;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _CalculatorState();
+}
+
+class _CalculatorState extends ConsumerState<Calculator> {
+  final _controller = CalcController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final budgetPerPeriod = ref.watch(provBudget.select((e) => e.budPerPeriod));
     final budgetType = ref.watch(provBudget.select((e) => e.budType));
     return Padding(
@@ -290,46 +306,88 @@ class Calculator extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Flexible(
-                flex: 7,
-                child: TextField(
-                  // autofocus: true,
-                  keyboardType: TextInputType.number,
-                  onChanged: (e) {
-                    ref
-                        .read(provBudget)
-                        .setBudgetPerPeriod(double.tryParse(e) ?? 0);
-                  },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'จำนวนเงิน',
+          SizedBox(
+            height: 355,
+            child: Stack(
+              children: [
+                Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    Expanded(
+                      child: SimpleCalculator(
+                        hideSurroundingBorder: true,
+                        controller: _controller,
+                        theme: CalculatorThemeData(
+                          displayStyle:
+                              const TextStyle(fontSize: 0, color: Colors.white),
+                          expressionStyle: const TextStyle(fontSize: 0),
+                          commandColor: MyTheme.primaryMajor,
+                          commandStyle: MyTheme.whiteTextTheme.headline4,
+                          operatorColor: MyTheme.primaryMinor,
+                          operatorStyle:
+                              MyTheme.whiteTextTheme.headline2!.merge(
+                            TextStyle(color: MyTheme.primaryMajor),
+                          ),
+                        ),
+                        onChanged: (_, __, ___) {
+                          ref
+                              .read(provBudget)
+                              .setBudgetPerPeriod(_controller.value ?? 0);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 55,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        flex: 7,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              budgetPerPeriod == 0
+                                  ? 'จำนวนเงิน'
+                                  : HelperNumber.format(budgetPerPeriod),
+                              style: MyTheme.textTheme.headline3,
+                            ),
+                            Text(
+                              (_controller.expression?.isEmpty ?? true)
+                                  ? '-'
+                                  : '${_controller.expression}',
+                              style: MyTheme.textTheme.bodyText2,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Flexible(
+                        flex: 3,
+                        child: DropdownButton<String>(
+                          style: MyTheme.textTheme.bodyText1!.merge(
+                            const TextStyle(color: Colors.black),
+                          ),
+                          value: budgetType,
+                          icon: const Icon(Icons.arrow_downward),
+                          onChanged: (String? e) {
+                            ref.read(provBudget).setBudgetType(e!);
+                          },
+                          items: <String>['ต่อวัน', 'ต่อสัปดาห์', 'ต่อเดือน']
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: _returnType(value),
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              Flexible(
-                flex: 3,
-                child: DropdownButton<String>(
-                  style: MyTheme.textTheme.bodyText1!.merge(
-                    const TextStyle(color: Colors.black),
-                  ),
-                  value: budgetType,
-                  icon: const Icon(Icons.arrow_downward),
-                  onChanged: (String? e) {
-                    ref.read(provBudget).setBudgetType(e!);
-                  },
-                  items: <String>['ต่อวัน', 'ต่อสัปดาห์', 'ต่อเดือน']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: _returnType(value),
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 30),
           Row(
@@ -356,7 +414,7 @@ class Calculator extends ConsumerWidget {
                 onTap: () {
                   if (budgetPerPeriod != 0) {
                     ref.read(provBudget).addBudget(
-                          bud,
+                          widget.bud,
                           ref.read(provStatement).getDateDiff(),
                           ref.read(provStatement).stmntId,
                         );

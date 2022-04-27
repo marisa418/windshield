@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/providers/daily_flow_overview_provider.dart';
@@ -17,6 +19,7 @@ import 'package:windshield/utility/ftype_coler.dart';
 import 'package:windshield/utility/icon_convertor.dart';
 import 'package:windshield/utility/number_formatter.dart';
 import 'package:windshield/utility/progress.dart';
+import 'package:windshield/notification/notification_api.dart';
 
 final provOverFlow =
     ChangeNotifierProvider.autoDispose<DailyFlowOverviewProvider>(
@@ -174,29 +177,12 @@ class DailyFlowOverviewPage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    Container(
-                      height: 50,
-                      width: 215,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: MyTheme.primaryMajor,
-                      ),
+                    SizedBox(
+                      height: 60,
+                      width: 200,
                       child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.access_time_filled,
-                                color: Colors.white),
-                            onPressed: () {/* Your code */},
-                          ),
-                          Column(
-                            children: [
-                              const Text('ตั้งเวลาเเจ้งเตือน ',
-                                  style: TextStyle(fontSize: 12)),
-                              Text('22.00 น.',
-                                  style: MyTheme.textTheme.headline3),
-                            ],
-                          ),
-                          MyHomePage()
+                        children: const [
+                          MyStatefulWidget(),
                         ],
                       ),
                     ),
@@ -211,19 +197,139 @@ class DailyFlowOverviewPage extends ConsumerWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyStatefulWidget extends StatefulWidget {
+  const MyStatefulWidget({Key? key}) : super(key: key);
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  bool selected = false;
+  void initState() {
+    super.initState();
+    AwesomeNotifications().isNotificationAllowed().then(
+      (isAllowed) {
+        if (!isAllowed) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Allow Notifications'),
+              content: Text('Our app would like to send you notifications'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Don\'t Allow',
+                    style: TextStyle(color: Colors.grey, fontSize: 18),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => AwesomeNotifications()
+                      .requestPermissionToSendNotifications()
+                      .then((_) => Navigator.pop(context)),
+                  child: Text(
+                    'Allow',
+                    style: TextStyle(
+                      color: Colors.teal,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selected = !selected;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        transform: selected
+            ? Matrix4.translationValues(0, 0, 0)
+            : Matrix4.translationValues(140, 0, 0),
+        height: 70,
+        width: 200,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
+          ),
+          color: MyTheme.primaryMajor,
+        ),
+        child: Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Icon(
+                Icons.access_alarm_rounded,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AutoSizeText(
+                    'ตั้งเวลาเเจ้งเตือน',
+                    style: MyTheme.whiteTextTheme.bodyText2,
+                    minFontSize: 0,
+                    maxLines: 1,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      AutoRouter.of(context).push(const NotificationRoute());
+                    },
+                    child: AutoSizeText(
+                      '22.00 น.',
+                      minFontSize: 0,
+                      maxLines: 1,
+                      style: MyTheme.whiteTextTheme.headline4,
+                    ),
+                  )
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: SwitchButton(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SwitchButton extends StatefulWidget {
+  const SwitchButton({Key? key}) : super(key: key);
+
+  @override
+  _SwitchButtonState createState() => _SwitchButtonState();
+}
+
+class _SwitchButtonState extends State<SwitchButton> {
   bool status = false;
 
   @override
   Widget build(BuildContext context) {
     return FlutterSwitch(
-      width: 70.0,
-      height: 30.0,
+      width: 60.0,
+      height: 28.0,
       activeToggleColor: Colors.white,
       activeColor: Colors.yellow,
       valueFontSize: 20.0,

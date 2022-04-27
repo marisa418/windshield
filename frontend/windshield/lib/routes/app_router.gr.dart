@@ -84,6 +84,10 @@ class _$AppRouter extends RootStackRouter {
     FinancialGoalRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const FinancialGoalPage());
+    },
+    NotificationRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const NotificationPage());
     }
   };
 
@@ -119,7 +123,9 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(BalanceSheetRoute.name,
               path: 'balance-sheet-page', parent: EmptyRouterRoute.name),
           RouteConfig(FinancialGoalRoute.name,
-              path: 'financial-goal-page', parent: EmptyRouterRoute.name)
+              path: 'financial-goal-page', parent: EmptyRouterRoute.name),
+          RouteConfig(NotificationRoute.name,
+              path: 'notification-page', parent: EmptyRouterRoute.name)
         ])
       ];
 }
@@ -269,4 +275,13 @@ class FinancialGoalRoute extends PageRouteInfo<void> {
       : super(FinancialGoalRoute.name, path: 'financial-goal-page');
 
   static const String name = 'FinancialGoalRoute';
+}
+
+/// generated route for
+/// [NotificationPage]
+class NotificationRoute extends PageRouteInfo<void> {
+  const NotificationRoute()
+      : super(NotificationRoute.name, path: 'notification-page');
+
+  static const String name = 'NotificationRoute';
 }
