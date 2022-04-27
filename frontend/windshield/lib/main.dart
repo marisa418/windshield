@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 import 'routes/app_router.dart';
 import 'styles/theme.dart';
@@ -17,6 +18,28 @@ final provBSheet = ChangeNotifierProvider.autoDispose<BalanceSheetProvider>(
 
 void main() {
   Intl.defaultLocale = 'th';
+  AwesomeNotifications().initialize(
+    '',
+    [
+      NotificationChannel(
+        channelKey: 'basic_channel',
+        channelName: 'Basic Notifications',
+        defaultColor: Colors.teal,
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+        channelDescription: 'test1',
+      ),
+      NotificationChannel(
+        channelKey: 'scheduled_channel',
+        channelName: 'Scheduled Notifications',
+        defaultColor: Colors.teal,
+        locked: true,
+        channelShowBadge: true,
+        importance: NotificationImportance.High,
+        channelDescription: 'test2',
+      ),
+    ],
+  );
   runApp(ProviderScope(child: MyApp()));
 }
 

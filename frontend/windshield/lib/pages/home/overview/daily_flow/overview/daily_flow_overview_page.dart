@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/providers/daily_flow_overview_provider.dart';
@@ -17,6 +19,7 @@ import 'package:windshield/utility/ftype_coler.dart';
 import 'package:windshield/utility/icon_convertor.dart';
 import 'package:windshield/utility/number_formatter.dart';
 import 'package:windshield/utility/progress.dart';
+import 'package:windshield/notification/notification_api.dart';
 
 final provOverFlow =
     ChangeNotifierProvider.autoDispose<DailyFlowOverviewProvider>(
@@ -203,6 +206,46 @@ class MyStatefulWidget extends StatefulWidget {
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   bool selected = false;
+  void initState() {
+    super.initState();
+    AwesomeNotifications().isNotificationAllowed().then(
+      (isAllowed) {
+        if (!isAllowed) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Allow Notifications'),
+              content: Text('Our app would like to send you notifications'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Don\'t Allow',
+                    style: TextStyle(color: Colors.grey, fontSize: 18),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => AwesomeNotifications()
+                      .requestPermissionToSendNotifications()
+                      .then((_) => Navigator.pop(context)),
+                  child: Text(
+                    'Allow',
+                    style: TextStyle(
+                      color: Colors.teal,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
