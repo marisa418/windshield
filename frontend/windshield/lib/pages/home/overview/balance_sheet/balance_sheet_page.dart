@@ -388,12 +388,12 @@ class LiqAssetTab extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 2),
+            padding: const EdgeInsets.only(bottom: 8),
             child:
                 Text('สินทรัพย์สภาพคล่อง', style: MyTheme.textTheme.headline3),
           ),
           SizedBox(
-            height: 70, //ขนาดแถว asset 
+            height: 111, //ขนาดแถว asset 
             child: ListView.builder(
               //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
@@ -557,7 +557,7 @@ class InvestAssetTab extends ConsumerWidget {
             child: Text('สินทรัพย์ลงทุน', style: MyTheme.textTheme.headline3),
           ),
           SizedBox(
-            height: 70, //ขนาดแถว asset 
+            height: 111, //ขนาดแถว asset 
             child: ListView.builder(
               //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
@@ -721,7 +721,7 @@ class PrivateAssetTab extends ConsumerWidget {
             child: Text('สินทรัพย์ส่วนตัว', style: MyTheme.textTheme.headline3),
           ),
           SizedBox(
-            height: 70, //ขนาดแถว asset 
+            height: 111, //ขนาดแถว asset 
             child: ListView.builder(
               //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
@@ -883,7 +883,7 @@ class DebtShortTab extends ConsumerWidget {
             child: Text('หนี้ระยะสั้น', style: MyTheme.textTheme.headline3),
           ),
           SizedBox(
-            height: 100,
+            height: 111, //ขนาดแถว debt
             child: ListView.builder(
               //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
@@ -1057,7 +1057,7 @@ class DebtLongTab extends ConsumerWidget {
             child: Text('หนี้ระยะยาว', style: MyTheme.textTheme.headline3),
           ),
           SizedBox(
-            height: 100,
+            height: 111, //ขนาดแถว debt
             child: ListView.builder(
               //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
