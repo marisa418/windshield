@@ -1,3 +1,4 @@
+from dataclasses import field
 from rest_framework import serializers
 from . import models
 
@@ -87,7 +88,14 @@ class AnnuallyFlowSheetGraphSerializer(serializers.ModelSerializer):
         model = models.DailyFlowSheet
         exclude = ["owner_id"]
         read_only_fields = ['id']
-        
+
+class SummaryStatementPlan(serializers.ModelSerializer):
+    working_income_budget = serializers.DecimalField(max_digits=12, decimal_places=2)
+    working_income = serializers.DecimalField(max_digits=12, decimal_places=2)
+    
+    class Meta:
+        model = models.FinancialStatementPlan
+        exclude = ["owner_id"]
    
 class FinancialTypeSerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True, read_only=True)
