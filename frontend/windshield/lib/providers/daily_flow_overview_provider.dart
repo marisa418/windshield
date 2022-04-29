@@ -63,6 +63,9 @@ class DailyFlowOverviewProvider extends ChangeNotifier {
   final List<DFlowCategory> _tdExpList = [];
   List<DFlowCategory> get tdExpList => _tdExpList;
 
+  bool _canSetTime = false;
+  bool get canSetTime => _canSetTime;
+
   void setCatList(List<DFlowCategory> value) {
     _catList = value;
   }
@@ -156,6 +159,11 @@ class DailyFlowOverviewProvider extends ChangeNotifier {
 
   void setDate(DateTime value) {
     _date = value;
+    notifyListeners();
+  }
+
+  void setCanSetTime(bool value) {
+    _canSetTime = value;
     notifyListeners();
   }
 }

@@ -22,17 +22,9 @@ void main() {
     '',
     [
       NotificationChannel(
-        channelKey: 'basic_channel',
-        channelName: 'Basic Notifications',
-        defaultColor: Colors.teal,
-        importance: NotificationImportance.High,
-        channelShowBadge: true,
-        channelDescription: 'test1',
-      ),
-      NotificationChannel(
         channelKey: 'scheduled_channel',
-        channelName: 'Scheduled Notifications',
-        defaultColor: Colors.teal,
+        channelName: 'IncomeEpenseScheduled',
+        defaultColor: MyTheme.primaryMajor,
         locked: true,
         channelShowBadge: true,
         importance: NotificationImportance.High,
