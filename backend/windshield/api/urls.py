@@ -11,7 +11,7 @@ urlpatterns = [
     path('statement/', views.Statement.as_view(), name='statement'),
     path('statement/<str:pk>/', views.StatementInstance.as_view(), name='statement-instance'),
     path('statement/<str:pk>/name/', views.StatementChangeName.as_view(), name='statement-change-name'),
-    path('statement/summary/', views.SummaryStatementPlan.as_view(), name="statement-summary"),
+    path('statement-summary/', views.PastStatementPlans.as_view(), name="statement-summary"),
 
     #CATEGORY
     path('categories/', views.Categories.as_view(), name='categories-list'),
