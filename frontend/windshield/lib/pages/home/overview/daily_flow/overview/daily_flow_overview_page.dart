@@ -4,6 +4,7 @@ import 'package:badges/badges.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:collection/collection.dart';
@@ -19,7 +20,9 @@ import 'package:windshield/utility/ftype_coler.dart';
 import 'package:windshield/utility/icon_convertor.dart';
 import 'package:windshield/utility/number_formatter.dart';
 import 'package:windshield/utility/progress.dart';
-import 'package:windshield/notification/notification_api.dart';
+import '../์notification/noti_func.dart';
+import '../์notification/noti_utility.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final provOverFlow =
     ChangeNotifierProvider.autoDispose<DailyFlowOverviewProvider>(
@@ -197,54 +200,29 @@ class DailyFlowOverviewPage extends ConsumerWidget {
   }
 }
 
-class MyStatefulWidget extends StatefulWidget {
+class MyStatefulWidget extends ConsumerStatefulWidget {
   const MyStatefulWidget({Key? key}) : super(key: key);
 
   @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+  _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
 }
 
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+class _MyStatefulWidgetState extends ConsumerState<MyStatefulWidget> {
   bool selected = false;
+  String value = '';
+  String toggle = '';
+
+  @override
   void initState() {
     super.initState();
-    AwesomeNotifications().isNotificationAllowed().then(
-      (isAllowed) {
-        if (!isAllowed) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('Allow Notifications'),
-              content: Text('Our app would like to send you notifications'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    'Don\'t Allow',
-                    style: TextStyle(color: Colors.grey, fontSize: 18),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => AwesomeNotifications()
-                      .requestPermissionToSendNotifications()
-                      .then((_) => Navigator.pop(context)),
-                  child: Text(
-                    'Allow',
-                    style: TextStyle(
-                      color: Colors.teal,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-      },
-    );
+
+    /// Initialize Flutter Secure Storage
+    const _storage = FlutterSecureStorage();
+
+    /// Await your Future here (This function only called once after the layout is Complete)
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
+      value = await _storage.read(key: 'time') ?? '00:00';
+    });
   }
 
   @override
@@ -291,11 +269,18 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                     maxLines: 1,
                   ),
                   GestureDetector(
-                    onTap: () {
-                      AutoRouter.of(context).push(const NotificationRoute());
+                    onTap: () async {
+                      if (ref.watch(provOverFlow).canSetTime) {
+                        NotificationWeekAndTime? pickedSchedule =
+                            await pickSchedule(context);
+
+                        if (pickedSchedule != null) {
+                          createReminderNotification(pickedSchedule);
+                        }
+                      }
                     },
                     child: AutoSizeText(
-                      '22.00 น.',
+                      value,
                       minFontSize: 0,
                       maxLines: 1,
                       style: MyTheme.whiteTextTheme.headline4,
@@ -315,14 +300,14 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   }
 }
 
-class SwitchButton extends StatefulWidget {
+class SwitchButton extends ConsumerStatefulWidget {
   const SwitchButton({Key? key}) : super(key: key);
 
   @override
   _SwitchButtonState createState() => _SwitchButtonState();
 }
 
-class _SwitchButtonState extends State<SwitchButton> {
+class _SwitchButtonState extends ConsumerState<SwitchButton> {
   bool status = false;
 
   @override
@@ -339,9 +324,17 @@ class _SwitchButtonState extends State<SwitchButton> {
       padding: 3.0,
       showOnOff: false,
       onToggle: (val) {
-        setState(() {
-          status = val;
-        });
+        if (val) {
+          ref.read(provOverFlow).setCanSetTime(true);
+          setState(() {
+            status = val;
+          });
+        } else {
+          ref.read(provOverFlow).setCanSetTime(false);
+          setState(() {
+            status = val;
+          });
+        }
       },
     );
   }

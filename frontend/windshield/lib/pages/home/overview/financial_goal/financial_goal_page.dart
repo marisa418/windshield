@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 
 import 'package:windshield/main.dart';
@@ -294,10 +295,17 @@ class ButtonOfBody extends ConsumerWidget {
             shadowColor: Colors.transparent,
           ),
           onPressed: () {
+            ref.read(provFGoal).setName('ชื่อเป้าหมาย');
+            ref.read(provFGoal).setGoal(0);
+            ref.read(provFGoal).setStart(DateTime.now());
+            ref.read(provFGoal).setGoalDate(null);
+            ref.read(provFGoal).setProgPerPeriod(0);
+            ref.read(provFGoal).setIsAdd(true);
             showModalBottomSheet(
               backgroundColor: Colors.transparent,
               context: context,
               isScrollControlled: true,
+              useRootNavigator: false,
               builder: (_) => const MainOfForm(),
             );
           },
@@ -342,115 +350,204 @@ class MainOfBodyStart extends ConsumerWidget {
           fg.totalProg,
           fg.goal,
         );
-
-        return Card(
-          elevation: 10,
-          shadowColor: Colors.black.withOpacity(.5),
-          margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-          child: Column(
-            children: [
-              Container(
-                height: 100,
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Flexible(
-                      flex: 25,
-                      child: Container(
-                        height: 75,
-                        width: 75,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: MyTheme.primaryMajor,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              HelperIcons.getIconData(
-                                fg.icon,
+        return GestureDetector(
+          onTap: () {
+            ref.read(provFGoal).setId(fg.id);
+            ref.read(provFGoal).setName(fg.name);
+            ref.read(provFGoal).setGoal(fg.goal);
+            ref.read(provFGoal).setStart(fg.start);
+            ref.read(provFGoal).setGoalDate(fg.goalDate);
+            ref.read(provFGoal).setProgPerPeriod(fg.progPerPeriod);
+            ref.read(provFGoal).setPeriodTerm(fg.periodTerm);
+            ref.read(provFGoal).setIsAdd(false);
+            showModalBottomSheet(
+              backgroundColor: Colors.transparent,
+              context: context,
+              isScrollControlled: true,
+              useRootNavigator: false,
+              builder: (_) => const MainOfForm(),
+            );
+          },
+          child: Card(
+            elevation: 10,
+            shadowColor: Colors.black.withOpacity(.5),
+            margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Slidable(
+              endActionPane: ActionPane(
+                extentRatio: 0.25,
+                motion: const BehindMotion(),
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          useRootNavigator: false,
+                          barrierDismissible: false,
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('ท่านยืนยันที่จะลบหรือไม่?'),
+                            actions: [
+                              TextButton(
+                                child: const Text('ยกเลิก'),
+                                onPressed: () => AutoRouter.of(context).pop(),
                               ),
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                            AutoSizeText(
-                              HelperNumber.format(fg.progPerPeriod),
-                              maxLines: 1,
-                              minFontSize: 0,
-                              style: MyTheme.whiteTextTheme.bodyText1,
-                            ),
-                          ],
+                              TextButton(
+                                child: const Text('ยืนยัน'),
+                                onPressed: () async {
+                                  final res = await ref
+                                      .read(apiProvider)
+                                      .deleteGoal(fg.id);
+                                  if (res) {
+                                    ref.read(provFGoal).setNeedFetchAPI();
+                                    // ref.refresh(provFGoal);
+                                    AutoRouter.of(context).pop();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('ไม่สามารถลบแผนได้'),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: MyTheme.expenseBackground,
+                          ),
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
                         ),
-                      ),
-                    ),
-                    Flexible(
-                      flex: 53,
-                      fit: FlexFit.tight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            AutoSizeText(
-                              fg.name,
-                              maxLines: 1,
-                              style: MyTheme.textTheme.headline3,
+                          children: const [
+                            Icon(
+                              Icons.delete,
+                              color: Colors.white,
                             ),
-                            Text(
-                              "${fg.totalProg}/${fg.goal}",
-                            ),
+                            Text('ลบ', style: TextStyle(color: Colors.white)),
                           ],
                         ),
                       ),
                     ),
-                    Flexible(
-                      flex: 22,
-                      fit: FlexFit.tight,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                  )
+                ],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    height: 100,
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 25,
+                          child: Container(
+                            height: 75,
+                            width: 75,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: MyTheme.primaryMajor,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  HelperIcons.getIconData(
+                                    fg.icon,
+                                  ),
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
+                                AutoSizeText(
+                                  HelperNumber.format(fg.progPerPeriod),
+                                  maxLines: 1,
+                                  minFontSize: 0,
+                                  style: MyTheme.whiteTextTheme.bodyText1,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 53,
+                          fit: FlexFit.tight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                AutoSizeText(
+                                  fg.name,
+                                  maxLines: 1,
+                                  style: MyTheme.textTheme.headline3,
+                                ),
+                                Text(
+                                  "${fg.totalProg}/${fg.goal}",
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 22,
+                          fit: FlexFit.tight,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              AutoSizeText(
+                                fg.goalDate == null
+                                    ? ""
+                                    : "ภายใน ${fg.goalDate!.difference(DateTime.now()).inDays + 1} วัน",
+                                style: const TextStyle(color: Colors.red),
+                                maxLines: 1,
+                                minFontSize: 0,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  LinearPercentIndicator(
+                    padding: EdgeInsets.zero,
+                    animation: true,
+                    lineHeight: 25.0,
+                    animationDuration: 2500,
+                    percent: percentPeriod,
+                    center: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          AutoSizeText(
-                            fg.goalDate == null
-                                ? ""
-                                : "ภายใน ${fg.goalDate!.difference(DateTime.now()).inDays + 1} วัน",
-                            style: const TextStyle(color: Colors.red),
-                            maxLines: 1,
-                            minFontSize: 0,
+                          Text(
+                            "${HelperNumber.format(percentPeriod * 100)} %",
+                            style: MyTheme.whiteTextTheme.bodyText1,
+                          ),
+                          Text(
+                            "เริ่มต้น " + DateFormat.yMMMMd().format(fg.start),
+                            style: MyTheme.whiteTextTheme.bodyText1,
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                    // linearStrokeCap: LinearStrokeCap.roundAll,
+                    progressColor: MyTheme.primaryMajor,
+                  )
+                ],
               ),
-              LinearPercentIndicator(
-                padding: EdgeInsets.zero,
-                animation: true,
-                lineHeight: 25.0,
-                animationDuration: 2500,
-                percent: percentPeriod,
-                center: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "${HelperNumber.format(percentPeriod * 100)} %",
-                        style: MyTheme.whiteTextTheme.bodyText1,
-                      ),
-                      Text(
-                        "เริ่มต้น " + DateFormat.yMMMMd().format(fg.start),
-                        style: MyTheme.whiteTextTheme.bodyText1,
-                      ),
-                    ],
-                  ),
-                ),
-                // linearStrokeCap: LinearStrokeCap.roundAll,
-                progressColor: MyTheme.primaryMajor,
-              )
-            ],
+            ),
           ),
         );
       },
@@ -472,115 +569,204 @@ class MainOfBodyGoalDate extends ConsumerWidget {
           fg.totalProg,
           fg.goal,
         );
-
-        return Card(
-          elevation: 10,
-          shadowColor: Colors.black.withOpacity(.5),
-          margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-          child: Column(
-            children: [
-              Container(
-                height: 100,
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Flexible(
-                      flex: 25,
-                      child: Container(
-                        height: 75,
-                        width: 75,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: MyTheme.primaryMajor,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              HelperIcons.getIconData(
-                                fg.icon,
+        return GestureDetector(
+          onTap: () {
+            ref.read(provFGoal).setId(fg.id);
+            ref.read(provFGoal).setName(fg.name);
+            ref.read(provFGoal).setGoal(fg.goal);
+            ref.read(provFGoal).setStart(fg.start);
+            ref.read(provFGoal).setGoalDate(fg.goalDate);
+            ref.read(provFGoal).setProgPerPeriod(fg.progPerPeriod);
+            ref.read(provFGoal).setPeriodTerm(fg.periodTerm);
+            ref.read(provFGoal).setIsAdd(false);
+            showModalBottomSheet(
+              backgroundColor: Colors.transparent,
+              context: context,
+              isScrollControlled: true,
+              useRootNavigator: false,
+              builder: (_) => const MainOfForm(),
+            );
+          },
+          child: Card(
+            elevation: 10,
+            shadowColor: Colors.black.withOpacity(.5),
+            margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Slidable(
+              endActionPane: ActionPane(
+                extentRatio: 0.25,
+                motion: const BehindMotion(),
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          useRootNavigator: false,
+                          barrierDismissible: false,
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('ท่านยืนยันที่จะลบหรือไม่?'),
+                            actions: [
+                              TextButton(
+                                child: const Text('ยกเลิก'),
+                                onPressed: () => AutoRouter.of(context).pop(),
                               ),
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                            AutoSizeText(
-                              HelperNumber.format(fg.progPerPeriod),
-                              maxLines: 1,
-                              minFontSize: 0,
-                              style: MyTheme.whiteTextTheme.bodyText1,
-                            ),
-                          ],
+                              TextButton(
+                                child: const Text('ยืนยัน'),
+                                onPressed: () async {
+                                  final res = await ref
+                                      .read(apiProvider)
+                                      .deleteGoal(fg.id);
+                                  if (res) {
+                                    ref.read(provFGoal).setNeedFetchAPI();
+                                    // ref.refresh(provFGoal);
+                                    AutoRouter.of(context).pop();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('ไม่สามารถลบแผนได้'),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: MyTheme.expenseBackground,
+                          ),
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
                         ),
-                      ),
-                    ),
-                    Flexible(
-                      flex: 53,
-                      fit: FlexFit.tight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            AutoSizeText(
-                              fg.name,
-                              maxLines: 1,
-                              style: MyTheme.textTheme.headline3,
+                          children: const [
+                            Icon(
+                              Icons.delete,
+                              color: Colors.white,
                             ),
-                            Text(
-                              "${fg.totalProg}/${fg.goal}",
-                            ),
+                            Text('ลบ', style: TextStyle(color: Colors.white)),
                           ],
                         ),
                       ),
                     ),
-                    Flexible(
-                      flex: 22,
-                      fit: FlexFit.tight,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                  )
+                ],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    height: 100,
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 25,
+                          child: Container(
+                            height: 75,
+                            width: 75,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: MyTheme.primaryMajor,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  HelperIcons.getIconData(
+                                    fg.icon,
+                                  ),
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
+                                AutoSizeText(
+                                  HelperNumber.format(fg.progPerPeriod),
+                                  maxLines: 1,
+                                  minFontSize: 0,
+                                  style: MyTheme.whiteTextTheme.bodyText1,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 53,
+                          fit: FlexFit.tight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                AutoSizeText(
+                                  fg.name,
+                                  maxLines: 1,
+                                  style: MyTheme.textTheme.headline3,
+                                ),
+                                Text(
+                                  "${fg.totalProg}/${fg.goal}",
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 22,
+                          fit: FlexFit.tight,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              AutoSizeText(
+                                fg.goalDate == null
+                                    ? ""
+                                    : "ภายใน ${fg.goalDate!.difference(DateTime.now()).inDays + 1} วัน",
+                                style: const TextStyle(color: Colors.red),
+                                maxLines: 1,
+                                minFontSize: 0,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  LinearPercentIndicator(
+                    padding: EdgeInsets.zero,
+                    animation: true,
+                    lineHeight: 25.0,
+                    animationDuration: 2500,
+                    percent: percentPeriod,
+                    center: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          AutoSizeText(
-                            fg.goalDate == null
-                                ? ""
-                                : "ภายใน ${fg.goalDate!.difference(DateTime.now()).inDays + 1} วัน",
-                            style: const TextStyle(color: Colors.red),
-                            maxLines: 1,
-                            minFontSize: 0,
+                          Text(
+                            "${HelperNumber.format(percentPeriod * 100)} %",
+                            style: MyTheme.whiteTextTheme.bodyText1,
+                          ),
+                          Text(
+                            "เริ่มต้น " + DateFormat.yMMMMd().format(fg.start),
+                            style: MyTheme.whiteTextTheme.bodyText1,
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                    // linearStrokeCap: LinearStrokeCap.roundAll,
+                    progressColor: MyTheme.primaryMajor,
+                  )
+                ],
               ),
-              LinearPercentIndicator(
-                padding: EdgeInsets.zero,
-                animation: true,
-                lineHeight: 25.0,
-                animationDuration: 2500,
-                percent: percentPeriod,
-                center: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "${HelperNumber.format(percentPeriod * 100)} %",
-                        style: MyTheme.whiteTextTheme.bodyText1,
-                      ),
-                      Text(
-                        "เริ่มต้น " + DateFormat.yMMMMd().format(fg.start),
-                        style: MyTheme.whiteTextTheme.bodyText1,
-                      ),
-                    ],
-                  ),
-                ),
-                // linearStrokeCap: LinearStrokeCap.roundAll,
-                progressColor: MyTheme.primaryMajor,
-              )
-            ],
+            ),
           ),
         );
       },
@@ -602,123 +788,207 @@ class MainOfBodyFinish extends ConsumerWidget {
           fg.totalProg,
           fg.goal,
         );
-
-        return Card(
-          elevation: 10,
-          shadowColor: Colors.black.withOpacity(.5),
-          margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-          child: Column(
-            children: [
-              Container(
-                height: 100,
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Flexible(
-                      flex: 25,
-                      child: Container(
-                        height: 75,
-                        width: 75,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: MyTheme.primaryMajor,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              HelperIcons.getIconData(
-                                fg.icon,
+        return GestureDetector(
+          onTap: () {
+            ref.read(provFGoal).setId(fg.id);
+            ref.read(provFGoal).setName(fg.name);
+            ref.read(provFGoal).setGoal(fg.goal);
+            ref.read(provFGoal).setStart(fg.start);
+            ref.read(provFGoal).setGoalDate(fg.goalDate);
+            ref.read(provFGoal).setProgPerPeriod(fg.progPerPeriod);
+            ref.read(provFGoal).setPeriodTerm(fg.periodTerm);
+            ref.read(provFGoal).setIsAdd(false);
+            showModalBottomSheet(
+              backgroundColor: Colors.transparent,
+              context: context,
+              isScrollControlled: true,
+              useRootNavigator: false,
+              builder: (_) => const MainOfForm(),
+            );
+          },
+          child: Card(
+            elevation: 10,
+            shadowColor: Colors.black.withOpacity(.5),
+            margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Slidable(
+              endActionPane: ActionPane(
+                extentRatio: 0.25,
+                motion: const BehindMotion(),
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          useRootNavigator: false,
+                          barrierDismissible: false,
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('ท่านยืนยันที่จะลบหรือไม่?'),
+                            actions: [
+                              TextButton(
+                                child: const Text('ยกเลิก'),
+                                onPressed: () => AutoRouter.of(context).pop(),
                               ),
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                            AutoSizeText(
-                              HelperNumber.format(fg.progPerPeriod),
-                              maxLines: 1,
-                              minFontSize: 0,
-                              style: MyTheme.whiteTextTheme.bodyText1,
-                            ),
-                          ],
+                              TextButton(
+                                child: const Text('ยืนยัน'),
+                                onPressed: () async {
+                                  final res = await ref
+                                      .read(apiProvider)
+                                      .deleteGoal(fg.id);
+                                  if (res) {
+                                    ref.read(provFGoal).setNeedFetchAPI();
+                                    // ref.refresh(provFGoal);
+                                    AutoRouter.of(context).pop();
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('ไม่สามารถลบแผนได้'),
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: MyTheme.expenseBackground,
+                          ),
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
                         ),
-                      ),
-                    ),
-                    Flexible(
-                      flex: 53,
-                      fit: FlexFit.tight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            AutoSizeText(
-                              fg.name,
-                              maxLines: 1,
-                              style: MyTheme.textTheme.headline3,
+                          children: const [
+                            Icon(
+                              Icons.delete,
+                              color: Colors.white,
                             ),
-                            Text(
-                              "${fg.totalProg}/${fg.goal}",
-                            ),
+                            Text('ลบ', style: TextStyle(color: Colors.white)),
                           ],
                         ),
                       ),
                     ),
-                    Flexible(
-                      flex: 22,
-                      fit: FlexFit.tight,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                  )
+                ],
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    height: 100,
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Flexible(
+                          flex: 25,
+                          child: Container(
+                            height: 75,
+                            width: 75,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: MyTheme.primaryMajor,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  HelperIcons.getIconData(
+                                    fg.icon,
+                                  ),
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
+                                AutoSizeText(
+                                  HelperNumber.format(fg.progPerPeriod),
+                                  maxLines: 1,
+                                  minFontSize: 0,
+                                  style: MyTheme.whiteTextTheme.bodyText1,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 53,
+                          fit: FlexFit.tight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                AutoSizeText(
+                                  fg.name,
+                                  maxLines: 1,
+                                  style: MyTheme.textTheme.headline3,
+                                ),
+                                Text(
+                                  "${fg.totalProg}/${fg.goal}",
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Flexible(
+                          flex: 22,
+                          fit: FlexFit.tight,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              AutoSizeText(
+                                fg.goalDate == null
+                                    ? ""
+                                    : "ภายใน ${fg.goalDate!.difference(DateTime.now()).inDays + 1} วัน",
+                                style: const TextStyle(color: Colors.red),
+                                maxLines: 1,
+                                minFontSize: 0,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  LinearPercentIndicator(
+                    padding: EdgeInsets.zero,
+                    animation: true,
+                    lineHeight: 25.0,
+                    animationDuration: 2500,
+                    percent: percentPeriod,
+                    center: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          AutoSizeText(
-                            fg.goalDate == null
-                                ? ""
-                                : "ภายใน ${fg.goalDate!.difference(DateTime.now()).inDays + 1} วัน",
-                            style: const TextStyle(color: Colors.red),
-                            maxLines: 1,
-                            minFontSize: 0,
+                          Text(
+                            "${HelperNumber.format(percentPeriod * 100)} %",
+                            style: MyTheme.whiteTextTheme.bodyText1,
+                          ),
+                          Text(
+                            "เริ่มต้น " + DateFormat.yMMMMd().format(fg.start),
+                            style: MyTheme.whiteTextTheme.bodyText1,
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                    // linearStrokeCap: LinearStrokeCap.roundAll,
+                    progressColor: MyTheme.primaryMajor,
+                  )
+                ],
               ),
-              LinearPercentIndicator(
-                padding: EdgeInsets.zero,
-                animation: true,
-                lineHeight: 25.0,
-                animationDuration: 2500,
-                percent: percentPeriod,
-                center: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "${HelperNumber.format(percentPeriod * 100)} %",
-                        style: MyTheme.whiteTextTheme.bodyText1,
-                      ),
-                      Text(
-                        "เริ่มต้น " + DateFormat.yMMMMd().format(fg.start),
-                        style: MyTheme.whiteTextTheme.bodyText1,
-                      ),
-                    ],
-                  ),
-                ),
-                // linearStrokeCap: LinearStrokeCap.roundAll,
-                progressColor: MyTheme.primaryMajor,
-              )
-            ],
+            ),
           ),
         );
       },
     );
   }
-}
-
-int getCalDay(DateTime start, DateTime end) {
-  final Dif = start.difference(end).inDays;
-  return Dif;
 }

@@ -28,16 +28,19 @@ class FinancialGoalProvider extends ChangeNotifier {
   DateTime? _goalDate;
   DateTime? get goalDate => _goalDate;
 
+  String _id = '';
+  String get id => _id;
+
   int? _dateDiff;
   int? get dateDiff => _dateDiff;
 
-  List<FGoal> _startedFg = [];
+  final List<FGoal> _startedFg = [];
   List<FGoal> get startedFg => _startedFg;
 
-  List<FGoal> _notStartFg = [];
+  final List<FGoal> _notStartFg = [];
   List<FGoal> get notStartFg => _notStartFg;
 
-  List<FGoal> _finishedFg = [];
+  final List<FGoal> _finishedFg = [];
   List<FGoal> get finishedFg => _finishedFg;
 
   bool _needFetchAPI = false;
@@ -57,6 +60,9 @@ class FinancialGoalProvider extends ChangeNotifier {
   }
 
   void setFgType() {
+    _finishedFg.clear();
+    _notStartFg.clear();
+    _startedFg.clear();
     for (var item in _fgList) {
       if (item.totalProg >= item.goal) {
         _finishedFg.add(item);
@@ -117,6 +123,10 @@ class FinancialGoalProvider extends ChangeNotifier {
   void setGoalDate(DateTime? value) {
     _goalDate = value;
     notifyListeners();
+  }
+
+  void setId(String value) {
+    _id = value;
   }
 
   void setDateDiff(int? value) {

@@ -1,9 +1,13 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:windshield/components/loading.dart';
+import 'package:windshield/main.dart';
 
 import 'package:windshield/styles/theme.dart';
+import 'package:windshield/utility/number_formatter.dart';
 import '../financial_goal_page.dart';
 
 class MainOfForm extends ConsumerWidget {
@@ -15,6 +19,29 @@ class MainOfForm extends ConsumerWidget {
       onWillPop: () async {
         if (!isMainForm) {
           ref.read(provFGoal).setIsMainForm(true);
+          final startDate = ref.read(provFGoal).start;
+          final goalDate = ref.read(provFGoal).goalDate;
+          final goal = ref.read(provFGoal).goal;
+          final term = ref.read(provFGoal).periodTerm;
+          final prog = ref.read(provFGoal).progPerPeriod;
+
+          if (goalDate != null) {
+            final dateDiff = daysBetween(startDate, goalDate) + 1;
+            if (term == 'ALY') {
+              final atleast = (goal / (dateDiff / 365).ceil()).ceilToDouble();
+              if (prog < atleast) ref.read(provFGoal).setProgPerPeriod(0);
+            } else if (term == 'MLY') {
+              final atleast = (goal / (dateDiff / 30).ceil()).ceilToDouble();
+              if (prog < atleast) ref.read(provFGoal).setProgPerPeriod(0);
+            } else if (term == 'WLY') {
+              final atleast = (goal / (dateDiff / 7).ceil()).ceilToDouble();
+              if (prog < atleast) ref.read(provFGoal).setProgPerPeriod(0);
+            } else {
+              final atleast = (goal / dateDiff).ceilToDouble();
+              if (prog < atleast) ref.read(provFGoal).setProgPerPeriod(0);
+            }
+          }
+
           return false;
         }
         return true;
@@ -78,6 +105,7 @@ class ShowBottomPageOne extends ConsumerWidget {
     final start = ref.watch(provFGoal.select((e) => e.start));
     final goalDate = ref.watch(provFGoal.select((e) => e.goalDate));
     final periodTerm = ref.watch(provFGoal.select((e) => e.periodTerm));
+    final isAdd = ref.watch(provFGoal.select((e) => e.isAdd));
     return Column(
       children: [
         SizedBox(
@@ -121,75 +149,96 @@ class ShowBottomPageOne extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: const Color.fromARGB(255, 44, 44, 44)
-                          .withOpacity(0.2),
-                      width: 1,
+                if (isAdd)
+                  Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 44, 44, 44)
+                            .withOpacity(0.2),
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.circular(32.0),
                     ),
-                    borderRadius: BorderRadius.circular(32.0),
-                  ),
-                  child: GestureDetector(
-                    onTap: () {
-                      showCupertinoModalPopup(
-                        context: context,
-                        builder: (context) {
-                          return CupertinoTheme(
-                            data: const CupertinoThemeData(
-                              brightness: Brightness.dark,
-                            ),
-                            child: SizedBox(
-                              height: 200,
-                              child: CupertinoDatePicker(
-                                backgroundColor: Colors.black87,
-                                initialDateTime: start,
-                                minimumDate: DateTime(
-                                  DateTime.now().year,
-                                  DateTime.now().month,
-                                  DateTime.now().day,
-                                ),
-                                maximumDate: DateTime.now().add(
-                                  const Duration(days: 1500),
-                                ),
-                                maximumYear: DateTime.now().year + 100,
-                                minuteInterval: 1,
-                                mode: CupertinoDatePickerMode.date,
-                                use24hFormat: true,
-                                onDateTimeChanged: (e) {
-                                  ref.read(provFGoal).setStart(e);
-                                  if (goalDate != null) {
-                                    if (daysBetween(e, goalDate) < 1) {
-                                      ref.read(provFGoal).setGoalDate(null);
-                                      ref.read(provFGoal).setDateDiff(null);
-                                    }
-                                  }
-                                },
+                    child: GestureDetector(
+                      onTap: () {
+                        showCupertinoModalPopup(
+                          context: context,
+                          builder: (context) {
+                            return CupertinoTheme(
+                              data: const CupertinoThemeData(
+                                brightness: Brightness.dark,
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    child: Container(
-                      height: 50,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: const Color.fromARGB(255, 44, 44, 44)
-                              .withOpacity(0.2),
-                          width: 1,
+                              child: SizedBox(
+                                height: 200,
+                                child: CupertinoDatePicker(
+                                  backgroundColor: Colors.black87,
+                                  initialDateTime: start,
+                                  minimumDate: DateTime(
+                                    DateTime.now().year,
+                                    DateTime.now().month,
+                                    DateTime.now().day,
+                                  ),
+                                  maximumDate: DateTime.now().add(
+                                    const Duration(days: 1500),
+                                  ),
+                                  maximumYear: DateTime.now().year + 100,
+                                  minuteInterval: 1,
+                                  mode: CupertinoDatePickerMode.date,
+                                  use24hFormat: true,
+                                  onDateTimeChanged: (e) {
+                                    ref.read(provFGoal).setStart(e);
+                                    if (goalDate != null) {
+                                      int dateDiff =
+                                          daysBetween(e, goalDate) + 1;
+                                      double? atleast;
+                                      if (periodTerm == 'ALY') {
+                                        atleast =
+                                            goal / (dateDiff / 365).ceil();
+                                        atleast.ceilToDouble();
+                                      } else if (periodTerm == 'MLY') {
+                                        atleast = goal / (dateDiff / 30).ceil();
+                                        atleast.ceilToDouble();
+                                      } else if (periodTerm == 'WLY') {
+                                        atleast = goal / (dateDiff / 7).ceil();
+                                        atleast.ceilToDouble();
+                                      } else {
+                                        atleast = goal / dateDiff;
+                                        atleast.ceilToDouble();
+                                      }
+                                      if (progPerPeriod < atleast) {
+                                        ref.read(provFGoal).setProgPerPeriod(0);
+                                      }
+                                      if (dateDiff < 1) {
+                                        ref.read(provFGoal).setGoalDate(null);
+                                        ref.read(provFGoal).setDateDiff(null);
+                                      }
+                                    }
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                        height: 50,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: const Color.fromARGB(255, 44, 44, 44)
+                                .withOpacity(0.2),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(32.0),
                         ),
-                        borderRadius: BorderRadius.circular(32.0),
-                      ),
-                      child: Text(
-                        'เริ่มต้น: ${DateFormat(' E d MMM y').format(start)}',
-                        style: MyTheme.textTheme.headline3,
+                        child: Text(
+                          'เริ่มต้น: ${DateFormat(' E d MMM y').format(start)}',
+                          style: MyTheme.textTheme.headline3,
+                        ),
                       ),
                     ),
                   ),
-                ),
                 const SizedBox(height: 20),
                 GestureDetector(
                   onTap: () => ref.read(provFGoal).setIsMainForm(false),
@@ -230,100 +279,103 @@ class ShowBottomPageOne extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: const Color.fromARGB(255, 44, 44, 44)
-                          .withOpacity(0.2),
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(32.0),
-                  ),
-                  child: GestureDetector(
-                    onTap: () {
-                      showCupertinoModalPopup(
-                        context: context,
-                        builder: (context) {
-                          return CupertinoTheme(
-                            data: const CupertinoThemeData(
-                              brightness: Brightness.dark,
-                            ),
-                            child: SizedBox(
-                              height: 200,
-                              child: CupertinoDatePicker(
-                                backgroundColor: Colors.black87,
-                                initialDateTime: goalDate ??
-                                    DateTime(
-                                      start.year,
-                                      start.month,
-                                      start.day + 1,
-                                    ),
-                                minimumDate: DateTime(
-                                  start.year,
-                                  start.month,
-                                  start.day + 1,
-                                ),
-                                maximumDate: DateTime.now().add(
-                                  const Duration(days: 1500),
-                                ),
-                                maximumYear: DateTime.now().year + 100,
-                                minuteInterval: 1,
-                                mode: CupertinoDatePickerMode.date,
-                                use24hFormat: true,
-                                onDateTimeChanged: (e) {
-                                  ref.read(provFGoal).setGoalDate(e);
-                                  final dateDiff = daysBetween(start, e) + 1;
-                                  double? atleast;
-                                  if (periodTerm == 'ALY') {
-                                    atleast = goal / (dateDiff / 365).ceil();
-                                  } else if (periodTerm == 'MLY') {
-                                    atleast = goal / (dateDiff / 30).ceil();
-                                  } else if (periodTerm == 'WLY') {
-                                    atleast = goal / (dateDiff / 7).ceil();
-                                  } else {
-                                    atleast = goal / dateDiff;
-                                  }
-                                  print(progPerPeriod);
-                                  print(atleast);
-                                  if (progPerPeriod < atleast) {
-                                    ref.read(provFGoal).setProgPerPeriod(0);
-                                  }
-                                },
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    child: Container(
-                      height: 50,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: const Color.fromARGB(255, 44, 44, 44)
-                              .withOpacity(0.2),
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(32.0),
+                if (isAdd)
+                  Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: const Color.fromARGB(255, 44, 44, 44)
+                            .withOpacity(0.2),
+                        width: 1,
                       ),
-                      child: goalDate != null
-                          ? Text(
-                              'สิ้นสุด: ${DateFormat(' E d MMM y').format(goalDate)}',
-                              style: MyTheme.textTheme.headline3,
-                            )
-                          : Text(
-                              'สิ้นสุด',
-                              style: MyTheme.whiteTextTheme.headline3!.merge(
-                                TextStyle(
-                                  color: const Color.fromARGB(255, 44, 44, 44)
-                                      .withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(32.0),
+                    ),
+                    child: GestureDetector(
+                      onTap: () {
+                        showCupertinoModalPopup(
+                          context: context,
+                          builder: (context) {
+                            return CupertinoTheme(
+                              data: const CupertinoThemeData(
+                                brightness: Brightness.dark,
+                              ),
+                              child: SizedBox(
+                                height: 200,
+                                child: CupertinoDatePicker(
+                                  backgroundColor: Colors.black87,
+                                  initialDateTime: goalDate ??
+                                      DateTime(
+                                        start.year,
+                                        start.month,
+                                        start.day + 1,
+                                      ),
+                                  minimumDate: DateTime(
+                                    start.year,
+                                    start.month,
+                                    start.day + 1,
+                                  ),
+                                  maximumDate: DateTime.now().add(
+                                    const Duration(days: 1500),
+                                  ),
+                                  maximumYear: DateTime.now().year + 100,
+                                  minuteInterval: 1,
+                                  mode: CupertinoDatePickerMode.date,
+                                  use24hFormat: true,
+                                  onDateTimeChanged: (e) {
+                                    ref.read(provFGoal).setGoalDate(e);
+                                    final dateDiff = daysBetween(start, e) + 1;
+                                    double? atleast;
+                                    if (periodTerm == 'ALY') {
+                                      atleast = goal / (dateDiff / 365).ceil();
+                                      atleast.ceilToDouble();
+                                    } else if (periodTerm == 'MLY') {
+                                      atleast = goal / (dateDiff / 30).ceil();
+                                      atleast.ceilToDouble();
+                                    } else if (periodTerm == 'WLY') {
+                                      atleast = goal / (dateDiff / 7).ceil();
+                                      atleast.ceilToDouble();
+                                    } else {
+                                      atleast = goal / dateDiff;
+                                      atleast.ceilToDouble();
+                                    }
+                                    if (progPerPeriod < atleast) {
+                                      ref.read(provFGoal).setProgPerPeriod(0);
+                                    }
+                                  },
                                 ),
                               ),
-                            ),
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                        height: 50,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: const Color.fromARGB(255, 44, 44, 44)
+                                .withOpacity(0.2),
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(32.0),
+                        ),
+                        child: goalDate != null
+                            ? Text(
+                                'สิ้นสุด: ${DateFormat(' E d MMM y').format(goalDate)}',
+                                style: MyTheme.textTheme.headline3,
+                              )
+                            : Text(
+                                'สิ้นสุด',
+                                style: MyTheme.whiteTextTheme.headline3!.merge(
+                                  TextStyle(
+                                    color: const Color.fromARGB(255, 44, 44, 44)
+                                        .withOpacity(0.2),
+                                  ),
+                                ),
+                              ),
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
@@ -332,19 +384,50 @@ class ShowBottomPageOne extends ConsumerWidget {
           height: 50,
           width: 300,
           child: RaisedButton(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18.0),
+            ),
+            child: Text(
+              "บันทึก",
+              style: MyTheme.whiteTextTheme.headline3!.merge(
+                const TextStyle(
+                  color: Color.fromARGB(255, 0, 0, 0),
+                ),
               ),
-              child: Text("บันทึก",
-                  style: MyTheme.whiteTextTheme.headline3!.merge(
-                    TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                  )),
-              onPressed: () {
-                // print(start);
-                // print(goalDate);
-                // print(getCalDay(goalDate, start));
-                // AutoRouter.of(context).pop();
-              }),
+            ),
+            onPressed: () async {
+              showLoading(context);
+              bool complete = false;
+              if (ref.read(provFGoal).isAdd) {
+                complete = await ref.read(apiProvider).addGoal(
+                      ref.read(provFGoal).name,
+                      goal,
+                      start,
+                      goalDate,
+                      periodTerm,
+                      progPerPeriod,
+                    );
+              } else {
+                complete = await ref.read(apiProvider).editGoal(
+                      ref.read(provFGoal).id,
+                      ref.read(provFGoal).name,
+                      goal,
+                      periodTerm,
+                      progPerPeriod,
+                    );
+              }
+              if (complete) {
+                ref.read(provFGoal).setNeedFetchAPI();
+                AutoRouter.of(context)
+                    .popUntilRouteWithName('FinancialGoalRoute');
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+                );
+                AutoRouter.of(context).pop();
+              }
+            },
+          ),
         )
       ],
     );
@@ -381,14 +464,19 @@ class _BottomPageTwoHeaderState extends ConsumerState<BottomPageTwoHeader> {
       (_) {
         final startDate = ref.read(provFGoal).start;
         final goalDate = ref.read(provFGoal).goalDate;
-        ref.read(provFGoal).setPeriodTerm("DLY");
         if (goalDate != null) {
           int? dateDiff = daysBetween(startDate, goalDate) + 1;
           ref.read(provFGoal).setDateDiff(dateDiff);
-          if (dateDiff >= 365) return ref.read(provFGoal).setPeriodTerm("ALY");
-          if (dateDiff >= 30) return ref.read(provFGoal).setPeriodTerm("MLY");
-          if (dateDiff >= 7) return ref.read(provFGoal).setPeriodTerm("WLY");
-          return ref.read(provFGoal).setPeriodTerm("DLY");
+          final term = ref.read(provFGoal).periodTerm;
+          if (dateDiff >= 365 && term == 'ALY') {
+            ref.read(provFGoal).setPeriodTerm("ALY");
+          } else if (dateDiff >= 30 && term == 'MLY') {
+            ref.read(provFGoal).setPeriodTerm("MLY");
+          } else if (dateDiff >= 7 && term == 'WLY') {
+            ref.read(provFGoal).setPeriodTerm("WLY");
+          } else {
+            ref.read(provFGoal).setPeriodTerm("DLY");
+          }
         }
       },
     );
@@ -403,7 +491,7 @@ class _BottomPageTwoHeaderState extends ConsumerState<BottomPageTwoHeader> {
       height: 60,
       child: Row(
         children: [
-          if (dateDiff != null && dateDiff >= 365) ...[
+          if (dateDiff == null || dateDiff >= 365) ...[
             Expanded(
               child: GestureDetector(
                 onTap: () => ref.read(provFGoal).setPeriodTerm("ALY"),
@@ -422,7 +510,7 @@ class _BottomPageTwoHeaderState extends ConsumerState<BottomPageTwoHeader> {
               ),
             ),
           ],
-          if (dateDiff != null && dateDiff >= 30) ...[
+          if (dateDiff == null || dateDiff >= 30) ...[
             Expanded(
               child: GestureDetector(
                 onTap: () => ref.read(provFGoal).setPeriodTerm("MLY"),
@@ -441,7 +529,7 @@ class _BottomPageTwoHeaderState extends ConsumerState<BottomPageTwoHeader> {
               ),
             ),
           ],
-          if (dateDiff != null && dateDiff >= 7) ...[
+          if (dateDiff == null || dateDiff >= 7) ...[
             Expanded(
               child: GestureDetector(
                 onTap: () => ref.read(provFGoal).setPeriodTerm("WLY"),
@@ -515,7 +603,9 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
 
     if (perdiodTerm == "ALY") {
       double? atleast;
-      if (dateDiff != null) atleast = goal / (dateDiff / 365).ceil();
+      if (dateDiff != null) {
+        atleast = (goal / (dateDiff / 365).ceil()).ceilToDouble();
+      }
       return Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -530,15 +620,13 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(6),
-                hintText: atleast != null
-                    ? 'อย่างน้อย $atleast บ./ปี'
+                labelText: atleast != null
+                    ? 'อย่างน้อย ${HelperNumber.format(atleast)} บ./ปี'
                     : 'จำนวนเงินต่อปี',
-                hintStyle: MyTheme.whiteTextTheme.headline4!.merge(
-                  TextStyle(
-                    color:
-                        const Color.fromARGB(255, 44, 44, 44).withOpacity(0.2),
-                  ),
-                ),
+                labelStyle: MyTheme.whiteTextTheme.headline4!.merge(TextStyle(
+                  color: const Color.fromARGB(255, 44, 44, 44).withOpacity(0.2),
+                )),
+                floatingLabelAlignment: FloatingLabelAlignment.center,
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(32.0),
                   borderSide: BorderSide(
@@ -563,7 +651,9 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
     }
     if (perdiodTerm == "MLY") {
       double? atleast;
-      if (dateDiff != null) atleast = goal / (dateDiff / 30).ceil();
+      if (dateDiff != null) {
+        atleast = (goal / (dateDiff / 30).ceil()).ceilToDouble();
+      }
       return Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -578,14 +668,13 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(6),
-                hintText: atleast != null
-                    ? 'อย่างน้อย $atleast บ./เดือน'
+                labelText: atleast != null
+                    ? 'อย่างน้อย ${HelperNumber.format(atleast)} บ./เดือน'
                     : 'จำนวนเงินต่อเดือน',
-                hintStyle: MyTheme.whiteTextTheme.headline4!.merge(
-                  TextStyle(
-                      color: const Color.fromARGB(255, 44, 44, 44)
-                          .withOpacity(0.2)),
-                ),
+                labelStyle: MyTheme.whiteTextTheme.headline4!.merge(TextStyle(
+                    color: const Color.fromARGB(255, 44, 44, 44)
+                        .withOpacity(0.2))),
+                floatingLabelAlignment: FloatingLabelAlignment.center,
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(32.0),
                   borderSide: BorderSide(
@@ -610,7 +699,9 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
     }
     if (perdiodTerm == "WLY") {
       double? atleast;
-      if (dateDiff != null) atleast = goal / (dateDiff / 7).ceil();
+      if (dateDiff != null) {
+        atleast = (goal / (dateDiff / 7).ceil()).ceilToDouble();
+      }
       return Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -625,14 +716,13 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(6),
-                hintText: atleast != null
-                    ? 'อย่างน้อย $atleast บ./สัปดาห์'
+                labelText: atleast != null
+                    ? 'อย่างน้อย ${HelperNumber.format(atleast)} บ./สัปดาห์'
                     : 'จำนวนเงินต่อสัปดาห์',
-                hintStyle: MyTheme.whiteTextTheme.headline4!.merge(
-                  TextStyle(
-                      color: const Color.fromARGB(255, 44, 44, 44)
-                          .withOpacity(0.2)),
-                ),
+                labelStyle: MyTheme.whiteTextTheme.headline4!.merge(TextStyle(
+                  color: const Color.fromARGB(255, 44, 44, 44).withOpacity(0.2),
+                )),
+                floatingLabelAlignment: FloatingLabelAlignment.center,
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(32.0),
                   borderSide: BorderSide(
@@ -657,7 +747,9 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
     }
     if (perdiodTerm == "DLY") {
       double? atleast;
-      if (dateDiff != null) atleast = goal / dateDiff;
+      if (dateDiff != null) {
+        atleast = (goal / dateDiff).ceilToDouble();
+      }
       return Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -672,14 +764,13 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 contentPadding: const EdgeInsets.all(6),
-                hintText: atleast != null
-                    ? 'อย่างน้อย $atleast บ./วัน'
+                labelText: atleast != null
+                    ? 'อย่างน้อย ${HelperNumber.format(atleast)} บ./วัน'
                     : 'จำนวนเงินต่อวัน',
-                hintStyle: MyTheme.whiteTextTheme.headline4!.merge(
-                  TextStyle(
-                      color: const Color.fromARGB(255, 44, 44, 44)
-                          .withOpacity(0.2)),
-                ),
+                labelStyle: MyTheme.whiteTextTheme.headline4!.merge(TextStyle(
+                  color: const Color.fromARGB(255, 44, 44, 44).withOpacity(0.2),
+                )),
+                floatingLabelAlignment: FloatingLabelAlignment.center,
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(32.0),
                   borderSide: BorderSide(
