@@ -221,7 +221,7 @@ class _MyStatefulWidgetState extends ConsumerState<MyStatefulWidget> {
 
     /// Await your Future here (This function only called once after the layout is Complete)
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
-      value = await _storage.read(key: 'time') ?? '00:00';
+      value = await _storage.read(key: 'time') ?? '--:--';
     });
   }
 
@@ -257,36 +257,36 @@ class _MyStatefulWidgetState extends ConsumerState<MyStatefulWidget> {
                 size: 40,
               ),
             ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AutoSizeText(
-                    'ตั้งเวลาเเจ้งเตือน',
-                    style: MyTheme.whiteTextTheme.bodyText2,
-                    minFontSize: 0,
-                    maxLines: 1,
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      if (ref.watch(provOverFlow).canSetTime) {
-                        NotificationWeekAndTime? pickedSchedule =
-                            await pickSchedule(context);
+            GestureDetector(
+              onTap: () async {
+                if (ref.watch(provOverFlow).canSetTime) {
+                  NotificationWeekAndTime? pickedSchedule =
+                      await pickSchedule(context);
 
-                        if (pickedSchedule != null) {
-                          createReminderNotification(pickedSchedule);
-                        }
-                      }
-                    },
-                    child: AutoSizeText(
+                  if (pickedSchedule != null) {
+                    createReminderNotification(pickedSchedule);
+                  }
+                }
+              },
+              child: Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      'ตั้งเวลาเเจ้งเตือน',
+                      style: MyTheme.whiteTextTheme.bodyText2,
+                      minFontSize: 0,
+                      maxLines: 1,
+                    ),
+                    AutoSizeText(
                       value,
                       minFontSize: 0,
                       maxLines: 1,
                       style: MyTheme.whiteTextTheme.headline4,
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
             const Padding(
