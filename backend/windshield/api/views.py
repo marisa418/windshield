@@ -1090,7 +1090,7 @@ class PastStatementPlans(APIView):
         flows = flows.filter(Exists(models.DailyFlow.objects.filter(df_id=OuterRef('pk'))))
         summary_plans = serializers.SummaryStatementPlan(past_plans, many=True).data
         for i in range(len(summary_plans)):
-            flow_sheets = models.DailyFlowSheet.objects.filter(date__gte=summary_plans[i]["start"], date__lte=summary_plans[i]["end"])
+            flow_sheets = flows.filter(date__gte=summary_plans[i]["start"], date__lte=summary_plans[i]["end"])
             summary_flows = flow_sheets.aggregate(
                 working_income_flow = Sum('flows__value', filter=Q(flows__category__ftype=1)),
                 invest_income_flow = Sum('flows__value', filter=Q(flows__category__ftype=2) | Q(flows__category__ftype__domain='ASS')),
