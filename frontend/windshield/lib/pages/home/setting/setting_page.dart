@@ -35,6 +35,7 @@ class SettingPage extends ConsumerWidget {
         IssueInfo(),
         GuideInfo(),
         LogoutBt(),
+        /*
         Center(
           child: ElevatedButton(
             onPressed: () async => await ref.read(apiProvider).logout(),
@@ -43,7 +44,7 @@ class SettingPage extends ConsumerWidget {
             ),
             child: Text('ออกจากระบบ'),
           ),
-        ),
+        ),*/
       ],
     );
   }
@@ -399,39 +400,50 @@ class LogoutBt extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
-          children: const [
-            Padding(
-              padding: EdgeInsets.only(left: 20, top: 20),
-              child: const Icon(
-                Icons.logout,
-                color: Colors.grey,
-                size: 30,
-              ),
+    return ElevatedButton(
+      
+          
+            onPressed: () async => await ref.read(apiProvider).logout(),
+            style: ElevatedButton.styleFrom(
+              primary: Colors.white,
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-              child: Text(
-                'ออกจากระบบ',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 25,
-                    decoration: TextDecoration.none),
+            
+      child: Container(
+        
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(
+            
+            children: const [
+              Padding(
+                padding: EdgeInsets.only(left: 20, top: 20),
+                child: const Icon(
+                  Icons.logout,
+                  color: Colors.grey,
+                  size: 30,
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 108, top: 20),
-              child: const Icon(
-                Icons.chevron_right_outlined,
-                color: Colors.grey,
-                size: 30,
+              Padding(
+                padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
+                child: Text(
+                  'ออกจากระบบ',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 25,
+                      decoration: TextDecoration.none),
+                ),
               ),
-            ),
-          ],
-        ),
-      ]),
+              Padding(
+                padding: EdgeInsets.only(left: 108, top: 20),
+                child: const Icon(
+                  Icons.chevron_right_outlined,
+                  color: Colors.grey,
+                  size: 30,
+                ),
+              ),
+            ],
+          ),
+        ]),
+      ),
     );
   }
 }
