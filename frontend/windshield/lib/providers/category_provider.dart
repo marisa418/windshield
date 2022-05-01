@@ -41,6 +41,11 @@ class CategoryProvider extends ChangeNotifier {
   
   final List<StmntCategory> _debtLongList = [];
   List<StmntCategory> get debtLongList => _debtLongList;
+
+  // 12 เป้าหมาย
+  
+  final List<StmntCategory> _goalList = [];
+  List<StmntCategory> get goalList => _goalList;
   
 
   bool _needFetchAPI = false;
@@ -63,6 +68,7 @@ class CategoryProvider extends ChangeNotifier {
     _assPrivateList.clear();
     _debtShortList.clear();
     _debtLongList.clear();
+    _goalList.clear();
 
 
 
@@ -89,6 +95,8 @@ class CategoryProvider extends ChangeNotifier {
         _debtShortList.add(item);
       } else if (item.ftype == '11') {
         _debtLongList.add(item);
+      } else if (item.ftype == '12') {
+        _goalList.add(item);
       }
     }
     
