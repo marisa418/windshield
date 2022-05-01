@@ -63,6 +63,12 @@ class DailyFlowOverviewProvider extends ChangeNotifier {
   final List<DFlowCategory> _tdExpList = [];
   List<DFlowCategory> get tdExpList => _tdExpList;
 
+  //Notification
+  bool _isNotiEnable = false;
+  bool get isNotiEnable => _isNotiEnable;
+  String _time = '--:--';
+  String get time => _time;
+
   void setCatList(List<DFlowCategory> value) {
     _catList = value;
   }
@@ -156,6 +162,16 @@ class DailyFlowOverviewProvider extends ChangeNotifier {
 
   void setDate(DateTime value) {
     _date = value;
+    notifyListeners();
+  }
+
+  void setIsNotiEnable(bool value) {
+    _isNotiEnable = value;
+    notifyListeners();
+  }
+
+  void setTime(String value) {
+    _time = value;
     notifyListeners();
   }
 }

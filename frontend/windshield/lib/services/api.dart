@@ -33,7 +33,7 @@ class Api extends ChangeNotifier {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.1.38:8000' + options.path;
+          options.path = 'http://192.168.1.35:8000' + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
@@ -627,6 +627,65 @@ class Api extends ChangeNotifier {
       return data;
     } catch (e) {
       return [];
+    }
+  }
+
+  Future<bool> addGoal(
+    String name,
+    double goal,
+    DateTime start,
+    DateTime? goalDate,
+    String period,
+    double progPerPeriod,
+  ) async {
+    try {
+      await dio.post(
+        '/api/financial-goal/',
+        data: {
+          "name": name,
+          "goal": goal,
+          "start": DateFormat('y-MM-dd').format(start),
+          "goal_date":
+              goalDate != null ? DateFormat('y-MM-dd').format(goalDate) : null,
+          "period_term": period,
+          "progress_per_period": progPerPeriod
+        },
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> editGoal(
+    String id,
+    String name,
+    double goal,
+    String period,
+    double progPerPeriod,
+  ) async {
+    try {
+      await dio.patch(
+        '/api/financial-goal/$id/',
+        data: {
+          "name": name,
+          "goal": goal,
+          "period_term": period,
+          "progress_per_period": progPerPeriod
+        },
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> deleteGoal(String id) async {
+    try {
+      await dio.delete('/api/financial-goal/$id/');
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 }

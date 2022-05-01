@@ -4,11 +4,11 @@ import 'package:badges/badges.dart';
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_switch/flutter_switch.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 
 import 'package:windshield/main.dart';
@@ -19,7 +19,8 @@ import 'package:windshield/utility/ftype_coler.dart';
 import 'package:windshield/utility/icon_convertor.dart';
 import 'package:windshield/utility/number_formatter.dart';
 import 'package:windshield/utility/progress.dart';
-import 'package:windshield/notification/notification_api.dart';
+import '../์notification/noti_func.dart';
+import '../์notification/noti_utility.dart';
 
 final provOverFlow =
     ChangeNotifierProvider.autoDispose<DailyFlowOverviewProvider>(
@@ -197,58 +198,32 @@ class DailyFlowOverviewPage extends ConsumerWidget {
   }
 }
 
-class MyStatefulWidget extends StatefulWidget {
+class MyStatefulWidget extends ConsumerStatefulWidget {
   const MyStatefulWidget({Key? key}) : super(key: key);
 
   @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+  _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
 }
 
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+class _MyStatefulWidgetState extends ConsumerState<MyStatefulWidget> {
   bool selected = false;
+  // String value = '';
+  // String toggle = '';
+
+  @override
   void initState() {
     super.initState();
-    AwesomeNotifications().isNotificationAllowed().then(
-      (isAllowed) {
-        if (!isAllowed) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('Allow Notifications'),
-              content: Text('Our app would like to send you notifications'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    'Don\'t Allow',
-                    style: TextStyle(color: Colors.grey, fontSize: 18),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => AwesomeNotifications()
-                      .requestPermissionToSendNotifications()
-                      .then((_) => Navigator.pop(context)),
-                  child: Text(
-                    'Allow',
-                    style: TextStyle(
-                      color: Colors.teal,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-      },
-    );
+    const _storage = FlutterSecureStorage();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
+      final value = await _storage.read(key: 'time');
+      if (value != null) return ref.read(provOverFlow).setTime(value);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final time = ref.watch(provOverFlow.select((e) => e.time));
+    final isNotiEnable = ref.watch(provOverFlow.select((e) => e.isNotiEnable));
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -280,28 +255,75 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               ),
             ),
             Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AutoSizeText(
-                    'ตั้งเวลาเเจ้งเตือน',
-                    style: MyTheme.whiteTextTheme.bodyText2,
-                    minFontSize: 0,
-                    maxLines: 1,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      AutoRouter.of(context).push(const NotificationRoute());
-                    },
-                    child: AutoSizeText(
-                      '22.00 น.',
+              child: GestureDetector(
+                onTap: () async {
+                  final isAllowed =
+                      await AwesomeNotifications().isNotificationAllowed();
+                  if (isAllowed) {
+                    final pickedSchedule = await pickSchedule(context);
+                    if (pickedSchedule != null) {
+                      ref
+                          .read(provOverFlow)
+                          .setTime(pickedSchedule.timeOfDay.format(context));
+                      if (isNotiEnable) {
+                        await createReminderNotification(
+                          NotificationWeekAndTime(
+                              timeOfDay: pickedSchedule.timeOfDay),
+                        );
+                      }
+                    }
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('อนุญาติการแจ้งเตือน'),
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                AutoRouter.of(context).pop(context),
+                            child: Text(
+                              'ไม่อนุญาติ',
+                              style: MyTheme.textTheme.headline4!.merge(
+                                const TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              await AwesomeNotifications()
+                                  .requestPermissionToSendNotifications();
+                              AutoRouter.of(context).pop(context);
+                            },
+                            child: Text(
+                              'อนุญาติ',
+                              style: MyTheme.textTheme.headline4!.merge(
+                                const TextStyle(color: Colors.teal),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AutoSizeText(
+                      'ตั้งเวลาเเจ้งเตือน',
+                      style: MyTheme.whiteTextTheme.bodyText2,
+                      minFontSize: 0,
+                      maxLines: 1,
+                    ),
+                    AutoSizeText(
+                      time,
                       minFontSize: 0,
                       maxLines: 1,
                       style: MyTheme.whiteTextTheme.headline4,
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
             const Padding(
@@ -315,15 +337,27 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   }
 }
 
-class SwitchButton extends StatefulWidget {
+class SwitchButton extends ConsumerStatefulWidget {
   const SwitchButton({Key? key}) : super(key: key);
 
   @override
   _SwitchButtonState createState() => _SwitchButtonState();
 }
 
-class _SwitchButtonState extends State<SwitchButton> {
-  bool status = false;
+class _SwitchButtonState extends ConsumerState<SwitchButton> {
+  @override
+  void initState() {
+    super.initState();
+    const _storage = FlutterSecureStorage();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
+      final value = await _storage.read(key: 'isNotiEnable');
+      if (value != null) {
+        return ref
+            .read(provOverFlow)
+            .setIsNotiEnable(value == 'true' ? true : false);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -334,14 +368,26 @@ class _SwitchButtonState extends State<SwitchButton> {
       activeColor: Colors.yellow,
       valueFontSize: 20.0,
       toggleSize: 28.0,
-      value: status,
+      value: ref.watch(provOverFlow.select((e) => e.isNotiEnable)),
       borderRadius: 30.0,
       padding: 3.0,
       showOnOff: false,
-      onToggle: (val) {
-        setState(() {
-          status = val;
-        });
+      onToggle: (val) async {
+        const storage = FlutterSecureStorage();
+        ref.read(provOverFlow).setIsNotiEnable(val);
+        await storage.write(key: 'isNotiEnable', value: val.toString());
+        if (val) {
+          final time = await storage.read(key: 'time');
+          if (time != null) {
+            final format = DateFormat("a h:mm", 'en_US');
+            final timeOfDay = TimeOfDay.fromDateTime(format.parse(time));
+            await createReminderNotification(
+              NotificationWeekAndTime(timeOfDay: timeOfDay),
+            );
+          }
+        } else {
+          await cancelScheduledNotifications();
+        }
       },
     );
   }

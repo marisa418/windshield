@@ -10,7 +10,19 @@ from user.serializers import ProvinceSerializer
 from rest_framework.filters import OrderingFilter
 from datetime import date, datetime, timedelta
 from pytz import timezone
-from django.db.models import Max, Min, Avg, Sum, Exists, OuterRef, Q, F, Prefetch, functions
+from django.db.models import (
+    Max, 
+    Min, 
+    Avg, 
+    Count, 
+    Sum,
+    Value,
+    Exists, 
+    OuterRef, 
+    Q, 
+    F, 
+    Prefetch, 
+    functions)
 
 DEFUALT_CAT = [
             ('เงินเดือน', 1, 'briefcase'),
@@ -960,7 +972,8 @@ class AverageFlow(APIView):
                                                     ) / (self.past + 1),
                                     avg_expense=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="EXP") | 
-                                                    Q(flows__category__ftype__domain="DEB")
+                                                    Q(flows__category__ftype__domain="DEB") |
+                                                    Q(flows__category__ftype__domain="GOL")
                                                     ) / (self.past + 1),
                                     avg_inconsist_expense=Sum("flows__value", filter=
                                                     Q(flows__category__ftype=4) | 
@@ -993,7 +1006,8 @@ class GraphDailyFlow(generics.ListAPIView):
                                                     ),
                                        expenses=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="EXP") | 
-                                                    Q(flows__category__ftype__domain="DEB")
+                                                    Q(flows__category__ftype__domain="DEB") |
+                                                    Q(flows__category__ftype__domain="GOL")
                                                     )
                                        )
         return df_sheets
@@ -1024,7 +1038,8 @@ class GraphMonthlyFlow(generics.ListAPIView):
                                                     ),
                                                expenses=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="EXP") | 
-                                                    Q(flows__category__ftype__domain="DEB")
+                                                    Q(flows__category__ftype__domain="DEB") |
+                                                    Q(flows__category__ftype__domain="GOL")
                                                     )
                                                )
         return df_sheets
@@ -1047,10 +1062,46 @@ class GraphAnnuallyFlow(generics.ListAPIView):
                                                     ),
                                                expenses=Sum("flows__value", filter=
                                                     Q(flows__category__ftype__domain="EXP") | 
-                                                    Q(flows__category__ftype__domain="DEB")
+                                                    Q(flows__category__ftype__domain="DEB") |
+                                                    Q(flows__category__ftype__domain="GOL")
                                                     )
                                                )
         return df_sheets
+
+class PastStatementPlans(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        uuid = self.request.user.uuid
+        today = datetime.now(tz= timezone('Asia/Bangkok'))
+        try:
+            past_plans = models.FinancialStatementPlan.objects.filter(owner_id=uuid, end__lt=today, chosen=True)
+        except models.FinancialStatementPlan.DoesNotExist:
+            return Response({"message": "there is not past statement plan existed."}, status=status.HTTP_404_NOT_FOUND)
+        past_plans = past_plans.annotate(
+            working_income_budget = Sum('budgets__total_budget', filter=Q(budgets__cat_id__ftype=1)),
+            invest_income_budget = Sum('budgets__total_budget', filter=Q(budgets__cat_id__ftype=2) | Q(budgets__cat_id__ftype__domain='ASS')),
+            other_income_budget = Sum('budgets__total_budget', filter=Q(budgets__cat_id__ftype=3)),
+            inconsist_expense_budget = Sum('budgets__total_budget', filter=Q(budgets__cat_id__ftype=4) | Q(budgets__cat_id__ftype=10)),
+            consist_expense_budget = Sum('budgets__total_budget', filter=Q(budgets__cat_id__ftype=5) | Q(budgets__cat_id__ftype=11)),
+            saving_n_invest_budget = Sum('budgets__total_budget', filter=Q(budgets__cat_id__ftype=6) | Q(budgets__cat_id__ftype__domain='GOL')),
+        )
+        flows = models.DailyFlowSheet.objects.filter(owner_id=uuid)
+        flows = flows.filter(Exists(models.DailyFlow.objects.filter(df_id=OuterRef('pk'))))
+        summary_plans = serializers.SummaryStatementPlan(past_plans, many=True).data
+        for i in range(len(summary_plans)):
+            flow_sheets = flows.filter(date__gte=summary_plans[i]["start"], date__lte=summary_plans[i]["end"])
+            summary_flows = flow_sheets.aggregate(
+                working_income_flow = Sum('flows__value', filter=Q(flows__category__ftype=1)),
+                invest_income_flow = Sum('flows__value', filter=Q(flows__category__ftype=2) | Q(flows__category__ftype__domain='ASS')),
+                other_income_flow = Sum('flows__value', filter=Q(flows__category__ftype=3)),
+                inconsist_expense_flow = Sum('flows__value', filter=Q(flows__category__ftype=4) | Q(flows__category__ftype=10)),
+                consist_expense_flow = Sum('flows__value', filter=Q(flows__category__ftype=5) | Q(flows__category__ftype=11)),
+                saving_n_invest_flow = Sum('flows__value', filter=Q(flows__category__ftype=6) | Q(flows__category__ftype__domain='GOL')),
+            )
+            summary_flows["count"] = flow_sheets.count()
+            summary_plans[i].update(summary_flows)
+        return Response(summary_plans)
 
 class SummaryBalanceSheet(APIView):
     permission_classes = [permissions.IsAuthenticated]

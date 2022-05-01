@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,10 +42,19 @@ class _HomeState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
+    AwesomeNotifications().actionStream.listen((receivedNotification) {
+      AutoRouter.of(context).push(const DailyFlowOverviewRoute());
+    });
     pageList.add(const Overview());
     pageList.add(const Analysis());
     pageList.add(Container(color: Colors.blue));
     pageList.add(const SettingPage());
+  }
+
+  @override
+  void dispose() {
+    AwesomeNotifications().actionSink.close();
+    super.dispose();
   }
 
   void _updateIndex(int index) {
