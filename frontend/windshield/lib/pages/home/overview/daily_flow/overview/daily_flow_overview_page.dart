@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter_switch/flutter_switch.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 
 import 'package:windshield/main.dart';
@@ -22,7 +21,6 @@ import 'package:windshield/utility/number_formatter.dart';
 import 'package:windshield/utility/progress.dart';
 import '../์notification/noti_func.dart';
 import '../์notification/noti_utility.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final provOverFlow =
     ChangeNotifierProvider.autoDispose<DailyFlowOverviewProvider>(
@@ -209,24 +207,23 @@ class MyStatefulWidget extends ConsumerStatefulWidget {
 
 class _MyStatefulWidgetState extends ConsumerState<MyStatefulWidget> {
   bool selected = false;
-  String value = '';
-  String toggle = '';
+  // String value = '';
+  // String toggle = '';
 
   @override
   void initState() {
     super.initState();
-
-    /// Initialize Flutter Secure Storage
     const _storage = FlutterSecureStorage();
-
-    /// Await your Future here (This function only called once after the layout is Complete)
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
-      value = await _storage.read(key: 'time') ?? '--:--';
+      final value = await _storage.read(key: 'time');
+      if (value != null) return ref.read(provOverFlow).setTime(value);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final time = ref.watch(provOverFlow.select((e) => e.time));
+    final isNotiEnable = ref.watch(provOverFlow.select((e) => e.isNotiEnable));
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -257,18 +254,58 @@ class _MyStatefulWidgetState extends ConsumerState<MyStatefulWidget> {
                 size: 40,
               ),
             ),
-            GestureDetector(
-              onTap: () async {
-                if (ref.watch(provOverFlow).canSetTime) {
-                  NotificationWeekAndTime? pickedSchedule =
-                      await pickSchedule(context);
-
-                  if (pickedSchedule != null) {
-                    createReminderNotification(pickedSchedule);
+            Expanded(
+              child: GestureDetector(
+                onTap: () async {
+                  final isAllowed =
+                      await AwesomeNotifications().isNotificationAllowed();
+                  if (isAllowed) {
+                    final pickedSchedule = await pickSchedule(context);
+                    if (pickedSchedule != null) {
+                      ref
+                          .read(provOverFlow)
+                          .setTime(pickedSchedule.timeOfDay.format(context));
+                      if (isNotiEnable) {
+                        await createReminderNotification(
+                          NotificationWeekAndTime(
+                              timeOfDay: pickedSchedule.timeOfDay),
+                        );
+                      }
+                    }
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('อนุญาติการแจ้งเตือน'),
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                AutoRouter.of(context).pop(context),
+                            child: Text(
+                              'ไม่อนุญาติ',
+                              style: MyTheme.textTheme.headline4!.merge(
+                                const TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              await AwesomeNotifications()
+                                  .requestPermissionToSendNotifications();
+                              AutoRouter.of(context).pop(context);
+                            },
+                            child: Text(
+                              'อนุญาติ',
+                              style: MyTheme.textTheme.headline4!.merge(
+                                const TextStyle(color: Colors.teal),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
                   }
-                }
-              },
-              child: Expanded(
+                },
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,7 +317,7 @@ class _MyStatefulWidgetState extends ConsumerState<MyStatefulWidget> {
                       maxLines: 1,
                     ),
                     AutoSizeText(
-                      value,
+                      time,
                       minFontSize: 0,
                       maxLines: 1,
                       style: MyTheme.whiteTextTheme.headline4,
@@ -308,7 +345,19 @@ class SwitchButton extends ConsumerStatefulWidget {
 }
 
 class _SwitchButtonState extends ConsumerState<SwitchButton> {
-  bool status = false;
+  @override
+  void initState() {
+    super.initState();
+    const _storage = FlutterSecureStorage();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async {
+      final value = await _storage.read(key: 'isNotiEnable');
+      if (value != null) {
+        return ref
+            .read(provOverFlow)
+            .setIsNotiEnable(value == 'true' ? true : false);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -319,21 +368,25 @@ class _SwitchButtonState extends ConsumerState<SwitchButton> {
       activeColor: Colors.yellow,
       valueFontSize: 20.0,
       toggleSize: 28.0,
-      value: status,
+      value: ref.watch(provOverFlow.select((e) => e.isNotiEnable)),
       borderRadius: 30.0,
       padding: 3.0,
       showOnOff: false,
-      onToggle: (val) {
+      onToggle: (val) async {
+        const storage = FlutterSecureStorage();
+        ref.read(provOverFlow).setIsNotiEnable(val);
+        await storage.write(key: 'isNotiEnable', value: val.toString());
         if (val) {
-          ref.read(provOverFlow).setCanSetTime(true);
-          setState(() {
-            status = val;
-          });
+          final time = await storage.read(key: 'time');
+          if (time != null) {
+            final format = DateFormat("a h:mm", 'en_US');
+            final timeOfDay = TimeOfDay.fromDateTime(format.parse(time));
+            await createReminderNotification(
+              NotificationWeekAndTime(timeOfDay: timeOfDay),
+            );
+          }
         } else {
-          ref.read(provOverFlow).setCanSetTime(false);
-          setState(() {
-            status = val;
-          });
+          await cancelScheduledNotifications();
         }
       },
     );

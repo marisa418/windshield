@@ -19,18 +19,19 @@ final provBSheet = ChangeNotifierProvider.autoDispose<BalanceSheetProvider>(
 void main() {
   Intl.defaultLocale = 'th';
   AwesomeNotifications().initialize(
-    '',
+    null,
     [
       NotificationChannel(
-        channelKey: 'scheduled_channel',
-        channelName: 'IncomeEpenseScheduled',
+        channelKey: 'daiy_flow_channel',
+        channelName: 'Daily Flow',
         defaultColor: MyTheme.primaryMajor,
-        locked: true,
+        // locked: true,
         channelShowBadge: true,
         importance: NotificationImportance.High,
-        channelDescription: 'test2',
+        channelDescription: 'Notify users to input their daily flow.',
       ),
     ],
+    debug: true,
   );
   runApp(ProviderScope(child: MyApp()));
 }
