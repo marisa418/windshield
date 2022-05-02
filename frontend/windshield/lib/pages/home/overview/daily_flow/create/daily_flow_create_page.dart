@@ -398,7 +398,8 @@ class Calculator extends ConsumerWidget {
               ref.read(provDFlow).setFlowName(e);
             },
             decoration: InputDecoration(
-              border: const OutlineInputBorder(),
+              border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(35))),
               hintText: ref.watch(provDFlow).currCat.name,
             ),
           ),
@@ -418,7 +419,8 @@ class Calculator extends ConsumerWidget {
                     ref.read(provDFlow).setFlowValue(double.tryParse(e) ?? 0);
                   },
                   decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(35))),
                     // hintText: ref.watch(provDFlow).flowName,
                     hintText: 'โปรดกรอกจำนวนเงิน',
                   ),
@@ -427,6 +429,7 @@ class Calculator extends ConsumerWidget {
               Flexible(
                 flex: 3,
                 child: DropdownButton<int>(
+                  borderRadius: const BorderRadius.all(Radius.circular(20)),
                   style: MyTheme.textTheme.bodyText1!.merge(
                     const TextStyle(color: Colors.black),
                   ),

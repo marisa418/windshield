@@ -20,7 +20,7 @@ Future<void> createReminderNotification(
     NotificationWeekAndTime notificationSchedule) async {
   await AwesomeNotifications().createNotification(
     content: NotificationContent(
-      id: createUniqueId(),
+      id: 0,
       channelKey: 'scheduled_channel',
       title: '${Emojis.money_money_bag} ถึงเวลาทำรายรับ-จ่ายเเล้วนะ!!!',
       body: 'จะมาทำดีๆ หรือจะมาทำด้วยน้ำตาา',
@@ -33,7 +33,7 @@ Future<void> createReminderNotification(
       ),
     ],
     schedule: NotificationCalendar(
-      weekday: notificationSchedule.dayOfTheWeek,
+      // weekday: notificationSchedule.dayOfTheWeek,
       hour: notificationSchedule.timeOfDay.hour,
       minute: notificationSchedule.timeOfDay.minute,
       second: 0,
@@ -45,4 +45,9 @@ Future<void> createReminderNotification(
 
 Future<void> cancelScheduledNotifications() async {
   await AwesomeNotifications().cancelAllSchedules();
+}
+
+Future<void> showAllNotifications() async {
+  final listNoti = await AwesomeNotifications().listScheduledNotifications();
+  print(listNoti);
 }
