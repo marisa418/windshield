@@ -167,6 +167,7 @@ class DailyFlowSheet(generics.RetrieveAPIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             dfsheet = models.DailyFlowSheet.objects.get(owner_id = uuid, date=date)
+            dfsheet = dfsheet.prefetch_related('flows')
         return dfsheet
 
 class DailyFlowSheetList(generics.ListAPIView):
@@ -560,7 +561,7 @@ class DefaultCategories(generics.ListCreateAPIView):
     serializer_class = serializers.DefaultCategoriesSerializer
     queryset = models.DefaultCategory.objects.all()
 
-class Category(generics.RetrieveUpdateAPIView):
+class Category(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.CategorySerializer
     
