@@ -196,6 +196,7 @@ class DailyFlowProvider extends ChangeNotifier {
     for (var flow in value.flows) {
       final catIdx = catList.indexWhere((e) => e.id == flow.cat.id);
       final ftype = convertNameToFtype(name);
+
       if (catIdx == -1 && ftype.contains(flow.cat.ftype)) {
         final StmntCategory cat = StmntCategory(
           id: flow.cat.id,
