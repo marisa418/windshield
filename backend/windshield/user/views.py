@@ -43,5 +43,5 @@ class VerifyRegisterOTP(generics.RetrieveAPIView):
     def get_object(self):
         verify_log = send_otp_to_email(self.request.user.email, "register")
         if verify_log:
-            print(f'[{verify_log.timestamp}] send OTP to {verify_log.user.email}: {verify_log.activity}')
+            print(f'[{verify_log.timestamp.strftime("%d/%b/%Y %H:%M:%S")}] "send OTP to {verify_log.user.email} for verify {verify_log.activity}" {verify_log.code}')
         return verify_log
