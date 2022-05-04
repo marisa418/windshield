@@ -65,7 +65,7 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
     tel = models.CharField(max_length=10, null=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    is_verify = models.BooleanField(default=True)
+    is_verify = models.BooleanField(default=False)
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # Might be choice field later
@@ -90,11 +90,27 @@ class VerifyCodeLog(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(NewUser, on_delete=CASCADE)
     code = models.CharField(max_length=6)
-    activity = models.CharField(max_length=30)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    send_at = models.DateTimeField(auto_now_add=True)
+    ref_code = models.CharField(max_length=8)
+    is_used = models.BooleanField(default=False)
+    count = models.IntegerField(default=0)
     
     class Meta:
-        db_table = 'VerifyCodeLog'
+        db_table = 'verify_code_log'
     
     def __str__(self):
-        return f"{self.id}: {self.user.user_id}({self.user.email}) got {self.code} for {self.activity} at {self.timestamp}"
+        return f"{self.id}: {self.user.user_id}({self.user.email}) got {self.code} at {self.send_at}"
+
+class VerifyTokenLog(models.Model):
+    id = models.AutoField(primary_key=True)
+    code_log = models.ForeignKey(VerifyCodeLog, on_delete=CASCADE)
+    token = models.CharField(max_length=32)
+    create_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+    count = models.SmallIntegerField(default=0)
+    
+    class Meta:
+        db_table = 'verify_token_log'
+    
+    def __str__(self):
+        return f"{self.id}: {self.token}"
