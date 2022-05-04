@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'dart:math';
 import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
@@ -102,7 +103,8 @@ class SpeechToTextProvider extends ChangeNotifier {
   void resultListener(SpeechRecognitionResult result) {
     if (result.finalResult) {
       print(result.recognizedWords);
-      final numeratic = RegExp(r'^\d*\.?\d*$');
+      // final numeratic = RegExp(r'^\d*\.?\d*$');
+      final numeratic = RegExp(r'^[0-9,.]*$');
       final splittedWords = result.recognizedWords.split(' ');
       String name = '';
       int priceIdx = -1;
@@ -142,7 +144,7 @@ class SpeechToTextProvider extends ChangeNotifier {
         dfId: _dfId,
         cat: SpeechCat(id: '', icon: '', color: Colors.white),
         name: name,
-        value: double.parse(splittedWords[priceIdx]),
+        value: double.parse(splittedWords[priceIdx].replaceAll(',', '')),
         method: method,
         key: _key.toString(),
       ));

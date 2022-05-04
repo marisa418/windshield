@@ -1,19 +1,16 @@
-import 'dart:math';
-
 import 'package:auto_route/auto_route.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_simple_calculator/flutter_simple_calculator.dart';
 import 'package:intl/intl.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:windshield/main.dart';
-import 'package:windshield/models/balance_sheet/balance_sheet.dart';
-import 'package:windshield/models/daily_flow/flow.dart';
-import 'package:windshield/styles/theme.dart';
-import 'package:percent_indicator/percent_indicator.dart';
-import 'package:badges/badges.dart';
-import 'package:windshield/routes/app_router.dart';
-import 'package:windshield/utility/icon_convertor.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_simple_calculator/src/calc_controller.dart';
+
+import 'package:windshield/main.dart';
+import 'package:windshield/styles/theme.dart';
+import 'package:windshield/utility/icon_convertor.dart';
+import 'package:windshield/utility/number_formatter.dart';
 
 class CreateBalance extends ConsumerWidget {
   const CreateBalance({Key? key}) : super(key: key);
@@ -22,7 +19,7 @@ class CreateBalance extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final idx = ref.watch(provBSheet.select((e) => e.createIdx));
 
-    return idx == 0 ? ChoseCat() : InputForm();
+    return idx == 0 ? const ChoseCat() : const InputForm();
   }
 }
 
@@ -39,15 +36,17 @@ class ChoseCat extends ConsumerWidget {
         Container(
           decoration: BoxDecoration(
             color: getcolor(catList[0].ftype),
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
             ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text("เลือกประเภทสินทรัพย์",
-                style: MyTheme.whiteTextTheme.headline2),
+            child: Text(
+              "เลือกประเภทสินทรัพย์",
+              style: MyTheme.whiteTextTheme.headline2,
+            ),
           ),
         ),
         Container(
@@ -56,8 +55,13 @@ class ChoseCat extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(getname(catList[0].ftype),
-                  style: MyTheme.textTheme.headline3),
+              SizedBox(
+                height: 50,
+                child: Text(
+                  getname(catList[0].ftype),
+                  style: MyTheme.textTheme.headline3,
+                ),
+              ),
               GridView.builder(
                   physics: const ScrollPhysics(),
                   shrinkWrap: true,
@@ -104,7 +108,12 @@ class ChoseCat extends ConsumerWidget {
                               ),
                             ],
                           ),
-                          Text(catList[i].name)
+                          AutoSizeText(
+                            catList[i].name,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            minFontSize: 0,
+                          ),
                         ],
                       ),
                     );
@@ -123,27 +132,44 @@ class InputForm extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ftype = ref.watch(provBSheet.select((e) => e.currCat.ftype));
-    print(ftype);
     if (ftype == '7' || ftype == '8' || ftype == '9') {
-      return AssetForm();
+      return const AssetForm();
     } else {
-      return DebtForm();
+      return const DebtForm();
     }
   }
 }
 
-class AssetForm extends ConsumerWidget {
+class AssetForm extends ConsumerStatefulWidget {
   const AssetForm({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _AssetFormState();
+}
+
+class _AssetFormState extends ConsumerState<AssetForm> {
+  final _controller = CalcController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final cat = ref.watch(provBSheet.select((e) => e.currCat));
     final value = ref.watch(provBSheet.select((e) => e.value));
     final source = ref.watch(provBSheet.select((e) => e.source));
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+    final isCalc = ref.watch(provBSheet.select((e) => e.isCalc));
+    return WillPopScope(
+      onWillPop: () async {
+        if (isCalc) {
+          ref.read(provBSheet).setIsCalc(false);
+          return false;
+        }
+        return true;
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -151,7 +177,7 @@ class AssetForm extends ConsumerWidget {
           Container(
             decoration: BoxDecoration(
               color: getcolor(cat.ftype),
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
               ),
@@ -168,117 +194,218 @@ class AssetForm extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        height: 75, //height of button
-                        width: 75, //width of button
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: getcolor(cat.ftype),
-                        ),
-                        child: Icon(
-                          HelperIcons.getIconData(cat.icon),
-                        ),
-                      ),
-                      Expanded(
-                        child: TextFormField(
-                          //value : value,
-                          initialValue: value == 0 ? '' : value.toString(),
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.end,
-                          decoration: InputDecoration.collapsed(
-                            hintText: 'มูลค่าในปัจจุบัน บ.',
-                            fillColor: Colors.grey.withOpacity(0.2),
-                            filled: true,
-                          ),
-                          onChanged: (e) {
-                            ref
-                                .read(provBSheet)
-                                .setValue(double.tryParse(e) ?? 0);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      //value : value,
-                      initialValue: source,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration.collapsed(
-                        hintText: 'เข้าถึงสินทรัพย์นี้ผ่าน',
-                        fillColor: Colors.grey.withOpacity(0.2),
-                        filled: true,
-                      ),
-                      onChanged: (e) {
-                        ref.read(provBSheet).setSource(e);
-                      },
-                    ),
-                  ),
-                  //บันทึกลงฟอร์ม
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (ref.watch(provBSheet.select((e) => e.isAdd))) {
-                          final asset = await ref.read(apiProvider).addAsset(
-                                ref.read(provBSheet).source,
-                                ref.read(provBSheet).value,
-                                ref.read(provBSheet).currCat.id,
-                              );
-                          if (asset) {
-                            ref.read(provBSheet).setNeedFetchAPI();
-                            AutoRouter.of(context).pop();
-                          }
-                        } else {
-                          final asset = await ref.read(apiProvider).editAsset(
-                                ref.read(provBSheet).source,
-                                ref.read(provBSheet).value,
-                                ref.read(provBSheet).id,
-                              );
-                          if (asset) {
-                            ref.read(provBSheet).setNeedFetchAPI();
-                            AutoRouter.of(context).pop();
-                          }
-                        }
-                      },
-                      style: ButtonStyle(
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18.0),
+                  SizedBox(
+                    height: 75,
+                    child: Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () => ref.read(provBSheet).setIsCalc(true),
+                            child: Container(
+                              height: 55,
+                              width: MediaQuery.of(context).size.width - 70,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 7),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withOpacity(.2),
+                                borderRadius: const BorderRadius.only(
+                                  topRight: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    AutoSizeText(
+                                      value == 0
+                                          ? 'โปรดกรอกจำนวนเงิน'
+                                          : HelperNumber.format(value),
+                                      maxLines: 1,
+                                      textAlign: TextAlign.right,
+                                      style: value == 0
+                                          ? MyTheme.textTheme.headline3!.merge(
+                                              const TextStyle(
+                                                color: Colors.grey,
+                                              ),
+                                            )
+                                          : MyTheme.textTheme.headline3,
+                                    ),
+                                    AutoSizeText(
+                                      _controller.expression ?? '',
+                                      maxLines: 1,
+                                      textAlign: TextAlign.end,
+                                      style: MyTheme.textTheme.bodyText2!.merge(
+                                        const TextStyle(color: Colors.grey),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                      child:
-                          Text('บันทึก', style: MyTheme.whiteTextTheme.headline3),
-                    ),
-                  ),
-                  //ลบออก
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final asset = await ref.read(apiProvider).deleteAsset(
-                              ref.read(provBSheet).source,
-                              ref.read(provBSheet).value,
-                              ref.read(provBSheet).id,
-                            );
-                        if (asset) {
-                          ref.read(provBSheet).setNeedFetchAPI();
-                          AutoRouter.of(context).pop();
-                        }
-                      },
-                      style: ButtonStyle(
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18.0),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            height: 75, //height of button
+                            width: 75, //width of button
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: getcolor(cat.ftype),
+                            ),
+                            child: Icon(
+                              HelperIcons.getIconData(cat.icon),
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-                      child: Text('ลบ', style: MyTheme.whiteTextTheme.headline3),
+                      ],
                     ),
+                  ),
+                  SizedBox(
+                    height: 400,
+                    child: isCalc
+                        ? SimpleCalculator(
+                            hideSurroundingBorder: true,
+                            controller: _controller,
+                            theme: CalculatorThemeData(
+                              displayStyle: const TextStyle(
+                                fontSize: 0,
+                                color: Colors.white,
+                              ),
+                              expressionStyle: const TextStyle(fontSize: 0),
+                              commandColor: MyTheme.primaryMajor,
+                              commandStyle: MyTheme.whiteTextTheme.headline4,
+                              operatorColor: MyTheme.primaryMinor,
+                              operatorStyle:
+                                  MyTheme.whiteTextTheme.headline2!.merge(
+                                TextStyle(color: MyTheme.primaryMajor),
+                              ),
+                              // numStyle:
+                            ),
+                            onChanged: (_, value, __) {
+                              ref
+                                  .read(provBSheet)
+                                  .setValue(_controller.value ?? 0);
+                            },
+                          )
+                        : Column(
+                            children: [
+                              const SizedBox(height: 30),
+                              TextFormField(
+                                initialValue: source,
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  hintText: 'เข้าถึงสินทรัพย์นี้ผ่าน',
+                                  hintStyle: MyTheme.textTheme.bodyText1,
+                                  contentPadding: const EdgeInsets.all(10),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(.2),
+                                      width: 1.5,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(20),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(.2),
+                                      width: 1.5,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                                onChanged: (e) {
+                                  ref.read(provBSheet).setSource(e);
+                                },
+                              ),
+                              Expanded(child: Container()),
+                              //บันทึกลงฟอร์ม
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width - 50,
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    if (ref.watch(
+                                        provBSheet.select((e) => e.isAdd))) {
+                                      final asset =
+                                          await ref.read(apiProvider).addAsset(
+                                                ref.read(provBSheet).source,
+                                                ref.read(provBSheet).value,
+                                                ref.read(provBSheet).currCat.id,
+                                              );
+                                      if (asset) {
+                                        ref.read(provBSheet).setNeedFetchAPI();
+                                        AutoRouter.of(context).pop();
+                                      }
+                                    } else {
+                                      final asset =
+                                          await ref.read(apiProvider).editAsset(
+                                                ref.read(provBSheet).source,
+                                                ref.read(provBSheet).value,
+                                                ref.read(provBSheet).id,
+                                              );
+                                      if (asset) {
+                                        ref.read(provBSheet).setNeedFetchAPI();
+                                        AutoRouter.of(context).pop();
+                                      }
+                                    }
+                                  },
+                                  style: ButtonStyle(
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(18.0),
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text('บันทึก',
+                                      style: MyTheme.whiteTextTheme.headline3),
+                                ),
+                              ),
+                              const SizedBox(height: 15),
+                              //ลบออก
+                              if (ref.watch(provBSheet.select((e) => !e.isAdd)))
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width - 50,
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      final asset = await ref
+                                          .read(apiProvider)
+                                          .deleteAsset(
+                                            ref.read(provBSheet).source,
+                                            ref.read(provBSheet).value,
+                                            ref.read(provBSheet).id,
+                                          );
+                                      if (asset) {
+                                        ref.read(provBSheet).setNeedFetchAPI();
+                                        AutoRouter.of(context).pop();
+                                      }
+                                    },
+                                    style: ButtonStyle(
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(18.0),
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text('ลบ',
+                                        style:
+                                            MyTheme.whiteTextTheme.headline3),
+                                  ),
+                                ),
+                            ],
+                          ),
                   ),
                 ],
               ),
@@ -290,20 +417,38 @@ class AssetForm extends ConsumerWidget {
   }
 }
 
-class DebtForm extends ConsumerWidget {
+class DebtForm extends ConsumerStatefulWidget {
   const DebtForm({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _DebtFormState();
+}
+
+class _DebtFormState extends ConsumerState<DebtForm> {
+  final _controller = CalcController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final cat = ref.watch(provBSheet.select((e) => e.currCat));
     final balance = ref.watch(provBSheet.select((e) => e.balance));
     final creditor = ref.watch(provBSheet.select((e) => e.creditor));
     final interest = ref.watch(provBSheet.select((e) => e.interest));
     final debtTerm = ref.watch(provBSheet.select((e) => e.debtTerm));
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+    final isCalc = ref.watch(provBSheet.select((e) => e.isCalc));
+    return WillPopScope(
+      onWillPop: () async {
+        if (isCalc) {
+          ref.read(provBSheet).setIsCalc(false);
+          return false;
+        }
+        return true;
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -311,7 +456,7 @@ class DebtForm extends ConsumerWidget {
           Container(
             decoration: BoxDecoration(
               color: getcolor(cat.ftype),
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
               ),
@@ -328,180 +473,313 @@ class DebtForm extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        height: 75, //height of button
-                        width: 75, //width of button
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: getcolor(cat.ftype),
-                        ),
-                        child: Icon(
-                          HelperIcons.getIconData(cat.icon),
-                        ),
-                      ),
-                      Expanded(
-                        child: TextFormField(
-                          //value : value,
-                          initialValue: balance == 0 ? '' : balance.toString(),
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.end,
-                          decoration: InputDecoration.collapsed(
-                            hintText: 'ยอดคงเหลือ บ.',
-                            fillColor: Colors.grey.withOpacity(0.2),
-                            filled: true,
+                  SizedBox(
+                    height: 75,
+                    child: Stack(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () => ref.read(provBSheet).setIsCalc(true),
+                            child: Container(
+                              height: 55,
+                              width: MediaQuery.of(context).size.width - 70,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 7),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withOpacity(.2),
+                                borderRadius: const BorderRadius.only(
+                                  topRight: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    AutoSizeText(
+                                      balance == 0
+                                          ? 'ยอดคงเหลือ บ.'
+                                          : HelperNumber.format(balance),
+                                      maxLines: 1,
+                                      textAlign: TextAlign.right,
+                                      style: balance == 0
+                                          ? MyTheme.textTheme.headline3!.merge(
+                                              const TextStyle(
+                                                color: Colors.grey,
+                                              ),
+                                            )
+                                          : MyTheme.textTheme.headline3,
+                                    ),
+                                    AutoSizeText(
+                                      _controller.expression ?? '',
+                                      maxLines: 1,
+                                      textAlign: TextAlign.end,
+                                      style: MyTheme.textTheme.bodyText2!.merge(
+                                        const TextStyle(color: Colors.grey),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
-                          onChanged: (e) {
-                            ref
-                                .read(provBSheet)
-                                .setBalance(double.tryParse(e) ?? 0);
-                          },
                         ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      //value : value,
-                      initialValue: creditor,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration.collapsed(
-                        hintText: 'เจ้าหนี้',
-                        fillColor: Colors.grey.withOpacity(0.2),
-                        filled: true,
-                      ),
-                      onChanged: (e) {
-                        ref.read(provBSheet).setCreditor(e);
-                      },
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Container(
+                            height: 75, //height of button
+                            width: 75, //width of button
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: getcolor(cat.ftype),
+                            ),
+                            child: Icon(
+                              HelperIcons.getIconData(cat.icon),
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    
-                    child: TextFormField(    
-                      //value : value,
-                      
-                      initialValue: interest == 0 ? '' : interest.toString(),
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      decoration: InputDecoration.collapsed(
-                        hintText: 'ดอกเบี้ย %',
-                        fillColor: Colors.grey.withOpacity(0.2),
-                        filled: true,
-                        
-                      ),
-                      onChanged: (e) {
-                        ref.read(provBSheet).setInterest(double.tryParse(e) ?? 0);
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      
-                      child: GestureDetector(
-                          onTap: () {
-                            showDialog<void>(
-                              context: context,
-                              builder: (BuildContext context) => Center(
+                  SizedBox(
+                    height: 400,
+                    child: isCalc
+                        ? SimpleCalculator(
+                            hideSurroundingBorder: true,
+                            controller: _controller,
+                            theme: CalculatorThemeData(
+                              displayStyle: const TextStyle(
+                                fontSize: 0,
+                                color: Colors.white,
+                              ),
+                              expressionStyle: const TextStyle(fontSize: 0),
+                              commandColor: MyTheme.primaryMajor,
+                              commandStyle: MyTheme.whiteTextTheme.headline4,
+                              operatorColor: MyTheme.primaryMinor,
+                              operatorStyle:
+                                  MyTheme.whiteTextTheme.headline2!.merge(
+                                TextStyle(color: MyTheme.primaryMajor),
+                              ),
+                              // numStyle:
+                            ),
+                            onChanged: (_, value, __) {
+                              ref
+                                  .read(provBSheet)
+                                  .setBalance(_controller.value ?? 0);
+                            },
+                          )
+                        : Column(
+                            children: [
+                              const SizedBox(height: 30),
+                              TextFormField(
+                                initialValue: creditor,
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  hintText: 'เจ้าหนี้',
+                                  hintStyle: MyTheme.textTheme.bodyText1,
+                                  contentPadding: const EdgeInsets.all(10),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(.2),
+                                      width: 1.5,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(20),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(.2),
+                                      width: 1.5,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                                onChanged: (e) {
+                                  ref.read(provBSheet).setCreditor(e);
+                                },
+                              ),
+                              const SizedBox(height: 30),
+                              TextFormField(
+                                initialValue:
+                                    interest == 0 ? '' : interest.toString(),
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                autofocus: false,
+                                decoration: InputDecoration(
+                                  hintText: 'ดอกเบี้ย %',
+                                  hintStyle: MyTheme.textTheme.bodyText1,
+                                  contentPadding: const EdgeInsets.all(10),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(.2),
+                                      width: 1.5,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(20),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(.2),
+                                      width: 1.5,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                                onChanged: (e) {
+                                  ref
+                                      .read(provBSheet)
+                                      .setInterest(double.tryParse(e) ?? 0);
+                                },
+                              ),
+                              const SizedBox(height: 30),
+                              GestureDetector(
+                                onTap: () {
+                                  showDialog<void>(
+                                    context: context,
+                                    builder: (BuildContext context) => Center(
+                                      child: Container(
+                                        //ปรับขนาดปฏิทิน
+                                        height: 500,
+                                        padding:
+                                            const EdgeInsets.only(top: 6.0),
+                                        color: Colors.white,
+                                        child: CupertinoDatePicker(
+                                          initialDateTime: DateTime.now(),
+                                          mode: CupertinoDatePickerMode.date,
+                                          use24hFormat: true,
+                                          // This is called when the user changes the date.
+                                          onDateTimeChanged:
+                                              (DateTime newDate) {
+                                            ref
+                                                .read(provBSheet)
+                                                .setDebtTerm(newDate);
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                                 child: Container(
-                                  //ปรับขนาดปฏิทิน
-                                  height: 500,
-                                  padding: const EdgeInsets.only(top: 6.0),
-                                  // The Bottom margin is provided to align the popup above the system navigation bar.
-                                  // margin: EdgeInsets.only(
-                                  //   bottom: MediaQuery.of(context)
-                                  //       .viewInsets
-                                  //       .bottom,
-                                  // ),
-                                  color: Colors.white,
-                                  // Provide a background color for the popup.
-                                  // Use a SafeArea widget to avoid system overlaps.
-                                  child: CupertinoDatePicker(
-                                    initialDateTime: DateTime.now(),
-                                    mode: CupertinoDatePickerMode.date,
-                                    use24hFormat: true,
-                                    // This is called when the user changes the date.
-                                    onDateTimeChanged: (DateTime newDate) {
-                                      ref.read(provBSheet).setDebtTerm(newDate);
-                                    },
+                                  padding: const EdgeInsets.all(10),
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: Colors.grey.withOpacity(.2),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    debtTerm != null
+                                        ? DateFormat.yMMMMd().format(debtTerm)
+                                        : 'ต้องชำระให้หมดภายใน',
+                                    style: debtTerm != null
+                                        ? MyTheme.textTheme.bodyText1
+                                        : MyTheme.textTheme.bodyText1!.merge(
+                                            TextStyle(
+                                              color:
+                                                  Colors.black.withOpacity(.5),
+                                            ),
+                                          ),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ),
-                            );
-                          },
-                          child: Text(debtTerm != null
-                              ? DateFormat.yMMMMd().format(debtTerm)
-                              : 'ต้องชำระให้หมดภายใน',style: MyTheme.textTheme.headline4)
+                              Expanded(child: Container()),
+                              //บันทึกลงฟอร์ม
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width - 50,
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    if (ref.watch(
+                                        provBSheet.select((e) => e.isAdd))) {
+                                      final asset =
+                                          await ref.read(apiProvider).addDebt(
+                                                ref.read(provBSheet).balance,
+                                                ref.read(provBSheet).creditor,
+                                                ref.read(provBSheet).currCat.id,
+                                                ref.read(provBSheet).interest,
+                                                ref.read(provBSheet).debtTerm,
+                                              );
+                                      if (asset) {
+                                        ref.read(provBSheet).setNeedFetchAPI();
+                                        AutoRouter.of(context).pop();
+                                      }
+                                    } else {
+                                      final asset =
+                                          await ref.read(apiProvider).editDebt(
+                                                ref.read(provBSheet).balance,
+                                                ref.read(provBSheet).creditor,
+                                                ref.read(provBSheet).id,
+                                                ref.read(provBSheet).interest,
+                                                ref.read(provBSheet).debtTerm,
+                                              );
+                                      if (asset) {
+                                        ref.read(provBSheet).setNeedFetchAPI();
+                                        AutoRouter.of(context).pop();
+                                      }
+                                    }
+                                  },
+                                  style: ButtonStyle(
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(18.0),
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text('บันทึก',
+                                      style: MyTheme.whiteTextTheme.headline3),
+                                ),
                               ),
-                    ),
-                  ),
-
-                  //บันทึกลงฟอร์ม
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (ref.watch(provBSheet.select((e) => e.isAdd))) {
-                        final asset = await ref.read(apiProvider).addDebt(
-                              ref.read(provBSheet).balance,
-                              ref.read(provBSheet).creditor,
-                              ref.read(provBSheet).currCat.id,
-                              ref.read(provBSheet).interest,
-                              ref.read(provBSheet).debtTerm,
-                            );
-                        if (asset) {
-                          ref.read(provBSheet).setNeedFetchAPI();
-                          AutoRouter.of(context).pop();
-                        }
-                      } else {
-                        final asset = await ref.read(apiProvider).editDebt(
-                              ref.read(provBSheet).balance,
-                              ref.read(provBSheet).creditor,
-                              ref.read(provBSheet).id,
-                              ref.read(provBSheet).interest,
-                              ref.read(provBSheet).debtTerm,
-                            );
-                        if (asset) {
-                          ref.read(provBSheet).setNeedFetchAPI();
-                          AutoRouter.of(context).pop();
-                        }
-                      }
-                    },
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18.0),
-                        ),
-                      ),
-                    ),
-                    child:
-                        Text('บันทึก', style: MyTheme.whiteTextTheme.headline3),
-                  ),
-                  //ลบออก
-                  ElevatedButton(
-                    onPressed: () async {
-                      final asset = await ref.read(apiProvider).deleteDebt(
-                            ref.read(provBSheet).balance,
-                            ref.read(provBSheet).creditor,
-                            ref.read(provBSheet).id,
-                            ref.read(provBSheet).interest,
-                            ref.read(provBSheet).debtTerm,
-                          );
-                      if (asset) {
-                        ref.read(provBSheet).setNeedFetchAPI();
-                        AutoRouter.of(context).pop();
-                      }
-                    },
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18.0),
-                        ),
-                      ),
-                    ),
-                    child: Text('ลบ', style: MyTheme.whiteTextTheme.headline3),
+                              //ลบออก
+                              if (ref.watch(provBSheet.select((e) => !e.isAdd)))
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width - 50,
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      final asset = await ref
+                                          .read(apiProvider)
+                                          .deleteDebt(
+                                            ref.read(provBSheet).balance,
+                                            ref.read(provBSheet).creditor,
+                                            ref.read(provBSheet).id,
+                                            ref.read(provBSheet).interest,
+                                            ref.read(provBSheet).debtTerm,
+                                          );
+                                      if (asset) {
+                                        ref.read(provBSheet).setNeedFetchAPI();
+                                        AutoRouter.of(context).pop();
+                                      }
+                                    },
+                                    style: ButtonStyle(
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(18.0),
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text('ลบ',
+                                        style:
+                                            MyTheme.whiteTextTheme.headline3),
+                                  ),
+                                ),
+                            ],
+                          ),
                   ),
                 ],
               ),

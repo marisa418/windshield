@@ -1,7 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:windshield/main.dart';
 import 'package:windshield/pages/home/overview/daily_flow/speech/speech_to_text.dart';
 
 import 'package:windshield/styles/theme.dart';

@@ -1,22 +1,22 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+
 import 'package:windshield/main.dart';
 import 'package:windshield/models/balance_sheet/balance_sheet.dart';
-import 'package:windshield/models/daily_flow/flow.dart';
 import 'package:windshield/pages/home/overview/balance_sheet/create_balance.dart';
 import 'package:windshield/styles/theme.dart';
-import 'package:percent_indicator/percent_indicator.dart';
-import 'package:badges/badges.dart';
-import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+import 'package:windshield/utility/number_formatter.dart';
 import 'create_balance.dart';
 
 final apiBSheet = FutureProvider.autoDispose<BSheetBalance?>((ref) async {
   ref.watch(provBSheet.select((value) => value.needFetchAPI));
-  
+
   final data = await ref.read(apiProvider).getBalanceSheet();
   final data2 = await ref.read(apiProvider).getAllCategories(false);
   final datalog = await ref.read(apiProvider).getBalanceSheetLog();
@@ -36,83 +36,78 @@ class BalanceSheetPage extends ConsumerWidget {
     //ของจริง apiBsheet
     final api = ref.watch(apiBSheet);
     //final api = ref.watch(apiDFlow);
-    
+
     return api.when(
       error: (error, stackTrace) => Text(stackTrace.toString()),
       loading: () => const Center(child: CircularProgressIndicator()),
       data: (_) {
-        return Scaffold(
-          body: Column(
-            children: [
-              AssetHomepage(),
+        return SafeArea(
+          child: Scaffold(
+            body: Column(
+              children: [
+                const AssetHomepage(),
+                //แสดง widget หนี้สิน กับ ทรัพย์สิน
 
-              //แสดง widget หนี้สิน กับ ทรัพย์สิน
-
-              Padding(
-                padding: const EdgeInsets.all(7.0),
-                child: Row(
-                  children: const [
-                    Assettable(),
-                    SizedBox(
-                      width:10
-                    ),
-                    Depttable(),
-                  ],
-                ),
-              ),
-
-              //แสดงผล widget ส่วนล่าง
-
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                //แสดงผล widget ส่วนล่าง
+                Expanded(
+                  child: ListView(
                     children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: const [
+                            Assettable(),
+                            SizedBox(width: 15),
+                            Depttable(),
+                          ],
+                        ),
+                      ),
                       if (ref.watch(provBSheet.select((e) => e.pageIdx)) ==
-                          0) ...[
+                          0) ...const [
                         //asset page
                         LiqAssetTab(),
                         InvestAssetTab(),
                         PrivateAssetTab(),
                       ]
                       //debt page
-                      else ...[
+                      else ...const [
                         DebtShortTab(),
                         DebtLongTab(),
                       ]
                     ],
                   ),
                 ),
-              ),
 
-              //ปุ่มย้อนกลับ
-              SizedBox(
-                height: 75,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    label: Text(
-                      'ย้อนกลับ  ',
-                      style: MyTheme.whiteTextTheme.headline3,
-                    ),
-                    icon: const Icon(
-                      Icons.arrow_left,
-                      color: Colors.white,
-                    ),
-                    style: TextButton.styleFrom(
-                      backgroundColor: MyTheme.primaryMajor,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(20),
-                          bottomRight: Radius.circular(20),
+                //ปุ่มย้อนกลับ
+                SizedBox(
+                  height: 75,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      label: Text(
+                        'ย้อนกลับ  ',
+                        style: MyTheme.whiteTextTheme.headline3,
+                      ),
+                      icon: const Icon(
+                        Icons.arrow_left,
+                        color: Colors.white,
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: MyTheme.primaryMajor,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
                         ),
                       ),
+                      onPressed: () => AutoRouter.of(context).pop(),
                     ),
-                    onPressed: () => AutoRouter.of(context).pop(),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -129,58 +124,61 @@ class AssetHomepage extends ConsumerWidget {
     final log = ref.watch(provBSheet.select((e) => e.log));
     //double assetToal= baltotal*2;
 
-    var now = new DateTime.now();
-    DateTime date = new DateTime(now.year, now.month, now.day);
-
     return Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: const [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-                  child: Text(
-                    'งบดุลการเงินของคุณ',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        decoration: TextDecoration.none),
-                  ),
-                ),
-              ],
-            ),
-            //วันปัจจุบัน
-            Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-                ),
-                const Icon(Icons.calendar_today, color: Colors.white),
-                Text(DateFormat(' E d MMM y').format(DateTime.now()),
-                    style: MyTheme.whiteTextTheme.headline4),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(25.0, 35.0, 0.0, 0.0),
-              child: Text(
-                //วันที่
-                'ความมั่งคั่งสุทธิ',
+      height: 190,
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: MyTheme.majorBackground,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'งบดุลการเงินของคุณ',
                 style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 15,
-                    decoration: TextDecoration.none
-                    //Theme.of(context).textTheme.bodyText1,
-                    ),
+                  color: Colors.white,
+                  fontSize: 25,
+                  decoration: TextDecoration.none,
+                ),
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(25.0, 5.0, 0.0, 0.0),
-                  child: Text(
-                    '$baltotal',
+              Wrap(
+                children: [
+                  const Icon(Icons.calendar_today, color: Colors.white),
+                  Text(
+                    DateFormat(' E d MMM y').format(DateTime.now()),
+                    style: MyTheme.whiteTextTheme.headline4,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    //วันที่
+                    'ความมั่งคั่งสุทธิ',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 15,
+                      decoration: TextDecoration.none,
+                      //Theme.of(context).textTheme.bodyText1,
+                    ),
+                  ),
+                  Text(
+                    '${HelperNumber.format(baltotal)} บ.',
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 30,
@@ -188,53 +186,45 @@ class AssetHomepage extends ConsumerWidget {
                         //Theme.of(context).textTheme.bodyText1,
                         ),
                   ),
-                ),
-                SizedBox(
-                  child: Row(
+                ],
+              ),
+              Row(
+                children: [
+                  // Icon(
+                  //   Icons.date_range,
+                  //   size: 24.0,
+                  //   color: MyTheme.secondaryMinor,
+                  // ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Icon(
-                        Icons.date_range,
-                        size: 20.0,
-                        color: MyTheme.secondaryMinor,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          //แก้วันที่ตรงนี้
-                          'ข้อมูลล่าสุด\n ${(DateFormat('d MMM y').format(log.timestamp))}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: MyTheme.secondaryMinor,
-                          ),
+                      Text(
+                        'ข้อมูลล่าสุด',
+                        style: MyTheme.whiteTextTheme.bodyText2!.merge(
+                          TextStyle(color: Colors.white.withOpacity(.5)),
                         ),
                       ),
-                      Icon(
-                        Icons.arrow_right,
-                        size: 40.0,
-                        color: MyTheme.secondaryMinor,
-                      )
+                      Text(
+                        //แก้วันที่ตรงนี้
+                        DateFormat('d MMM y').format(log.timestamp),
+                        style: MyTheme.whiteTextTheme.bodyText1,
+                      ),
                     ],
                   ),
-                )
-              ],
-            ),
-          ],
-        ),
-        //Text('\n\nงบดุลของคุณ \n วันที่ 4 มีนาคม 2565 \n xxxxx บ.',style: MyTheme.whiteTextTheme.headline3),
-
-        height: 190,
-        width: 500,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                Color.fromARGB(255, 82, 54, 255),
-                Color.fromARGB(255, 117, 161, 227),
-              ]),
-          //borderRadius: BorderRadius.circular(10),
-        ));
+                  // Icon(
+                  //   Icons.arrow_right,
+                  //   size: 40.0,
+                  //   color: MyTheme.secondaryMinor,
+                  // ),
+                ],
+              )
+            ],
+          ),
+        ],
+      ),
+      //Text('\n\nงบดุลของคุณ \n วันที่ 4 มีนาคม 2565 \n xxxxx บ.',style: MyTheme.whiteTextTheme.headline3),
+    );
   }
 }
 
@@ -243,29 +233,19 @@ class Assettable extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final assLiquidTotal =
-        ref.watch(provBSheet.select((e) => e.assLiquidTotal));
-    final assInvestTotal =
-        ref.watch(provBSheet.select((e) => e.assInvestTotal));
-    final assPrivateTotal =
-        ref.watch(provBSheet.select((e) => e.assPrivateTotal));
     final assTotal = ref.watch(provBSheet.select((e) => e.assTotal));
-
-    //double assetTotal = assLiquidTotal+assInvestTotal+assPrivateTotal;
 
     return Expanded(
       child: GestureDetector(
-        onTap: () => ref.read(provBSheet).setPageIdx(),
+        onTap: () => ref.read(provBSheet).setPageIdx(0),
         child: Container(
           height: 75, //ขนาดกรอบ asset
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color.fromARGB(255, 52, 186, 216),
-                  Color.fromARGB(255, 56, 91, 206),
-                ]),
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: MyTheme.assetBackground,
+            ),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -278,8 +258,10 @@ class Assettable extends ConsumerWidget {
                 animation: true,
                 animationDuration: 2000,
                 lineWidth: 6.5,
-                center: const Text('xx.x%',
-                    style: TextStyle(color: Colors.white, fontSize: 11)),
+                center: const Text(
+                  'xx.x%',
+                  style: TextStyle(color: Colors.white, fontSize: 11),
+                ),
                 backgroundColor: const Color(0x80ffffff),
               ),
               Column(
@@ -294,11 +276,8 @@ class Assettable extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    '$assTotal' + ' บ.',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
+                    '${HelperNumber.format(assTotal)} บ.',
+                    style: MyTheme.whiteTextTheme.headline4,
                   ),
                 ],
               ),
@@ -320,17 +299,15 @@ class Depttable extends ConsumerWidget {
 
     return Expanded(
       child: GestureDetector(
-        onTap: () => ref.read(provBSheet).setPageIdx(),
+        onTap: () => ref.read(provBSheet).setPageIdx(1),
         child: Container(
           height: 75, //ขนาดกรอบ asset
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color(0xffee3884),
-                  Color(0xffab47bc),
-                ]),
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: MyTheme.debtBackground,
+            ),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -343,8 +320,10 @@ class Depttable extends ConsumerWidget {
                 animation: true,
                 animationDuration: 2000,
                 lineWidth: 6.5,
-                center: Text('xx.x%',
-                    style: TextStyle(color: Colors.white, fontSize: 11)),
+                center: const Text(
+                  'xx.x%',
+                  style: TextStyle(color: Colors.white, fontSize: 11),
+                ),
                 backgroundColor: const Color(0x80ffffff),
               ),
               Column(
@@ -359,11 +338,8 @@ class Depttable extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    '$debtTotal' + ' บ.',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
+                    '${HelperNumber.format(debtTotal)} บ.',
+                    style: MyTheme.whiteTextTheme.headline4,
                   ),
                 ],
               ),
@@ -383,80 +359,72 @@ class LiqAssetTab extends ConsumerWidget {
     final assLiquidList = ref.watch(provBSheet.select((e) => e.assLiquidList));
 
     return Padding(
-      padding: const EdgeInsets.all(25.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child:
-                Text('สินทรัพย์สภาพคล่อง', style: MyTheme.textTheme.headline3),
+            child: Text(
+              'สินทรัพย์สภาพคล่อง',
+              style: MyTheme.textTheme.headline3,
+            ),
           ),
           SizedBox(
-            height: 111, //ขนาดแถว asset 
+            height: 130, //ขนาดแถว asset
             child: ListView.builder(
-              //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
-              //shrinkWrap: true,
+              shrinkWrap: true,
               itemCount: assLiquidList.length + 1,
               scrollDirection: Axis.horizontal,
-              // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              //   crossAxisCount: 4,
-              //   mainAxisSpacing: 10,
-              //   crossAxisSpacing: 10,
-              //   mainAxisExtent: 100,
-              // ),
               itemBuilder: (_, i) {
                 if (i == 0) {
                   return SizedBox(
                     height: 100,
-                    width: 80,
+                    width: 90,
                     child: Column(
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 75, //height of button
-                              width: 75, //width of button
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  final cat = ref.watch(provBSheet
-                                      .select((e) => e.catAssLiquidList));
-
-                                  ref.read(provBSheet).setValue(0);
-                                  ref.read(provBSheet).setSource('');
-                                  ref.read(provBSheet).setCreateCatList(cat);
-                                  ref.read(provBSheet).setCreateIdx(0);
-                                  ref.read(provBSheet).setIsAdd(true);
-                                  showModalBottomSheet(
-                                      //useRootNavigator: true,
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (_) {
-                                        return CreateBalance();
-                                      });
+                        SizedBox(
+                          height: 75, //height of button
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              final cat = ref.watch(
+                                  provBSheet.select((e) => e.catAssLiquidList));
+                              ref.read(provBSheet).setValue(0);
+                              ref.read(provBSheet).setSource('');
+                              ref.read(provBSheet).setCreateCatList(cat);
+                              ref.read(provBSheet).setCreateIdx(0);
+                              ref.read(provBSheet).setIsAdd(true);
+                              showModalBottomSheet(
+                                //useRootNavigator: true,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (_) {
+                                  return const CreateBalance();
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  elevation: 0.0,
-                                  shadowColor: Colors
-                                      .transparent, //remove shadow on button
-                                  primary: MyTheme.primaryMinor,
-
-                                  padding: const EdgeInsets.all(10),
-
-                                  shape: const CircleBorder(),
-                                ),
-                                child: Icon(
-                                  Icons.add,
-                                  color: MyTheme.primaryMajor,
-                                ),
-                              ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0.0,
+                              shadowColor:
+                                  Colors.transparent, //remove shadow on button
+                              primary: MyTheme.primaryMinor,
+                              shape: const CircleBorder(),
                             ),
-                          ],
+                            child: Icon(
+                              Icons.add,
+                              color: MyTheme.primaryMajor,
+                            ),
+                          ),
                         ),
-                        Text('เพิ่มรายการใหม่'),
+                        AutoSizeText(
+                          'เพิ่มรายการใหม่',
+                          minFontSize: 0,
+                          maxLines: 1,
+                          style: TextStyle(color: MyTheme.primaryMajor),
+                        ),
                       ],
                     ),
                   );
@@ -471,7 +439,8 @@ class LiqAssetTab extends ConsumerWidget {
                           children: [
                             SizedBox(
                               height: 75, //height of button
-                              width: 100, //width of button แก้จำนวนเงิน overflow
+                              width:
+                                  100, //width of button แก้จำนวนเงิน overflow
                               child: ElevatedButton(
                                 onPressed: () {
                                   ref
@@ -489,22 +458,17 @@ class LiqAssetTab extends ConsumerWidget {
                                   ref.read(provBSheet).setCreateIdx(1);
                                   ref.read(provBSheet).setIsAdd(false);
                                   showModalBottomSheet(
-                                      //useRootNavigator: true,
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (_) {
-                                        return CreateBalance();
-                                      });
+                                    //useRootNavigator: true,
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (_) {
+                                      return const CreateBalance();
+                                    },
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  //elevation: 0.0,
-                                  //shadowColor: Colors
-                                  //    .transparent, //remove shadow on button
                                   primary: MyTheme.assetLiquid[0],
-                                  textStyle: MyTheme.whiteTextTheme.headline4,
-                                  padding: const EdgeInsets.all(10),
-
                                   shape: const CircleBorder(),
                                 ),
                                 child: Column(
@@ -515,18 +479,31 @@ class LiqAssetTab extends ConsumerWidget {
                                           assLiquidList[i - 1].cat.icon),
                                       color: Colors.white,
                                     ),
-                                    Text(assLiquidList[i - 1]
-                                        .recentVal
-                                        .toString()),
-                                    
+                                    AutoSizeText(
+                                      HelperNumber.format(
+                                        assLiquidList[i - 1].recentVal,
+                                      ),
+                                      minFontSize: 0,
+                                      maxLines: 1,
+                                      style: MyTheme.whiteTextTheme.bodyText2,
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        Text(assLiquidList[i - 1].cat.name),
-                        Text(assLiquidList[i-1].source == '' ? "" : assLiquidList[i-1].source),
+                        AutoSizeText(
+                          assLiquidList[i - 1].cat.name,
+                          minFontSize: 0,
+                          maxLines: 1,
+                        ),
+                        AutoSizeText(
+                          assLiquidList[i - 1].source == ''
+                              ? ""
+                              : assLiquidList[i - 1].source,
+                          style: MyTheme.textTheme.bodyText1,
+                        ),
                       ],
                     ),
                   );
@@ -548,79 +525,71 @@ class InvestAssetTab extends ConsumerWidget {
     final assInvestList = ref.watch(provBSheet.select((e) => e.assInvestList));
 
     return Padding(
-      padding: const EdgeInsets.all(25.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text('สินทรัพย์ลงทุน', style: MyTheme.textTheme.headline3),
+            child: Text(
+              'สินทรัพย์ลงทุน',
+              style: MyTheme.textTheme.headline3,
+            ),
           ),
           SizedBox(
-            height: 111, //ขนาดแถว asset 
+            height: 130, //ขนาดแถว asset
             child: ListView.builder(
-              //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
-              //shrinkWrap: true,
+              shrinkWrap: true,
               itemCount: assInvestList.length + 1,
               scrollDirection: Axis.horizontal,
-              // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              //   crossAxisCount: 4,
-              //   mainAxisSpacing: 10,
-              //   crossAxisSpacing: 10,
-              //   mainAxisExtent: 100,
-              // ),
               itemBuilder: (_, i) {
                 if (i == 0) {
                   return SizedBox(
                     height: 100,
-                    width: 80,
+                    width: 90,
                     child: Column(
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 75, //height of button
-                              width: 75, //width of button
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  final cat = ref.watch(provBSheet
-                                      .select((e) => e.catAssInvestList));
-
-                                  ref.read(provBSheet).setValue(0);
-                                  ref.read(provBSheet).setSource('');
-                                  ref.read(provBSheet).setCreateCatList(cat);
-                                  ref.read(provBSheet).setCreateIdx(0);
-                                  ref.read(provBSheet).setIsAdd(true);
-                                  showModalBottomSheet(
-                                      //useRootNavigator: true,
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (_) {
-                                        return CreateBalance();
-                                      });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  elevation: 0.0,
-                                  shadowColor: Colors
-                                      .transparent, //remove shadow on button
-                                  primary: MyTheme.primaryMinor,
-
-                                  padding: const EdgeInsets.all(10),
-
-                                  shape: const CircleBorder(),
-                                ),
-                                child: Icon(
-                                  Icons.add,
-                                  color: MyTheme.primaryMajor,
-                                ),
-                              ),
+                        SizedBox(
+                          height: 75, //height of button
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              final cat = ref.watch(
+                                  provBSheet.select((e) => e.catAssInvestList));
+                              ref.read(provBSheet).setValue(0);
+                              ref.read(provBSheet).setSource('');
+                              ref.read(provBSheet).setCreateCatList(cat);
+                              ref.read(provBSheet).setCreateIdx(0);
+                              ref.read(provBSheet).setIsAdd(true);
+                              showModalBottomSheet(
+                                  //useRootNavigator: true,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (_) {
+                                    return const CreateBalance();
+                                  });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0.0,
+                              shadowColor:
+                                  Colors.transparent, //remove shadow on button
+                              primary: MyTheme.primaryMinor,
+                              shape: const CircleBorder(),
                             ),
-                          ],
+                            child: Icon(
+                              Icons.add,
+                              color: MyTheme.primaryMajor,
+                            ),
+                          ),
                         ),
-                        Text('เพิ่มรายการใหม่'),
+                        AutoSizeText(
+                          'เพิ่มรายการใหม่',
+                          minFontSize: 0,
+                          maxLines: 1,
+                          style: TextStyle(color: MyTheme.primaryMajor),
+                        ),
                       ],
                     ),
                   );
@@ -635,7 +604,8 @@ class InvestAssetTab extends ConsumerWidget {
                           children: [
                             SizedBox(
                               height: 75, //height of button
-                              width: 100, //width of button แก้จำนวนเงิน overflow
+                              width:
+                                  100, //width of button แก้จำนวนเงิน overflow
                               child: ElevatedButton(
                                 onPressed: () {
                                   ref
@@ -658,17 +628,11 @@ class InvestAssetTab extends ConsumerWidget {
                                       isScrollControlled: true,
                                       context: context,
                                       builder: (_) {
-                                        return CreateBalance();
+                                        return const CreateBalance();
                                       });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  //elevation: 0.0,
-                                  //shadowColor: Colors
-                                  //    .transparent, //remove shadow on button
                                   primary: MyTheme.assetLiquid[0],
-                                  textStyle: MyTheme.whiteTextTheme.headline4,
-                                  padding: const EdgeInsets.all(10),
-
                                   shape: const CircleBorder(),
                                 ),
                                 child: Column(
@@ -679,17 +643,31 @@ class InvestAssetTab extends ConsumerWidget {
                                           assInvestList[i - 1].cat.icon),
                                       color: Colors.white,
                                     ),
-                                    Text(assInvestList[i - 1]
-                                        .recentVal
-                                        .toString()),
+                                    AutoSizeText(
+                                      HelperNumber.format(
+                                        assInvestList[i - 1].recentVal,
+                                      ),
+                                      minFontSize: 0,
+                                      maxLines: 1,
+                                      style: MyTheme.whiteTextTheme.bodyText2,
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        Text(assInvestList[i - 1].cat.name),
-                        Text(assInvestList[i-1].source == '' ? "" : assInvestList[i-1].source),
+                        AutoSizeText(
+                          assInvestList[i - 1].cat.name,
+                          minFontSize: 0,
+                          maxLines: 1,
+                        ),
+                        AutoSizeText(
+                          assInvestList[i - 1].source == ''
+                              ? ""
+                              : assInvestList[i - 1].source,
+                          style: MyTheme.textTheme.bodyText1,
+                        ),
                       ],
                     ),
                   );
@@ -712,79 +690,73 @@ class PrivateAssetTab extends ConsumerWidget {
         ref.watch(provBSheet.select((e) => e.assPrivateList));
 
     return Padding(
-      padding: const EdgeInsets.all(25.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text('สินทรัพย์ส่วนตัว', style: MyTheme.textTheme.headline3),
+            child: Text(
+              'สินทรัพย์สภาพคล่อง',
+              style: MyTheme.textTheme.headline3,
+            ),
           ),
           SizedBox(
-            height: 111, //ขนาดแถว asset 
+            height: 130, //ขนาดแถว asset
             child: ListView.builder(
-              //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
-              //shrinkWrap: true,
+              shrinkWrap: true,
               itemCount: assPrivateList.length + 1,
               scrollDirection: Axis.horizontal,
-              // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              //   crossAxisCount: 4,
-              //   mainAxisSpacing: 10,
-              //   crossAxisSpacing: 10,
-              //   mainAxisExtent: 100,
-              // ),
               itemBuilder: (_, i) {
                 if (i == 0) {
                   return SizedBox(
                     height: 100,
-                    width: 80,
+                    width: 90,
                     child: Column(
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 75, //height of button
-                              width: 75, //width of button
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  final cat = ref.watch(provBSheet
-                                      .select((e) => e.catAssPrivateList));
-
-                                  ref.read(provBSheet).setValue(0);
-                                  ref.read(provBSheet).setSource('');
-                                  ref.read(provBSheet).setCreateCatList(cat);
-                                  ref.read(provBSheet).setCreateIdx(0);
-                                  ref.read(provBSheet).setIsAdd(true);
-                                  showModalBottomSheet(
-                                      //useRootNavigator: true,
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (_) {
-                                        return CreateBalance();
-                                      });
+                        SizedBox(
+                          height: 75, //height of button
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              final cat = ref.watch(
+                                  provBSheet.select((e) => e.catAssLiquidList));
+                              ref.read(provBSheet).setValue(0);
+                              ref.read(provBSheet).setSource('');
+                              ref.read(provBSheet).setCreateCatList(cat);
+                              ref.read(provBSheet).setCreateIdx(0);
+                              ref.read(provBSheet).setIsAdd(true);
+                              showModalBottomSheet(
+                                //useRootNavigator: true,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (_) {
+                                  return const CreateBalance();
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  elevation: 0.0,
-                                  shadowColor: Colors
-                                      .transparent, //remove shadow on button
-                                  primary: MyTheme.primaryMinor,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0.0,
+                              shadowColor:
+                                  Colors.transparent, //remove shadow on button
+                              primary: MyTheme.primaryMinor,
 
-                                  padding: const EdgeInsets.all(10),
-
-                                  shape: const CircleBorder(),
-                                ),
-                                child: Icon(
-                                  Icons.add,
-                                  color: MyTheme.primaryMajor,
-                                ),
-                              ),
+                              shape: const CircleBorder(),
                             ),
-                          ],
+                            child: Icon(
+                              Icons.add,
+                              color: MyTheme.primaryMajor,
+                            ),
+                          ),
                         ),
-                        Text('เพิ่มรายการใหม่'),
+                        AutoSizeText(
+                          'เพิ่มรายการใหม่',
+                          minFontSize: 0,
+                          maxLines: 1,
+                          style: TextStyle(color: MyTheme.primaryMajor),
+                        ),
                       ],
                     ),
                   );
@@ -799,7 +771,8 @@ class PrivateAssetTab extends ConsumerWidget {
                           children: [
                             SizedBox(
                               height: 75, //height of button
-                              width: 100, //width of button แก้จำนวนเงิน overflow
+                              width:
+                                  100, //width of button แก้จำนวนเงิน overflow
                               child: ElevatedButton(
                                 onPressed: () {
                                   ref.read(provBSheet).setValue(
@@ -816,22 +789,17 @@ class PrivateAssetTab extends ConsumerWidget {
                                   ref.read(provBSheet).setCreateIdx(1);
                                   ref.read(provBSheet).setIsAdd(false);
                                   showModalBottomSheet(
-                                      //useRootNavigator: true,
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (_) {
-                                        return CreateBalance();
-                                      });
+                                    //useRootNavigator: true,
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (_) {
+                                      return const CreateBalance();
+                                    },
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  //elevation: 0.0,
-                                  //shadowColor: Colors
-                                  //    .transparent, //remove shadow on button
                                   primary: MyTheme.assetLiquid[0],
-                                  textStyle: MyTheme.whiteTextTheme.headline4,
-                                  padding: const EdgeInsets.all(10),
-
                                   shape: const CircleBorder(),
                                 ),
                                 child: Column(
@@ -842,17 +810,31 @@ class PrivateAssetTab extends ConsumerWidget {
                                           assPrivateList[i - 1].cat.icon),
                                       color: Colors.white,
                                     ),
-                                    Text(assPrivateList[i - 1]
-                                        .recentVal
-                                        .toString()),
+                                    AutoSizeText(
+                                      HelperNumber.format(
+                                        assPrivateList[i - 1].recentVal,
+                                      ),
+                                      minFontSize: 0,
+                                      maxLines: 1,
+                                      style: MyTheme.whiteTextTheme.bodyText2,
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        Text(assPrivateList[i - 1].cat.name),
-                        Text(assPrivateList[i-1].source == '' ? "" : assPrivateList[i-1].source),
+                        AutoSizeText(
+                          assPrivateList[i - 1].cat.name,
+                          minFontSize: 0,
+                          maxLines: 1,
+                        ),
+                        AutoSizeText(
+                          assPrivateList[i - 1].source == ''
+                              ? ""
+                              : assPrivateList[i - 1].source,
+                          style: MyTheme.textTheme.bodyText1,
+                        ),
                       ],
                     ),
                   );
@@ -874,83 +856,75 @@ class DebtShortTab extends ConsumerWidget {
     final debtShortList = ref.watch(provBSheet.select((e) => e.debtShortList));
 
     return Padding(
-      padding: const EdgeInsets.all(25.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text('หนี้ระยะสั้น', style: MyTheme.textTheme.headline3),
+            child: Text(
+              'หนี้ระยะสั้น',
+              style: MyTheme.textTheme.headline3,
+            ),
           ),
           SizedBox(
-            height: 111, //ขนาดแถว debt
+            height: 130, //ขนาดแถว debt
             child: ListView.builder(
-              //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
-              //shrinkWrap: true,
+              shrinkWrap: true,
               itemCount: debtShortList.length + 1,
               scrollDirection: Axis.horizontal,
-              // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              //   crossAxisCount: 4,
-              //   mainAxisSpacing: 10,
-              //   crossAxisSpacing: 10,
-              //   mainAxisExtent: 100,
-              // ),
               itemBuilder: (_, i) {
                 if (i == 0) {
                   return SizedBox(
                     height: 100,
-                    width: 80,
+                    width: 90,
                     child: Column(
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 75, //height of button
-                              width: 75, //width of button
-                              child: ElevatedButton(
-                                //เพิ่มรายการใหม่
-                                onPressed: () {
-                                  final cat = ref.watch(provBSheet
-                                      .select((e) => e.catDebtShortList));
+                        SizedBox(
+                          height: 75, //height of button
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            //เพิ่มรายการใหม่
+                            onPressed: () {
+                              final cat = ref.watch(
+                                  provBSheet.select((e) => e.catDebtShortList));
+                              ref.read(provBSheet).setBalance(0);
+                              ref.read(provBSheet).setCreditor('');
+                              ref.read(provBSheet).setInterest(0);
+                              ref.read(provBSheet).setDebtTerm(null);
+                              ref.read(provBSheet).setCreateCatList(cat);
+                              ref.read(provBSheet).setCreateIdx(0);
+                              ref.read(provBSheet).setIsAdd(true);
+                              showModalBottomSheet(
+                                  //useRootNavigator: true,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (_) {
+                                    return const CreateBalance();
+                                  });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0.0,
+                              shadowColor:
+                                  Colors.transparent, //remove shadow on button
+                              primary: MyTheme.primaryMinor,
 
-                                  ref.read(provBSheet).setBalance(0);
-                                  ref.read(provBSheet).setCreditor('');
-                                  ref.read(provBSheet).setInterest(0);
-                                  ref.read(provBSheet).setDebtTerm(null);
-
-                                  ref.read(provBSheet).setCreateCatList(cat);
-                                  ref.read(provBSheet).setCreateIdx(0);
-                                  ref.read(provBSheet).setIsAdd(true);
-                                  showModalBottomSheet(
-                                      //useRootNavigator: true,
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (_) {
-                                        return CreateBalance();
-                                      });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  elevation: 0.0,
-                                  shadowColor: Colors
-                                      .transparent, //remove shadow on button
-                                  primary: MyTheme.primaryMinor,
-
-                                  padding: const EdgeInsets.all(10),
-
-                                  shape: const CircleBorder(),
-                                ),
-                                child: Icon(
-                                  Icons.add,
-                                  color: MyTheme.primaryMajor,
-                                ),
-                              ),
+                              shape: const CircleBorder(),
                             ),
-                          ],
+                            child: Icon(
+                              Icons.add,
+                              color: MyTheme.primaryMajor,
+                            ),
+                          ),
                         ),
-                        Text('เพิ่มรายการใหม่'),
+                        AutoSizeText(
+                          'เพิ่มรายการใหม่',
+                          minFontSize: 0,
+                          maxLines: 1,
+                          style: TextStyle(color: MyTheme.primaryMajor),
+                        ),
                       ],
                     ),
                   );
@@ -965,12 +939,10 @@ class DebtShortTab extends ConsumerWidget {
                           children: [
                             SizedBox(
                               height: 75, //height of button
-                              width: 75, //width of button
+                              width: 100, //width of button
                               child: ElevatedButton(
                                 //แก้ไข
                                 onPressed: () {
-                                  //final cat = ref.watch(provBSheet.select((e) => e.catDebtShortList));
-
                                   ref
                                       .read(provBSheet)
                                       .setBalance(debtShortList[i - 1].balance);
@@ -980,7 +952,6 @@ class DebtShortTab extends ConsumerWidget {
                                       debtShortList[i - 1].interest);
                                   ref.read(provBSheet).setDebtTerm(
                                       debtShortList[i - 1].debtTerm);
-
                                   ref
                                       .read(provBSheet)
                                       .setCurrCat(debtShortList[i - 1].cat);
@@ -995,17 +966,11 @@ class DebtShortTab extends ConsumerWidget {
                                       isScrollControlled: true,
                                       context: context,
                                       builder: (_) {
-                                        return CreateBalance();
+                                        return const CreateBalance();
                                       });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  //elevation: 0.0,
-                                  //shadowColor: Colors
-                                  //    .transparent, //remove shadow on button
                                   primary: MyTheme.negativeMajor,
-                                  textStyle: MyTheme.whiteTextTheme.headline4,
-                                  padding: const EdgeInsets.all(10),
-
                                   shape: const CircleBorder(),
                                 ),
                                 child: Column(
@@ -1016,17 +981,31 @@ class DebtShortTab extends ConsumerWidget {
                                           debtShortList[i - 1].cat.icon),
                                       color: Colors.white,
                                     ),
-                                    Text(debtShortList[i - 1]
-                                        .balance
-                                        .toString()),
+                                    AutoSizeText(
+                                      HelperNumber.format(
+                                        debtShortList[i - 1].balance,
+                                      ),
+                                      minFontSize: 0,
+                                      maxLines: 1,
+                                      style: MyTheme.whiteTextTheme.bodyText2,
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        Text(debtShortList[i - 1].cat.name), 
-                        Text(debtShortList[i-1].creditor == '' ? "" : debtShortList[i-1].creditor),
+                        AutoSizeText(
+                          debtShortList[i - 1].cat.name,
+                          minFontSize: 0,
+                          maxLines: 1,
+                        ),
+                        AutoSizeText(
+                          debtShortList[i - 1].creditor == ''
+                              ? ""
+                              : debtShortList[i - 1].creditor,
+                          style: MyTheme.textTheme.bodyText1,
+                        ),
                       ],
                     ),
                   );
@@ -1048,83 +1027,75 @@ class DebtLongTab extends ConsumerWidget {
     final debtLongList = ref.watch(provBSheet.select((e) => e.debtLongList));
 
     return Padding(
-      padding: const EdgeInsets.all(25.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text('หนี้ระยะยาว', style: MyTheme.textTheme.headline3),
+            child: Text(
+              'หนี้ระยะยาว',
+              style: MyTheme.textTheme.headline3,
+            ),
           ),
           SizedBox(
-            height: 111, //ขนาดแถว debt
+            height: 130, //ขนาดแถว debt
             child: ListView.builder(
-              //padding: EdgeInsets.only(left:10),
               physics: const ScrollPhysics(),
-              //shrinkWrap: true,
+              shrinkWrap: true,
               itemCount: debtLongList.length + 1,
               scrollDirection: Axis.horizontal,
-              // gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              //   crossAxisCount: 4,
-              //   mainAxisSpacing: 10,
-              //   crossAxisSpacing: 10,
-              //   mainAxisExtent: 100,
-              // ),
               itemBuilder: (_, i) {
                 if (i == 0) {
                   return SizedBox(
                     height: 100,
-                    width: 80,
+                    width: 90,
                     child: Column(
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 75, //height of button
-                              width: 75, //width of button
-                              child: ElevatedButton(
-                                //เพิ่มรายการใหม่
-                                onPressed: () {
-                                  final cat = ref.watch(provBSheet
-                                      .select((e) => e.catDebtLongList));
+                        SizedBox(
+                          height: 75, //height of button
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            //เพิ่มรายการใหม่
+                            onPressed: () {
+                              final cat = ref.watch(
+                                  provBSheet.select((e) => e.catDebtShortList));
+                              ref.read(provBSheet).setBalance(0);
+                              ref.read(provBSheet).setCreditor('');
+                              ref.read(provBSheet).setInterest(0);
+                              ref.read(provBSheet).setDebtTerm(null);
+                              ref.read(provBSheet).setCreateCatList(cat);
+                              ref.read(provBSheet).setCreateIdx(0);
+                              ref.read(provBSheet).setIsAdd(true);
+                              showModalBottomSheet(
+                                  //useRootNavigator: true,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (_) {
+                                    return const CreateBalance();
+                                  });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0.0,
+                              shadowColor:
+                                  Colors.transparent, //remove shadow on button
+                              primary: MyTheme.primaryMinor,
 
-                                  ref.read(provBSheet).setBalance(0);
-                                  ref.read(provBSheet).setCreditor('');
-                                  ref.read(provBSheet).setInterest(0);
-                                  ref.read(provBSheet).setDebtTerm(null);
-
-                                  ref.read(provBSheet).setCreateCatList(cat);
-                                  ref.read(provBSheet).setCreateIdx(0);
-                                  ref.read(provBSheet).setIsAdd(true);
-                                  showModalBottomSheet(
-                                      //useRootNavigator: true,
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (_) {
-                                        return CreateBalance();
-                                      });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  elevation: 0.0,
-                                  shadowColor: Colors
-                                      .transparent, //remove shadow on button
-                                  primary: MyTheme.primaryMinor,
-
-                                  padding: const EdgeInsets.all(10),
-
-                                  shape: const CircleBorder(),
-                                ),
-                                child: Icon(
-                                  Icons.add,
-                                  color: MyTheme.primaryMajor,
-                                ),
-                              ),
+                              shape: const CircleBorder(),
                             ),
-                          ],
+                            child: Icon(
+                              Icons.add,
+                              color: MyTheme.primaryMajor,
+                            ),
+                          ),
                         ),
-                        Text('เพิ่มรายการใหม่'),
+                        AutoSizeText(
+                          'เพิ่มรายการใหม่',
+                          minFontSize: 0,
+                          maxLines: 1,
+                          style: TextStyle(color: MyTheme.primaryMajor),
+                        ),
                       ],
                     ),
                   );
@@ -1139,12 +1110,10 @@ class DebtLongTab extends ConsumerWidget {
                           children: [
                             SizedBox(
                               height: 75, //height of button
-                              width: 100, //width of button แก้จำนวนเงิน overflow
+                              width: 100, //width of button
                               child: ElevatedButton(
                                 //แก้ไข
                                 onPressed: () {
-                                  //final cat = ref.watch(provBSheet.select((e) => e.catDebtShortList));
-
                                   ref
                                       .read(provBSheet)
                                       .setBalance(debtLongList[i - 1].balance);
@@ -1154,7 +1123,6 @@ class DebtLongTab extends ConsumerWidget {
                                       debtLongList[i - 1].interest);
                                   ref.read(provBSheet).setDebtTerm(
                                       debtLongList[i - 1].debtTerm);
-
                                   ref
                                       .read(provBSheet)
                                       .setCurrCat(debtLongList[i - 1].cat);
@@ -1169,17 +1137,11 @@ class DebtLongTab extends ConsumerWidget {
                                       isScrollControlled: true,
                                       context: context,
                                       builder: (_) {
-                                        return CreateBalance();
+                                        return const CreateBalance();
                                       });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  //elevation: 0.0,
-                                  //shadowColor: Colors/
-                                  //    .transparent, //remove shadow on button
                                   primary: MyTheme.negativeMajor,
-                                  textStyle: MyTheme.whiteTextTheme.headline4,
-                                  padding: const EdgeInsets.all(10),
-
                                   shape: const CircleBorder(),
                                 ),
                                 child: Column(
@@ -1190,16 +1152,31 @@ class DebtLongTab extends ConsumerWidget {
                                           debtLongList[i - 1].cat.icon),
                                       color: Colors.white,
                                     ),
-                                    Text(
-                                        debtLongList[i - 1].balance.toString()),
+                                    AutoSizeText(
+                                      HelperNumber.format(
+                                        debtLongList[i - 1].balance,
+                                      ),
+                                      minFontSize: 0,
+                                      maxLines: 1,
+                                      style: MyTheme.whiteTextTheme.bodyText2,
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        Text(debtLongList[i - 1].cat.name), 
-                        Text(debtLongList[i-1].creditor == '' ? "" : debtLongList[i-1].creditor),
+                        AutoSizeText(
+                          debtLongList[i - 1].cat.name,
+                          minFontSize: 0,
+                          maxLines: 1,
+                        ),
+                        AutoSizeText(
+                          debtLongList[i - 1].creditor == ''
+                              ? ""
+                              : debtLongList[i - 1].creditor,
+                          style: MyTheme.textTheme.bodyText1,
+                        ),
                       ],
                     ),
                   );

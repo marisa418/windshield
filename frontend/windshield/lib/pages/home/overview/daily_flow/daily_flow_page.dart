@@ -109,6 +109,7 @@ class DailyList extends ConsumerWidget {
     final expIncon = ref.watch(provDFlow.select((e) => e.expInconTotal));
     final expCon = ref.watch(provDFlow.select((e) => e.expConTotal));
     final savInv = ref.watch(provDFlow.select((e) => e.savAndInvTotal));
+    final date = ref.watch(provOverFlow.select((e) => e.date));
     if (idx == 0) {
       return Expanded(
         child: SingleChildScrollView(
@@ -141,13 +142,38 @@ class DailyList extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        Text(
-                          'รายรับ ${DateFormat('E d MMM y').format(
-                            ref.watch(provOverFlow.select((e) => e.date)),
-                          )}',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
-                            fontSize: 12,
+                        GestureDetector(
+                          onTap: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime.now().subtract(
+                                const Duration(days: 365),
+                              ),
+                              lastDate: DateTime.now().add(
+                                const Duration(days: 365),
+                              ),
+                            );
+                            if (picked != null) {
+                              final id = await ref
+                                  .read(apiProvider)
+                                  .getTodayDFId(picked);
+                              ref.read(provOverFlow).setDfId(id);
+                              ref.read(provOverFlow).setDate(picked);
+                              ref.refresh(apiDFlow);
+                            }
+                          },
+                          child: Wrap(
+                            children: [
+                              const Icon(
+                                Icons.calendar_today,
+                                color: Colors.white,
+                              ),
+                              Text(
+                                ' ของวัน ${DateFormat('E ที่ d MMMM y').format(date)}',
+                                style: MyTheme.whiteTextTheme.headline4,
+                              ),
+                            ],
                           ),
                         ),
                         Row(
@@ -389,13 +415,37 @@ class DailyList extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    Text(
-                      'รายจ่าย ${DateFormat('E d MMM y').format(
-                        ref.watch(provOverFlow.select((e) => e.date)),
-                      )}',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 12,
+                    GestureDetector(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now().subtract(
+                            const Duration(days: 365),
+                          ),
+                          lastDate: DateTime.now().add(
+                            const Duration(days: 365),
+                          ),
+                        );
+                        if (picked != null) {
+                          final id =
+                              await ref.read(apiProvider).getTodayDFId(picked);
+                          ref.read(provOverFlow).setDfId(id);
+                          ref.read(provOverFlow).setDate(picked);
+                          ref.refresh(apiDFlow);
+                        }
+                      },
+                      child: Wrap(
+                        children: [
+                          const Icon(
+                            Icons.calendar_today,
+                            color: Colors.white,
+                          ),
+                          Text(
+                            ' ของวัน ${DateFormat('E ที่ d MMMM y').format(date)}',
+                            style: MyTheme.whiteTextTheme.headline4,
+                          ),
+                        ],
                       ),
                     ),
                     Row(
@@ -1558,6 +1608,7 @@ class OldFlowSheetModal extends ConsumerWidget {
                   itemCount: oldSheets.length,
                   shrinkWrap: true,
                   itemBuilder: (_, i) {
+                    if (oldSheets[i].flows.isEmpty) return Container();
                     return FlowSheetTile(i: i, name: name);
                   },
                 ),
@@ -1583,6 +1634,7 @@ class FlowSheetTile extends ConsumerWidget {
     final sheet = ref.watch(provDFlow.select((e) => e.oldFlowSheetList[i]));
     final cat = ref.read(provDFlow).categorizeOldFlow(sheet, name);
     if (sheet.flows.isEmpty) return Container();
+    // sadasdasdasd
     return GestureDetector(
       onTap: () async {
         if (cat.isEmpty) return;

@@ -21,7 +21,11 @@ class DailyFlowOverviewProvider extends ChangeNotifier {
   int _expFlowsLen = 0;
   int get expFlowsLen => _expFlowsLen;
 
-  DateTime _date = DateTime.now();
+  DateTime _date = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+    DateTime.now().day,
+  );
   DateTime get date => _date;
 
   //1

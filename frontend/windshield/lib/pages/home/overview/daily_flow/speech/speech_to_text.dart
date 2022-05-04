@@ -10,6 +10,7 @@ import 'package:windshield/pages/home/overview/daily_flow/overview/daily_flow_ov
 import 'package:windshield/providers/speech_to_text_provider.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+import 'package:windshield/utility/number_formatter.dart';
 import '../daily_flow_page.dart';
 import 'cat_type.dart';
 
@@ -230,8 +231,10 @@ class FlowList extends ConsumerWidget {
                                   Icons.delete,
                                   color: Colors.white,
                                 ),
-                                Text('ลบ',
-                                    style: TextStyle(color: Colors.white)),
+                                Text(
+                                  'ลบ',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ],
                             ),
                           ),
@@ -320,7 +323,7 @@ class FlowList extends ConsumerWidget {
                                 ],
                               ),
                               Text(
-                                '${flowList[i].value.toString()} บ.',
+                                '${HelperNumber.format(flowList[i].value)} บ.',
                                 style: MyTheme.textTheme.headline2!.merge(
                                   TextStyle(
                                     color: flowList[i].cat.id == ''
@@ -468,10 +471,10 @@ class Calculator extends ConsumerWidget {
                   ref.read(provSpeech).setName(e);
                 },
                 style: MyTheme.whiteTextTheme.headline4,
-                showCursor: false,
                 decoration: const InputDecoration(
                   icon: Icon(Icons.edit, color: Colors.white),
                   hintText: 'โปรดกรอกชื่อรายการ',
+                  border: InputBorder.none,
                 ),
               ),
             ),

@@ -5,7 +5,6 @@ import 'package:windshield/models/balance_sheet/asset.dart';
 import 'package:windshield/models/balance_sheet/debt.dart';
 import 'package:windshield/models/statement/category.dart';
 
-
 import '../models/balance_sheet/log.dart';
 
 class BalanceSheetProvider extends ChangeNotifier {
@@ -15,7 +14,12 @@ class BalanceSheetProvider extends ChangeNotifier {
   List<StmntCategory> _cat = [];
   List<StmntCategory> get cat => _cat;
 
-  BSheetLog _log = BSheetLog(id: 0, timestamp: DateTime.now(), assetValue: 0, debtValue: 0, bsheetId: '');
+  BSheetLog _log = BSheetLog(
+      id: 0,
+      timestamp: DateTime.now(),
+      assetValue: 0,
+      debtValue: 0,
+      bsheetId: '');
   BSheetLog get log => _log;
 
   int _pageIdx = 0;
@@ -27,7 +31,6 @@ class BalanceSheetProvider extends ChangeNotifier {
   double get assTotal => _assTotal;
   double _debtTotal = 0;
   double get debtTotal => _debtTotal;
-  
 
   // ftype = 7 /
   final List<BSheetAsset> _assLiquidList = [];
@@ -92,10 +95,11 @@ class BalanceSheetProvider extends ChangeNotifier {
   DateTime? _debtTerm;
   DateTime? get debtTerm => _debtTerm;
 
-  bool _isAdd =true;
+  bool _isAdd = true;
   bool get isAdd => _isAdd;
 
-  
+  bool _isCalc = false;
+  bool get isCalc => _isCalc;
 
   void setBs(BSheetBalance value) {
     _bs = value;
@@ -105,12 +109,8 @@ class BalanceSheetProvider extends ChangeNotifier {
     _cat = value;
   }
 
-  void setPageIdx() {
-    if (_pageIdx == 0) {
-      _pageIdx = 1;
-    } else {
-      _pageIdx = 0;
-    }
+  void setPageIdx(int value) {
+    _pageIdx = value;
     notifyListeners();
   }
 
@@ -229,7 +229,7 @@ class BalanceSheetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setIsAdd(bool value){
+  void setIsAdd(bool value) {
     _isAdd = value;
     notifyListeners();
   }
@@ -238,8 +238,9 @@ class BalanceSheetProvider extends ChangeNotifier {
     _log = value;
     notifyListeners();
   }
+
+  void setIsCalc(bool value) {
+    _isCalc = value;
+    notifyListeners();
+  }
 }
-
-
-
- 
