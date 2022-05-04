@@ -532,12 +532,36 @@ class _CalculatorState extends ConsumerState<Calculator> {
                             ),
                             Flexible(
                               flex: 3,
-                              child: DropdownButton<int>(
+                              child: DropdownButtonFormField<int>(
                                 style: MyTheme.textTheme.bodyText1!.merge(
                                   const TextStyle(color: Colors.black),
                                 ),
+                                isDense: false,
+                                itemHeight: 55,
                                 value: ref.watch(provDFlow).flowMethod,
-                                icon: const Icon(Icons.arrow_downward),
+                                isExpanded: true,
+                                // icon: const Icon(Icons.arrow_downward),
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.all(10),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(.3),
+                                    ),
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(20),
+                                      bottomRight: Radius.circular(20),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(.3),
+                                    ),
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(20),
+                                      bottomRight: Radius.circular(20),
+                                    ),
+                                  ),
+                                ),
                                 onChanged: (int? e) {
                                   ref.read(provDFlow).setFlowMethod(e!);
                                 },
@@ -545,7 +569,11 @@ class _CalculatorState extends ConsumerState<Calculator> {
                                     .map<DropdownMenuItem<int>>((String value) {
                                   return DropdownMenuItem<int>(
                                     value: _returnType(value),
-                                    child: Text(value),
+                                    child: AutoSizeText(
+                                      value,
+                                      minFontSize: 0,
+                                      maxLines: 1,
+                                    ),
                                   );
                                 }).toList(),
                               ),
