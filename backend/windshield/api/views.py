@@ -167,7 +167,7 @@ class DailyFlowSheet(generics.RetrieveAPIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             dfsheet = models.DailyFlowSheet.objects.get(owner_id = uuid, date=date)
-            dfsheet = dfsheet.prefetch_related('flows')
+            dfsheet = dfsheet.prefetch_related(Prefetch('flows'))
         return dfsheet
 
 class DailyFlowSheetList(generics.ListAPIView):
