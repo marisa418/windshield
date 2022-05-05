@@ -42,9 +42,9 @@ class AdimEditUserSerializer(serializers.ModelSerializer):
         read_only = ["uuid", "user_id", "email", "pin"]
         
 class VerificationCodeSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
-    timestamp = serializers.DateTimeField(default_timezone=pytz.timezone('Asia/Bangkok'))
+    email = serializers.EmailField()
+    send_at = serializers.DateTimeField(default_timezone=pytz.timezone('Asia/Bangkok'))
     
     class Meta:
         model = VerifyCodeLog
-        exclude = ['code']
+        exclude = ['code', 'user']
