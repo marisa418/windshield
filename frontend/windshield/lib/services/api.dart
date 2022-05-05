@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
+import 'package:windshield/models/article/article.dart';
 import 'package:windshield/models/balance_sheet/flow_sheet.dart';
 
 import '../../models/daily_flow/flow.dart';
@@ -686,6 +687,17 @@ class Api extends ChangeNotifier {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  // articles
+  Future<List<Article>> getAllArticles() async {
+    try {
+      final res = await dio.get('/api/articles/');
+      final data = (res.data as List).map((i) => Article.fromJson(i)).toList();
+      return data;
+    } catch (e) {
+      return [];
     }
   }
 }
