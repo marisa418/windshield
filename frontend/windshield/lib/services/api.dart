@@ -30,11 +30,13 @@ class Api extends ChangeNotifier {
 
   final _storage = const FlutterSecureStorage();
 
+  final url = 'http://192.168.1.35:8000';
+
   Api() {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.1.35:8000' + options.path;
+          options.path = url + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
@@ -500,7 +502,6 @@ class Api extends ChangeNotifier {
       final data = BSheetBalance.fromJson(res.data);
       return data;
     } catch (e) {
-      print(e);
       return null;
     }
   }
@@ -524,7 +525,6 @@ class Api extends ChangeNotifier {
 
   Future<bool> addAsset(String source, double recentVal, String catId) async {
     try {
-      print(source);
       await dio.post(
         '/api/asset/',
         data: {
@@ -691,13 +691,13 @@ class Api extends ChangeNotifier {
   }
 
   // articles
-  Future<List<Article>> getAllArticles() async {
+  Future<Articles> getArticles(int page) async {
     try {
-      final res = await dio.get('/api/articles/');
-      final data = (res.data as List).map((i) => Article.fromJson(i)).toList();
+      final res = await dio.get('/api/articles/?page=$page');
+      final data = Articles.fromJson(res.data, url);
       return data;
     } catch (e) {
-      return [];
+      return Articles(articles: [], pages: 0);
     }
   }
 }

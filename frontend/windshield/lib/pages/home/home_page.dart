@@ -39,7 +39,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomeState extends ConsumerState<HomePage> {
   int _selectedIndex = 0;
-  List<Widget> pageList = <Widget>[];
+  List<Widget> _pageList = <Widget>[];
 
   @override
   void initState() {
@@ -47,10 +47,10 @@ class _HomeState extends ConsumerState<HomePage> {
     AwesomeNotifications().actionStream.listen((receivedNotification) {
       AutoRouter.of(context).push(const DailyFlowOverviewRoute());
     });
-    pageList.add(const Overview());
-    pageList.add(const Analysis());
-    pageList.add(const ArticlePage());
-    pageList.add(const SettingPage());
+    _pageList.add(const Overview());
+    _pageList.add(const Analysis());
+    _pageList.add(const ArticlePage());
+    _pageList.add(const SettingPage());
   }
 
   @override
@@ -60,6 +60,7 @@ class _HomeState extends ConsumerState<HomePage> {
   }
 
   void _updateIndex(int index) {
+    // if (index == 2) ref.refresh(provArticle);
     setState(() {
       _selectedIndex = index;
     });
@@ -77,7 +78,7 @@ class _HomeState extends ConsumerState<HomePage> {
           child: Scaffold(
             body: IndexedStack(
               index: _selectedIndex,
-              children: pageList,
+              children: _pageList,
             ),
             bottomNavigationBar: FABBottomAppBar(
               onTabSelected: _updateIndex,
