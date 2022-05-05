@@ -1151,8 +1151,17 @@ class Articles(generics.ListAPIView):
     serializer_class = serializers.ArticlesSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+    def list(self, request):
+        queryset, n = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response({ 
+                         "articles": serializer.data, 
+                         "total": n
+                         })
+    
     def get_queryset(self):
         queryset = models.KnowledgeArticle.objects.all()
+        n = queryset.count()
         ignore = self.request.query_params.getlist('ignore')
         if len(ignore) > 0:
             queryset = queryset.exclude(subject__name__in=ignore)
@@ -1200,7 +1209,7 @@ class Articles(generics.ListAPIView):
             end = limit * page
             if end > queryset.count(): end = queryset.count()
             queryset = queryset[start:end]
-        return queryset
+        return queryset, n
     
 class Article(generics.RetrieveAPIView):
     serializer_class = serializers.KnowledgeArticleSerializer
