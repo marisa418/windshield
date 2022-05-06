@@ -1,3 +1,19 @@
+class Articles {
+  List<Article> articles;
+  int pages;
+
+  Articles({
+    required this.articles,
+    required this.pages,
+  });
+
+  factory Articles.fromJson(Map<String, dynamic> json, String url) => Articles(
+        articles: List<Article>.from(
+            json['articles'].map((x) => Article.fromJson(x, url))),
+        pages: json['total pages'],
+      );
+}
+
 class Article {
   int id;
   List<Subject> subject;
@@ -21,13 +37,13 @@ class Article {
     required this.author,
   });
 
-  factory Article.fromJson(Map<String, dynamic> json) => Article(
+  factory Article.fromJson(Map<String, dynamic> json, String url) => Article(
         id: json['id'],
         subject:
             List<Subject>.from(json['subject'].map((x) => Subject.fromJson(x))),
         isUnlock: json['isunlock'],
         topic: json['topic'],
-        img: json['image'],
+        img: url + json['image'],
         view: json['view'],
         price: json['exclusive_price'],
         uploadDate: DateTime.parse(json['upload_on']),
