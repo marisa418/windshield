@@ -250,6 +250,9 @@ class Assettable extends ConsumerWidget {
     final assPrivateTotal =
         ref.watch(provBSheet.select((e) => e.assPrivateTotal));
     final assTotal = ref.watch(provBSheet.select((e) => e.assTotal));
+    final debtTotal = ref.watch(provBSheet.select((e) => e.debtTotal));
+    double asspercent = ((assTotal/(assTotal+debtTotal))*100).roundToDouble();
+    
 
     //double assetTotal = assLiquidTotal+assInvestTotal+assPrivateTotal;
 
@@ -274,11 +277,11 @@ class Assettable extends ConsumerWidget {
               CircularPercentIndicator(
                 radius: 25,
                 progressColor: Colors.white,
-                percent: 1,
+                percent: asspercent/100,
                 animation: true,
                 animationDuration: 2000,
                 lineWidth: 6.5,
-                center: const Text('xx.x%',
+                center:  Text('$asspercent'+' %',
                     style: TextStyle(color: Colors.white, fontSize: 11)),
                 backgroundColor: const Color(0x80ffffff),
               ),
@@ -317,6 +320,9 @@ class Depttable extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final debtTotal = ref.watch(provBSheet.select((e) => e.debtTotal));
+    final assTotal = ref.watch(provBSheet.select((e) => e.assTotal));
+    double debtpercent = ((debtTotal/(assTotal+debtTotal))*100).roundToDouble();
+
 
     return Expanded(
       child: GestureDetector(
@@ -339,11 +345,11 @@ class Depttable extends ConsumerWidget {
               CircularPercentIndicator(
                 radius: 25,
                 progressColor: Colors.white,
-                percent: 0.744,
+                percent: debtpercent/100,
                 animation: true,
                 animationDuration: 2000,
                 lineWidth: 6.5,
-                center: Text('xx.x%',
+                center: Text('$debtpercent'+' %',
                     style: TextStyle(color: Colors.white, fontSize: 11)),
                 backgroundColor: const Color(0x80ffffff),
               ),
