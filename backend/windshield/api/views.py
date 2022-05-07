@@ -167,6 +167,7 @@ class DailyFlowSheet(generics.RetrieveAPIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             dfsheet = models.DailyFlowSheet.objects.get(owner_id = uuid, date=date)
+            dfsheet = dfsheet.prefetch_related(Prefetch('flows'))
         return dfsheet
 
 class DailyFlowSheetList(generics.ListAPIView):
@@ -560,7 +561,7 @@ class DefaultCategories(generics.ListCreateAPIView):
     serializer_class = serializers.DefaultCategoriesSerializer
     queryset = models.DefaultCategory.objects.all()
 
-class Category(generics.RetrieveUpdateAPIView):
+class Category(generics.RetrieveUpdateDestroyAPIView):
     permissions_classes = [permissions.IsAuthenticated]
     serializer_class = serializers.CategorySerializer
     
@@ -1150,12 +1151,20 @@ class Articles(generics.ListAPIView):
     serializer_class = serializers.ArticlesSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+    def list(self, request):
+        queryset, n = self.get_queryset()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response({ 
+                         "articles": serializer.data, 
+                         "total pages": n
+                         })
+    
     def get_queryset(self):
         queryset = models.KnowledgeArticle.objects.all()
         ignore = self.request.query_params.getlist('ignore')
         if len(ignore) > 0:
             queryset = queryset.exclude(subject__name__in=ignore)
-        readable = eval(self.request.query_params.get("lower_price", "False"))
+        readable = eval(self.request.query_params.get("readable", "False"))
         if readable:
             queryset = queryset.filter(
                 Q(exclusive_price=0) |
@@ -1175,7 +1184,7 @@ class Articles(generics.ListAPIView):
             queryset = queryset.filter(
                 Q(topic__contains=search_text) |
                 Q(subject__name__contains=search_text)
-            )
+            ).distinct()
         sort_by = self.request.query_params.get("sort_by", None)
         if sort_by:
             try:
@@ -1190,16 +1199,16 @@ class Articles(generics.ListAPIView):
         
         page = self.request.query_params.get("page", None)
         limit = int(self.request.query_params.get("limit", 5))
+        total_page = math.ceil(float(queryset.count()) / limit)
         if page:
             page = int(page)
-            total_page = math.ceil(float(queryset.count()) / limit)
             if page > total_page: page = total_page
             if page < 1:  page = 1
             start = limit * (page - 1)
             end = limit * page
             if end > queryset.count(): end = queryset.count()
             queryset = queryset[start:end]
-        return queryset
+        return queryset, total_page
     
 class Article(generics.RetrieveAPIView):
     serializer_class = serializers.KnowledgeArticleSerializer

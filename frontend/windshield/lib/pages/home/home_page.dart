@@ -7,9 +7,11 @@ import 'package:windshield/components/fab_bottom_appbar.dart';
 import 'package:windshield/main.dart';
 import 'package:windshield/providers/home_provider.dart';
 import 'package:windshield/routes/app_router.dart';
-import './overview/overview_page.dart';
-import './setting/setting_page.dart';
+
+import 'overview/overview_page.dart';
 import 'analysis/analysis_page.dart';
+import 'article/article_page.dart';
+import 'setting/setting_page.dart';
 
 final provHome =
     ChangeNotifierProvider.autoDispose<HomeProvider>((ref) => HomeProvider());
@@ -37,7 +39,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomeState extends ConsumerState<HomePage> {
   int _selectedIndex = 0;
-  List<Widget> pageList = <Widget>[];
+  List<Widget> _pageList = <Widget>[];
 
   @override
   void initState() {
@@ -45,10 +47,10 @@ class _HomeState extends ConsumerState<HomePage> {
     AwesomeNotifications().actionStream.listen((receivedNotification) {
       AutoRouter.of(context).push(const DailyFlowOverviewRoute());
     });
-    pageList.add(const Overview());
-    pageList.add(const Analysis());
-    pageList.add(Container(color: Colors.blue));
-    pageList.add(const SettingPage());
+    _pageList.add(const Overview());
+    _pageList.add(const Analysis());
+    _pageList.add(const ArticlePage());
+    _pageList.add(const SettingPage());
   }
 
   @override
@@ -58,6 +60,7 @@ class _HomeState extends ConsumerState<HomePage> {
   }
 
   void _updateIndex(int index) {
+    // if (index == 2) ref.refresh(provArticle);
     setState(() {
       _selectedIndex = index;
     });
@@ -75,7 +78,7 @@ class _HomeState extends ConsumerState<HomePage> {
           child: Scaffold(
             body: IndexedStack(
               index: _selectedIndex,
-              children: pageList,
+              children: _pageList,
             ),
             bottomNavigationBar: FABBottomAppBar(
               onTabSelected: _updateIndex,

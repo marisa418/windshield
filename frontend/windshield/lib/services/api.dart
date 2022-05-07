@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
+import 'package:windshield/models/article/article.dart';
 import 'package:windshield/models/balance_sheet/flow_sheet.dart';
 
 import '../../models/daily_flow/flow.dart';
@@ -28,6 +29,8 @@ class Api extends ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
 
   final _storage = const FlutterSecureStorage();
+
+  final url = 'http://192.168.1.35:8000';
 
   Api() {
     dio.interceptors.add(InterceptorsWrapper(
@@ -499,7 +502,6 @@ class Api extends ChangeNotifier {
       final data = BSheetBalance.fromJson(res.data);
       return data;
     } catch (e) {
-      print(e);
       return null;
     }
   }
@@ -523,7 +525,6 @@ class Api extends ChangeNotifier {
 
   Future<bool> addAsset(String source, double recentVal, String catId) async {
     try {
-      print(source);
       await dio.post(
         '/api/asset/',
         data: {
@@ -686,6 +687,17 @@ class Api extends ChangeNotifier {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  // articles
+  Future<Articles> getArticles(int page) async {
+    try {
+      final res = await dio.get('/api/articles/?page=$page');
+      final data = Articles.fromJson(res.data, url);
+      return data;
+    } catch (e) {
+      return Articles(articles: [], pages: 0);
     }
   }
 }
