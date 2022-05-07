@@ -6,6 +6,8 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 import 'package:windshield/styles/theme.dart';
 
+import '../../../utility/icon_convertor.dart';
+
 class Analysis extends ConsumerStatefulWidget {
   const Analysis({Key? key}) : super(key: key);
 
@@ -1225,6 +1227,402 @@ class StatPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SingleChildScrollView();
+    return SingleChildScrollView(
+        child: Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 10.0),
+            child: Text(
+              'เกณฑ์การตัดสิน',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              RichText(
+                text: const TextSpan(
+                  children: [
+                    WidgetSpan(
+                      child: Icon(
+                        Icons.rectangle_rounded,
+                        size: 22,
+                        color: Colors.greenAccent,
+                      ),
+                    ),
+                    TextSpan(
+                      text: "อยู่ในเกณฑ์ที่ ดี",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              RichText(
+                text: const TextSpan(
+                  children: [
+                    WidgetSpan(
+                      child: Icon(
+                        Icons.rectangle_rounded,
+                        size: 22,
+                        color: Colors.blueAccent,
+                      ),
+                    ),
+                    TextSpan(
+                      text: "อยู่ในเกณฑ์ที่ ปานกลาง",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              RichText(
+                text: const TextSpan(
+                  children: [
+                    WidgetSpan(
+                      child: Icon(
+                        Icons.rectangle_rounded,
+                        size: 22,
+                        color: Colors.orangeAccent,
+                      ),
+                    ),
+                    TextSpan(
+                      text: "อยู่ในเกณฑ์ที่ พอใช้",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 45),
+                child: RichText(
+                  text: const TextSpan(
+                    children: [
+                      WidgetSpan(
+                        child: Icon(
+                          Icons.rectangle_rounded,
+                          size: 22,
+                          color: Colors.redAccent,
+                        ),
+                      ),
+                      TextSpan(
+                        text: "อยู่ในเกณฑ์ที่ เเย่",
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.only(top: 10, bottom: 10),
+            child: Text(
+              'ความมั่งคั่งในปัจจุบัน',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, left: 10.0, right: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Container(
+                  height: 160,
+                  width: 170,
+                  decoration: BoxDecoration(
+                    color: Colors.greenAccent,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(top: 20),
+                          child: Icon(HelperIcons.getIconData('comment-dollar'),
+                              size: 60, color: Colors.white),
+                        ),
+                        Text(
+                          'ความมั่งคั่งสุทธิ',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 20),
+                          child: Text('X,XXX บ.',
+                              style:
+                                  TextStyle(fontSize: 25, color: Colors.white)),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                    height: 160,
+                    width: 170,
+                    decoration: BoxDecoration(
+                      color: Colors.orangeAccent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: Icon(HelperIcons.getIconData('dollar-sign'),
+                                size: 60, color: Colors.white),
+                          ),
+                          Text(
+                            'กระเเสเงินสดสุทธิ',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: Text('X,XXX บ.',
+                                style: TextStyle(
+                                    fontSize: 25, color: Colors.white)),
+                          )
+                        ],
+                      ),
+                    )),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, left: 10.0, right: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Container(
+                    height: 160,
+                    width: 170,
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(top: 20),
+                            child: Icon(Icons.balance_rounded,
+                                size: 60, color: Colors.white),
+                          ),
+                          Text(
+                            'อัตราส่วนความมั่งคั่ง',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: Text('X.X',
+                                style: TextStyle(
+                                    fontSize: 25, color: Colors.white)),
+                          )
+                        ],
+                      ),
+                    )),
+                Container(
+                    height: 160,
+                    width: 170,
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(top: 20),
+                            child: Icon(Icons.mood_bad_rounded,
+                                size: 60, color: Colors.white),
+                          ),
+                          Text(
+                            'อัตราส่วนความอยู่รอด',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: Text('X.X',
+                                style: TextStyle(
+                                    fontSize: 25, color: Colors.white)),
+                          )
+                        ],
+                      ),
+                    )),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(top: 10, bottom: 10),
+            child: Text(
+              'สภาพคล่องเเละ \nความสามารถในการชำระหนี้',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, left: 10.0, right: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Container(
+                    height: 160,
+                    width: 170,
+                    decoration: BoxDecoration(
+                      color: Colors.greenAccent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: Icon(HelperIcons.getIconData('coins'),
+                                size: 60, color: Colors.white),
+                          ),
+                          Text(
+                            'อัตราส่วน\nสภาพคล่องพื้นฐาน',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 10),
+                            child: Text('X,XXX บ.',
+                                style: TextStyle(
+                                    fontSize: 25, color: Colors.white)),
+                          )
+                        ],
+                      ),
+                    )),
+                Container(
+                    height: 160,
+                    width: 170,
+                    decoration: BoxDecoration(
+                      color: Colors.orangeAccent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: 10),
+                            child: Icon(
+                                HelperIcons.getIconData('hand-holding-usd'),
+                                size: 60,
+                                color: Colors.white),
+                          ),
+                          Text(
+                            'อัตราส่วนการชำระ\nหนี้สินจากรายได้',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Text('X.X',
+                                style: TextStyle(
+                                    fontSize: 25, color: Colors.white)),
+                          )
+                        ],
+                      ),
+                    )),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(top: 10, bottom: 10),
+            child: Text(
+              'โอกาสในการสร้างความมั่งคั่ง',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, left: 10.0, right: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Container(
+                    height: 160,
+                    width: 170,
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: Icon(HelperIcons.getIconData('piggy-bank'),
+                                size: 60, color: Colors.white),
+                          ),
+                          const Text(
+                            'อัตราส่วนการออม',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: Text('X.X',
+                                style: TextStyle(
+                                    fontSize: 25, color: Colors.white)),
+                          )
+                        ],
+                      ),
+                    )),
+                Container(
+                    height: 160,
+                    width: 170,
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: 20),
+                            child: Icon(HelperIcons.getIconData('chart-line'),
+                                size: 60, color: Colors.white),
+                          ),
+                          const Text(
+                            'อัตราส่วนการลงทุน',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 20),
+                            child: Text('X.X',
+                                style: TextStyle(
+                                    fontSize: 25, color: Colors.white)),
+                          )
+                        ],
+                      ),
+                    )),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ));
   }
 }

@@ -30,13 +30,13 @@ class Api extends ChangeNotifier {
 
   final _storage = const FlutterSecureStorage();
 
-  final url = 'http://192.168.1.35:8000';
+  final url = 'http://192.168.146.1:8000';
 
   Api() {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.146.1:8000' + options.path;
+          options.path = url + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
