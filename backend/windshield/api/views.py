@@ -1164,7 +1164,7 @@ class Articles(generics.ListAPIView):
         ignore = self.request.query_params.getlist('ignore')
         if len(ignore) > 0:
             queryset = queryset.exclude(subject__name__in=ignore)
-        readable = eval(self.request.query_params.get("lower_price", "False"))
+        readable = eval(self.request.query_params.get("readable", "False"))
         if readable:
             queryset = queryset.filter(
                 Q(exclusive_price=0) |
@@ -1184,7 +1184,7 @@ class Articles(generics.ListAPIView):
             queryset = queryset.filter(
                 Q(topic__contains=search_text) |
                 Q(subject__name__contains=search_text)
-            )
+            ).distinct()
         sort_by = self.request.query_params.get("sort_by", None)
         if sort_by:
             try:
