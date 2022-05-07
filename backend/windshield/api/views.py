@@ -911,8 +911,6 @@ class FinancialStatus(APIView):
         return None
     
     def get(self, request):
-        if self.request.user.uuid is None:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         self.past_days = int(request.query_params.get("days", 30))
         cash_flow = self.__cash_flow__()
         balance = self.__balance_sheet__()

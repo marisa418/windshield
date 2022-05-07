@@ -73,7 +73,7 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
     status = models.CharField(max_length=3, choices=status_chocies, null=True) 
     #
 
-    age = models.PositiveSmallIntegerField(null=True)
+    born_year = models.IntegerField(null=True)
     province = models.ForeignKey(Province, on_delete=CASCADE, null=True)
     family = models.PositiveSmallIntegerField(null=True)
     points = models.PositiveIntegerField(default=0)
