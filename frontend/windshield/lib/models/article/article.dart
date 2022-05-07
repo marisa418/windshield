@@ -65,3 +65,44 @@ class Subject {
         name: json['name'],
       );
 }
+
+class ArticleRead {
+  int id;
+  List<Subject> subject;
+  bool like;
+  String topic;
+  String body;
+  String img;
+  int view;
+  int price;
+  DateTime uploadDate;
+  String author;
+
+  ArticleRead({
+    required this.id,
+    required this.subject,
+    required this.like,
+    required this.body,
+    required this.topic,
+    required this.img,
+    required this.view,
+    required this.price,
+    required this.uploadDate,
+    required this.author,
+  });
+
+  factory ArticleRead.fromJson(Map<String, dynamic> json, String url) =>
+      ArticleRead(
+        id: json['id'],
+        subject:
+            List<Subject>.from(json['subject'].map((x) => Subject.fromJson(x))),
+        like: json['like'],
+        topic: json['topic'],
+        body: json['body'],
+        img: url + json['image'],
+        view: json['view'],
+        price: json['exclusive_price'],
+        uploadDate: DateTime.parse(json['upload_on']),
+        author: json['author'],
+      );
+}

@@ -39,7 +39,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomeState extends ConsumerState<HomePage> {
   int _selectedIndex = 0;
-  List<Widget> _pageList = <Widget>[];
+  final List<Widget> _pageList = <Widget>[];
 
   @override
   void initState() {
@@ -76,10 +76,16 @@ class _HomeState extends ConsumerState<HomePage> {
       data: (_) {
         return SafeArea(
           child: Scaffold(
+            resizeToAvoidBottomInset: false,
             body: IndexedStack(
               index: _selectedIndex,
               children: _pageList,
             ),
+            drawer: const Drawer(
+              child: FilterDialog(),
+            ),
+            onDrawerChanged: (isOpen) =>
+                isOpen ? null : ref.refresh(apiArticle),
             bottomNavigationBar: FABBottomAppBar(
               onTabSelected: _updateIndex,
               centerItemText: 'บัญชีรายรับ-รายจ่าย',
