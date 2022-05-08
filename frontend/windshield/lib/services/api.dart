@@ -632,6 +632,7 @@ class Api extends ChangeNotifier {
 
   Future<bool> addGoal(
     String name,
+    String icon,
     double goal,
     DateTime start,
     DateTime? goalDate,
@@ -643,6 +644,7 @@ class Api extends ChangeNotifier {
         '/api/financial-goal/',
         data: {
           "name": name,
+          "icon": icon,
           "goal": goal,
           "start": DateFormat('y-MM-dd').format(start),
           "goal_date":
@@ -660,7 +662,10 @@ class Api extends ChangeNotifier {
   Future<bool> editGoal(
     String id,
     String name,
+    String icon,
     double goal,
+    DateTime start,
+    DateTime? goalDate,
     String period,
     double progPerPeriod,
   ) async {
@@ -669,7 +674,11 @@ class Api extends ChangeNotifier {
         '/api/financial-goal/$id/',
         data: {
           "name": name,
+          "icon": icon,
           "goal": goal,
+          "start": DateFormat('y-MM-dd').format(start),
+          "goal_date":
+              goalDate != null ? DateFormat('y-MM-dd').format(goalDate) : null,
           "period_term": period,
           "progress_per_period": progPerPeriod
         },

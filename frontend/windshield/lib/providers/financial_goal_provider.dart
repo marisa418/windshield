@@ -11,6 +11,9 @@ class FinancialGoalProvider extends ChangeNotifier {
   double _goal = 0;
   double get goal => _goal;
 
+  String _icon = '';
+  String get icon => _icon;
+
   double _totalProg = 0;
   double get totalProg => _totalProg;
 
@@ -54,6 +57,8 @@ class FinancialGoalProvider extends ChangeNotifier {
 
   bool _isMainForm = true;
   bool get isMainForm => _isMainForm;
+  bool _isCheck = true;
+  bool get isCheck => _isCheck;
 
   void setFgList(List<FGoal> value) {
     _fgList = value;
@@ -72,6 +77,7 @@ class FinancialGoalProvider extends ChangeNotifier {
         _startedFg.add(item);
       }
     }
+
     notifyListeners();
   }
 
@@ -85,6 +91,11 @@ class FinancialGoalProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setIsCheck(bool value) {
+    _isCheck = value;
+    notifyListeners();
+  }
+
   void setName(String value) {
     _name = value;
     notifyListeners();
@@ -92,6 +103,11 @@ class FinancialGoalProvider extends ChangeNotifier {
 
   void setGoal(double value) {
     _goal = value;
+    notifyListeners();
+  }
+
+  void setIcon(String value) {
+    _icon = value;
     notifyListeners();
   }
 
