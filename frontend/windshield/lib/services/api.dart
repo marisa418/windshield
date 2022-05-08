@@ -33,7 +33,7 @@ class Api extends ChangeNotifier {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.1.35:8000' + options.path;
+          options.path = 'http://192.168.1.9:8000' + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
@@ -612,6 +612,50 @@ class Api extends ChangeNotifier {
           "interest": interest,
           "debt_term": date != null ? DateFormat('y-MM-dd').format(date) : null,
         },
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  //เพิ่ม category
+  Future<bool> addCategory(String name, String icon) async {
+    try {
+      await dio.post(
+        '/api/category/',
+        data: {
+          "name": name,
+          "icon": icon,         
+        },
+        
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+    //edit category
+  Future<bool> editCategory(String id, String name, String icon) async {
+    try {
+      await dio.patch(
+        '/api/category/$id/',
+        data: {
+          "name": name,
+          "icon": icon,         
+        },
+        
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  //ลบ category
+  Future<bool> deleteCategory(String id, ) async {
+    try {
+      await dio.delete(
+        '/api/category/$id/',
+        
       );
       return true;
     } catch (e) {

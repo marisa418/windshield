@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:windshield/main.dart';
 import 'package:windshield/pages/home/overview/balance_sheet/create_balance.dart';
+import 'package:windshield/pages/home/overview/category/deleteCat.dart';
 import 'package:windshield/styles/theme.dart';
+import 'package:windshield/utility/ftype_coler.dart';
 import 'package:windshield/utility/icon_convertor.dart';
 import '../../../../providers/category_provider.dart';
 
@@ -118,14 +120,55 @@ class IncWorking extends ConsumerWidget {
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
-          itemCount: incWorking.length,
+          
+          itemCount: incWorking.length+1,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             mainAxisExtent: 100,
           ),
+          //ปุ่มเพิ่ม
           itemBuilder: (_, i) {
+            if (i==incWorking.length){
+              return SizedBox(
+              height: 100,
+              width: 110,
+              child: Column(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height:
+                            60, //height of button แก้ตอนเลือกประเภท overflow
+                        width: 75, //width of button
+                        child: ElevatedButton(
+                          onPressed: () {
+                          },
+                          style: ElevatedButton.styleFrom(
+                            //elevation: 0.0,
+                            //shadowColor: Colors
+                            //    .transparent, //remove shadow on button
+                            primary: HelperColor.getFtColor('1', 0),
+                            textStyle: MyTheme.textTheme.headline4,
+                            padding: const EdgeInsets.all(10),
+
+                            shape: const CircleBorder(),
+                          ),
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text('เพิ่ม'),
+                ],
+              ),
+            );
+            }
             return SizedBox(
               height: 100,
               width: 110,
@@ -139,12 +182,24 @@ class IncWorking extends ConsumerWidget {
                             60, //height of button แก้ตอนเลือกประเภท overflow
                         width: 75, //width of button
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                                //มาต่อตรงนี้
+                                ref.read(provCat).setCurrCat(incWorking[i]);
+
+                            showModalBottomSheet(
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return DeleteForm();
+                                      });
+                          },
                           style: ElevatedButton.styleFrom(
                             //elevation: 0.0,
                             //shadowColor: Colors
                             //    .transparent, //remove shadow on button
-                            primary: getcolor(incWorking[i].ftype),
+                            primary: HelperColor.getFtColor(incWorking[i].ftype, 0),
                             textStyle: MyTheme.textTheme.headline4,
                             padding: const EdgeInsets.all(10),
 
