@@ -48,6 +48,8 @@ class CategoryProvider extends ChangeNotifier {
   final List<StmntCategory> _goalList = [];
   List<StmntCategory> get goalList => _goalList;
 
+  bool _isAdd = true;
+  bool get isAdd => _isAdd;
   
   String _id = '';
   String get id => _id;
@@ -55,22 +57,32 @@ class CategoryProvider extends ChangeNotifier {
   String get name => _name;
   String _icon ='';
   String get icon => _icon;
+  String _ftype ='';
+  String get ftype => _ftype;
 
   StmntCategory _currCat =
       StmntCategory(id: '', name: '', usedCount: 0, ftype: '', icon: '');
   StmntCategory get currCat => _currCat;
 
-  List<StmntCategory> _createCatList = [];
-  List<StmntCategory> get createCatList => _createCatList;
+  String _curFtype = '';
+
+  String get curFtype => _curFtype;
+
 
   
 
   bool _needFetchAPI = false;
   bool get needFetchAPI => _needFetchAPI;
 
-  void setCreateCatList(List<StmntCategory> value) {
-    _createCatList = value;
+  void setIsAdd(bool value) {
+    _isAdd = value;
     notifyListeners();
+  }
+
+
+  void setCurftype(String value) {
+    _curFtype = value;
+    
   }
 
   void setCat(List<StmntCategory> value) {
@@ -136,6 +148,10 @@ class CategoryProvider extends ChangeNotifier {
   }
   void setCurrCat(StmntCategory value) {
     _currCat = value;
+    notifyListeners();
+  }
+  void setFtype(String value) {
+    _ftype = value;
     notifyListeners();
   }
   

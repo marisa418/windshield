@@ -145,6 +145,19 @@ class IncWorking extends ConsumerWidget {
                         width: 75, //width of button
                         child: ElevatedButton(
                           onPressed: () {
+                            //ref.read(provCat).setCurrCat('');
+                            ref.read(provCat).setIcon('flag_sharp');
+                            ref.read(provCat).setCurftype('1');
+                            ref.read(provCat).setIsAdd(true);
+                            
+                                showModalBottomSheet(
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return DeleteCat();
+                                      });
                           },
                           style: ElevatedButton.styleFrom(
                             //elevation: 0.0,
@@ -185,6 +198,11 @@ class IncWorking extends ConsumerWidget {
                           onPressed: () {
                                 //มาต่อตรงนี้
                                 ref.read(provCat).setCurrCat(incWorking[i]);
+                                ref.read(provCat).setCurftype(incWorking[i].ftype);
+                                ref.read(provCat).setId(incWorking[i].id);
+                                print("id = ");
+                                print(incWorking[i].id);
+                                ref.read(provCat).setIsAdd(false);
 
                             showModalBottomSheet(
                                       //useRootNavigator: true,
@@ -192,7 +210,7 @@ class IncWorking extends ConsumerWidget {
                                       isScrollControlled: true,
                                       context: context,
                                       builder: (_) {
-                                        return DeleteForm();
+                                        return DeleteCat();
                                       });
                           },
                           style: ElevatedButton.styleFrom(

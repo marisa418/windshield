@@ -30,7 +30,7 @@ class Api extends ChangeNotifier {
 
   final _storage = const FlutterSecureStorage();
 
-  final url = 'http://192.168.146.1:8000';
+  final url = 'http://192.168.1.9:8000';
 
   Api() {
       dio.interceptors.add(InterceptorsWrapper(
@@ -620,13 +620,14 @@ class Api extends ChangeNotifier {
     }
   }
   //เพิ่ม category
-  Future<bool> addCategory(String name, String icon) async {
+  Future<bool> addCategory(String name, String icon, String ftype) async {
     try {
       await dio.post(
-        '/api/category/',
+        '/api/categories/',
         data: {
           "name": name,
-          "icon": icon,         
+          "icon": icon,  
+          "ftype":ftype,       
         },
         
       );
@@ -636,13 +637,14 @@ class Api extends ChangeNotifier {
     }
   }
     //edit category
-  Future<bool> editCategory(String id, String name, String icon) async {
+  Future<bool> editCategory(String id, String name, String icon,) async {
     try {
       await dio.patch(
         '/api/category/$id/',
         data: {
           "name": name,
-          "icon": icon,         
+          "icon": icon,
+          //"ftype":ftype,         
         },
         
       );
