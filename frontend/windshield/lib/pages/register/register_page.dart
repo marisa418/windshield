@@ -200,6 +200,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                     _phone,
                                   );
                               if (res) {
+                                //OTP FIRST
                                 AutoRouter.of(context).push(const PinRoute());
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(

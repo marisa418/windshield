@@ -345,22 +345,43 @@ class _CalculatorState extends ConsumerState<Calculator> {
                     children: [
                       Flexible(
                         flex: 7,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              budgetPerPeriod == 0
-                                  ? 'จำนวนเงิน'
-                                  : HelperNumber.format(budgetPerPeriod),
-                              style: MyTheme.textTheme.headline3,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(.2),
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              bottomLeft: Radius.circular(20),
                             ),
-                            Text(
-                              (_controller.expression?.isEmpty ?? true)
-                                  ? '-'
-                                  : '${_controller.expression}',
-                              style: MyTheme.textTheme.bodyText2,
-                            ),
-                          ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AutoSizeText(
+                                budgetPerPeriod == 0
+                                    ? widget.bud.name
+                                    : HelperNumber.format(budgetPerPeriod),
+                                maxLines: 1,
+                                textAlign: TextAlign.right,
+                                style: budgetPerPeriod == 0
+                                    ? MyTheme.textTheme.headline3!.merge(
+                                        const TextStyle(
+                                          color: Colors.grey,
+                                        ),
+                                      )
+                                    : MyTheme.textTheme.headline3,
+                              ),
+                              AutoSizeText(
+                                _controller.expression ?? '',
+                                maxLines: 1,
+                                textAlign: TextAlign.end,
+                                style: MyTheme.textTheme.bodyText2!.merge(
+                                  const TextStyle(color: Colors.grey),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       Flexible(

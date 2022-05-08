@@ -2,18 +2,21 @@ import 'package:auto_route/auto_route.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_simple_calculator/flutter_simple_calculator.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:collection/collection.dart';
-import 'package:windshield/components/loading.dart';
+import 'package:flutter_simple_calculator/src/calc_controller.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/models/daily_flow/flow.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/utility/ftype_coler.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+import 'package:windshield/utility/number_formatter.dart';
 import 'package:windshield/utility/progress.dart';
+import 'package:windshield/components/loading.dart';
 import '../daily_flow_page.dart';
 import '../overview/daily_flow_overview_page.dart';
 
@@ -113,6 +116,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
                           showModalBottomSheet(
                             context: context,
                             isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
                             builder: (context) =>
                                 const Calculator(isAdd: false),
                           );
@@ -342,6 +346,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
                       builder: (context) => const Calculator(isAdd: true),
                     );
                   },
@@ -375,176 +380,312 @@ String _loopFlow(List<DFlowFlow> value) {
   return sum.toString();
 }
 
-class Calculator extends ConsumerWidget {
-  const Calculator({required this.isAdd, Key? key}) : super(key: key);
+class Calculator extends ConsumerStatefulWidget {
+  const Calculator({
+    required this.isAdd,
+    Key? key,
+  }) : super(key: key);
   final bool isAdd;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConsumerStatefulWidget> createState() => _CalculatorState();
+}
+
+class _CalculatorState extends ConsumerState<Calculator> {
+  final _controller = CalcController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final flowValue = ref.watch(provDFlow.select((e) => e.flowValue));
     return Padding(
       padding: EdgeInsets.only(
-        left: 10,
-        right: 10,
-        top: 30,
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TextFormField(
-            // autofocus: true,
-            initialValue: ref.watch(provDFlow).flowName,
-
-            onChanged: (e) {
-              ref.read(provDFlow).setFlowName(e);
-            },
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              hintText: ref.watch(provDFlow).currCat.name,
+          Container(
+            padding: const EdgeInsets.all(8),
+            height: 70,
+            decoration: BoxDecoration(
+              color: MyTheme.primaryMajor,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(40.0),
+                topRight: Radius.circular(40.0),
+              ),
+            ),
+            child: TextFormField(
+              initialValue: ref.watch(provDFlow).flowName,
+              cursorColor: Colors.white,
+              onChanged: (e) {
+                ref.read(provDFlow).setFlowName(e);
+              },
+              decoration: const InputDecoration(
+                prefixIcon: Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
+              style: MyTheme.whiteTextTheme.headline4,
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Flexible(
-                flex: 7,
-                child: TextFormField(
-                  // autofocus: true,
-                  initialValue: ref.watch(provDFlow).flowValue == 0
-                      ? null
-                      : ref.watch(provDFlow).flowValue.toString(),
-
-                  keyboardType: TextInputType.number,
-                  onChanged: (e) {
-                    ref.read(provDFlow).setFlowValue(double.tryParse(e) ?? 0);
-                  },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    // hintText: ref.watch(provDFlow).flowName,
-                    hintText: 'โปรดกรอกจำนวนเงิน',
-                  ),
-                ),
-              ),
-              Flexible(
-                flex: 3,
-                child: DropdownButton<int>(
-                  style: MyTheme.textTheme.bodyText1!.merge(
-                    const TextStyle(color: Colors.black),
-                  ),
-                  value: ref.watch(provDFlow).flowMethod,
-                  icon: const Icon(Icons.arrow_downward),
-                  onChanged: (int? e) {
-                    ref.read(provDFlow).setFlowMethod(e!);
-                  },
-                  items: <String>['เงินสด', 'โอน', 'บัตรเครดิต']
-                      .map<DropdownMenuItem<int>>((String value) {
-                    return DropdownMenuItem<int>(
-                      value: _returnType(value),
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  height: 50,
-                  width: 150,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                    color: Colors.red,
-                  ),
-                  child: Center(
-                    child: Text(
-                      'ยกเลิก',
-                      style: MyTheme.whiteTextTheme.headline3,
-                    ),
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () async {
-                  if (ref.watch(provDFlow).flowValue == 0) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return const AlertDialog(
-                          title: Text(
-                            'โปรดกรอกจำนวนเงิน',
-                            textAlign: TextAlign.center,
+          Container(
+            padding: const EdgeInsets.only(
+              left: 10,
+              right: 10,
+              top: 30,
+            ),
+            color: Colors.white,
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 355,
+                  child: Stack(
+                    children: [
+                      Column(
+                        children: [
+                          const SizedBox(height: 40),
+                          Expanded(
+                            child: SimpleCalculator(
+                              hideSurroundingBorder: true,
+                              controller: _controller,
+                              theme: CalculatorThemeData(
+                                displayStyle: const TextStyle(
+                                    fontSize: 0, color: Colors.white),
+                                expressionStyle: const TextStyle(fontSize: 0),
+                                commandColor: MyTheme.primaryMajor,
+                                commandStyle: MyTheme.whiteTextTheme.headline4,
+                                operatorColor: MyTheme.primaryMinor,
+                                operatorStyle:
+                                    MyTheme.whiteTextTheme.headline2!.merge(
+                                  TextStyle(color: MyTheme.primaryMajor),
+                                ),
+                              ),
+                              onChanged: (_, value, __) {
+                                ref
+                                    .read(provDFlow)
+                                    .setFlowValue(_controller.value ?? 0);
+                              },
+                            ),
                           ),
-                        );
-                      },
-                    );
-                    return;
-                  }
-                  showLoading(context);
-                  if (isAdd) {
-                    final flow = await ref.read(apiProvider).addFlow(
-                          ref.read(provOverFlow).dfId,
-                          ref.read(provDFlow).currCat.id,
-                          ref.read(provDFlow).flowName,
-                          ref.read(provDFlow).flowValue,
-                          ref.read(provDFlow).flowMethod,
-                        );
-                    if (flow.id != '') {
-                      ref.read(provDFlow).addFlow(flow);
-                      ref.read(provDFlow).setNeedFetchAPI();
-                      ref.read(provOverFlow).setNeedFetchAPI();
-                      ref.refresh(apiDateChange);
-                      AutoRouter.of(context)
-                          .popUntilRouteWithName('DailyFlowCreateRoute');
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('เกิดข้อผิดพลาด')),
-                      );
-                      AutoRouter.of(context).pop();
-                    }
-                  } else {
-                    final flow = await ref.read(apiProvider).editFlow(
-                          ref.read(provDFlow).flowId,
-                          ref.read(provDFlow).flowName,
-                          ref.read(provDFlow).flowValue,
-                          ref.read(provDFlow).flowMethod,
-                        );
-                    if (flow.id != '') {
-                      ref.read(provDFlow).editFlow(flow);
-                      ref.read(provDFlow).setNeedFetchAPI();
-                      ref.read(provOverFlow).setNeedFetchAPI();
-                      ref.refresh(apiDateChange);
-                      AutoRouter.of(context)
-                          .popUntilRouteWithName('DailyFlowCreateRoute');
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('เกิดข้อผิดพลาด')),
-                      );
-                      AutoRouter.of(context).pop();
-                    }
-                  }
-                },
-                child: Container(
-                  height: 50,
-                  width: 150,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(15)),
-                    color: Colors.green,
-                  ),
-                  child: Center(
-                    child: Text(
-                      'ยืนยัน',
-                      style: MyTheme.whiteTextTheme.headline3,
-                    ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 55,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              flex: 7,
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 7),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.withOpacity(.2),
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(20),
+                                    bottomLeft: Radius.circular(20),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    AutoSizeText(
+                                      flowValue == 0
+                                          ? 'โปรดกรอกจำนวนเงิน'
+                                          : HelperNumber.format(flowValue),
+                                      maxLines: 1,
+                                      textAlign: TextAlign.right,
+                                      style: flowValue == 0
+                                          ? MyTheme.textTheme.headline3!.merge(
+                                              const TextStyle(
+                                                color: Colors.grey,
+                                              ),
+                                            )
+                                          : MyTheme.textTheme.headline3,
+                                    ),
+                                    AutoSizeText(
+                                      _controller.expression ?? '',
+                                      maxLines: 1,
+                                      textAlign: TextAlign.end,
+                                      style: MyTheme.textTheme.bodyText2!.merge(
+                                        const TextStyle(color: Colors.grey),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              flex: 3,
+                              child: DropdownButtonFormField<int>(
+                                style: MyTheme.textTheme.bodyText1!.merge(
+                                  const TextStyle(color: Colors.black),
+                                ),
+                                isDense: false,
+                                itemHeight: 55,
+                                value: ref.watch(provDFlow).flowMethod,
+                                isExpanded: true,
+                                // icon: const Icon(Icons.arrow_downward),
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.all(10),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(.3),
+                                    ),
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(20),
+                                      bottomRight: Radius.circular(20),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(.3),
+                                    ),
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(20),
+                                      bottomRight: Radius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                                onChanged: (int? e) {
+                                  ref.read(provDFlow).setFlowMethod(e!);
+                                },
+                                items: <String>['เงินสด', 'โอน', 'บัตรเครดิต']
+                                    .map<DropdownMenuItem<int>>((String value) {
+                                  return DropdownMenuItem<int>(
+                                    value: _returnType(value),
+                                    child: AutoSizeText(
+                                      value,
+                                      minFontSize: 0,
+                                      maxLines: 1,
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        height: 50,
+                        width: 150,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                          color: Colors.red,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'ยกเลิก',
+                            style: MyTheme.whiteTextTheme.headline3,
+                          ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        if (ref.watch(provDFlow).flowValue == 0) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return const AlertDialog(
+                                title: Text(
+                                  'โปรดกรอกจำนวนเงิน',
+                                  textAlign: TextAlign.center,
+                                ),
+                              );
+                            },
+                          );
+                          return;
+                        }
+                        showLoading(context);
+                        if (widget.isAdd) {
+                          final flow = await ref.read(apiProvider).addFlow(
+                                ref.read(provOverFlow).dfId,
+                                ref.read(provDFlow).currCat.id,
+                                ref.read(provDFlow).flowName,
+                                ref.read(provDFlow).flowValue,
+                                ref.read(provDFlow).flowMethod,
+                              );
+                          if (flow.id != '') {
+                            ref.read(provDFlow).addFlow(flow);
+                            ref.read(provDFlow).setNeedFetchAPI();
+                            ref.read(provOverFlow).setNeedFetchAPI();
+                            ref.refresh(apiDateChange);
+                            AutoRouter.of(context)
+                                .popUntilRouteWithName('DailyFlowCreateRoute');
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+                            );
+                            AutoRouter.of(context).pop();
+                          }
+                        } else {
+                          final flow = await ref.read(apiProvider).editFlow(
+                                ref.read(provDFlow).flowId,
+                                ref.read(provDFlow).flowName,
+                                ref.read(provDFlow).flowValue,
+                                ref.read(provDFlow).flowMethod,
+                              );
+                          if (flow.id != '') {
+                            ref.read(provDFlow).editFlow(flow);
+                            ref.read(provDFlow).setNeedFetchAPI();
+                            ref.read(provOverFlow).setNeedFetchAPI();
+                            ref.refresh(apiDateChange);
+                            AutoRouter.of(context)
+                                .popUntilRouteWithName('DailyFlowCreateRoute');
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+                            );
+                            AutoRouter.of(context).pop();
+                          }
+                        }
+                      },
+                      child: Container(
+                        height: 50,
+                        width: 150,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
+                          color: Colors.green,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'ยืนยัน',
+                            style: MyTheme.whiteTextTheme.headline3,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
-          const SizedBox(height: 10),
         ],
       ),
     );
