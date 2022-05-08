@@ -30,7 +30,7 @@ class SettingPage extends ConsumerWidget {
         SettingInfo(),
         ResetPassword(),
         ResetPin(),
-        SettingCat(),
+        //SettingCat(),
         SetNotificate(),
         IssueInfo(),
         GuideInfo(),
@@ -409,13 +409,14 @@ class LogoutBt extends ConsumerWidget {
             ),
             
       child: Container(
+        height:70,
         
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(
             
             children: const [
               Padding(
-                padding: EdgeInsets.only(left: 20, top: 20),
+                padding: EdgeInsets.only(left: 8, top: 20),
                 child: const Icon(
                   Icons.logout,
                   color: Colors.grey,
@@ -433,7 +434,7 @@ class LogoutBt extends ConsumerWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(left: 108, top: 20),
+                padding: EdgeInsets.only(left: 120, top: 20),
                 child: const Icon(
                   Icons.chevron_right_outlined,
                   color: Colors.grey,

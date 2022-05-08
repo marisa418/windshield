@@ -33,7 +33,7 @@ class Api extends ChangeNotifier {
   final url = 'http://192.168.146.1:8000';
 
   Api() {
-    dio.interceptors.add(InterceptorsWrapper(
+      dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
           options.path = url + options.path;
@@ -619,6 +619,50 @@ class Api extends ChangeNotifier {
       return false;
     }
   }
+  //เพิ่ม category
+  Future<bool> addCategory(String name, String icon) async {
+    try {
+      await dio.post(
+        '/api/category/',
+        data: {
+          "name": name,
+          "icon": icon,         
+        },
+        
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+    //edit category
+  Future<bool> editCategory(String id, String name, String icon) async {
+    try {
+      await dio.patch(
+        '/api/category/$id/',
+        data: {
+          "name": name,
+          "icon": icon,         
+        },
+        
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  //ลบ category
+  Future<bool> deleteCategory(String id, ) async {
+    try {
+      await dio.delete(
+        '/api/category/$id/',
+        
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   //เป้าหมายทางการเงิน
   Future<List<FGoal>> getAllGoals() async {
@@ -633,6 +677,7 @@ class Api extends ChangeNotifier {
 
   Future<bool> addGoal(
     String name,
+    String icon,
     double goal,
     DateTime start,
     DateTime? goalDate,
@@ -644,6 +689,7 @@ class Api extends ChangeNotifier {
         '/api/financial-goal/',
         data: {
           "name": name,
+          "icon": icon,
           "goal": goal,
           "start": DateFormat('y-MM-dd').format(start),
           "goal_date":
@@ -661,7 +707,10 @@ class Api extends ChangeNotifier {
   Future<bool> editGoal(
     String id,
     String name,
+    String icon,
     double goal,
+    DateTime start,
+    DateTime? goalDate,
     String period,
     double progPerPeriod,
   ) async {
@@ -670,7 +719,11 @@ class Api extends ChangeNotifier {
         '/api/financial-goal/$id/',
         data: {
           "name": name,
+          "icon": icon,
           "goal": goal,
+          "start": DateFormat('y-MM-dd').format(start),
+          "goal_date":
+              goalDate != null ? DateFormat('y-MM-dd').format(goalDate) : null,
           "period_term": period,
           "progress_per_period": progPerPeriod
         },

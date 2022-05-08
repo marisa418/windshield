@@ -4,6 +4,7 @@ import 'package:windshield/models/statement/category.dart';
 class CategoryProvider extends ChangeNotifier {  
   List<StmntCategory> _cat = [];
   List<StmntCategory> get cat => _cat;
+  
   // ftype = 1 /
   final List<StmntCategory> _incWorkingList = [];
   List<StmntCategory> get incWorkingList => _incWorkingList;
@@ -41,10 +42,36 @@ class CategoryProvider extends ChangeNotifier {
   
   final List<StmntCategory> _debtLongList = [];
   List<StmntCategory> get debtLongList => _debtLongList;
+
+  // 12 เป้าหมาย
+  
+  final List<StmntCategory> _goalList = [];
+  List<StmntCategory> get goalList => _goalList;
+
+  
+  String _id = '';
+  String get id => _id;
+  String _name ='';
+  String get name => _name;
+  String _icon ='';
+  String get icon => _icon;
+
+  StmntCategory _currCat =
+      StmntCategory(id: '', name: '', usedCount: 0, ftype: '', icon: '');
+  StmntCategory get currCat => _currCat;
+
+  List<StmntCategory> _createCatList = [];
+  List<StmntCategory> get createCatList => _createCatList;
+
   
 
   bool _needFetchAPI = false;
   bool get needFetchAPI => _needFetchAPI;
+
+  void setCreateCatList(List<StmntCategory> value) {
+    _createCatList = value;
+    notifyListeners();
+  }
 
   void setCat(List<StmntCategory> value) {
     _cat = value;
@@ -63,9 +90,7 @@ class CategoryProvider extends ChangeNotifier {
     _assPrivateList.clear();
     _debtShortList.clear();
     _debtLongList.clear();
-
-
-
+    _goalList.clear();
     for (var item in _cat) {
       if (item.ftype == '1') {
         _incWorkingList.add(item);
@@ -89,11 +114,31 @@ class CategoryProvider extends ChangeNotifier {
         _debtShortList.add(item);
       } else if (item.ftype == '11') {
         _debtLongList.add(item);
+      } else if (item.ftype == '12') {
+        _goalList.add(item);
       }
     }
     
     notifyListeners();
   }
+
+  void setId(String value) {
+    _id = value;
+    notifyListeners();
+  }
+  void setName(String value) {
+    _name = value;
+    notifyListeners();
+  }
+  void setIcon(String value) {
+    _icon = value;
+    notifyListeners();
+  }
+  void setCurrCat(StmntCategory value) {
+    _currCat = value;
+    notifyListeners();
+  }
+  
 
   void setNeedFetchAPI() {
     _needFetchAPI = !_needFetchAPI;
