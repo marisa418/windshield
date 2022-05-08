@@ -65,7 +65,6 @@ class CategoryProvider extends ChangeNotifier {
   StmntCategory get currCat => _currCat;
 
   String _curFtype = '';
-
   String get curFtype => _curFtype;
 
 
