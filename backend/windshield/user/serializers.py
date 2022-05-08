@@ -1,8 +1,7 @@
-
+import pytz
 from rest_framework import serializers
-from user.models import NewUser
-from user.models import Province
-from api.models import Category, FinancialType
+from user.models import *
+
 
 class ProvinceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,3 +40,11 @@ class AdimEditUserSerializer(serializers.ModelSerializer):
         model = NewUser
         exclude = ['password']
         read_only = ["uuid", "user_id", "email", "pin"]
+        
+class VerificationCodeSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+    send_at = serializers.DateTimeField(default_timezone=pytz.timezone('Asia/Bangkok'))
+    
+    class Meta:
+        model = VerifyCodeLog
+        exclude = ['code', 'user']

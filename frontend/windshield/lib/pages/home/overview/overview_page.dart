@@ -120,7 +120,9 @@ class Overview extends StatelessWidget {
                     Column(
                       children: [
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            AutoRouter.of(context).push(const CategoryRoute());
+                          },
                           child: Container(
                             alignment: Alignment.center,
                             height: 60,
@@ -136,7 +138,7 @@ class Overview extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         const Text(
-                          'วางแผนจัดการ\nหนี้สิน',
+                          'จัดการ\nหมวดหมู่',
                           textAlign: TextAlign.center,
                         ),
                       ],

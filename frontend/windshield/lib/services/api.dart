@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
+import 'package:windshield/models/article/article.dart';
 import 'package:windshield/models/balance_sheet/flow_sheet.dart';
 
 import '../../models/daily_flow/flow.dart';
@@ -29,11 +30,13 @@ class Api extends ChangeNotifier {
 
   final _storage = const FlutterSecureStorage();
 
+  final url = 'http://192.168.146.1:8000';
+
   Api() {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
-          options.path = 'http://192.168.1.101:8000' + options.path;
+          options.path = url + options.path;
         }
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
@@ -499,7 +502,6 @@ class Api extends ChangeNotifier {
       final data = BSheetBalance.fromJson(res.data);
       return data;
     } catch (e) {
-      print(e);
       return null;
     }
   }
@@ -523,7 +525,6 @@ class Api extends ChangeNotifier {
 
   Future<bool> addAsset(String source, double recentVal, String catId) async {
     try {
-      print(source);
       await dio.post(
         '/api/asset/',
         data: {
@@ -692,6 +693,87 @@ class Api extends ChangeNotifier {
   Future<bool> deleteGoal(String id) async {
     try {
       await dio.delete('/api/financial-goal/$id/');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // articles
+  Future<Articles> getArticles(
+    int page,
+    String search,
+    List<bool> ignore,
+    String sort,
+    bool isAsc,
+    List<int> price,
+  ) async {
+    try {
+      String ignoreStr = '';
+      String searchStr = '';
+      String sortStr = '';
+      String priceStr = '';
+      for (var i = 0; i < ignore.length; i++) {
+        if (!ignore[i]) {
+          if (i == 0) {
+            ignoreStr = ignoreStr + '&ignore=พื้นฐาน';
+          } else if (i == 1) {
+            ignoreStr = ignoreStr + '&ignore=ข่าว/บทสัมภาษณ์';
+          } else if (i == 2) {
+            ignoreStr = ignoreStr + '&ignore=การลงทุน';
+          } else {
+            ignoreStr = ignoreStr + '&ignore=หนี้สิน';
+          }
+        }
+      }
+      if (search.isNotEmpty) searchStr = '&search=$search';
+      if (sort.isNotEmpty) sortStr = '&sort_by=${isAsc ? sort : '-$sort'}';
+      if (price.any((e) => e != 0)) {
+        priceStr = '&lower_price=${price[0]}&upper_price=${price[1]}';
+      }
+      final res = await dio.get(
+        '/api/articles/?page=$page$ignoreStr$searchStr$sortStr$priceStr',
+      );
+      final data = Articles.fromJson(res.data, url);
+      return data;
+    } catch (e) {
+      return Articles(articles: [], pages: 0);
+    }
+  }
+
+  Future<bool> unlockArticle(int id) async {
+    try {
+      await dio.get('/api/article/$id/unlock');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<ArticleRead> readArticle(int id) async {
+    try {
+      final res = await dio.get('/api/article/$id/read');
+      final data = ArticleRead.fromJson(res.data, url);
+      return data;
+    } catch (e) {
+      return ArticleRead(
+        id: 0,
+        subject: [],
+        like: false,
+        body: '',
+        topic: '',
+        img: '',
+        view: 0,
+        price: 0,
+        uploadDate: DateTime.now(),
+        author: '',
+      );
+    }
+  }
+
+  Future<bool> likeArticle(int id) async {
+    try {
+      await dio.get('/api/article/$id/like');
       return true;
     } catch (e) {
       return false;

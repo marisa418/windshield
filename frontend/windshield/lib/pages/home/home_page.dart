@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,9 +7,11 @@ import 'package:windshield/components/fab_bottom_appbar.dart';
 import 'package:windshield/main.dart';
 import 'package:windshield/providers/home_provider.dart';
 import 'package:windshield/routes/app_router.dart';
-import './overview/overview_page.dart';
-import './setting/setting_page.dart';
+
+import 'overview/overview_page.dart';
 import 'analysis/analysis_page.dart';
+import 'article/article_page.dart';
+import 'setting/setting_page.dart';
 
 final provHome =
     ChangeNotifierProvider.autoDispose<HomeProvider>((ref) => HomeProvider());
@@ -36,18 +39,28 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomeState extends ConsumerState<HomePage> {
   int _selectedIndex = 0;
-  List<Widget> pageList = <Widget>[];
+  final List<Widget> _pageList = <Widget>[];
 
   @override
   void initState() {
     super.initState();
-    pageList.add(const Overview());
-    pageList.add(const Analysis());
-    pageList.add(Container(color: Colors.blue));
-    pageList.add(const SettingPage());
+    AwesomeNotifications().actionStream.listen((receivedNotification) {
+      AutoRouter.of(context).push(const DailyFlowOverviewRoute());
+    });
+    _pageList.add(const Overview());
+    _pageList.add(const Analysis());
+    _pageList.add(const ArticlePage());
+    _pageList.add(const SettingPage());
+  }
+
+  @override
+  void dispose() {
+    AwesomeNotifications().actionSink.close();
+    super.dispose();
   }
 
   void _updateIndex(int index) {
+    // if (index == 2) ref.refresh(provArticle);
     setState(() {
       _selectedIndex = index;
     });
@@ -63,10 +76,16 @@ class _HomeState extends ConsumerState<HomePage> {
       data: (_) {
         return SafeArea(
           child: Scaffold(
+            resizeToAvoidBottomInset: false,
             body: IndexedStack(
               index: _selectedIndex,
-              children: pageList,
+              children: _pageList,
             ),
+            drawer: const Drawer(
+              child: FilterDialog(),
+            ),
+            onDrawerChanged: (isOpen) =>
+                isOpen ? null : ref.refresh(apiArticle),
             bottomNavigationBar: FABBottomAppBar(
               onTabSelected: _updateIndex,
               centerItemText: 'บัญชีรายรับ-รายจ่าย',

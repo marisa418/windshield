@@ -88,6 +88,14 @@ class _$AppRouter extends RootStackRouter {
     NotificationRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const NotificationPage());
+    },
+    CategoryRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const CategoryPage());
+    },
+    ArticleReadRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const ArticleReadPage());
     }
   };
 
@@ -125,7 +133,11 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(FinancialGoalRoute.name,
               path: 'financial-goal-page', parent: EmptyRouterRoute.name),
           RouteConfig(NotificationRoute.name,
-              path: 'notification-page', parent: EmptyRouterRoute.name)
+              path: 'notification-page', parent: EmptyRouterRoute.name),
+          RouteConfig(CategoryRoute.name,
+              path: 'category-page', parent: EmptyRouterRoute.name),
+          RouteConfig(ArticleReadRoute.name,
+              path: 'article-read-page', parent: EmptyRouterRoute.name)
         ])
       ];
 }
@@ -284,4 +296,21 @@ class NotificationRoute extends PageRouteInfo<void> {
       : super(NotificationRoute.name, path: 'notification-page');
 
   static const String name = 'NotificationRoute';
+}
+
+/// generated route for
+/// [CategoryPage]
+class CategoryRoute extends PageRouteInfo<void> {
+  const CategoryRoute() : super(CategoryRoute.name, path: 'category-page');
+
+  static const String name = 'CategoryRoute';
+}
+
+/// generated route for
+/// [ArticleReadPage]
+class ArticleReadRoute extends PageRouteInfo<void> {
+  const ArticleReadRoute()
+      : super(ArticleReadRoute.name, path: 'article-read-page');
+
+  static const String name = 'ArticleReadRoute';
 }

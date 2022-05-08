@@ -88,14 +88,6 @@ class AnnuallyFlowSheetGraphSerializer(serializers.ModelSerializer):
         model = models.DailyFlowSheet
         exclude = ["owner_id"]
         read_only_fields = ['id']
-
-class SummaryStatementPlan(serializers.ModelSerializer):
-    working_income_budget = serializers.DecimalField(max_digits=12, decimal_places=2)
-    working_income = serializers.DecimalField(max_digits=12, decimal_places=2)
-    
-    class Meta:
-        model = models.FinancialStatementPlan
-        exclude = ["owner_id"]
    
 class FinancialTypeSerializer(serializers.ModelSerializer):
     categories = CategorySerializer(many=True, read_only=True)
@@ -180,6 +172,18 @@ class StatementUpdateSerializer(serializers.ModelSerializer):
         model = models.FinancialStatementPlan
         exclude = ['owner_id']
         read_only_fields = ['id', 'start', 'end', 'month']
+       
+class SummaryStatementPlan(serializers.ModelSerializer):
+    working_income_budget = serializers.FloatField()
+    invest_income_budget = serializers.FloatField()
+    other_income_budget = serializers.FloatField()
+    inconsist_expense_budget = serializers.FloatField()
+    consist_expense_budget = serializers.FloatField()
+    saving_n_invest_budget = serializers.FloatField()
+
+    class Meta:
+        model = models.FinancialStatementPlan
+        exclude = ["owner_id"]
         
 class CategoryWithBudgetAndFlowsSerializer(serializers.ModelSerializer):
     budgets = BudgetSerializer(many=True)
