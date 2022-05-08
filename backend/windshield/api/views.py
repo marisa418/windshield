@@ -598,6 +598,9 @@ class Categories(generics.ListCreateAPIView):
                 models.Category.objects.create(name=cat.name, ftype=cat.ftype, user_id=owner, icon=cat.icon)
             queryset = models.Category.objects.filter(user_id=uuid)
         as_used = eval(self.request.query_params.get('as_used', "False"))
+        with_deleted = eval(self.request.query_params.get('with_deleted', "False"))
+        if not with_deleted:
+            queryset = queryset.exclude(isDeleted=True)
         if as_used:
             queryset = queryset.filter(
                 Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
