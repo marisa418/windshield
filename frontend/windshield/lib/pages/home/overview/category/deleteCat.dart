@@ -46,6 +46,8 @@ class _TestFormState extends ConsumerState<Test2Form> {
     final curCat = ref.watch(provCat.select((e) => e.currCat)); 
     final curFtype = ref.watch(provCat.select((e) => e.curFtype));
     final ftype = ref.watch(provCat.select((e) => e.ftype));
+    //final icon = ref.watch(provCat.select((e) => e.icon));
+    //final curiCon = ref.watch(provCat.select((e) => e.icon)); 
     return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -98,7 +100,7 @@ class _TestFormState extends ConsumerState<Test2Form> {
                                 //ช่องกรอกชื่อสีเทา
                                 children: [
                                   TextFormField(
-                                initialValue: '',
+                                initialValue: curCat.name,
                                 textAlign: TextAlign.center,
                                 decoration: InputDecoration(
                                   hintText: 'โปรดระบุชื่อหมวดหมู่',
@@ -134,21 +136,48 @@ class _TestFormState extends ConsumerState<Test2Form> {
                             ),
                           ),
                         ),
+                        //เลือก icons
                         Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            height: 75, //height of button
-                            width: 75, //width of button
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: HelperColor.getFtColor(ftype, 0),
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          child: InkWell(
+                            child: Container(
+                              height: 70,
+                              width: 70,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: HelperColor.getFtColor(ftype, 0),
+                              ),
+                              child: Icon(
+                                HelperIcons.getIconData(
+                                    ref.watch(provCat).icon),
+                                color: Colors.white,
+                                size: 40,
+                              ),
                             ),
-                            child: Icon(
-                              HelperIcons.getIconData(curCat.icon),
-                              color: Colors.white,
-                            ),
+                            onTap: () {
+                              // showDialogref.read(provCat).seticonList(curCat);
+                              //ref.read(provCat).helpericons;
+                              print('provCat.icon = ');
+                              print(ref.read(provCat).icon);
+                              
+                              //print(ref.watch(provFGoal).goal);
+                              showModalBottomSheet(
+                                backgroundColor: Colors.transparent,
+                                context: context,
+                                isScrollControlled: true,
+                                // builder: (_) {
+                                //   return page2();
+                                // }
+                                builder: (context) {
+                                  return SizedBox(
+                                      height: 530, child: ChooseIcons());
+                                },
+                              );
+                            },
                           ),
                         ),
+                      ), //Containerxt
                       ],
                     ),
                   ),
@@ -169,7 +198,7 @@ class _TestFormState extends ConsumerState<Test2Form> {
                                 width: MediaQuery.of(context).size.width - 50,
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    ref.read(provCat).setIcon('flag_sharp');
+                                    //ref.read(provCat).setIcon();
                                     ref.read(provCat).setFtype(ftype);
                                     print("Curcat.ftype");
                                     print(ftype);
@@ -178,7 +207,7 @@ class _TestFormState extends ConsumerState<Test2Form> {
                                       final asset =
                                           await ref.read(apiProvider).addCategory(
                                                 ref.read(provCat).name,
-                                                ref.read(provCat).icon.toString(),
+                                                ref.read(provCat).icon,
                                                 ref.read(provCat).ftype,
                                                 
                                               );
@@ -268,3 +297,51 @@ class _TestFormState extends ConsumerState<Test2Form> {
       );
   }
 }
+
+
+
+class ChooseIcons extends ConsumerWidget {
+  const ChooseIcons({Key? key}) : super(key: key);
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    final Icons = ref.watch(provCat.select((e) => e.icon));
+    
+    final ftype = ref.watch(provCat.select((e) => e.ftype));
+    return Container(
+      color: Colors.white,
+      child: GridView.count(
+        crossAxisCount: 4,
+        children: List.generate(helpericons.length, (i) {
+          return Center(
+            child: InkWell(
+              child: CircleAvatar(
+                  backgroundColor:
+                      helpericons[i].toString() == ref.watch(provCat).icon
+                          ?HelperColor.getFtColor(ftype, 0)
+                          :HelperColor.getFtColor(ftype, 1),
+                          //: Color(0xFF5236FF).withOpacity(0.4),
+                  radius: 40,
+                  child: FittedBox(
+                    child: Icon(
+                      HelperIcons.getIconData(helpericons[i].toString()),
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  )),
+              onTap: () {
+                print(helpericons[i].toString());
+                print(ref.watch(provCat).icon);
+                //ref.watch(provCat).setIcon(icons[i].toString());
+                ref.watch(provCat).setIcon(helpericons[i].toString());
+                Navigator.pop(context);
+              },
+            ),
+            // Icon(icons[i]),
+          );
+        }),
+      ),
+    );
+  }
+}
+
