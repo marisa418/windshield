@@ -252,6 +252,7 @@ class Statement(generics.ListCreateAPIView):
         queryset = queryset.prefetch_related(
             Prefetch('budgets', queryset=models.Budget.objects.filter(cat_id__isDeleted=False))
         )
+        queryset = queryset.order_by("start", "-chosen")
         return queryset
     
     def __date_validation__(self, queryset, start, end):
@@ -1126,7 +1127,7 @@ class PastStatementPlans(APIView):
         uuid = self.request.user.uuid
         today = datetime.now(tz= timezone('Asia/Bangkok'))
         try:
-            past_plans = models.FinancialStatementPlan.objects.filter(owner_id=uuid, end__lt=today, chosen=True)
+            past_plans = models.FinancialStatementPlan.objects.filter(owner_id=uuid, end__lt=today, chosen=True).order_by('start')
         except models.FinancialStatementPlan.DoesNotExist:
             return Response({"message": "there is not past statement plan existed."}, status=status.HTTP_404_NOT_FOUND)
         past_plans = past_plans.annotate(
