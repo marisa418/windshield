@@ -37,10 +37,10 @@ class CategoryPage extends ConsumerWidget {
               
               Container(
                 child:Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text('test',style: MyTheme.whiteTextTheme.headline2),
+                  padding: const EdgeInsets.all(18.0),
+                  child: Text('จัดการหมวดหมู่',style: MyTheme.whiteTextTheme.headline1),
                 ),
-                height: 190,
+                height: 90,
                 width:500,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
@@ -116,7 +116,10 @@ class IncWorking extends ConsumerWidget {
     final incWorking = ref.watch(provCat.select((e) => e.incWorkingList));
 
     return Column(children: [
-      Text('IncWorking', style: MyTheme.textTheme.headline2),
+
+      Container(
+        child: Text('IncWorking', style: MyTheme.textTheme.headline2)
+        ),
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
@@ -145,6 +148,21 @@ class IncWorking extends ConsumerWidget {
                         width: 75, //width of button
                         child: ElevatedButton(
                           onPressed: () {
+                            //ref.read(provCat).setCurrCat('');
+                            ref.read(provCat).setIcon('flag_sharp');
+                            //ref.read(provCat).setCurrCat(ftype);
+                            ref.read(provCat).setCurftype('1');
+                            ref.read(provCat).setFtype('1');
+                            ref.read(provCat).setIsAdd(true);
+                            
+                                showModalBottomSheet(
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return DeleteCat();
+                                      });
                           },
                           style: ElevatedButton.styleFrom(
                             //elevation: 0.0,
@@ -185,6 +203,11 @@ class IncWorking extends ConsumerWidget {
                           onPressed: () {
                                 //มาต่อตรงนี้
                                 ref.read(provCat).setCurrCat(incWorking[i]);
+                                ref.read(provCat).setFtype(incWorking[i].ftype);
+                                ref.read(provCat).setId(incWorking[i].id);
+                                print("id = ");
+                                print(incWorking[i].id);
+                                ref.read(provCat).setIsAdd(false);
 
                             showModalBottomSheet(
                                       //useRootNavigator: true,
@@ -192,7 +215,7 @@ class IncWorking extends ConsumerWidget {
                                       isScrollControlled: true,
                                       context: context,
                                       builder: (_) {
-                                        return DeleteForm();
+                                        return DeleteCat();
                                       });
                           },
                           style: ElevatedButton.styleFrom(
@@ -230,18 +253,74 @@ class IncAsset extends ConsumerWidget {
     final incAsset = ref.watch(provCat.select((e) => e.incAssetList));
 
     return Column(children: [
-      Text('IncAsset', style: MyTheme.textTheme.headline2),
+      Text('incAsset', style: MyTheme.textTheme.headline2),
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
-          itemCount: incAsset.length,
+          
+          itemCount: incAsset.length+1,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             mainAxisExtent: 100,
           ),
+          //ปุ่มเพิ่ม
           itemBuilder: (_, i) {
+            if (i==incAsset.length){
+              return SizedBox(
+              height: 100,
+              width: 110,
+              child: Column(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        height:
+                            60, //height of button แก้ตอนเลือกประเภท overflow
+                        width: 75, //width of button
+                        child: ElevatedButton(
+                          onPressed: () {
+                            //ref.read(provCat).setCurrCat('');
+                            ref.read(provCat).setIcon('flag_sharp');
+                            //ref.read(provCat).setCurrCat(ftype);
+                            ref.read(provCat).setCurftype('2');
+                            ref.read(provCat).setFtype('2');
+                            ref.read(provCat).setIsAdd(true);
+                            
+                                showModalBottomSheet(
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return DeleteCat();
+                                      });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            //elevation: 0.0,
+                            //shadowColor: Colors
+                            //    .transparent, //remove shadow on button
+                            primary: HelperColor.getFtColor('2', 0),
+                            textStyle: MyTheme.textTheme.headline4,
+                            padding: const EdgeInsets.all(10),
+
+                            shape: const CircleBorder(),
+                          ),
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text('เพิ่ม'),
+                ],
+              ),
+            );
+            }
             return SizedBox(
               height: 100,
               width: 110,
@@ -255,12 +334,30 @@ class IncAsset extends ConsumerWidget {
                             60, //height of button แก้ตอนเลือกประเภท overflow
                         width: 75, //width of button
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                                //มาต่อตรงนี้
+                                ref.read(provCat).setCurrCat(incAsset[i]);
+                                ref.read(provCat).setCurftype('2');
+                                ref.read(provCat).setFtype('2');
+                                ref.read(provCat).setId(incAsset[i].id);
+                                print("id = ");
+                                print(incAsset[i].id);
+                                ref.read(provCat).setIsAdd(false);
+
+                            showModalBottomSheet(
+                                      //useRootNavigator: true,
+                                      backgroundColor: Colors.transparent,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (_) {
+                                        return DeleteCat();
+                                      });
+                          },
                           style: ElevatedButton.styleFrom(
                             //elevation: 0.0,
                             //shadowColor: Colors
                             //    .transparent, //remove shadow on button
-                            primary: getcolor(incAsset[i].ftype),
+                            primary: HelperColor.getFtColor(incAsset[i].ftype, 0),
                             textStyle: MyTheme.textTheme.headline4,
                             padding: const EdgeInsets.all(10),
 
