@@ -914,11 +914,11 @@ class FinancialStatus(APIView):
                 return cash_flow["other exp"] / income
         return None
     
-    def __investment_ratio__(self, asset, balance, cash_flow):
+    def __investment_ratio__(self, asset, balance):
         if balance is not None: 
-            net_worth = self.__net_worth__(balance, cash_flow)
+            net_worth = float(balance["asset"] - balance["debt"])
             if net_worth is not None and net_worth != 0:
-                return asset["investment ass"] / net_worth
+                return float(asset["investment ass"]) / net_worth
         return None
     
     def scale(self, value, min = 0, max = 100 ):
@@ -965,7 +965,7 @@ class FinancialStatus(APIView):
             "Basic Liquidity Ratio": self.__basic_liquidity_ratio__(cash_flow, asset),
             "Debt Service Ratio": self.__debt_service_ratio__(cash_flow),
             "Saving Ratio": self.__saving_ratio__(cash_flow),
-            "Investment Ratio": self.__investment_ratio__(asset, balance, cash_flow),
+            "Investment Ratio": self.__investment_ratio__(asset, balance),
             }
         criterion = {
             "Net Worth": (1.5, 0.5, 1),
