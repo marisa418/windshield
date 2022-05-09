@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:windshield/pages/home/home_page.dart';
 import 'package:windshield/styles/theme.dart';
+import 'package:windshield/utility/number_formatter.dart';
+import 'package:windshield/utility/progress.dart';
 
 class IncExp extends ConsumerWidget {
   const IncExp({Key? key}) : super(key: key);
@@ -50,7 +52,7 @@ class Income extends ConsumerWidget {
           children: [
             const Text('รายรับเดือนนี้'),
             Text(
-              '+${incWorking[0] + incAsset[0] + incOther[0]} บ.',
+              '+${HelperNumber.format(incWorking[0] + incAsset[0] + incOther[0])} บ.',
               style: const TextStyle(
                 color: Color(0xff16D9AB),
                 fontSize: 24,
@@ -59,13 +61,10 @@ class Income extends ConsumerWidget {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
-                    colors: [
-                      Color(0xff14b6da),
-                      Color(0xff2ae194),
-                    ],
+                    colors: MyTheme.incomeBackground,
                   ),
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -77,14 +76,21 @@ class Income extends ConsumerWidget {
                       child: CircularPercentIndicator(
                         radius: 25,
                         progressColor: Colors.white,
-                        percent: double.parse(
-                                getPerc(incWorking, incAsset, incOther)) /
-                            100,
+                        // percent: double.parse(
+                        //         getPerc(incWorking, incAsset, incOther)) /
+                        //     100,
+                        percent: HelperProgress.getPercent(
+                          (incWorking[0] + incAsset[0] + incOther[0]),
+                          (incWorking[1] + incAsset[1] + incOther[1]),
+                        ),
                         animation: true,
                         animationDuration: 2000,
                         lineWidth: 6.5,
                         center: Text(
-                          '${getPerc(incWorking, incAsset, incOther)}%',
+                          '${HelperNumber.format(HelperProgress.getPercent(
+                            (incWorking[0] + incAsset[0] + incOther[0]),
+                            (incWorking[1] + incAsset[1] + incOther[1]),
+                          ))}%',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
@@ -310,8 +316,8 @@ String leftAmount(
       (incWorking[0] + incAsset[0] + incOther[0]);
   if (amount == 0) return '0';
   return amount <= -1
-      ? 'เกิน ${(amount * -1).toStringAsFixed(2)}'
-      : 'อีก ${amount.toStringAsFixed(2)}';
+      ? 'เกิน ${HelperNumber.format(amount * -1)}'
+      : 'อีก ${HelperNumber.format(amount)}';
 }
 
 String getPerc(

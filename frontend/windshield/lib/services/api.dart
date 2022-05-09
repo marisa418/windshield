@@ -5,6 +5,9 @@ import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
 import 'package:windshield/models/article/article.dart';
 import 'package:windshield/models/balance_sheet/flow_sheet.dart';
+import 'package:windshield/pages/home/analysis/asset_debt/asset_debt_model.dart';
+import 'package:windshield/pages/home/analysis/inc_exp/inc_exp_model.dart';
+import 'package:windshield/pages/home/analysis/stat/stat_model.dart';
 
 import '../../models/daily_flow/flow.dart';
 import '../../models/statement/budget.dart';
@@ -17,6 +20,7 @@ import '../../models/balance_sheet/balance_sheet.dart';
 import '../../models/financial_goal/financial_goal.dart';
 import '../../models/daily_flow/flow_speech.dart';
 import '../models/balance_sheet/log.dart';
+import '../pages/home/analysis/budget/budget_model.dart';
 
 class Api extends ChangeNotifier {
   Dio dio = Dio();
@@ -30,10 +34,10 @@ class Api extends ChangeNotifier {
 
   final _storage = const FlutterSecureStorage();
 
-  final url = 'http://192.168.1.9:8000';
+  final url = 'http://192.168.1.35:8000';
 
   Api() {
-      dio.interceptors.add(InterceptorsWrapper(
+    dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         if (!options.path.contains('http')) {
           options.path = url + options.path;
@@ -131,8 +135,8 @@ class Api extends ChangeNotifier {
       _accessToken = res.data['access'];
       await _storage.write(key: 'refreshToken', value: res.data['refresh']);
       Map<String, dynamic> data = Jwt.parseJwt(res.data['access']);
-
       _user?.uuid = data['user_id'];
+      await getUserInfo();
       _isLoggedIn = true;
       notifyListeners();
       return true;
@@ -619,6 +623,7 @@ class Api extends ChangeNotifier {
       return false;
     }
   }
+
   //เพิ่ม category
   Future<bool> addCategory(String name, String icon, String ftype) async {
     try {
@@ -626,39 +631,44 @@ class Api extends ChangeNotifier {
         '/api/categories/',
         data: {
           "name": name,
-          "icon": icon,  
-          "ftype":ftype,       
+          "icon": icon,
+          "ftype": ftype,
         },
-        
       );
       return true;
     } catch (e) {
       return false;
     }
   }
-    //edit category
-  Future<bool> editCategory(String id, String name, String icon,) async {
+
+  //edit category
+  Future<bool> editCategory(
+    String id,
+    String name,
+    String icon,
+  ) async {
     try {
       await dio.patch(
         '/api/category/$id/',
         data: {
           "name": name,
           "icon": icon,
-          //"ftype":ftype,         
+          //"ftype":ftype,
         },
-        
       );
       return true;
     } catch (e) {
       return false;
     }
   }
+
   //ลบ category
-  Future<bool> deleteCategory(String id, ) async {
+  Future<bool> deleteCategory(
+    String id,
+  ) async {
     try {
       await dio.delete(
         '/api/category/$id/',
-        
       );
       return true;
     } catch (e) {
@@ -823,6 +833,98 @@ class Api extends ChangeNotifier {
       return true;
     } catch (e) {
       return false;
+    }
+  }
+
+  // analysis
+  Future<List<IncExpGraph>> analIncExpGraph(String type) async {
+    try {
+      final res = await dio.get('/api/daily-flow-sheet/graph/$type');
+      final data =
+          (res.data as List).map((i) => IncExpGraph.fromJson(i)).toList();
+      return data;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<IncExp> analIncExp(int count) async {
+    try {
+      final res = await dio.get('/api/daily-flow-sheet/average/?days=$count');
+      final data = IncExp.fromJson(res.data);
+      return data;
+    } catch (e) {
+      return IncExp(
+        avgInc: 0,
+        avgIncWorking: 0,
+        avgIncAsset: 0,
+        avgIncOther: 0,
+        avgExp: 0,
+        avgExpInconsist: 0,
+        avgExpConsist: 0,
+        avgSavInv: 0,
+      );
+    }
+  }
+
+  Future<List<Budget>> analBudget() async {
+    try {
+      final res = await dio.get('/api/statement-summary/');
+      final data = (res.data as List).map((i) => Budget.fromJson(i)).toList();
+      return data;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<List<AssetDebtGraph>> analBsheetGraph() async {
+    try {
+      final res = await dio.get('/api/balance-sheet-log/');
+      final data =
+          (res.data as List).map((i) => AssetDebtGraph.fromJson(i)).toList();
+      return data;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<AssetDebt> analBsheet() async {
+    try {
+      final res = await dio.get('/api/balance-sheet/summary/');
+      final data = AssetDebt.fromJson(res.data);
+      return data;
+    } catch (e) {
+      return AssetDebt(
+        maxAsset: 0,
+        maxDebt: 0,
+        maxBalance: 0,
+        minAsset: 0,
+        minDebt: 0,
+        minBalance: 0,
+        avgAsset: 0,
+        avgDebt: 0,
+        avgBalance: 0,
+      );
+    }
+  }
+
+  Future<Stat> analStat() async {
+    try {
+      final res = await dio.get('/api/financial-status/');
+      final data = Stat.fromJson(res.data);
+      return data;
+    } catch (e) {
+      return Stat(
+        netWorth: 0,
+        netCashFlow: 0,
+        survivalRatio: 0,
+        wealthRatio: 0,
+        basicLiquidRatio: 0,
+        debtServiceRatio: 0,
+        savingRatio: 0,
+        investRatio: 0,
+        financialHealth: 0,
+      );
     }
   }
 }

@@ -55,7 +55,7 @@ class StatementProvider extends ChangeNotifier {
 
   void setStatementList(List<StmntStatement> value) {
     _stmntList = value;
-    // notifyListeners();
+    notifyListeners();
   }
 
   void setStmntActiveList() {
