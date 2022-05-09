@@ -34,14 +34,14 @@ class CategoryPage extends ConsumerWidget {
         return Scaffold(
           body: Column(
             children: [
-              
               Container(
-                child:Padding(
+                child: Padding(
                   padding: const EdgeInsets.all(18.0),
-                  child: Text('จัดการหมวดหมู่',style: MyTheme.whiteTextTheme.headline1),
+                  child: Text('จัดการหมวดหมู่',
+                      style: MyTheme.whiteTextTheme.headline1),
                 ),
                 height: 90,
-                width:500,
+                width: 500,
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                       begin: Alignment.centerLeft,
@@ -103,7 +103,7 @@ class Body extends ConsumerWidget {
       ExpInconsist(),
       ExpConsist(),
       SavInv(),
-      GoalList(),
+      //GoalList(),
     ]));
   }
 }
@@ -116,15 +116,18 @@ class IncWorking extends ConsumerWidget {
     final incWorking = ref.watch(provCat.select((e) => e.incWorkingList));
 
     return Column(children: [
-
-      Container(
-        child: Text('IncWorking', style: MyTheme.textTheme.headline2)
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text('รายได้จากการทำงาน', style: MyTheme.textTheme.headline3),
         ),
+      ),
+
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
-          
-          itemCount: incWorking.length+1,
+          itemCount: incWorking.length + 1,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 10,
@@ -133,61 +136,59 @@ class IncWorking extends ConsumerWidget {
           ),
           //ปุ่มเพิ่ม
           itemBuilder: (_, i) {
-            if (i==incWorking.length){
+            if (i == incWorking.length) {
               return SizedBox(
-              height: 100,
-              width: 110,
-              child: Column(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height:
-                            60, //height of button แก้ตอนเลือกประเภท overflow
-                        width: 75, //width of button
-                        child: ElevatedButton(
-                          onPressed: () {
-                            //ref.read(provCat).setCurrCat('');
-                            ref.read(provCat).setIcon('flag_sharp');
-                            //ref.read(provCat).setCurrCat(ftype);
-                            ref.read(provCat).setCurftype('1');
-                            ref.read(provCat).setFtype('1');
-                            ref.read(provCat).setIsAdd(true);
-                            
-                                showModalBottomSheet(
-                                      //useRootNavigator: true,
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (_) {
-                                        return DeleteCat();
-                                      });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            //elevation: 0.0,
-                            //shadowColor: Colors
-                            //    .transparent, //remove shadow on button
-                            primary: HelperColor.getFtColor('1', 0),
-                            textStyle: MyTheme.textTheme.headline4,
-                            padding: const EdgeInsets.all(10),
+                height: 100,
+                width: 110,
+                child: Column(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height:
+                              60, //height of button แก้ตอนเลือกประเภท overflow
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              ref.read(provCat).setCurftype('1');
+                              ref.read(provCat).setFtype('1');
+                              ref.read(provCat).setIsAdd(true);
 
-                            shape: const CircleBorder(),
-                          ),
-                          child: Icon(
-                            Icons.add,
-                            color: Colors.white,
+                              showModalBottomSheet(
+                                  //useRootNavigator: true,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (_) {
+                                    return DeleteCat();
+                                  });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              //elevation: 0.0,
+                              //shadowColor: Colors
+                              //    .transparent, //remove shadow on button
+                              primary: HelperColor.getFtColor('1', 0),
+                              textStyle: MyTheme.textTheme.headline4,
+                              padding: const EdgeInsets.all(10),
+
+                              shape: const CircleBorder(),
+                            ),
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Text('เพิ่ม'),
-                ],
-              ),
-            );
+                      ],
+                    ),
+                    Text('เพิ่ม'),
+                  ],
+                ),
+              );
             }
             return SizedBox(
+              
               height: 100,
               width: 110,
               child: Column(
@@ -201,28 +202,30 @@ class IncWorking extends ConsumerWidget {
                         width: 75, //width of button
                         child: ElevatedButton(
                           onPressed: () {
-                                //มาต่อตรงนี้
-                                ref.read(provCat).setCurrCat(incWorking[i]);
-                                ref.read(provCat).setFtype(incWorking[i].ftype);
-                                ref.read(provCat).setId(incWorking[i].id);
-                                print("id = ");
-                                print(incWorking[i].id);
-                                ref.read(provCat).setIsAdd(false);
+                            //มาต่อตรงนี้
+                            //ref.watch(provCat).seticonList(incWorking);
+                            ref.read(provCat).setCurrCat(incWorking[i]);
+                            ref.read(provCat).setFtype(incWorking[i].ftype);
+                            ref.read(provCat).setId(incWorking[i].id);
+                            print("id = ");
+                            print(incWorking[i].id);
+                            ref.read(provCat).setIsAdd(false);
 
                             showModalBottomSheet(
-                                      //useRootNavigator: true,
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (_) {
-                                        return DeleteCat();
-                                      });
+                                //useRootNavigator: true,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (_) {
+                                  return DeleteCat();
+                                });
                           },
                           style: ElevatedButton.styleFrom(
                             //elevation: 0.0,
                             //shadowColor: Colors
                             //    .transparent, //remove shadow on button
-                            primary: HelperColor.getFtColor(incWorking[i].ftype, 0),
+                            primary:
+                                HelperColor.getFtColor(incWorking[i].ftype, 0),
                             textStyle: MyTheme.textTheme.headline4,
                             padding: const EdgeInsets.all(10),
 
@@ -253,12 +256,18 @@ class IncAsset extends ConsumerWidget {
     final incAsset = ref.watch(provCat.select((e) => e.incAssetList));
 
     return Column(children: [
-      Text('incAsset', style: MyTheme.textTheme.headline2),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text('รายได้จากทรัพย์สิน', style: MyTheme.textTheme.headline3),
+        ),
+      ),
+
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
-          
-          itemCount: incAsset.length+1,
+          itemCount: incAsset.length + 1,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 10,
@@ -267,61 +276,59 @@ class IncAsset extends ConsumerWidget {
           ),
           //ปุ่มเพิ่ม
           itemBuilder: (_, i) {
-            if (i==incAsset.length){
+            if (i == incAsset.length) {
               return SizedBox(
-              height: 100,
-              width: 110,
-              child: Column(
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height:
-                            60, //height of button แก้ตอนเลือกประเภท overflow
-                        width: 75, //width of button
-                        child: ElevatedButton(
-                          onPressed: () {
-                            //ref.read(provCat).setCurrCat('');
-                            ref.read(provCat).setIcon('flag_sharp');
-                            //ref.read(provCat).setCurrCat(ftype);
-                            ref.read(provCat).setCurftype('2');
-                            ref.read(provCat).setFtype('2');
-                            ref.read(provCat).setIsAdd(true);
-                            
-                                showModalBottomSheet(
-                                      //useRootNavigator: true,
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (_) {
-                                        return DeleteCat();
-                                      });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            //elevation: 0.0,
-                            //shadowColor: Colors
-                            //    .transparent, //remove shadow on button
-                            primary: HelperColor.getFtColor('2', 0),
-                            textStyle: MyTheme.textTheme.headline4,
-                            padding: const EdgeInsets.all(10),
+                height: 100,
+                width: 110,
+                child: Column(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height:
+                              60, //height of button แก้ตอนเลือกประเภท overflow
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              ref.read(provCat).setCurftype('2');
+                              ref.read(provCat).setFtype('2');
+                              ref.read(provCat).setIsAdd(true);
 
-                            shape: const CircleBorder(),
-                          ),
-                          child: Icon(
-                            Icons.add,
-                            color: Colors.white,
+                              showModalBottomSheet(
+                                  //useRootNavigator: true,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (_) {
+                                    return DeleteCat();
+                                  });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              //elevation: 0.0,
+                              //shadowColor: Colors
+                              //    .transparent, //remove shadow on button
+                              primary: HelperColor.getFtColor('2', 0),
+                              textStyle: MyTheme.textTheme.headline4,
+                              padding: const EdgeInsets.all(10),
+
+                              shape: const CircleBorder(),
+                            ),
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Text('เพิ่ม'),
-                ],
-              ),
-            );
+                      ],
+                    ),
+                    Text('เพิ่ม'),
+                  ],
+                ),
+              );
             }
             return SizedBox(
+              
               height: 100,
               width: 110,
               child: Column(
@@ -335,29 +342,30 @@ class IncAsset extends ConsumerWidget {
                         width: 75, //width of button
                         child: ElevatedButton(
                           onPressed: () {
-                                //มาต่อตรงนี้
-                                ref.read(provCat).setCurrCat(incAsset[i]);
-                                ref.read(provCat).setCurftype('2');
-                                ref.read(provCat).setFtype('2');
-                                ref.read(provCat).setId(incAsset[i].id);
-                                print("id = ");
-                                print(incAsset[i].id);
-                                ref.read(provCat).setIsAdd(false);
+                            //มาต่อตรงนี้
+                            //ref.watch(provCat).seticonList(incWorking);
+                            ref.read(provCat).setCurrCat(incAsset[i]);
+                            ref.read(provCat).setFtype(incAsset[i].ftype);
+                            ref.read(provCat).setId(incAsset[i].id);
+                            print("id = ");
+                            print(incAsset[i].id);
+                            ref.read(provCat).setIsAdd(false);
 
                             showModalBottomSheet(
-                                      //useRootNavigator: true,
-                                      backgroundColor: Colors.transparent,
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (_) {
-                                        return DeleteCat();
-                                      });
+                                //useRootNavigator: true,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (_) {
+                                  return DeleteCat();
+                                });
                           },
                           style: ElevatedButton.styleFrom(
                             //elevation: 0.0,
                             //shadowColor: Colors
                             //    .transparent, //remove shadow on button
-                            primary: HelperColor.getFtColor(incAsset[i].ftype, 0),
+                            primary:
+                                HelperColor.getFtColor(incAsset[i].ftype, 0),
                             textStyle: MyTheme.textTheme.headline4,
                             padding: const EdgeInsets.all(10),
 
@@ -388,19 +396,79 @@ class IncOther extends ConsumerWidget {
     final incOther = ref.watch(provCat.select((e) => e.incOtherList));
 
     return Column(children: [
-      Text('incOther', style: MyTheme.textTheme.headline2),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text('รายได้อื่นๆ', style: MyTheme.textTheme.headline3),
+        ),
+      ),
+
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
-          itemCount: incOther.length,
+          itemCount: incOther.length + 1,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             mainAxisExtent: 100,
           ),
+          //ปุ่มเพิ่ม
           itemBuilder: (_, i) {
+            if (i == incOther.length) {
+              return SizedBox(
+                height: 100,
+                width: 110,
+                child: Column(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height:
+                              60, //height of button แก้ตอนเลือกประเภท overflow
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              ref.read(provCat).setCurftype('3');
+                              ref.read(provCat).setFtype('3');
+                              ref.read(provCat).setIsAdd(true);
+
+                              showModalBottomSheet(
+                                  //useRootNavigator: true,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (_) {
+                                    return DeleteCat();
+                                  });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              //elevation: 0.0,
+                              //shadowColor: Colors
+                              //    .transparent, //remove shadow on button
+                              primary: HelperColor.getFtColor('3', 0),
+                              textStyle: MyTheme.textTheme.headline4,
+                              padding: const EdgeInsets.all(10),
+
+                              shape: const CircleBorder(),
+                            ),
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text('เพิ่ม'),
+                  ],
+                ),
+              );
+            }
             return SizedBox(
+              
               height: 100,
               width: 110,
               child: Column(
@@ -413,12 +481,31 @@ class IncOther extends ConsumerWidget {
                             60, //height of button แก้ตอนเลือกประเภท overflow
                         width: 75, //width of button
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            //มาต่อตรงนี้
+                            //ref.watch(provCat).seticonList(incWorking);
+                            ref.read(provCat).setCurrCat(incOther[i]);
+                            ref.read(provCat).setFtype(incOther[i].ftype);
+                            ref.read(provCat).setId(incOther[i].id);
+                            print("id = ");
+                            print(incOther[i].id);
+                            ref.read(provCat).setIsAdd(false);
+
+                            showModalBottomSheet(
+                                //useRootNavigator: true,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (_) {
+                                  return DeleteCat();
+                                });
+                          },
                           style: ElevatedButton.styleFrom(
                             //elevation: 0.0,
                             //shadowColor: Colors
                             //    .transparent, //remove shadow on button
-                            primary: getcolor(incOther[i].ftype),
+                            primary:
+                                HelperColor.getFtColor(incOther[i].ftype, 0),
                             textStyle: MyTheme.textTheme.headline4,
                             padding: const EdgeInsets.all(10),
 
@@ -449,19 +536,79 @@ class ExpInconsist extends ConsumerWidget {
     final expInconsist = ref.watch(provCat.select((e) => e.expInconsistList));
 
     return Column(children: [
-      Text('expInconsist', style: MyTheme.textTheme.headline2),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text('รายจ่ายไม่คงที่', style: MyTheme.textTheme.headline3),
+        ),
+      ),
+
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
-          itemCount: expInconsist.length,
+          itemCount: expInconsist.length + 1,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             mainAxisExtent: 100,
           ),
+          //ปุ่มเพิ่ม
           itemBuilder: (_, i) {
+            if (i == expInconsist.length) {
+              return SizedBox(
+                height: 100,
+                width: 110,
+                child: Column(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height:
+                              60, //height of button แก้ตอนเลือกประเภท overflow
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              ref.read(provCat).setCurftype('4');
+                              ref.read(provCat).setFtype('4');
+                              ref.read(provCat).setIsAdd(true);
+
+                              showModalBottomSheet(
+                                  //useRootNavigator: true,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (_) {
+                                    return DeleteCat();
+                                  });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              //elevation: 0.0,
+                              //shadowColor: Colors
+                              //    .transparent, //remove shadow on button
+                              primary: HelperColor.getFtColor('4', 0),
+                              textStyle: MyTheme.textTheme.headline4,
+                              padding: const EdgeInsets.all(10),
+
+                              shape: const CircleBorder(),
+                            ),
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text('เพิ่ม'),
+                  ],
+                ),
+              );
+            }
             return SizedBox(
+              
               height: 100,
               width: 110,
               child: Column(
@@ -474,12 +621,31 @@ class ExpInconsist extends ConsumerWidget {
                             60, //height of button แก้ตอนเลือกประเภท overflow
                         width: 75, //width of button
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            //มาต่อตรงนี้
+                            //ref.watch(provCat).seticonList(incWorking);
+                            ref.read(provCat).setCurrCat(expInconsist[i]);
+                            ref.read(provCat).setFtype(expInconsist[i].ftype);
+                            ref.read(provCat).setId(expInconsist[i].id);
+                            print("id = ");
+                            print(expInconsist[i].id);
+                            ref.read(provCat).setIsAdd(false);
+
+                            showModalBottomSheet(
+                                //useRootNavigator: true,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (_) {
+                                  return DeleteCat();
+                                });
+                          },
                           style: ElevatedButton.styleFrom(
                             //elevation: 0.0,
                             //shadowColor: Colors
                             //    .transparent, //remove shadow on button
-                            primary: getcolor(expInconsist[i].ftype),
+                            primary:
+                                HelperColor.getFtColor(expInconsist[i].ftype, 0),
                             textStyle: MyTheme.textTheme.headline4,
                             padding: const EdgeInsets.all(10),
 
@@ -510,19 +676,79 @@ class ExpConsist extends ConsumerWidget {
     final expConsist = ref.watch(provCat.select((e) => e.expConsistList));
 
     return Column(children: [
-      Text('expConsist', style: MyTheme.textTheme.headline2),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text('รายจ่ายคงที่', style: MyTheme.textTheme.headline3),
+        ),
+      ),
+
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
-          itemCount: expConsist.length,
+          itemCount: expConsist.length + 1,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             mainAxisExtent: 100,
           ),
+          //ปุ่มเพิ่ม
           itemBuilder: (_, i) {
+            if (i == expConsist.length) {
+              return SizedBox(
+                height: 100,
+                width: 110,
+                child: Column(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height:
+                              60, //height of button แก้ตอนเลือกประเภท overflow
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              ref.read(provCat).setCurftype('5');
+                              ref.read(provCat).setFtype('5');
+                              ref.read(provCat).setIsAdd(true);
+
+                              showModalBottomSheet(
+                                  //useRootNavigator: true,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (_) {
+                                    return DeleteCat();
+                                  });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              //elevation: 0.0,
+                              //shadowColor: Colors
+                              //    .transparent, //remove shadow on button
+                              primary: HelperColor.getFtColor('5', 0),
+                              textStyle: MyTheme.textTheme.headline4,
+                              padding: const EdgeInsets.all(10),
+
+                              shape: const CircleBorder(),
+                            ),
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text('เพิ่ม'),
+                  ],
+                ),
+              );
+            }
             return SizedBox(
+              
               height: 100,
               width: 110,
               child: Column(
@@ -535,12 +761,31 @@ class ExpConsist extends ConsumerWidget {
                             60, //height of button แก้ตอนเลือกประเภท overflow
                         width: 75, //width of button
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            //มาต่อตรงนี้
+                            //ref.watch(provCat).seticonList(incWorking);
+                            ref.read(provCat).setCurrCat(expConsist[i]);
+                            ref.read(provCat).setFtype(expConsist[i].ftype);
+                            ref.read(provCat).setId(expConsist[i].id);
+                            print("id = ");
+                            print(expConsist[i].id);
+                            ref.read(provCat).setIsAdd(false);
+
+                            showModalBottomSheet(
+                                //useRootNavigator: true,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (_) {
+                                  return DeleteCat();
+                                });
+                          },
                           style: ElevatedButton.styleFrom(
                             //elevation: 0.0,
                             //shadowColor: Colors
                             //    .transparent, //remove shadow on button
-                            primary: getcolor(expConsist[i].ftype),
+                            primary:
+                                HelperColor.getFtColor(expConsist[i].ftype, 0),
                             textStyle: MyTheme.textTheme.headline4,
                             padding: const EdgeInsets.all(10),
 
@@ -554,7 +799,7 @@ class ExpConsist extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  Text(expConsist[i].name)
+                  Text(expConsist[i].name),
                 ],
               ),
             );
@@ -570,20 +815,80 @@ class SavInv extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final savInv = ref.watch(provCat.select((e) => e.savInvList));
 
-    return Column(children: [
-      Text('savInv', style: MyTheme.textTheme.headline2),
+      return Column(children: [
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text('การออมและการลงทุน', style: MyTheme.textTheme.headline3),
+        ),
+      ),
+
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
-          itemCount: savInv.length,
+          itemCount: savInv.length + 1,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             mainAxisExtent: 100,
           ),
+          //ปุ่มเพิ่ม
           itemBuilder: (_, i) {
+            if (i == savInv.length) {
+              return SizedBox(
+                height: 100,
+                width: 110,
+                child: Column(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height:
+                              60, //height of button แก้ตอนเลือกประเภท overflow
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              ref.read(provCat).setCurftype('6');
+                              ref.read(provCat).setFtype('6');
+                              ref.read(provCat).setIsAdd(true);
+
+                              showModalBottomSheet(
+                                  //useRootNavigator: true,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (_) {
+                                    return DeleteCat();
+                                  });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              //elevation: 0.0,
+                              //shadowColor: Colors
+                              //    .transparent, //remove shadow on button
+                              primary: HelperColor.getFtColor('6', 0),
+                              textStyle: MyTheme.textTheme.headline4,
+                              padding: const EdgeInsets.all(10),
+
+                              shape: const CircleBorder(),
+                            ),
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text('เพิ่ม'),
+                  ],
+                ),
+              );
+            }
             return SizedBox(
+              
               height: 100,
               width: 110,
               child: Column(
@@ -596,12 +901,31 @@ class SavInv extends ConsumerWidget {
                             60, //height of button แก้ตอนเลือกประเภท overflow
                         width: 75, //width of button
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            //มาต่อตรงนี้
+                            //ref.watch(provCat).seticonList(incWorking);
+                            ref.read(provCat).setCurrCat(savInv[i]);
+                            ref.read(provCat).setFtype(savInv[i].ftype);
+                            ref.read(provCat).setId(savInv[i].id);
+                            print("id = ");
+                            print(savInv[i].id);
+                            ref.read(provCat).setIsAdd(false);
+
+                            showModalBottomSheet(
+                                //useRootNavigator: true,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (_) {
+                                  return DeleteCat();
+                                });
+                          },
                           style: ElevatedButton.styleFrom(
                             //elevation: 0.0,
                             //shadowColor: Colors
                             //    .transparent, //remove shadow on button
-                            primary: getcolor(savInv[i].ftype),
+                            primary:
+                                HelperColor.getFtColor(savInv[i].ftype, 0),
                             textStyle: MyTheme.textTheme.headline4,
                             padding: const EdgeInsets.all(10),
 
@@ -615,7 +939,7 @@ class SavInv extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  Text(savInv[i].name)
+                  Text(savInv[i].name),
                 ],
               ),
             );
@@ -632,19 +956,79 @@ class GoalList extends ConsumerWidget {
     final goalList = ref.watch(provCat.select((e) => e.goalList));
 
     return Column(children: [
-      Text('goalList', style: MyTheme.textTheme.headline2),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text('เป้าหมายทางการเงิน', style: MyTheme.textTheme.headline3),
+        ),
+      ),
+
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
-          itemCount: goalList.length,
+          itemCount: goalList.length + 1,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
             mainAxisExtent: 100,
           ),
+          //ปุ่มเพิ่ม
           itemBuilder: (_, i) {
+            if (i == goalList.length) {
+              return SizedBox(
+                height: 100,
+                width: 110,
+                child: Column(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height:
+                              60, //height of button แก้ตอนเลือกประเภท overflow
+                          width: 75, //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              ref.read(provCat).setCurftype('7');
+                              ref.read(provCat).setFtype('7');
+                              ref.read(provCat).setIsAdd(true);
+
+                              showModalBottomSheet(
+                                  //useRootNavigator: true,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  context: context,
+                                  builder: (_) {
+                                    return DeleteCat();
+                                  });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              //elevation: 0.0,
+                              //shadowColor: Colors
+                              //    .transparent, //remove shadow on button
+                              primary: HelperColor.getFtColor('7', 0),
+                              textStyle: MyTheme.textTheme.headline4,
+                              padding: const EdgeInsets.all(10),
+
+                              shape: const CircleBorder(),
+                            ),
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text('เพิ่ม'),
+                  ],
+                ),
+              );
+            }
             return SizedBox(
+              
               height: 100,
               width: 110,
               child: Column(
@@ -657,12 +1041,31 @@ class GoalList extends ConsumerWidget {
                             60, //height of button แก้ตอนเลือกประเภท overflow
                         width: 75, //width of button
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            //มาต่อตรงนี้
+                            //ref.watch(provCat).seticonList(incWorking);
+                            ref.read(provCat).setCurrCat(goalList[i]);
+                            ref.read(provCat).setFtype(goalList[i].ftype);
+                            ref.read(provCat).setId(goalList[i].id);
+                            print("id = ");
+                            print(goalList[i].id);
+                            ref.read(provCat).setIsAdd(false);
+
+                            showModalBottomSheet(
+                                //useRootNavigator: true,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (_) {
+                                  return DeleteCat();
+                                });
+                          },
                           style: ElevatedButton.styleFrom(
                             //elevation: 0.0,
                             //shadowColor: Colors
                             //    .transparent, //remove shadow on button
-                            primary: getcolor(goalList[i].ftype),
+                            primary:
+                                HelperColor.getFtColor(goalList[i].ftype, 0),
                             textStyle: MyTheme.textTheme.headline4,
                             padding: const EdgeInsets.all(10),
 
@@ -676,7 +1079,7 @@ class GoalList extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  Text(goalList[i].name)
+                  Text(goalList[i].name),
                 ],
               ),
             );
@@ -684,3 +1087,5 @@ class GoalList extends ConsumerWidget {
     ]);
   }
 }
+
+

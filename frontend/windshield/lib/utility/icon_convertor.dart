@@ -1,5 +1,37 @@
 import 'package:flutter/material.dart';
 
+List<String> helpericons = [
+    'briefcase',
+    'hand-holding-usd',
+    'business-time',
+    'comment-dollar',
+    'dollar-sign',
+    'percentage',
+    'chart-line',
+    'building',
+    'trophy',
+    'utensils',
+    'house-user',
+    'music',
+    'bolt',
+    'heart',
+    'route',
+    'hand-holding-medical',
+    'user-friends',
+    'baby',
+    'donate',
+    'dice',
+    'praying-hands',
+    'home',
+    'graduation-cap',
+    'car',
+    'shopping-cart',
+    'comments-dollar',
+    'file-contract',
+    'coins',
+    'piggy-bank',
+];
+
 class HelperIcons {
   static Map<String, int> faIcons = <String, int>{
     'briefcase': 0xf0b1,

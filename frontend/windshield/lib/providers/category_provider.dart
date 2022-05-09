@@ -67,9 +67,6 @@ class CategoryProvider extends ChangeNotifier {
   String _curFtype = '';
   String get curFtype => _curFtype;
 
-
-  
-
   bool _needFetchAPI = false;
   bool get needFetchAPI => _needFetchAPI;
 
@@ -88,6 +85,7 @@ class CategoryProvider extends ChangeNotifier {
     _cat = value;
     
   }
+  
   
   void setCatType() {
     _incWorkingList.clear();
