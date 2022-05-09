@@ -81,8 +81,10 @@ class _HomeState extends ConsumerState<HomePage> {
             //   index: _selectedIndex,
             //   children: _pageList,
             // ),
-            body:
-                PageStorage(bucket: _bucket, child: _pageList[_selectedIndex]),
+            body: PageStorage(
+              bucket: _bucket,
+              child: _pageList[_selectedIndex],
+            ),
             drawer: const Drawer(
               child: FilterDialog(),
             ),

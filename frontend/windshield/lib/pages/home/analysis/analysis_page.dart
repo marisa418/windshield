@@ -8,7 +8,7 @@ import 'package:windshield/styles/theme.dart';
 import 'asset_debt/asset_debt.dart';
 import 'budget/budget.dart';
 import 'inc_exp/inc_exp.dart';
-import 'stat.dart';
+import 'stat/stat.dart';
 
 class Analysis extends ConsumerStatefulWidget {
   const Analysis({Key? key}) : super(key: key);

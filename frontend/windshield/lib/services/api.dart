@@ -7,6 +7,7 @@ import 'package:windshield/models/article/article.dart';
 import 'package:windshield/models/balance_sheet/flow_sheet.dart';
 import 'package:windshield/pages/home/analysis/asset_debt/asset_debt_model.dart';
 import 'package:windshield/pages/home/analysis/inc_exp/inc_exp_model.dart';
+import 'package:windshield/pages/home/analysis/stat/stat_model.dart';
 
 import '../../models/daily_flow/flow.dart';
 import '../../models/statement/budget.dart';
@@ -903,6 +904,26 @@ class Api extends ChangeNotifier {
         avgAsset: 0,
         avgDebt: 0,
         avgBalance: 0,
+      );
+    }
+  }
+
+  Future<Stat> analStat() async {
+    try {
+      final res = await dio.get('/api/financial-status/');
+      final data = Stat.fromJson(res.data);
+      return data;
+    } catch (e) {
+      return Stat(
+        netWorth: 0,
+        netCashFlow: 0,
+        survivalRatio: 0,
+        wealthRatio: 0,
+        basicLiquidRatio: 0,
+        debtServiceRatio: 0,
+        savingRatio: 0,
+        investRatio: 0,
+        financialHealth: 0,
       );
     }
   }
