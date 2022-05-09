@@ -7,6 +7,11 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+admin.site.site_header = "WINDSHIELD Administration"
+admin.site.index_title = "Administration Index"
+admin.site.site_title = "windshield admin"
+admin.site.site_url = None
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls', namespace='api')),
