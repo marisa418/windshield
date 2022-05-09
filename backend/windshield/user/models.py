@@ -34,6 +34,7 @@ class CustomAccountManager(BaseUserManager):
         other_fields.setdefault('is_staff', True)
         other_fields.setdefault('is_superuser', True)
         other_fields.setdefault('is_active', True)
+        other_fields.setdefault('is_verify', True)
 
         if other_fields.get('is_staff') is not True:
             raise ValueError('Superuser must be assigned to is_staff=True.')
@@ -73,7 +74,7 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
     status = models.CharField(max_length=3, choices=status_chocies, null=True) 
     #
 
-    age = models.PositiveSmallIntegerField(null=True)
+    born_year = models.IntegerField(null=True)
     province = models.ForeignKey(Province, on_delete=CASCADE, null=True)
     family = models.PositiveSmallIntegerField(null=True)
     points = models.PositiveIntegerField(default=0)
@@ -89,7 +90,7 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
 class VerifyCodeLog(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(NewUser, on_delete=CASCADE)
-    code = models.CharField(max_length=6)
+    code = models.CharField(max_length=6, verbose_name='OTP')
     send_at = models.DateTimeField(auto_now_add=True)
     ref_code = models.CharField(max_length=8)
     is_used = models.BooleanField(default=False)
@@ -99,13 +100,13 @@ class VerifyCodeLog(models.Model):
         db_table = 'verify_code_log'
     
     def __str__(self):
-        return f"{self.id}: {self.user.user_id}({self.user.email}) got {self.code} at {self.send_at}"
+        return f"[{self.ref_code}] {self.user.email}"
 
 class VerifyTokenLog(models.Model):
     id = models.AutoField(primary_key=True)
     code_log = models.ForeignKey(VerifyCodeLog, on_delete=CASCADE)
     token = models.CharField(max_length=32)
-    create_at = models.DateTimeField(auto_now_add=True)
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='timestamp')
     is_used = models.BooleanField(default=False)
     count = models.SmallIntegerField(default=0)
     
