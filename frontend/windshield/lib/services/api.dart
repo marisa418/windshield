@@ -45,7 +45,8 @@ class Api extends ChangeNotifier {
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
             options.path.contains('/token/') ||
-            options.path.contains('/token/refresh/')) {
+            options.path.contains('/token/refresh/') ||
+            options.path.contains('/user/verify-code/?email=')) {
           options.headers['Authorization'] = '';
         }
         // print(options.path + ' | ' + _accessToken.toString());
@@ -176,7 +177,7 @@ class Api extends ChangeNotifier {
   Future<bool> register(
       String username, String password, String email, String phone) async {
     try {
-      await dio.post(
+      final user = await dio.post(
         '/user/register/',
         options: Options(
           headers: {'Authorization': ''},
@@ -197,9 +198,51 @@ class Api extends ChangeNotifier {
       );
 
       _accessToken = res.data['access'];
-      await _storage.write(key: 'refreshToken', value: res.data['refresh']);
+      // await _storage.write(key: 'refreshToken', value: res.data['refresh']);
       Map<String, dynamic> data = Jwt.parseJwt(res.data['access']);
       _user?.uuid = data['user_id'];
+      _user?.email = user.data['email'];
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<String> requestOTP() async {
+    try {
+      // {
+      //     "id": 19,
+      //     "email": "phetdekde@hotmail.com",
+      //     "send_at": "2022-05-10T01:23:14.638563+07:00",
+      //     "ref_code": "um4pizha",
+      //     "is_used": false,
+      //     "count": 0
+      // }
+      final res = await dio.get(
+        '/user/verify-code/?email=${_user?.email}',
+        options: Options(
+          headers: {'Authorization': ''},
+        ),
+      );
+      return res.data['ref_code'];
+    } catch (e) {
+      return '';
+    }
+  }
+
+  Future<bool> verifyOTP(String otp, String ref) async {
+    try {
+      // {
+      //     "massage": "verification success",
+      //     "otp": "044503",
+      //     "ref": "yt2n2kg6",
+      //     "verify": "bzcdmb25qai5768j143by85jak46m4pi"
+      // }
+      print(_accessToken);
+      await dio.post('/user/verify-code/', data: {
+        'otp': otp,
+        'ref': ref,
+      });
       return true;
     } catch (e) {
       return false;
@@ -212,10 +255,8 @@ class Api extends ChangeNotifier {
       // Map<String, dynamic> data = await jsonDecode(res.toString());
       print(res.data);
       _user = User.fromJson(res.data);
-      print(_user);
       return _user;
     } catch (e) {
-      print(e);
       return _user;
     }
   }
