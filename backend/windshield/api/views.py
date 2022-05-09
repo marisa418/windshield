@@ -913,6 +913,37 @@ class FinancialStatus(APIView):
                 return asset["investment ass"] / net_worth
         return None
     
+    def scale(self, value, min = 0, max = 100 ):
+        if max < min:
+            raise "max must more than min"
+        if value > max:
+            return max
+        if value < min:
+            return min
+        return value
+    
+    def score_ratio(self, value, excellent, bad, normal = 1):
+        c = 1
+        if excellent < bad:
+            c = -1
+        value = float(value)
+        score = (value - (normal - 0.5 * c*(excellent - bad))) / c*(excellent - bad) * 100
+        if c == -1:
+            return 100 - score
+        else:
+            return score
+    
+    def __financial_health_score__(self, finstatus, criterion):
+        score = 0
+        n = 0
+        for k, v in criterion.items():
+            if finstatus[k] is None: # total expense or income is 0
+                return None
+            score += self.scale(self.score_ratio(finstatus[k], v[0], v[1], v[2]))
+            n += 1
+        return score / n
+            
+    
     def get(self, request):
         self.past_days = int(request.query_params.get("days", 30))
         cash_flow = self.__cash_flow__()
@@ -927,8 +958,16 @@ class FinancialStatus(APIView):
             "Debt Service Ratio": self.__debt_service_ratio__(cash_flow),
             "Saving Ratio": self.__saving_ratio__(cash_flow),
             "Investment Ratio": self.__investment_ratio__(asset, balance),
-            "Financial Health": None
             } 
+        criterion = {
+            "Survival Ratio": (1.5, 0.8, 1),
+            "Wealth Ratio": (1.5, 0.7, 1),
+            "Basic Liquidity Ratio": (1.5, 0.7, 1),
+            "Debt Service Ratio": (3.6, 0.5, 0.42),
+            "Saving Ratio": (0.02, 0.1, 0.5),
+            "Investment Ratio": (0.25, 0.75, 0.5)
+        }
+        finstatus["Financial Health"] = self.__financial_health_score__(finstatus, criterion)
         return Response(finstatus)
 
 class AverageFlow(APIView):
