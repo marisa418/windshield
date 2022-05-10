@@ -12,32 +12,36 @@ class User {
   int? family;
   int? points;
 
+  bool? isVerify;
+
   User({
     this.userId,
     this.uuid,
     this.email,
-    this.pin,
-    this.tel,
     this.occuType,
     this.status,
+    this.province,
+    this.pin,
+    this.tel,
     this.age,
     this.family,
     this.points,
-    this.province,
+    this.isVerify,
   });
 
   List<Object?> get props => [
         userId,
         uuid,
         email,
-        pin,
-        tel,
         occuType,
         status,
+        province,
+        pin,
+        tel,
         age,
         family,
         points,
-        province,
+        isVerify,
       ];
 
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -52,6 +56,7 @@ class User {
         family: json['family'],
         points: json['points'],
         province: json['province'],
+        isVerify: json['is_verify'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -66,5 +71,6 @@ class User {
         'family': family,
         'points': points,
         'province': province,
+        'is_verify': isVerify,
       };
 }
