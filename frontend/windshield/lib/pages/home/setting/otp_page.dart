@@ -328,11 +328,9 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                                         .popUntilRouteWithName('HomeRoute');
                                     return;
                                   }
-
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('เกิดข้อผิดพลาด'),
-                                      behavior: SnackBarBehavior.floating,
                                     ),
                                   );
                                   AutoRouter.of(context).pop();

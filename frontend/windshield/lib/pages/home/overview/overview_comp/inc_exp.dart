@@ -2,10 +2,11 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:windshield/pages/home/home_page.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/utility/number_formatter.dart';
 import 'package:windshield/utility/progress.dart';
+
+import '../overview_page.dart';
 
 class IncExp extends ConsumerWidget {
   const IncExp({Key? key}) : super(key: key);

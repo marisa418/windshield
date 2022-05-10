@@ -46,7 +46,10 @@ class Api extends ChangeNotifier {
         if (options.path.contains('/user/register/') ||
             options.path.contains('/token/') ||
             options.path.contains('/token/refresh/') ||
-            options.path.contains('/user/verify-code/?email=')) {
+            options.path.contains('/user/verify-code/?email=') ||
+            options.path.contains('/user/reset-password/') ||
+            (options.path.contains('/user/verify-code/') &&
+                options.data.containsKey('email'))) {
           options.headers['Authorization'] = '';
         }
         // print(options.path + ' | ' + _accessToken.toString());
@@ -260,12 +263,64 @@ class Api extends ChangeNotifier {
     }
   }
 
+  Future<String> requestAnonOTP(String email) async {
+    try {
+      final res = await dio.get(
+        '/user/verify-code/?email=$email',
+        options: Options(
+          headers: {'Authorization': ''},
+        ),
+      );
+      return res.data['ref_code'];
+    } catch (e) {
+      return '';
+    }
+  }
+
+  Future<String> verifyAnonOTP(String email, String otp, String ref) async {
+    try {
+      final res = await dio.post(
+        '/user/verify-code/',
+        data: {
+          'email': email,
+          'otp': otp,
+          'ref': ref,
+        },
+        options: Options(
+          headers: {'Authorization': ''},
+        ),
+      );
+      return res.data['verify'];
+    } catch (e) {
+      return '';
+    }
+  }
+
   Future<bool> verifyUser(String token, String ref) async {
     try {
       await dio.post(
         '/user/verify-user/',
         options: Options(
           headers: {
+            'X-VERIFY-TOKEN': token,
+            'X-REF-CODE': ref,
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> resetPassword(String token, String ref, String password) async {
+    try {
+      await dio.post(
+        '/user/reset-password/',
+        data: {"new_password": password},
+        options: Options(
+          headers: {
+            'Authorization': '',
             'X-VERIFY-TOKEN': token,
             'X-REF-CODE': ref,
           },

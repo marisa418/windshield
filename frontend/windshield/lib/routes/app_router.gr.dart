@@ -45,6 +45,10 @@ class _$AppRouter extends RootStackRouter {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const RegisterInfoPage());
     },
+    ForgetPasswordRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const ForgetPasswordPage());
+    },
     HomeRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const HomePage());
@@ -119,7 +123,9 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(PinRoute.name,
               path: 'pin-page', parent: AppStackRoute.name),
           RouteConfig(RegisterInfoRoute.name,
-              path: 'register-info-page', parent: AppStackRoute.name)
+              path: 'register-info-page', parent: AppStackRoute.name),
+          RouteConfig(ForgetPasswordRoute.name,
+              path: 'forget-password-page', parent: AppStackRoute.name)
         ]),
         RouteConfig(EmptyRouterRoute.name, path: '/', children: [
           RouteConfig(HomeRoute.name, path: '', parent: EmptyRouterRoute.name),
@@ -213,6 +219,15 @@ class RegisterInfoRoute extends PageRouteInfo<void> {
       : super(RegisterInfoRoute.name, path: 'register-info-page');
 
   static const String name = 'RegisterInfoRoute';
+}
+
+/// generated route for
+/// [ForgetPasswordPage]
+class ForgetPasswordRoute extends PageRouteInfo<void> {
+  const ForgetPasswordRoute()
+      : super(ForgetPasswordRoute.name, path: 'forget-password-page');
+
+  static const String name = 'ForgetPasswordRoute';
 }
 
 /// generated route for
