@@ -551,7 +551,7 @@ class Viewer(models.Model):
         db_table = 'viewer'
     
     def __str__(self):
-        return str(self.id) + ": " + self.viewer.user_id + " view " + self.article.topic + " at " + str(self.timestamp) 
+        return str(self.id) + " " + self.article.topic 
 
 class Liker(models.Model):
     id = models.AutoField(primary_key=True)
