@@ -158,7 +158,7 @@ CORS_ALLOWED_ORIGINS = ["http://localhost:3000", "http://localhost:50522"]
 AUTH_USER_MODEL = 'user.NewUser'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
