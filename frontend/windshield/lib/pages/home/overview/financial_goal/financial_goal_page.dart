@@ -1,9 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
@@ -11,12 +8,12 @@ import 'package:intl/intl.dart';
 import 'package:windshield/main.dart';
 import 'package:windshield/models/financial_goal/financial_goal.dart';
 import 'package:windshield/providers/financial_goal_provider.dart';
+import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/utility/icon_convertor.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:windshield/utility/number_formatter.dart';
 import 'package:windshield/utility/progress.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'create/financial_goal_create.dart';
 
 final provFGoal = ChangeNotifierProvider.autoDispose<FinancialGoalProvider>(
@@ -49,7 +46,14 @@ class FinancialGoalPage extends ConsumerWidget {
                   child: Column(
                     children: const [
                       HeadOfBody(),
-                      Expanded(child: MainOfBody()),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 10),
+                      ),
+                      Expanded(
+                          child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: MainOfBody(),
+                      )),
                     ],
                   ),
                 ),
@@ -138,7 +142,9 @@ class Footer extends ConsumerWidget {
                 ],
               ),
             ),
-            onTap: () => AutoRouter.of(context).pop(),
+            onTap: () {
+              AutoRouter.of(context).pop(const HomeRoute());
+            },
           ),
         ],
       ),
@@ -258,42 +264,39 @@ class ButtonOfBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color(0x1A5236FF),
-          borderRadius: new BorderRadius.all(
-            Radius.circular(10),
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Color(0x1A5236FF),
+        borderRadius: new BorderRadius.all(
+          Radius.circular(10),
         ),
-        width: 372,
-        height: 70,
-        child: FlatButton(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          onPressed: () {
-            ref.read(provFGoal).setName('ชื่อเป้าหมาย');
-            ref.read(provFGoal).setGoal(0);
-            ref.read(provFGoal).setStart(DateTime.now());
-            ref.read(provFGoal).setIcon('flag_sharp');
-            ref.read(provFGoal).setGoalDate(null);
-            ref.read(provFGoal).setProgPerPeriod(0);
-            ref.read(provFGoal).setIsAdd(true);
-            showModalBottomSheet(
-              backgroundColor: Colors.transparent,
-              context: context,
-              isScrollControlled: true,
-              useRootNavigator: false,
-              builder: (_) => const MainOfForm(),
-            );
-          },
-          child: Text(
-            "+ เพิ่มเป้าหมายใหม่",
-            style: MyTheme.whiteTextTheme.headline2!.merge(
-              TextStyle(color: Color(0xFF5236FF)),
-            ),
+      ),
+      width: 400,
+      height: 70,
+      child: FlatButton(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        onPressed: () {
+          ref.read(provFGoal).setName('ชื่อเป้าหมาย');
+          ref.read(provFGoal).setGoal(0);
+          ref.read(provFGoal).setStart(DateTime.now());
+          ref.read(provFGoal).setIcon('flag_sharp');
+          ref.read(provFGoal).setGoalDate(null);
+          ref.read(provFGoal).setProgPerPeriod(0);
+          ref.read(provFGoal).setIsAdd(true);
+          showModalBottomSheet(
+            backgroundColor: Colors.transparent,
+            context: context,
+            isScrollControlled: true,
+            useRootNavigator: false,
+            builder: (_) => const MainOfForm(),
+          );
+        },
+        child: Text(
+          "+ เพิ่มเป้าหมายใหม่",
+          style: MyTheme.whiteTextTheme.headline2!.merge(
+            TextStyle(color: Color(0xFF5236FF)),
           ),
         ),
       ),
@@ -621,7 +624,6 @@ class PageStart extends ConsumerWidget {
       child: Card(
         elevation: 10,
         shadowColor: Colors.black.withOpacity(.5),
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
@@ -870,7 +872,6 @@ class PageNotStart extends ConsumerWidget {
       child: Card(
         elevation: 10,
         shadowColor: Colors.black.withOpacity(.5),
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -1118,7 +1119,6 @@ class PageFinish extends ConsumerWidget {
       child: Card(
         elevation: 10,
         shadowColor: Colors.black.withOpacity(.5),
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
@@ -1275,30 +1275,34 @@ class PageFinish extends ConsumerWidget {
   }
 }
 
-// class TermsService extends StatefulWidget {
-//   @override
-//   TermsofService createState() => TermsofService();
-// }
+class ListPageStartAtHome extends ConsumerWidget {
+  const ListPageStartAtHome({Key? key}) : super(key: key);
 
-// class TermsofService extends State<TermsService> {
-//   String data = '';
-//   fetchFileData() async {
-//     String responseText;
-//     responseText = await rootBundle.loadString('assets/text1.txt');
-//     setState(() {
-//       data = responseText;
-//     });
-//   }
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ListLenth = ref.watch(provFGoal).startedFg;
+    if (ListLenth.length + 1 < 3) {
+      return ListView.separated(
+        separatorBuilder: (context, index) => const SizedBox(height: 15),
+        itemCount: ListLenth.length + 1,
+        itemBuilder: (context, index) {
+          if (ListLenth.length == index) {
+            return ButtonOfBody();
+          }
+          return PageStart(index);
+        },
+      );
+    }
 
-//   @override
-//   void initState() {
-//     fetchFileData();
-//     super.initState();
-//   }
-
-//   Widget build(BuildContext context) {
-//     return Container(
-//       child: Text(data),
-//     );
-//   }
-// }
+    return ListView.separated(
+      separatorBuilder: (context, index) => const SizedBox(height: 15),
+      itemCount: 4,
+      itemBuilder: (context, index) {
+        if (index == 3) {
+          return ButtonOfBody();
+        }
+        return PageStart(index);
+      },
+    );
+  }
+}
