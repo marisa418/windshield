@@ -100,6 +100,11 @@ class _$AppRouter extends RootStackRouter {
     ArticleReadRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const ArticleReadPage());
+    },
+    OTPRoute.name: (routeData) {
+      final args = routeData.argsAs<OTPRouteArgs>();
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: OTPPage(type: args.type, key: args.key));
     }
   };
 
@@ -143,7 +148,9 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(CategoryRoute.name,
               path: 'category-page', parent: EmptyRouterRoute.name),
           RouteConfig(ArticleReadRoute.name,
-              path: 'article-read-page', parent: EmptyRouterRoute.name)
+              path: 'article-read-page', parent: EmptyRouterRoute.name),
+          RouteConfig(OTPRoute.name,
+              path: 'o-tp-page', parent: EmptyRouterRoute.name)
         ])
       ];
 }
@@ -328,4 +335,27 @@ class ArticleReadRoute extends PageRouteInfo<void> {
       : super(ArticleReadRoute.name, path: 'article-read-page');
 
   static const String name = 'ArticleReadRoute';
+}
+
+/// generated route for
+/// [OTPPage]
+class OTPRoute extends PageRouteInfo<OTPRouteArgs> {
+  OTPRoute({required int type, Key? key})
+      : super(OTPRoute.name,
+            path: 'o-tp-page', args: OTPRouteArgs(type: type, key: key));
+
+  static const String name = 'OTPRoute';
+}
+
+class OTPRouteArgs {
+  const OTPRouteArgs({required this.type, this.key});
+
+  final int type;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'OTPRouteArgs{type: $type, key: $key}';
+  }
 }

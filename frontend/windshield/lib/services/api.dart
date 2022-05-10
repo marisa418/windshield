@@ -55,14 +55,21 @@ class Api extends ChangeNotifier {
       },
       onError: (DioError error, handler) async {
         print(error.response);
-        if (error.requestOptions.path.contains('token/refresh') ||
-            error.requestOptions.path.contains('user/')) {
+        if (error.requestOptions.path.contains('token/refresh')) {
           _accessToken = null;
           await _storage.deleteAll();
           _isLoggedIn = false;
           notifyListeners();
           return handler.reject(error);
         }
+        // if (error.requestOptions.path.contains('token/refresh') ||
+        //     error.requestOptions.path.contains('user/')) {
+        //   _accessToken = null;
+        //   await _storage.deleteAll();
+        //   _isLoggedIn = false;
+        //   notifyListeners();
+        //   return handler.reject(error);
+        // }
 
         if (error.response?.statusCode == 401 &&
             error.response?.statusMessage == 'Unauthorized') {
@@ -987,6 +994,37 @@ class Api extends ChangeNotifier {
         investRatio: 0,
         financialHealth: 0,
       );
+    }
+  }
+
+  // setting
+  Future<bool> changePassword(String oldPass, String newPass) async {
+    try {
+      await dio.post(
+        '/user/change-password/',
+        data: {"old_password": oldPass, "new_password": newPass},
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> changePin(String pin, String ref, String verify) async {
+    try {
+      await dio.post(
+        '/user/change-pin/',
+        data: {"pin": pin},
+        options: Options(
+          headers: {
+            'X-VERIFY-TOKEN': verify,
+            'X-REF-CODE': ref,
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 }
