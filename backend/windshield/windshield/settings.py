@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'user',
     'rest_framework',
     'corsheaders',
+    'admin_reorder',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'admin_reorder.middleware.ModelAdminReorder',
 ]
 
 ROOT_URLCONF = 'windshield.urls'
@@ -179,3 +181,62 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'otakukingdom960@gmail.com'
 EMAIL_HOST_PASSWORD = 'ytqvczdkmwgajfcw'
+
+ADMIN_REORDER = (
+     {
+        'app': 'api',
+        'label': 'Article',
+        'models': (
+            'api.Subject',
+            { 'model': 'api.KnowledgeArticle', 'label': 'Articles' },
+            'api.Viewer', 'api.Liker', 'api.ExclusiveArticleOwner'
+        )
+    }, {
+        'app': 'user',
+        'label': 'User information',
+        'models': (
+            {'model': 'user.NewUser', 'label': 'Users'}, 
+            'user.Province'
+            )
+    }, {
+        'app': 'api',
+        'label': 'Category',
+        'models' : (
+            'api.FinancialType',
+            'api.Category',
+            'api.DefaultCategory',
+        )
+    }, {
+        'app': 'api',
+        'label': 'Asset & Debt',
+        'models' : (
+            'api.BalanceSheet',
+            {'model':'api.BalanceSheetLog', 'label': 'Logs'},
+            'api.Asset',
+            'api.Debt'
+        )
+    }, {
+        'app': 'api',
+        'label': 'Financial plan',
+        'models' : (
+            'api.FinancialStatementPlan',
+            'api.Budget',
+            'api.FinancialGoal'
+        )
+    }, {
+        'app': 'api',
+        'label': 'Daily Flow',
+        'models' : (
+            'api.DailyFlowSheet',
+            'api.DailyFlow',
+            'api.Method'
+        )
+    }, {
+        'app': 'user',
+        'label': 'Verification log',
+        'models': (
+            {'model': 'user.VerifyCodeLog', 'label': 'Verification codes (OTP)'}, 
+            {'model': 'user.VerifyTokenLog', 'label': 'Verification tokens'}
+        )
+    }, 
+)

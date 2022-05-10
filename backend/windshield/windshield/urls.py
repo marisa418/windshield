@@ -11,6 +11,8 @@ admin.site.site_header = "WINDSHIELD Administration"
 admin.site.index_title = "Administration Index"
 admin.site.site_title = "windshield admin"
 admin.site.site_url = None
+# admin.autodiscover()
+# admin.site.enable_nav_sidebar = False
 
 urlpatterns = [
     path('admin/', admin.site.urls),

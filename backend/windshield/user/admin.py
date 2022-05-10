@@ -18,8 +18,9 @@ class UserAdminConfig(UserAdmin):
     list_filter = ('is_active', 'is_verify', 'is_staff',)
     ordering = ('user_id',)
     list_display = ('user_id', 'uuid', 'change_is_active', 'change_is_staff', 'change_is_verify', 'points', 'delete_action')
+    readonly_fields = ('user_id', 'email', 'uuid')
     fieldsets = (
-        (None, {'fields': ('user_id', 'email',)}),
+        (None, {'fields': ('uuid', 'user_id', 'email',)}),
         ('Permissions', {'fields': ('is_staff', 'is_active', 'is_verify')}),
         ('Personal', {'fields': ('born_year', 'pin', 'tel', 'occu_type','status', 'province', 'family', 'points')}),
     )

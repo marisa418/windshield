@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:pinput/pinput.dart';
+import 'package:windshield/components/loading.dart';
 
 import 'package:windshield/routes/app_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -116,10 +117,12 @@ class _PinState extends ConsumerState<Pin> {
               focusNode: focusNode,
               controller: pinController,
               onCompleted: (text) async {
+                showLoading(context);
                 final api = ref.read(apiProvider);
                 if (text.length > 4 && await api.loginByPin(text)) {
                   // AutoRouter.of(context).push(const RegisterInfoRoute());
                 } else {
+                  AutoRouter.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('เกิดข้อผิดพลาด')),
                   );

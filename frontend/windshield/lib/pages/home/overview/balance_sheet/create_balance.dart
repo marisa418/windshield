@@ -63,61 +63,62 @@ class ChoseCat extends ConsumerWidget {
                 ),
               ),
               GridView.builder(
-                  physics: const ScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: catList.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    mainAxisExtent: 100,
-                  ),
-                  itemBuilder: (_, i) {
-                    return SizedBox(
-                      height: 100,
-                      width: 110,
-                      child: Column(
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                height:
-                                    60, //height of button แก้ตอนเลือกประเภท overflow
-                                width: 75, //width of button
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    ref.read(provBSheet).setCurrCat(catList[i]);
-                                    ref.read(provBSheet).setCreateIdx(1);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    //elevation: 0.0,
-                                    //shadowColor: Colors
-                                    //    .transparent, //remove shadow on button
-                                    primary: getcolor(catList[i].ftype),
-                                    textStyle: MyTheme.whiteTextTheme.headline4,
-                                    padding: const EdgeInsets.all(10),
+                physics: const ScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: catList.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  mainAxisExtent: 100,
+                ),
+                itemBuilder: (_, i) {
+                  return SizedBox(
+                    height: 100,
+                    width: 110,
+                    child: Column(
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height:
+                                  60, //height of button แก้ตอนเลือกประเภท overflow
+                              width: 75, //width of button
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  ref.read(provBSheet).setCurrCat(catList[i]);
+                                  ref.read(provBSheet).setCreateIdx(1);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  //elevation: 0.0,
+                                  //shadowColor: Colors
+                                  //    .transparent, //remove shadow on button
+                                  primary: getcolor(catList[i].ftype),
+                                  textStyle: MyTheme.whiteTextTheme.headline4,
+                                  padding: const EdgeInsets.all(10),
 
-                                    shape: const CircleBorder(),
-                                  ),
-                                  child: Icon(
-                                    HelperIcons.getIconData(catList[i].icon),
-                                    color: Colors.white,
-                                  ),
+                                  shape: const CircleBorder(),
+                                ),
+                                child: Icon(
+                                  HelperIcons.getIconData(catList[i].icon),
+                                  color: Colors.white,
                                 ),
                               ),
-                            ],
-                          ),
-                          AutoSizeText(
-                            catList[i].name,
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            minFontSize: 0,
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                            ),
+                          ],
+                        ),
+                        AutoSizeText(
+                          catList[i].name,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          minFontSize: 0,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),

@@ -16,7 +16,7 @@ class ArticleProvider extends ChangeNotifier {
   String get search => _search;
 
   //Sorting
-  String _currSort = '';
+  String _currSort = 'topic';
   String get currSort => _currSort;
   final List<String> _sortList = [
     'ชื่อบทความ',

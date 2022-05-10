@@ -29,7 +29,7 @@ class SettingPage extends ConsumerWidget {
       children: const [
         SettingHeader(),
         SettingInfo(),
-        ResetPassword(),
+        ChangePassword(),
         ResetPin(),
         SetNotificate(),
         IssueInfo(),
@@ -131,47 +131,50 @@ class SettingInfo extends ConsumerWidget {
   }
 }
 
-class ResetPassword extends ConsumerWidget {
-  const ResetPassword({Key? key}) : super(key: key);
+class ChangePassword extends ConsumerWidget {
+  const ChangePassword({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
-      height: 70,
-      child: Row(
-        children: const [
-          Flexible(
-            flex: 2,
-            fit: FlexFit.tight,
-            child: Center(
-              child: FaIcon(
-                FontAwesomeIcons.key,
+    return GestureDetector(
+      onTap: () => AutoRouter.of(context).push(OTPRoute(type: 0)),
+      child: SizedBox(
+        height: 70,
+        child: Row(
+          children: const [
+            Flexible(
+              flex: 2,
+              fit: FlexFit.tight,
+              child: Center(
+                child: FaIcon(
+                  FontAwesomeIcons.key,
+                  color: Colors.grey,
+                  size: 30,
+                ),
+              ),
+            ),
+            Flexible(
+              flex: 7,
+              fit: FlexFit.tight,
+              child: Text(
+                'เปลี่ยนรหัสผ่าน',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 25,
+                    decoration: TextDecoration.none),
+              ),
+            ),
+            Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
+              child: Icon(
+                Icons.chevron_right_outlined,
                 color: Colors.grey,
                 size: 30,
               ),
             ),
-          ),
-          Flexible(
-            flex: 7,
-            fit: FlexFit.tight,
-            child: Text(
-              'เปลี่ยนรหัสผ่าน',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 25,
-                  decoration: TextDecoration.none),
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            fit: FlexFit.tight,
-            child: Icon(
-              Icons.chevron_right_outlined,
-              color: Colors.grey,
-              size: 30,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -182,42 +185,45 @@ class ResetPin extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
-      height: 70,
-      child: Row(
-        children: const [
-          Flexible(
-            flex: 2,
-            fit: FlexFit.tight,
-            child: Center(
+    return GestureDetector(
+      onTap: () => AutoRouter.of(context).push(OTPRoute(type: 1)),
+      child: SizedBox(
+        height: 70,
+        child: Row(
+          children: const [
+            Flexible(
+              flex: 2,
+              fit: FlexFit.tight,
+              child: Center(
+                child: Icon(
+                  Icons.password,
+                  color: Colors.grey,
+                  size: 30,
+                ),
+              ),
+            ),
+            Flexible(
+              flex: 7,
+              fit: FlexFit.tight,
+              child: Text(
+                'เปลี่ยน PIN',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 25,
+                    decoration: TextDecoration.none),
+              ),
+            ),
+            Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
               child: Icon(
-                Icons.password,
+                Icons.chevron_right_outlined,
                 color: Colors.grey,
                 size: 30,
               ),
             ),
-          ),
-          Flexible(
-            flex: 7,
-            fit: FlexFit.tight,
-            child: Text(
-              'เปลี่ยน PIN',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 25,
-                  decoration: TextDecoration.none),
-            ),
-          ),
-          Flexible(
-            flex: 1,
-            fit: FlexFit.tight,
-            child: Icon(
-              Icons.chevron_right_outlined,
-              color: Colors.grey,
-              size: 30,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
