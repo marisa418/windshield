@@ -61,7 +61,7 @@ class VerifyOTPCode(APIView):
         return Response("not found an email or user", status=status.HTTP_404_NOT_FOUND)
     
     def post(self, request):
-        if request.user is None:
+        if request.user.is_anonymous:
             email = request.data.get("email", None)
             if email is None:
                 return Response('email is required', status=status.HTTP_400_BAD_REQUEST)

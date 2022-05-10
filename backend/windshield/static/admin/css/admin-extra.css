@@ -1,0 +1,132 @@
+:root {
+    --primary: #5236FF;
+    --secondary: #5236FF;
+    --accent: #ffffff;
+    --primary-fg: #fff;
+    --body-fg: #000000cc;
+    --body-bg: #fff;
+    --body-quiet-color: #000000cc;
+    --body-loud-color: #000;
+    --header-color: #fff;
+    --header-branding-color: var(--accent);
+    --header-bg: var(--secondary);
+    --header-link-color: var(--primary-fg);
+    --breadcrumbs-fg: #ffffff;
+    --breadcrumbs-link-fg: #ffffffcc;
+    --breadcrumbs-bg: #373737;
+    --link-fg: #000000;
+    --link-hover-color: #5236ff;
+    --link-selected-fg: #5236ffcc;
+    --hairline-color: #ececec;
+    --border-color: #ececec;
+    --error-fg: #E3006D;
+    --message-success-bg: #16D9AB;
+    --message-warning-bg: #ffb800;
+    --message-error-bg: #e3006d;
+    --darkened-bg: #f8f8f8;
+    --selected-bg: #ececec;
+    --selected-row: #5236ff30;
+    --button-fg: #fff;
+    --button-bg: var(--primary);
+    --button-hover-bg: #5236ffcc;
+    --default-button-bg: var(--secondary);
+    --default-button-hover-bg: #5236ffcc;
+    --close-button-bg: #e3006d;
+    --close-button-hover-bg: #e3006dcc;
+    --delete-button-bg: #e3006d;
+    --delete-button-hover-bg: #e3006dcc;
+    --object-tools-fg: var(--button-fg);
+    --object-tools-bg: var(--primary);
+    --object-tools-hover-bg: #5236ffcc;
+}
+
+body {
+    font-family: "Kanit"
+}
+
+code, pre {
+    font-family: "Kanit";
+}
+
+input, textarea, select, .form-row p, form .button {
+
+    font-family: "Kanit";
+}
+
+#changelist-filter .admin-numeric-filter-wrapper button {
+    color: var(--primary) !important;
+}
+
+.current-model a:link, .current-model a:visited {
+    color: var(--primary);
+}
+
+table tbody tr {
+    color: #00000080
+}
+
+#changelist table tbody tr.selected {
+    background-color: var(--selected-row);
+    color: #5236ffcc;
+}
+
+#user-tools a:focus, #user-tools a:hover {
+    color: #ffffff80;
+}
+
+ul.messagelist li {
+    color: var(--accent);
+}
+
+a.deletelink:link.button, a.deletelink:visited.button {
+    color: #fff;
+    padding-left: 16px;
+    background: url(../icon/xmark-solid-white.svg) 2px 8px no-repeat;
+    background-color: var(--close-button-bg);
+}
+
+a.deletelink:focus.button, a.deletelink:hover.button {
+    background-color: var(--close-button-hover-bg);
+}
+
+.addlink {
+    background: url(../icon/plus-solid.svg) 0 2px no-repeat;
+}
+
+.deletelink {
+    background: url(../icon/xmark-solid.svg) 0 2px no-repeat;
+}
+
+.viewlink, .inlineviewlink {
+    background: url(../icon/eye-solid.svg) 0 2px no-repeat;
+}
+
+.changelink, .inlinechangelink {
+    background: url(../icon/pen-to-square-solid.svg) 0 2px no-repeat;
+}
+
+#toolbar form input[type="submit"], #changelist .actions .button {
+    border: 1px solid var(--primary) !important;
+    background: var(--body-bg) !important;
+    color: var(--primary) !important;
+    box-shadow: none !important;
+    padding: 1px 8px !important;
+}
+
+#toolbar form input[type="submit"]:hover, #changelist .actions .button:hover {
+    background: var(--button-bg) !important;
+    color: var(--primary-fg) !important;
+    box-shadow: none !important;
+}
+
+ul.messagelist li {
+    background: var(--message-success-bg) url(../icon/circle-check-solid-white.svg) 40px 12px no-repeat;
+}
+
+ul.messagelist li.warning {
+    background: var(--message-warning-bg) url(../icon/circle-exclamation-solid-white.svg) 40px 14px no-repeat;
+}
+
+ul.messagelist li.error {
+    background: var(--message-error-bg) url(../icon/face-dizzy-solid-white.svg) 40px 12px no-repeat;
+}
