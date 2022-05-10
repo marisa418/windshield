@@ -1391,7 +1391,7 @@ class StatPage extends ConsumerWidget {
                             child: Icon(HelperIcons.getIconData('dollar-sign'),
                                 size: 60, color: Colors.white),
                           ),
-                          Text(
+                          const Text(
                             'กระเเสเงินสดสุทธิ',
                             style: TextStyle(color: Colors.white),
                           ),

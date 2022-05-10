@@ -146,6 +146,7 @@ class _FormInfoState extends ConsumerState {
                 }
               },
             ),
+            const YearBorn(),
             const SizedBox(height: 20),
             StatusChoices(onSelected: _updateStatus),
             const SizedBox(height: 20),
@@ -219,6 +220,88 @@ class _FormInfoState extends ConsumerState {
           ],
         ),
       ),
+    );
+  }
+}
+
+class YearBorn extends StatefulWidget {
+  const YearBorn({Key? key}) : super(key: key);
+
+  @override
+  _YearBornState createState() => _YearBornState();
+}
+
+class _YearBornState extends State<YearBorn> {
+  // Initial Selected Value
+  String dropdownvalue = '2022';
+
+  // List of items in our dropdown menu
+  var items = [
+    '1990',
+    '1991',
+    '1992',
+    '1993',
+    '1994',
+    '1995',
+    '1996',
+    '1997',
+    '1998',
+    '1999',
+    '2000',
+    '2001',
+    '2002',
+    '2003',
+    '2004',
+    '2005',
+    '2006',
+    '2007',
+    '2008',
+    '2009',
+    '2010',
+    '2011',
+    '2012',
+    '2013',
+    '2014',
+    '2015',
+    '2016',
+    '2017',
+    '2018',
+    '2019',
+    '2020',
+    '2021',
+    '2022',
+  ];
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        DropdownButton(
+          // Initial Value
+          value: dropdownvalue,
+          dropdownColor: MyTheme.primaryMajor,
+          // Down Arrow Icon
+          icon: const Icon(
+            Icons.arrow_drop_down,
+            color: Colors.white,
+          ),
+
+          // Array list of items
+          items: items.map((String items) {
+            return DropdownMenuItem(
+              value: items,
+              child: Text(items, style: const TextStyle(color: Colors.white)),
+            );
+          }).toList(),
+          // After selecting the desired option,it will
+          // change button value to selected value
+          onChanged: (String? newValue) {
+            setState(() {
+              dropdownvalue = newValue!;
+            });
+          },
+        ),
+      ],
     );
   }
 }
