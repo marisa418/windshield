@@ -7,6 +7,13 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+admin.site.site_header = "WINDSHIELD Administration"
+admin.site.index_title = "Administration Index"
+admin.site.site_title = "windshield admin"
+admin.site.site_url = None
+# admin.autodiscover()
+# admin.site.enable_nav_sidebar = False
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls', namespace='api')),
@@ -17,4 +24,5 @@ urlpatterns = [
     # Token URL
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
+    + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

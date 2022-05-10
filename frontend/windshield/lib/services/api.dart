@@ -5,6 +5,9 @@ import 'package:jwt_decode/jwt_decode.dart';
 import 'package:flutter/material.dart';
 import 'package:windshield/models/article/article.dart';
 import 'package:windshield/models/balance_sheet/flow_sheet.dart';
+import 'package:windshield/pages/home/analysis/asset_debt/asset_debt_model.dart';
+import 'package:windshield/pages/home/analysis/inc_exp/inc_exp_model.dart';
+import 'package:windshield/pages/home/analysis/stat/stat_model.dart';
 
 import '../../models/daily_flow/flow.dart';
 import '../../models/statement/budget.dart';
@@ -17,6 +20,7 @@ import '../../models/balance_sheet/balance_sheet.dart';
 import '../../models/financial_goal/financial_goal.dart';
 import '../../models/daily_flow/flow_speech.dart';
 import '../models/balance_sheet/log.dart';
+import '../pages/home/analysis/budget/budget_model.dart';
 
 class Api extends ChangeNotifier {
   Dio dio = Dio();
@@ -30,7 +34,7 @@ class Api extends ChangeNotifier {
 
   final _storage = const FlutterSecureStorage();
 
-  final url = 'http://192.168.146.1:8000';
+  final url = 'http://192.168.1.9:8000';
 
   Api() {
     dio.interceptors.add(InterceptorsWrapper(
@@ -41,7 +45,8 @@ class Api extends ChangeNotifier {
         options.headers['Authorization'] = 'JWT $_accessToken';
         if (options.path.contains('/user/register/') ||
             options.path.contains('/token/') ||
-            options.path.contains('/token/refresh/')) {
+            options.path.contains('/token/refresh/') ||
+            options.path.contains('/user/verify-code/?email=')) {
           options.headers['Authorization'] = '';
         }
         // print(options.path + ' | ' + _accessToken.toString());
@@ -57,6 +62,14 @@ class Api extends ChangeNotifier {
           notifyListeners();
           return handler.reject(error);
         }
+        // if (error.requestOptions.path.contains('token/refresh') ||
+        //     error.requestOptions.path.contains('user/')) {
+        //   _accessToken = null;
+        //   await _storage.deleteAll();
+        //   _isLoggedIn = false;
+        //   notifyListeners();
+        //   return handler.reject(error);
+        // }
 
         if (error.response?.statusCode == 401 &&
             error.response?.statusMessage == 'Unauthorized') {
@@ -113,13 +126,14 @@ class Api extends ChangeNotifier {
       _accessToken = response.data['access'];
       await _storage.write(
           key: 'refreshToken', value: response.data['refresh']);
-
+      Map<String, dynamic> data = Jwt.parseJwt(response.data['access']);
+      _user?.uuid = data['user_id'];
       // _isLoggedIn = true;
       // notifyListeners();
     }
   }
 
-  Future<bool> login(String username, String password) async {
+  Future<int> login(String username, String password) async {
     try {
       final res = await dio.post(
         '/token/',
@@ -131,13 +145,16 @@ class Api extends ChangeNotifier {
       _accessToken = res.data['access'];
       await _storage.write(key: 'refreshToken', value: res.data['refresh']);
       Map<String, dynamic> data = Jwt.parseJwt(res.data['access']);
-
       _user?.uuid = data['user_id'];
+      await getUserInfo();
+      if (_user?.isVerify == false) return 2;
+      if (_user?.pin == null) return 3;
+      if (_user?.family == null) return 4;
       _isLoggedIn = true;
       notifyListeners();
-      return true;
+      return 1;
     } catch (e) {
-      return false;
+      return 0;
     }
   }
 
@@ -172,7 +189,7 @@ class Api extends ChangeNotifier {
   Future<bool> register(
       String username, String password, String email, String phone) async {
     try {
-      await dio.post(
+      final user = await dio.post(
         '/user/register/',
         options: Options(
           headers: {'Authorization': ''},
@@ -196,6 +213,64 @@ class Api extends ChangeNotifier {
       await _storage.write(key: 'refreshToken', value: res.data['refresh']);
       Map<String, dynamic> data = Jwt.parseJwt(res.data['access']);
       _user?.uuid = data['user_id'];
+      _user?.email = user.data['email'];
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<String> requestOTP() async {
+    try {
+      // {
+      //     "id": 19,
+      //     "email": "phetdekde@hotmail.com",
+      //     "send_at": "2022-05-10T01:23:14.638563+07:00",
+      //     "ref_code": "um4pizha",
+      //     "is_used": false,
+      //     "count": 0
+      // }
+      final res = await dio.get(
+        '/user/verify-code/?email=${_user?.email}',
+        options: Options(
+          headers: {'Authorization': ''},
+        ),
+      );
+      return res.data['ref_code'];
+    } catch (e) {
+      return '';
+    }
+  }
+
+  Future<String> verifyOTP(String otp, String ref) async {
+    try {
+      // {
+      //     "massage": "verification success",
+      //     "otp": "044503",
+      //     "ref": "yt2n2kg6",
+      //     "verify": "bzcdmb25qai5768j143by85jak46m4pi"
+      // }
+      final res = await dio.post('/user/verify-code/', data: {
+        'otp': otp,
+        'ref': ref,
+      });
+      return res.data['verify'];
+    } catch (e) {
+      return '';
+    }
+  }
+
+  Future<bool> verifyUser(String token, String ref) async {
+    try {
+      await dio.post(
+        '/user/verify-user/',
+        options: Options(
+          headers: {
+            'X-VERIFY-TOKEN': token,
+            'X-REF-CODE': ref,
+          },
+        ),
+      );
       return true;
     } catch (e) {
       return false;
@@ -208,10 +283,8 @@ class Api extends ChangeNotifier {
       // Map<String, dynamic> data = await jsonDecode(res.toString());
       print(res.data);
       _user = User.fromJson(res.data);
-      print(_user);
       return _user;
     } catch (e) {
-      print(e);
       return _user;
     }
   }
@@ -620,6 +693,58 @@ class Api extends ChangeNotifier {
     }
   }
 
+  //เพิ่ม category
+  Future<bool> addCategory(String name, String icon, String ftype) async {
+    try {
+      await dio.post(
+        '/api/categories/',
+        data: {
+          "name": name,
+          "icon": icon,
+          "ftype": ftype,
+        },
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  //edit category
+  Future<bool> editCategory(
+    String id,
+    String name,
+    String icon,
+  ) async {
+    try {
+      await dio.patch(
+        '/api/category/$id/',
+        data: {
+          "name": name,
+          "icon": icon,
+          //"ftype":ftype,
+        },
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  //ลบ category
+  Future<bool> deleteCategory(
+    String id,
+  ) async {
+    try {
+      await dio.delete(
+        '/api/category/$id/',
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   //เป้าหมายทางการเงิน
   Future<List<FGoal>> getAllGoals() async {
     try {
@@ -633,6 +758,7 @@ class Api extends ChangeNotifier {
 
   Future<bool> addGoal(
     String name,
+    String icon,
     double goal,
     DateTime start,
     DateTime? goalDate,
@@ -644,6 +770,7 @@ class Api extends ChangeNotifier {
         '/api/financial-goal/',
         data: {
           "name": name,
+          "icon": icon,
           "goal": goal,
           "start": DateFormat('y-MM-dd').format(start),
           "goal_date":
@@ -661,7 +788,10 @@ class Api extends ChangeNotifier {
   Future<bool> editGoal(
     String id,
     String name,
+    String icon,
     double goal,
+    DateTime start,
+    DateTime? goalDate,
     String period,
     double progPerPeriod,
   ) async {
@@ -670,7 +800,11 @@ class Api extends ChangeNotifier {
         '/api/financial-goal/$id/',
         data: {
           "name": name,
+          "icon": icon,
           "goal": goal,
+          "start": DateFormat('y-MM-dd').format(start),
+          "goal_date":
+              goalDate != null ? DateFormat('y-MM-dd').format(goalDate) : null,
           "period_term": period,
           "progress_per_period": progPerPeriod
         },
@@ -691,13 +825,206 @@ class Api extends ChangeNotifier {
   }
 
   // articles
-  Future<Articles> getArticles(int page) async {
+  Future<Articles> getArticles(
+    int page,
+    String search,
+    List<bool> ignore,
+    String sort,
+    bool isAsc,
+    List<int> price,
+  ) async {
     try {
-      final res = await dio.get('/api/articles/?page=$page');
+      String ignoreStr = '';
+      String searchStr = '';
+      String sortStr = '';
+      String priceStr = '';
+      for (var i = 0; i < ignore.length; i++) {
+        if (!ignore[i]) {
+          if (i == 0) {
+            ignoreStr = ignoreStr + '&ignore=พื้นฐาน';
+          } else if (i == 1) {
+            ignoreStr = ignoreStr + '&ignore=ข่าว/บทสัมภาษณ์';
+          } else if (i == 2) {
+            ignoreStr = ignoreStr + '&ignore=การลงทุน';
+          } else {
+            ignoreStr = ignoreStr + '&ignore=หนี้สิน';
+          }
+        }
+      }
+      if (search.isNotEmpty) searchStr = '&search=$search';
+      if (sort.isNotEmpty) sortStr = '&sort_by=${isAsc ? sort : '-$sort'}';
+      if (price.any((e) => e != 0)) {
+        priceStr = '&lower_price=${price[0]}&upper_price=${price[1]}';
+      }
+      final res = await dio.get(
+        '/api/articles/?page=$page$ignoreStr$searchStr$sortStr$priceStr',
+      );
       final data = Articles.fromJson(res.data, url);
       return data;
     } catch (e) {
       return Articles(articles: [], pages: 0);
+    }
+  }
+
+  Future<bool> unlockArticle(int id) async {
+    try {
+      await dio.get('/api/article/$id/unlock');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<ArticleRead> readArticle(int id) async {
+    try {
+      final res = await dio.get('/api/article/$id/read');
+      final data = ArticleRead.fromJson(res.data, url);
+      return data;
+    } catch (e) {
+      return ArticleRead(
+        id: 0,
+        subject: [],
+        like: false,
+        body: '',
+        topic: '',
+        img: '',
+        view: 0,
+        price: 0,
+        uploadDate: DateTime.now(),
+        author: '',
+      );
+    }
+  }
+
+  Future<bool> likeArticle(int id) async {
+    try {
+      await dio.get('/api/article/$id/like');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // analysis
+  Future<List<IncExpGraph>> analIncExpGraph(String type) async {
+    try {
+      final res = await dio.get('/api/daily-flow-sheet/graph/$type');
+      final data =
+          (res.data as List).map((i) => IncExpGraph.fromJson(i)).toList();
+      return data;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<IncExp> analIncExp(int count) async {
+    try {
+      final res = await dio.get('/api/daily-flow-sheet/average/?days=$count');
+      final data = IncExp.fromJson(res.data);
+      return data;
+    } catch (e) {
+      return IncExp(
+        avgInc: 0,
+        avgIncWorking: 0,
+        avgIncAsset: 0,
+        avgIncOther: 0,
+        avgExp: 0,
+        avgExpInconsist: 0,
+        avgExpConsist: 0,
+        avgSavInv: 0,
+      );
+    }
+  }
+
+  Future<List<Budget>> analBudget() async {
+    try {
+      final res = await dio.get('/api/statement-summary/');
+      final data = (res.data as List).map((i) => Budget.fromJson(i)).toList();
+      return data;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<List<AssetDebtGraph>> analBsheetGraph() async {
+    try {
+      final res = await dio.get('/api/balance-sheet-log/');
+      final data =
+          (res.data as List).map((i) => AssetDebtGraph.fromJson(i)).toList();
+      return data;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<AssetDebt> analBsheet() async {
+    try {
+      final res = await dio.get('/api/balance-sheet/summary/');
+      final data = AssetDebt.fromJson(res.data);
+      return data;
+    } catch (e) {
+      return AssetDebt(
+        maxAsset: 0,
+        maxDebt: 0,
+        maxBalance: 0,
+        minAsset: 0,
+        minDebt: 0,
+        minBalance: 0,
+        avgAsset: 0,
+        avgDebt: 0,
+        avgBalance: 0,
+      );
+    }
+  }
+
+  Future<Stat> analStat() async {
+    try {
+      final res = await dio.get('/api/financial-status/');
+      final data = Stat.fromJson(res.data);
+      return data;
+    } catch (e) {
+      return Stat(
+        netWorth: 0,
+        netCashFlow: 0,
+        survivalRatio: 0,
+        wealthRatio: 0,
+        basicLiquidRatio: 0,
+        debtServiceRatio: 0,
+        savingRatio: 0,
+        investRatio: 0,
+        financialHealth: 0,
+      );
+    }
+  }
+
+  // setting
+  Future<bool> changePassword(String oldPass, String newPass) async {
+    try {
+      await dio.post(
+        '/user/change-password/',
+        data: {"old_password": oldPass, "new_password": newPass},
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> changePin(String pin, String ref, String verify) async {
+    try {
+      await dio.post(
+        '/user/change-pin/',
+        data: {"pin": pin},
+        options: Options(
+          headers: {
+            'X-VERIFY-TOKEN': verify,
+            'X-REF-CODE': ref,
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 }

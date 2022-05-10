@@ -1,9 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:windshield/pages/home/overview/daily_flow/%E0%B9%8Cnotification/notification_page.dart';
+
 import '../pages/login_page.dart';
 import '../pages/home/home_page.dart';
 import '../pages/register/register_page.dart';
+import '../pages/register/otp_register_page.dart';
 import '../pages/pin_page.dart';
 import '../pages/register/register_info_page.dart';
 
@@ -23,6 +25,10 @@ import '../pages/home/overview/financial_goal/financial_goal_page.dart';
 
 import '../pages/home/overview/category/category_page.dart';
 
+import '../pages/home/article/article_read_page.dart';
+
+import '../pages/home/setting/otp_page.dart';
+
 part 'app_router.gr.dart';
 
 @MaterialAutoRouter(
@@ -34,6 +40,7 @@ part 'app_router.gr.dart';
       children: [
         AutoRoute(page: LoginPage, initial: true),
         AutoRoute(page: RegisterPage),
+        AutoRoute(page: OTPRegisterPage),
         AutoRoute(page: PinPage),
         AutoRoute(page: RegisterInfoPage),
       ],
@@ -55,6 +62,8 @@ part 'app_router.gr.dart';
         AutoRoute(page: FinancialGoalPage),
         AutoRoute(page: NotificationPage),
         AutoRoute(page: CategoryPage),
+        AutoRoute(page: ArticleReadPage),
+        AutoRoute(page: OTPPage),
       ],
     ),
   ],

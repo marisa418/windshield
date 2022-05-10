@@ -39,18 +39,25 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomeState extends ConsumerState<HomePage> {
   int _selectedIndex = 0;
-  List<Widget> _pageList = <Widget>[];
-
+  final List<Widget> _pageList = <Widget>[
+    const Overview(key: PageStorageKey(0)),
+    const Analysis(key: PageStorageKey(1)),
+    const ArticlePage(key: PageStorageKey(2)),
+    const SettingPage(key: PageStorageKey(3)),
+  ];
+  final _bucket = PageStorageBucket();
   @override
   void initState() {
     super.initState();
-    AwesomeNotifications().actionStream.listen((receivedNotification) {
-      AutoRouter.of(context).push(const DailyFlowOverviewRoute());
-    });
-    _pageList.add(const Overview());
-    _pageList.add(const Analysis());
-    _pageList.add(const ArticlePage());
-    _pageList.add(const SettingPage());
+    try {
+      AwesomeNotifications().actionStream.listen(
+        (receivedNotification) {
+          AutoRouter.of(context).push(const DailyFlowOverviewRoute());
+        },
+      );
+    } catch (e) {
+      print('CAN ONLY LISTEN TO STREAM ONLY ONCE');
+    }
   }
 
   @override
@@ -60,7 +67,6 @@ class _HomeState extends ConsumerState<HomePage> {
   }
 
   void _updateIndex(int index) {
-    // if (index == 2) ref.refresh(provArticle);
     setState(() {
       _selectedIndex = index;
     });
@@ -76,10 +82,20 @@ class _HomeState extends ConsumerState<HomePage> {
       data: (_) {
         return SafeArea(
           child: Scaffold(
-            body: IndexedStack(
-              index: _selectedIndex,
-              children: _pageList,
+            resizeToAvoidBottomInset: false,
+            // body: IndexedStack(
+            //   index: _selectedIndex,
+            //   children: _pageList,
+            // ),
+            body: PageStorage(
+              bucket: _bucket,
+              child: _pageList[_selectedIndex],
             ),
+            drawer: const Drawer(
+              child: FilterDialog(),
+            ),
+            onDrawerChanged: (isOpen) =>
+                isOpen ? null : ref.refresh(apiArticle),
             bottomNavigationBar: FABBottomAppBar(
               onTabSelected: _updateIndex,
               centerItemText: 'บัญชีรายรับ-รายจ่าย',

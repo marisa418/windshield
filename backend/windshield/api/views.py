@@ -252,6 +252,7 @@ class Statement(generics.ListCreateAPIView):
         queryset = queryset.prefetch_related(
             Prefetch('budgets', queryset=models.Budget.objects.filter(cat_id__isDeleted=False))
         )
+        queryset = queryset.order_by("start", "-chosen")
         return queryset
     
     def __date_validation__(self, queryset, start, end):
@@ -598,6 +599,9 @@ class Categories(generics.ListCreateAPIView):
                 models.Category.objects.create(name=cat.name, ftype=cat.ftype, user_id=owner, icon=cat.icon)
             queryset = models.Category.objects.filter(user_id=uuid)
         as_used = eval(self.request.query_params.get('as_used', "False"))
+        with_deleted = eval(self.request.query_params.get('with_deleted', "False"))
+        if not with_deleted:
+            queryset = queryset.exclude(isDeleted=True)
         if as_used:
             queryset = queryset.filter(
                 Exists(models.Asset.objects.filter(cat_id__id=OuterRef('pk'))) |
@@ -855,9 +859,17 @@ class FinancialStatus(APIView):
                 debt["long term"] += float(inst["balance"])
         return debt
     
-    def __net_worth__(self, balance):
-        if balance is not None: 
-            return balance["asset"] - balance["debt"]
+    def __net_worth__(self, balance, cash_flow):
+        if balance is not None and cash_flow is not None: 
+            net_worth = float(balance["asset"] - balance["debt"])
+            recent_year = datetime.now().year
+            if self.request.user.born_year is None:
+                return None
+            age = recent_year - self.request.user.born_year
+            annual_income = (cash_flow["working inc"] + cash_flow["investment inc"])
+            proper_net_worth = age * annual_income * 1.2
+            if proper_net_worth != 0:
+                return net_worth / proper_net_worth
         return None
     
     def __net_cashflow__(self, cash_flow):
@@ -865,7 +877,7 @@ class FinancialStatus(APIView):
             income = cash_flow["working inc"] + cash_flow["investment inc"] + cash_flow["other inc"]
             expense = cash_flow["inconsistance exp"] + cash_flow["consistance exp"] + cash_flow["other exp"]
             if income != 0 or expense != 0:
-                return income - expense
+                return (income - expense) / expense
         return None
     
     def __survival_ratio__(self, cash_flow):
@@ -905,20 +917,49 @@ class FinancialStatus(APIView):
     
     def __investment_ratio__(self, asset, balance):
         if balance is not None: 
-            net_worth = self.__net_worth__(balance)
+            net_worth = float(balance["asset"] - balance["debt"])
             if net_worth is not None and net_worth != 0:
-                return asset["investment ass"] / net_worth
+                return float(asset["investment ass"]) / net_worth
         return None
     
+    def scale(self, value, min = 0, max = 100 ):
+        if max < min:
+            raise "max must more than min"
+        if value > max:
+            return max
+        if value < min:
+            return min
+        return value
+    
+    def score_ratio(self, value, excellent, bad, normal = 1):
+        c = 1
+        if excellent < bad:
+            c = -1
+        value = float(value)
+        score = (value - (normal - 0.5 * c*(excellent - bad))) / c*(excellent - bad) * 100
+        if c == -1:
+            return 100 - score
+        else:
+            return score
+    
+    def __financial_health_score__(self, finstatus, criterion):
+        score = 0
+        n = 0
+        for k, v in criterion.items():
+            if finstatus[k] is None: # total expense or income is 0
+                return None
+            score += self.scale(self.score_ratio(finstatus[k], v[0], v[1], v[2]))
+            n += 1
+        return score / n
+            
+    
     def get(self, request):
-        if self.request.user.uuid is None:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
         self.past_days = int(request.query_params.get("days", 30))
         cash_flow = self.__cash_flow__()
         balance = self.__balance_sheet__()
         asset = self.__asset__()
         finstatus = {
-            "Net Worth": self.__net_worth__(balance), 
+            "Net Worth": self.__net_worth__(balance, cash_flow), 
             "Net Cashflow": self.__net_cashflow__(cash_flow),
             "Survival Ratio": self.__survival_ratio__(cash_flow),
             "Wealth Ratio": self.__wealth_ratio__(cash_flow),
@@ -926,8 +967,18 @@ class FinancialStatus(APIView):
             "Debt Service Ratio": self.__debt_service_ratio__(cash_flow),
             "Saving Ratio": self.__saving_ratio__(cash_flow),
             "Investment Ratio": self.__investment_ratio__(asset, balance),
-            "Financial Health": None
-            } 
+            }
+        criterion = {
+            "Net Worth": (1.5, 0.5, 1),
+            "Net Cashflow": (1, 0.25, 0.5),
+            "Survival Ratio": (1.5, 0.8, 1),
+            "Wealth Ratio": (1.5, 0.7, 1),
+            "Basic Liquidity Ratio": (1.5, 0.7, 1),
+            "Debt Service Ratio": (3.6, 0.5, 0.42),
+            "Saving Ratio": (0.02, 0.1, 0.5),
+            "Investment Ratio": (0.25, 0.75, 0.5)
+        }
+        finstatus["Financial Health"] = self.__financial_health_score__(finstatus, criterion)
         return Response(finstatus)
 
 class AverageFlow(APIView):
@@ -1076,7 +1127,7 @@ class PastStatementPlans(APIView):
         uuid = self.request.user.uuid
         today = datetime.now(tz= timezone('Asia/Bangkok'))
         try:
-            past_plans = models.FinancialStatementPlan.objects.filter(owner_id=uuid, end__lt=today, chosen=True)
+            past_plans = models.FinancialStatementPlan.objects.filter(owner_id=uuid, end__lt=today, chosen=True).order_by('start')
         except models.FinancialStatementPlan.DoesNotExist:
             return Response({"message": "there is not past statement plan existed."}, status=status.HTTP_404_NOT_FOUND)
         past_plans = past_plans.annotate(

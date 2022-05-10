@@ -4,19 +4,25 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:pinput/pinput.dart';
+import 'package:windshield/components/loading.dart';
 
 import 'package:windshield/routes/app_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/main.dart';
 
-final refreshAlive = FutureProvider.autoDispose<bool>((ref) async {
+final refreshAlive = FutureProvider.autoDispose<int>((ref) async {
   const _storage = FlutterSecureStorage();
   final refresh = await _storage.read(key: 'refreshToken');
   if (refresh == null || Jwt.isExpired(refresh)) {
-    return false;
+    return 0;
   } else {
-    return true;
+    await ref.read(apiProvider).refreshToken();
+    final user = await ref.read(apiProvider).getUserInfo();
+    if (user?.isVerify == false || user?.pin == null || user?.family == null) {
+      return 0;
+    }
+    return 1;
   }
 });
 
@@ -25,17 +31,22 @@ class LoginPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(refreshAlive).when(
-          error: (error, stackTrace) => Text(error.toString()),
-          loading: () => const Center(child: CircularProgressIndicator()),
-          data: (refreshAlive) {
-            return SafeArea(
-              child: Scaffold(
-                body: refreshAlive ? const Pin() : const Credential(),
-              ),
-            );
-          },
+    final api = ref.watch(refreshAlive);
+    return api.when(
+      error: (error, stackTrace) => Text(error.toString()),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      data: (refreshAlive) {
+        return SafeArea(
+          child: Scaffold(body: () {
+            if (refreshAlive == 0) {
+              return const Credential();
+            } else if (refreshAlive == 1) {
+              return const Pin();
+            }
+          }()),
         );
+      },
+    );
   }
 }
 
@@ -106,10 +117,12 @@ class _PinState extends ConsumerState<Pin> {
               focusNode: focusNode,
               controller: pinController,
               onCompleted: (text) async {
+                showLoading(context);
                 final api = ref.read(apiProvider);
                 if (text.length > 4 && await api.loginByPin(text)) {
                   // AutoRouter.of(context).push(const RegisterInfoRoute());
                 } else {
+                  AutoRouter.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('เกิดข้อผิดพลาด')),
                   );
@@ -329,8 +342,15 @@ class _CredentialState extends ConsumerState<Credential> {
                           final res = await ref
                               .read(apiProvider)
                               .login(_username, _password);
-
-                          if (!res) {
+                          if (res == 2) {
+                            AutoRouter.of(context)
+                                .push(const OTPRegisterRoute());
+                          } else if (res == 3) {
+                            AutoRouter.of(context).push(const PinRoute());
+                          } else if (res == 4) {
+                            AutoRouter.of(context)
+                                .push(const RegisterInfoRoute());
+                          } else if (res == 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content:
