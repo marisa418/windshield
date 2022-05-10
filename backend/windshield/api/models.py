@@ -40,7 +40,7 @@ class BalanceSheetLog(models.Model):
         db_table = 'balance_sheet_log'
 
     def __str__(self):
-        return str(self.timestamp) + " " + str(self.bsheet_id) + "(" +  str(self.id) + ")"
+        return str(self.id) + ": " + str(self.bsheet_id)
 
 class FinancialType(models.Model):
     domain_choices = [
@@ -412,7 +412,7 @@ class FinancialGoal(models.Model):
         db_table = 'financial_goal'
 
     def __str__(self):
-        return self.id + " " + self.name + " (" + str(self.total_progress) + "/" + str(self.goal) + ")"
+        return self.id + " " + self.name
     
     def delete(self, *args, **kwargs):
         goalcat = Category.objects.get(id=self.category_id.id)
@@ -562,7 +562,7 @@ class Liker(models.Model):
         db_table = 'liker'
         
     def __str__(self):
-        return str(self.id) + ": " + self.liker.user_id + " like " + self.article.topic
+        return str(self.id) + ": " + self.article.topic
     
 class ExclusiveArticleOwner(models.Model):
     id = models.AutoField(primary_key=True)
