@@ -66,7 +66,7 @@ class BudgetEditProvider extends ChangeNotifier {
     for (var cat in _catList) {
       if (cat.ftype == '1') {
         _incWorkingTab.add(cat);
-      } else if (cat.ftype == '2') {
+      } else if (cat.ftype == '2' || cat.ftype == '8' || cat.ftype == '9') {
         _incAssetTab.add(cat);
       } else if (cat.ftype == '3') {
         _incOtherTab.add(cat);
@@ -143,7 +143,11 @@ class BudgetEditProvider extends ChangeNotifier {
   }
 
   void _setTotalOnType(StmntCategory cat, bool isAdd) {
-    if (cat.ftype == '1' || cat.ftype == '2' || cat.ftype == '3') {
+    if (cat.ftype == '1' ||
+        cat.ftype == '2' ||
+        cat.ftype == '3' ||
+        cat.ftype == '8' ||
+        cat.ftype == '9') {
       if (cat.ftype == '1') {
         if (!isAdd) {
           _incWorkingTotal -= cat.total;
@@ -152,7 +156,7 @@ class BudgetEditProvider extends ChangeNotifier {
           _incWorkingTotal += cat.total;
           _incTotal += cat.total;
         }
-      } else if (cat.ftype == '2') {
+      } else if (cat.ftype == '2' || cat.ftype == '8' || cat.ftype == '9') {
         if (!isAdd) {
           _incAssetTotal -= cat.total;
           _incTotal -= cat.total;

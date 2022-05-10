@@ -21,7 +21,7 @@ def validate_ispositive(value):
 
 class BalanceSheet(models.Model):
     id = models.CharField(max_length=13, primary_key=True)
-    owner_id = models.ForeignKey(NewUser, on_delete = CASCADE)
+    owner_id = models.ForeignKey(NewUser, on_delete = CASCADE, verbose_name='owner')
 
     class Meta:
         db_table = 'balance_sheet'
@@ -40,7 +40,7 @@ class BalanceSheetLog(models.Model):
         db_table = 'balance_sheet_log'
 
     def __str__(self):
-        return str(self.timestamp) + " " + str(self.bsheet_id) + "(" +  str(self.id) + ")"
+        return str(self.id) + ": " + str(self.bsheet_id)
 
 class FinancialType(models.Model):
     domain_choices = [
@@ -64,7 +64,7 @@ class FinancialType(models.Model):
 class DefaultCategory(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30)
-    ftype = models.ForeignKey(FinancialType, on_delete=CASCADE)
+    ftype = models.ForeignKey(FinancialType, on_delete=CASCADE, verbose_name='type')
     icon = models.CharField(max_length=30, default="shield-alt")
     
     class Meta:
@@ -85,11 +85,11 @@ def add_default_cat(sender, instance, created, *args, **kwargs):
 class Category(models.Model):
     id = models.CharField(max_length=17, primary_key=True)
     name = models.CharField(max_length=30)
-    ftype = models.ForeignKey(FinancialType, related_name='categories',on_delete=CASCADE)
-    user_id = models.ForeignKey(NewUser, on_delete = CASCADE)
+    ftype = models.ForeignKey(FinancialType, related_name='categories',on_delete=CASCADE, verbose_name='type')
+    user_id = models.ForeignKey(NewUser, on_delete = CASCADE, verbose_name='user')
     used_count = models.PositiveIntegerField(default=0)
     icon = models.CharField(max_length=30, default="shield-alt")
-    isDeleted = models.BooleanField(default=False)
+    isDeleted = models.BooleanField(default=False, verbose_name='is deleted')
 
     class Meta:
         db_table = 'category'
@@ -125,8 +125,8 @@ class Asset(models.Model):
         ('SEL', 'Sell')
     ]
     id = models.CharField(max_length=19, primary_key=True)
-    cat_id = models.ForeignKey(Category, on_delete=CASCADE)
-    bsheet_id = models.ForeignKey(BalanceSheet, related_name='assets', on_delete=CASCADE)
+    cat_id = models.ForeignKey(Category, on_delete=CASCADE, verbose_name='category')
+    bsheet_id = models.ForeignKey(BalanceSheet, related_name='assets', on_delete=CASCADE, verbose_name='balance sheet')
     source = models.CharField(max_length=30, null=True)
     recent_value = models.DecimalField(max_digits=12, decimal_places=2, validators=[validate_ispositive])
     benefit_type = models.CharField(max_length=3, choices=benefit_type_choice, null=True)
@@ -136,7 +136,10 @@ class Asset(models.Model):
         db_table = 'asset'
 
     def __str__(self):
-        return self.id + " " + self.source
+        source = ""
+        if self.source:
+            source = self.source
+        return self.id + " " + self.cat_id.name + " "+ source
     
     def __save_log__(self, new_value):
         logs = BalanceSheetLog.objects.filter(bsheet_id=self.bsheet_id).order_by('-timestamp')
@@ -191,7 +194,7 @@ class Debt(models.Model):
         db_table = 'debt'
 
     def __str__(self):
-        return self.id + " " + self.creditor
+        return self.id + " " + self.cat_id.name + " " + self.creditor
 
     def __save_log__(self, new_value):
         logs = BalanceSheetLog.objects.filter(bsheet_id=self.bsheet_id).order_by('-timestamp')
@@ -239,15 +242,15 @@ class Month(models.Model):
         db_table = 'month'
 
     def __str__(self):
-        return str(self.id) + " " + self.name
+        return self.name
 
 class FinancialStatementPlan(models.Model):
     id = models.CharField(max_length=23, primary_key=True)
     owner_id = models.ForeignKey(NewUser, on_delete = CASCADE)
     name = models.CharField(max_length=30)
-    chosen = models.BooleanField()
-    start = models.DateField()
-    end = models.DateField()
+    chosen = models.BooleanField(verbose_name='is active')
+    start = models.DateField(verbose_name='start date')
+    end = models.DateField(verbose_name='end date')
     month = models.ForeignKey(Month, on_delete=CASCADE)
 
     class Meta:
@@ -323,7 +326,7 @@ class Method(models.Model):
         db_table = "method"
     
     def __str__(self):
-        return str(self.id) + " " + self.name + " (" + str(self.user_id) + ")"
+        return self.name
 
 class DailyFlow(models.Model):
     id = models.CharField(max_length=23, primary_key=True)
@@ -409,7 +412,7 @@ class FinancialGoal(models.Model):
         db_table = 'financial_goal'
 
     def __str__(self):
-        return self.id + " " + self.name + " (" + str(self.total_progress) + "/" + str(self.goal) + ")"
+        return self.id + " " + self.name
     
     def delete(self, *args, **kwargs):
         goalcat = Category.objects.get(id=self.category_id.id)
@@ -528,7 +531,7 @@ class KnowledgeArticle(models.Model):
     body = models.TextField()
     image = models.ImageField(upload_to=nameFile)
     view = models.PositiveIntegerField(default=0)
-    exclusive_price = models.PositiveIntegerField(default=0)
+    exclusive_price = models.PositiveIntegerField(default=0, verbose_name='price')
     author = models.ForeignKey(NewUser, on_delete=SET_NULL, null=True)
     upload_on = models.DateTimeField(default=now)
 
@@ -541,14 +544,14 @@ class KnowledgeArticle(models.Model):
 class Viewer(models.Model):
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(default=now)
-    viewer = models.ForeignKey(NewUser, on_delete=CASCADE)
+    viewer = models.ForeignKey(NewUser, on_delete=SET_NULL, null=True)
     article = models.ForeignKey(KnowledgeArticle, on_delete=CASCADE)
     
     class Meta:
         db_table = 'viewer'
     
     def __str__(self):
-        return str(self.id) + ": " + self.viewer.user_id + " view " + self.article.topic + " at " + str(self.timestamp) 
+        return str(self.id) + " " + self.article.topic 
 
 class Liker(models.Model):
     id = models.AutoField(primary_key=True)
@@ -559,7 +562,7 @@ class Liker(models.Model):
         db_table = 'liker'
         
     def __str__(self):
-        return str(self.id) + ": " + self.liker.user_id + " like " + self.article.topic
+        return str(self.id) + ": " + self.article.topic
     
 class ExclusiveArticleOwner(models.Model):
     id = models.AutoField(primary_key=True)

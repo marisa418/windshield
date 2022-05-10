@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:windshield/utility/icon_convertor.dart';
 
 import 'package:windshield/main.dart';
@@ -18,33 +20,21 @@ import 'package:percent_indicator/percent_indicator.dart';
 import 'package:badges/badges.dart';
 import 'package:windshield/routes/app_router.dart';
 
-
 class SettingPage extends ConsumerWidget {
   const SettingPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      children: [
+    return ListView(
+      children: const [
         SettingHeader(),
         SettingInfo(),
-        ResetPassword(),
+        ChangePassword(),
         ResetPin(),
-        SettingCat(),
         SetNotificate(),
         IssueInfo(),
         GuideInfo(),
         LogoutBt(),
-        /*
-        Center(
-          child: ElevatedButton(
-            onPressed: () async => await ref.read(apiProvider).logout(),
-            style: ElevatedButton.styleFrom(
-              primary: MyTheme.negativeMajor,
-            ),
-            child: Text('ออกจากระบบ'),
-          ),
-        ),*/
       ],
     );
   }
@@ -55,49 +45,45 @@ class SettingHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(apiProvider.select((e) => e.user));
     return Container(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
-            children: const [
+            children: [
               Padding(
-                padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
                 child: Text(
                   'WINDSHEILD',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 25,
-                      decoration: TextDecoration.none),
+                  style: MyTheme.whiteTextTheme.headline2,
                 ),
               ),
             ],
           ),
           Row(
-            children: const [
+            children: [
               Padding(
-                padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
+                padding: const EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
                 child: Text(
-                  'คุณ ชื่อผู้ใช้',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      decoration: TextDecoration.none),
+                  'คุณ ${user?.userId}',
+                  style: MyTheme.whiteTextTheme.headline2,
                 ),
               ),
             ],
           ),
-        ]),
-        height: 150,
-        width: 500,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [
-                Color.fromARGB(255, 82, 54, 255),
-                Color.fromARGB(255, 117, 161, 227),
-              ]),
-          //borderRadius: BorderRadius.circular(10),
-        ));
+        ],
+      ),
+      height: 150,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: MyTheme.majorBackground,
+        ),
+        //borderRadius: BorderRadius.circular(10),
+      ),
+    );
   }
 }
 
@@ -106,62 +92,70 @@ class SettingInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
-          children: const [
-            Padding(
-              padding: EdgeInsets.only(left: 20, top: 20),
-              child: const Icon(
-                Icons.edit,
-                color: Colors.grey,
-                size: 30,
-              ),
+    return SizedBox(
+      height: 70,
+      child: Row(
+        children: const [
+          Flexible(
+            flex: 2,
+            fit: FlexFit.tight,
+            child: Icon(
+              Icons.edit,
+              color: Colors.grey,
+              size: 30,
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-              child: Text(
-                'แก้ไขข้อมูลผู้ใช้',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 25,
-                    decoration: TextDecoration.none),
-              ),
+          ),
+          Flexible(
+            flex: 7,
+            fit: FlexFit.tight,
+            child: Text(
+              'แก้ไขข้อมูลผู้ใช้',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 25,
+                  decoration: TextDecoration.none),
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 125, top: 20),
-              child: const Icon(
-                Icons.chevron_right_outlined,
-                color: Colors.grey,
-                size: 30,
-              ),
+          ),
+          Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: Icon(
+              Icons.chevron_right_outlined,
+              color: Colors.grey,
+              size: 30,
             ),
-          ],
-        ),
-      ]),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class ResetPassword extends ConsumerWidget {
-  const ResetPassword({Key? key}) : super(key: key);
+class ChangePassword extends ConsumerWidget {
+  const ChangePassword({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
+    return GestureDetector(
+      onTap: () => AutoRouter.of(context).push(OTPRoute(type: 0)),
+      child: SizedBox(
+        height: 70,
+        child: Row(
           children: const [
-            Padding(
-              padding: EdgeInsets.only(left: 20, top: 20),
-              child: const Icon(
-                Icons.key,
-                color: Colors.grey,
-                size: 30,
+            Flexible(
+              flex: 2,
+              fit: FlexFit.tight,
+              child: Center(
+                child: FaIcon(
+                  FontAwesomeIcons.key,
+                  color: Colors.grey,
+                  size: 30,
+                ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
+            Flexible(
+              flex: 7,
+              fit: FlexFit.tight,
               child: Text(
                 'เปลี่ยนรหัสผ่าน',
                 style: TextStyle(
@@ -170,9 +164,10 @@ class ResetPassword extends ConsumerWidget {
                     decoration: TextDecoration.none),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 120, top: 20),
-              child: const Icon(
+            Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
+              child: Icon(
                 Icons.chevron_right_outlined,
                 color: Colors.grey,
                 size: 30,
@@ -180,7 +175,7 @@ class ResetPassword extends ConsumerWidget {
             ),
           ],
         ),
-      ]),
+      ),
     );
   }
 }
@@ -190,20 +185,26 @@ class ResetPin extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
+    return GestureDetector(
+      onTap: () => AutoRouter.of(context).push(OTPRoute(type: 1)),
+      child: SizedBox(
+        height: 70,
+        child: Row(
           children: const [
-            Padding(
-              padding: EdgeInsets.only(left: 20, top: 20),
-              child: const Icon(
-                Icons.key,
-                color: Colors.grey,
-                size: 30,
+            Flexible(
+              flex: 2,
+              fit: FlexFit.tight,
+              child: Center(
+                child: Icon(
+                  Icons.password,
+                  color: Colors.grey,
+                  size: 30,
+                ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
+            Flexible(
+              flex: 7,
+              fit: FlexFit.tight,
               child: Text(
                 'เปลี่ยน PIN',
                 style: TextStyle(
@@ -212,9 +213,10 @@ class ResetPin extends ConsumerWidget {
                     decoration: TextDecoration.none),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 158, top: 20),
-              child: const Icon(
+            Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
+              child: Icon(
                 Icons.chevron_right_outlined,
                 color: Colors.grey,
                 size: 30,
@@ -222,7 +224,7 @@ class ResetPin extends ConsumerWidget {
             ),
           ],
         ),
-      ]),
+      ),
     );
   }
 }
@@ -232,39 +234,43 @@ class SettingCat extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
-          children: const [
-            Padding(
-              padding: EdgeInsets.only(left: 20, top: 20),
-              child: const Icon(
+    return SizedBox(
+      height: 70,
+      child: Row(
+        children: const [
+          Flexible(
+            flex: 2,
+            fit: FlexFit.tight,
+            child: Center(
+              child: Icon(
                 Icons.book,
                 color: Colors.grey,
                 size: 30,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-              child: Text(
-                'จัดการหมวดหมู่',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 25,
-                    decoration: TextDecoration.none),
-              ),
+          ),
+          Flexible(
+            flex: 7,
+            fit: FlexFit.tight,
+            child: Text(
+              'จัดการหมวดหมู่',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 25,
+                  decoration: TextDecoration.none),
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 114, top: 20),
-              child: const Icon(
-                Icons.chevron_right_outlined,
-                color: Colors.grey,
-                size: 30,
-              ),
+          ),
+          Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: Icon(
+              Icons.chevron_right_outlined,
+              color: Colors.grey,
+              size: 30,
             ),
-          ],
-        ),
-      ]),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -274,39 +280,43 @@ class SetNotificate extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
-          children: const [
-            Padding(
-              padding: EdgeInsets.only(left: 20, top: 20),
-              child: const Icon(
+    return SizedBox(
+      height: 70,
+      child: Row(
+        children: const [
+          Flexible(
+            flex: 2,
+            fit: FlexFit.tight,
+            child: Center(
+              child: Icon(
                 Icons.timer,
                 color: Colors.grey,
                 size: 30,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-              child: Text(
-                'การแจ้งเตือนทำ\nบัญชีรายรับ-รายจ่าย',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    decoration: TextDecoration.none),
-              ),
+          ),
+          Flexible(
+            flex: 7,
+            fit: FlexFit.tight,
+            child: Text(
+              'การแจ้งเตือนทำ\nบัญชีรายรับ-รายจ่าย',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  decoration: TextDecoration.none),
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 105, top: 20),
-              child: const Icon(
-                Icons.chevron_right_outlined,
-                color: Colors.grey,
-                size: 30,
-              ),
+          ),
+          Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: Icon(
+              Icons.chevron_right_outlined,
+              color: Colors.grey,
+              size: 30,
             ),
-          ],
-        ),
-      ]),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -316,39 +326,43 @@ class IssueInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
-          children: const [
-            Padding(
-              padding: EdgeInsets.only(left: 20, top: 20),
-              child: const Icon(
+    return SizedBox(
+      height: 70,
+      child: Row(
+        children: const [
+          Flexible(
+            flex: 2,
+            fit: FlexFit.tight,
+            child: Center(
+              child: Icon(
                 Icons.warning_rounded,
                 color: Colors.grey,
                 size: 30,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-              child: Text(
-                'นโยบายและ\nข้อกำหนดการใช้งาน',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    decoration: TextDecoration.none),
-              ),
+          ),
+          Flexible(
+            flex: 7,
+            fit: FlexFit.tight,
+            child: Text(
+              'นโยบายและ\nข้อกำหนดการใช้งาน',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  decoration: TextDecoration.none),
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 112, top: 20),
-              child: const Icon(
-                Icons.chevron_right_outlined,
-                color: Colors.grey,
-                size: 30,
-              ),
+          ),
+          Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: Icon(
+              Icons.chevron_right_outlined,
+              color: Colors.grey,
+              size: 30,
             ),
-          ],
-        ),
-      ]),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -358,39 +372,43 @@ class GuideInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
-          children: const [
-            Padding(
-              padding: EdgeInsets.only(left: 20, top: 20),
-              child: const Icon(
-                Icons.warning_rounded,
+    return SizedBox(
+      height: 70,
+      child: Row(
+        children: const [
+          Flexible(
+            flex: 2,
+            fit: FlexFit.tight,
+            child: Center(
+              child: Icon(
+                Icons.menu_book_rounded,
                 color: Colors.grey,
                 size: 30,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-              child: Text(
-                'ไกด์การใช้งาน',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 25,
-                    decoration: TextDecoration.none),
-              ),
+          ),
+          Flexible(
+            flex: 7,
+            fit: FlexFit.tight,
+            child: Text(
+              'ไกด์การใช้งาน',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 25,
+                  decoration: TextDecoration.none),
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 135, top: 20),
-              child: const Icon(
-                Icons.chevron_right_outlined,
-                color: Colors.grey,
-                size: 30,
-              ),
+          ),
+          Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: Icon(
+              Icons.chevron_right_outlined,
+              color: Colors.grey,
+              size: 30,
             ),
-          ],
-        ),
-      ]),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -400,49 +418,45 @@ class LogoutBt extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ElevatedButton(
-      
-          
-            onPressed: () async => await ref.read(apiProvider).logout(),
-            style: ElevatedButton.styleFrom(
-              primary: Colors.white,
-            ),
-            
-      child: Container(
-        
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(
-            
-            children: const [
-              Padding(
-                padding: EdgeInsets.only(left: 20, top: 20),
-                child: const Icon(
+    return GestureDetector(
+      onTap: () async => await ref.read(apiProvider).logout(),
+      child: SizedBox(
+        height: 70,
+        child: Row(
+          children: const [
+            Flexible(
+              flex: 2,
+              fit: FlexFit.tight,
+              child: Center(
+                child: Icon(
                   Icons.logout,
                   color: Colors.grey,
                   size: 30,
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-                child: Text(
-                  'ออกจากระบบ',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 25,
-                      decoration: TextDecoration.none),
-                ),
+            ),
+            Flexible(
+              flex: 7,
+              fit: FlexFit.tight,
+              child: Text(
+                'ออกจากระบบ',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 25,
+                    decoration: TextDecoration.none),
               ),
-              Padding(
-                padding: EdgeInsets.only(left: 108, top: 20),
-                child: const Icon(
-                  Icons.chevron_right_outlined,
-                  color: Colors.grey,
-                  size: 30,
-                ),
+            ),
+            Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
+              child: Icon(
+                Icons.chevron_right_outlined,
+                color: Colors.grey,
+                size: 30,
               ),
-            ],
-          ),
-        ]),
+            ),
+          ],
+        ),
       ),
     );
   }

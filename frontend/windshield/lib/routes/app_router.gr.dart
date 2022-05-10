@@ -33,6 +33,10 @@ class _$AppRouter extends RootStackRouter {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const RegisterPage());
     },
+    OTPRegisterRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const OTPRegisterPage());
+    },
     PinRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const PinPage());
@@ -96,6 +100,11 @@ class _$AppRouter extends RootStackRouter {
     ArticleReadRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const ArticleReadPage());
+    },
+    OTPRoute.name: (routeData) {
+      final args = routeData.argsAs<OTPRouteArgs>();
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: OTPPage(type: args.type, key: args.key));
     }
   };
 
@@ -105,6 +114,8 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(LoginRoute.name, path: '', parent: AppStackRoute.name),
           RouteConfig(RegisterRoute.name,
               path: 'register-page', parent: AppStackRoute.name),
+          RouteConfig(OTPRegisterRoute.name,
+              path: 'o-tp-register-page', parent: AppStackRoute.name),
           RouteConfig(PinRoute.name,
               path: 'pin-page', parent: AppStackRoute.name),
           RouteConfig(RegisterInfoRoute.name,
@@ -137,7 +148,9 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(CategoryRoute.name,
               path: 'category-page', parent: EmptyRouterRoute.name),
           RouteConfig(ArticleReadRoute.name,
-              path: 'article-read-page', parent: EmptyRouterRoute.name)
+              path: 'article-read-page', parent: EmptyRouterRoute.name),
+          RouteConfig(OTPRoute.name,
+              path: 'o-tp-page', parent: EmptyRouterRoute.name)
         ])
       ];
 }
@@ -174,6 +187,15 @@ class RegisterRoute extends PageRouteInfo<void> {
   const RegisterRoute() : super(RegisterRoute.name, path: 'register-page');
 
   static const String name = 'RegisterRoute';
+}
+
+/// generated route for
+/// [OTPRegisterPage]
+class OTPRegisterRoute extends PageRouteInfo<void> {
+  const OTPRegisterRoute()
+      : super(OTPRegisterRoute.name, path: 'o-tp-register-page');
+
+  static const String name = 'OTPRegisterRoute';
 }
 
 /// generated route for
@@ -313,4 +335,27 @@ class ArticleReadRoute extends PageRouteInfo<void> {
       : super(ArticleReadRoute.name, path: 'article-read-page');
 
   static const String name = 'ArticleReadRoute';
+}
+
+/// generated route for
+/// [OTPPage]
+class OTPRoute extends PageRouteInfo<OTPRouteArgs> {
+  OTPRoute({required int type, Key? key})
+      : super(OTPRoute.name,
+            path: 'o-tp-page', args: OTPRouteArgs(type: type, key: key));
+
+  static const String name = 'OTPRoute';
+}
+
+class OTPRouteArgs {
+  const OTPRouteArgs({required this.type, this.key});
+
+  final int type;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'OTPRouteArgs{type: $type, key: $key}';
+  }
 }
