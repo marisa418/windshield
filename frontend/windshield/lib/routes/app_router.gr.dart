@@ -33,6 +33,10 @@ class _$AppRouter extends RootStackRouter {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const RegisterPage());
     },
+    OTPRegisterRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const OTPRegisterPage());
+    },
     PinRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const PinPage());
@@ -105,6 +109,8 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(LoginRoute.name, path: '', parent: AppStackRoute.name),
           RouteConfig(RegisterRoute.name,
               path: 'register-page', parent: AppStackRoute.name),
+          RouteConfig(OTPRegisterRoute.name,
+              path: 'o-tp-register-page', parent: AppStackRoute.name),
           RouteConfig(PinRoute.name,
               path: 'pin-page', parent: AppStackRoute.name),
           RouteConfig(RegisterInfoRoute.name,
@@ -174,6 +180,15 @@ class RegisterRoute extends PageRouteInfo<void> {
   const RegisterRoute() : super(RegisterRoute.name, path: 'register-page');
 
   static const String name = 'RegisterRoute';
+}
+
+/// generated route for
+/// [OTPRegisterPage]
+class OTPRegisterRoute extends PageRouteInfo<void> {
+  const OTPRegisterRoute()
+      : super(OTPRegisterRoute.name, path: 'o-tp-register-page');
+
+  static const String name = 'OTPRegisterRoute';
 }
 
 /// generated route for

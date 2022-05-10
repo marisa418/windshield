@@ -200,8 +200,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                     _phone,
                                   );
                               if (res) {
-                                //OTP FIRST
-                                AutoRouter.of(context).push(const PinRoute());
+                                AutoRouter.of(context)
+                                    .push(const OTPRegisterRoute());
+                                // AutoRouter.of(context).push(const PinRoute());
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
