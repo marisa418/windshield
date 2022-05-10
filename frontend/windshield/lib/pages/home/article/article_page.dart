@@ -692,6 +692,7 @@ class ArticleItem extends ConsumerWidget {
                             Navigator.of(context).pop();
                             AutoRouter.of(context)
                                 .push(const ArticleReadRoute());
+                            ref.refresh(apiArticle);
                           }
                         }
                       : null,

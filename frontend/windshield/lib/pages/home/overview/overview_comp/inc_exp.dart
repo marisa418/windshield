@@ -266,7 +266,7 @@ class Liquidity extends ConsumerWidget {
             animation: true,
             animationDuration: 2000,
             lineWidth: 10,
-            center: Text('${HelperNumber.format(perc)}%',
+            center: Text('${HelperNumber.format(perc * 100)}%',
                 style: const TextStyle(
                   color: Colors.white,
                 )),
