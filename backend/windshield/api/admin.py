@@ -572,7 +572,7 @@ class KnowledgeAritcleAdmin(admin.ModelAdmin):
         url = (
             reverse("admin:api_knowledgearticle_delete", args=(obj.id,))
         )
-        return format_html('<a class="deletelink" href="{}">delete</a>', url)
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
     
     def lookup_view(self, obj):
         queryset = Viewer.objects.filter(article__id=obj.id)
