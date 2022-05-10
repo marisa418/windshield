@@ -55,7 +55,8 @@ class Api extends ChangeNotifier {
       },
       onError: (DioError error, handler) async {
         print(error.response);
-        if (error.requestOptions.path.contains('token/refresh')) {
+        if (error.requestOptions.path.contains('token/refresh') ||
+            error.requestOptions.path.contains('user/')) {
           _accessToken = null;
           await _storage.deleteAll();
           _isLoggedIn = false;
@@ -118,13 +119,14 @@ class Api extends ChangeNotifier {
       _accessToken = response.data['access'];
       await _storage.write(
           key: 'refreshToken', value: response.data['refresh']);
-
+      Map<String, dynamic> data = Jwt.parseJwt(response.data['access']);
+      _user?.uuid = data['user_id'];
       // _isLoggedIn = true;
       // notifyListeners();
     }
   }
 
-  Future<bool> login(String username, String password) async {
+  Future<int> login(String username, String password) async {
     try {
       final res = await dio.post(
         '/token/',
@@ -138,11 +140,14 @@ class Api extends ChangeNotifier {
       Map<String, dynamic> data = Jwt.parseJwt(res.data['access']);
       _user?.uuid = data['user_id'];
       await getUserInfo();
+      if (_user?.isVerify == false) return 2;
+      if (_user?.pin == null) return 3;
+      if (_user?.family == null) return 4;
       _isLoggedIn = true;
       notifyListeners();
-      return true;
+      return 1;
     } catch (e) {
-      return false;
+      return 0;
     }
   }
 
@@ -198,7 +203,7 @@ class Api extends ChangeNotifier {
       );
 
       _accessToken = res.data['access'];
-      // await _storage.write(key: 'refreshToken', value: res.data['refresh']);
+      await _storage.write(key: 'refreshToken', value: res.data['refresh']);
       Map<String, dynamic> data = Jwt.parseJwt(res.data['access']);
       _user?.uuid = data['user_id'];
       _user?.email = user.data['email'];
@@ -230,7 +235,7 @@ class Api extends ChangeNotifier {
     }
   }
 
-  Future<bool> verifyOTP(String otp, String ref) async {
+  Future<String> verifyOTP(String otp, String ref) async {
     try {
       // {
       //     "massage": "verification success",
@@ -238,11 +243,27 @@ class Api extends ChangeNotifier {
       //     "ref": "yt2n2kg6",
       //     "verify": "bzcdmb25qai5768j143by85jak46m4pi"
       // }
-      print(_accessToken);
-      await dio.post('/user/verify-code/', data: {
+      final res = await dio.post('/user/verify-code/', data: {
         'otp': otp,
         'ref': ref,
       });
+      return res.data['verify'];
+    } catch (e) {
+      return '';
+    }
+  }
+
+  Future<bool> verifyUser(String token, String ref) async {
+    try {
+      await dio.post(
+        '/user/verify-user/',
+        options: Options(
+          headers: {
+            'X-VERIFY-TOKEN': token,
+            'X-REF-CODE': ref,
+          },
+        ),
+      );
       return true;
     } catch (e) {
       return false;

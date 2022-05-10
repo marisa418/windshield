@@ -21,7 +21,7 @@ Future<void> createReminderNotification(
   await AwesomeNotifications().createNotification(
     content: NotificationContent(
       id: 0,
-      channelKey: 'scheduled_channel',
+      channelKey: 'daiy_flow_channel',
       title: '${Emojis.money_money_bag} ถึงเวลาทำรายรับ-จ่ายเเล้วนะ!!!',
       body: 'จะมาทำดีๆ หรือจะมาทำด้วยน้ำตาา',
       notificationLayout: NotificationLayout.Default,

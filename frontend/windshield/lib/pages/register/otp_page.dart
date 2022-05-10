@@ -19,7 +19,7 @@ class OTPRegisterPage extends ConsumerStatefulWidget {
 }
 
 class _OTPRegisterPageState extends ConsumerState<OTPRegisterPage> {
-  String _username = '';
+  String _otp = '';
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +57,7 @@ class _OTPRegisterPageState extends ConsumerState<OTPRegisterPage> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width - 150,
                       child: TextFormField(
-                        onSaved: (value) =>
-                            setState(() => {_username = value!}),
+                        onChanged: (value) => setState(() => {_otp = value}),
                         style: MyTheme.whiteTextTheme.headline4,
                         cursorColor: Colors.white,
                         decoration: InputDecoration(
@@ -88,11 +87,22 @@ class _OTPRegisterPageState extends ConsumerState<OTPRegisterPage> {
                       width: 300,
                       child: ElevatedButton(
                         onPressed: () async {
-                          final res = await ref
+                          final verify = await ref
                               .read(apiProvider)
-                              .verifyOTP(_username, refCode);
-                          if (res) {
-                            AutoRouter.of(context).push(const PinRoute());
+                              .verifyOTP(_otp, refCode);
+                          if (verify.isNotEmpty) {
+                            if (await ref
+                                .read(apiProvider)
+                                .verifyUser(verify, refCode)) {
+                              AutoRouter.of(context).push(const PinRoute());
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'OTP หมดอายุหรือผิด กรุณาขอ OTP ใหม่'),
+                                ),
+                              );
+                            }
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

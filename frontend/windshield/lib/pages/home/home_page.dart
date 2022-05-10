@@ -49,9 +49,15 @@ class _HomeState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
-    AwesomeNotifications().actionStream.listen((receivedNotification) {
-      AutoRouter.of(context).push(const DailyFlowOverviewRoute());
-    });
+    try {
+      AwesomeNotifications().actionStream.listen(
+        (receivedNotification) {
+          AutoRouter.of(context).push(const DailyFlowOverviewRoute());
+        },
+      );
+    } catch (e) {
+      print('CAN ONLY LISTEN TO STREAM ONLY ONCE');
+    }
   }
 
   @override
