@@ -79,14 +79,31 @@ ul.messagelist li {
 }
 
 a.deletelink:link.button, a.deletelink:visited.button {
-    color: #fff;
+    color: var(--close-button-bg);
+    border: 1px solid var(--close-button-bg);
     padding-left: 16px;
+    background: url(../icon/xmark-solid.svg) 2px 8px no-repeat;
+    background-color: var(--accent);
+}
+
+a.deletelink:focus.button, a.deletelink:hover.button {
+    color: var(--accent);
     background: url(../icon/xmark-solid-white.svg) 2px 8px no-repeat;
     background-color: var(--close-button-bg);
 }
 
-a.deletelink:focus.button, a.deletelink:hover.button {
-    background-color: var(--close-button-hover-bg);
+a.recoverlink:link.button, a.recoverlink:visited.button {
+    color: #16D9AB;
+    border: 1px solid #16D9AB;
+    padding-left: 16px;
+    background: url(../icon/rotate-left-solid.svg) 2px 8px no-repeat;
+    background-color: var(--accent);
+}
+
+a.recoverlink:focus.button, a.recoverlink:hover.button {
+    color: var(--accent);
+    background: url(../icon/rotate-left-solid-white.svg) 2px 8px no-repeat;
+    background-color: #16D9AB;
 }
 
 .addlink {

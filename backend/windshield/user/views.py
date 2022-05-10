@@ -72,6 +72,8 @@ class VerifyOTPCode(APIView):
         if otp is None: return Response("required otp", status=status.HTTP_400_BAD_REQUEST)
         if ref is None: return Response("required ref", status=status.HTTP_400_BAD_REQUEST)
         verify_log = VerifyCodeLog.objects.filter(user__email=email, ref_code=ref).last()
+        if verify_log is None:
+            return Response("your email or ref code is not match", status=status.HTTP_400_BAD_REQUEST)
         expired_time = verify_log.send_at + timedelta(minutes=5)
         now = datetime.now()
         if verify_log is None:
@@ -152,10 +154,12 @@ class VerifyUser(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
-        massage, http_status, _ = check_verify_token(request)
+        massage, http_status, token = check_verify_token(request)
         if http_status != status.HTTP_200_OK:
             return Response(massage, status=http_status)
-        user = NewUser.objects.get(uuid=request.user.uuid)
+        if request.user.uuid != token.code_log.user.uuid:
+            return Response("you are not the token owner, please log in with another id", status=status.HTTP_400_BAD_REQUEST)
+        user = NewUser.objects.get(uuid=token.code_log.user.uuid)
         user.is_verify = True
         user.save()
         return Response("user has been verified successly")
@@ -181,13 +185,15 @@ class ChangeUserPIN(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self, request):
-        massage, http_status, _ = check_verify_token(request)
+        massage, http_status, token = check_verify_token(request)
         if http_status != status.HTTP_200_OK:
             return Response(massage, status=http_status)
         new_pin = request.data.get("pin", "")
         if len(new_pin) != 6:
             return Response("invalid PIN", status=status.HTTP_400_BAD_REQUEST)
-        user = NewUser.objects.get(uuid=request.user.uuid)
+        if request.user.uuid != token.code_log.user.uuid:
+            return Response("you are not the token owner, please log in with another id", status.HTTP_400_BAD_REQUEST)
+        user = NewUser.objects.get(uuid=token.code_log.user.uuid)
         user.pin = new_pin
         user.save()
         return Response({

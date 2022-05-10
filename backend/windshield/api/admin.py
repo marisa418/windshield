@@ -101,7 +101,7 @@ class CategoryAdmin(admin.ModelAdmin):
         if obj.isDeleted:
             return format_html(
                 '<a class="deletelink button" href="{}">obiterate</a>&nbsp;'
-                '<a class="button" href="{}">recover</a>',
+                '<a class="recoverlink button" href="{}">recover</a>',
                 reverse("admin:api_category_delete", args=(obj.id,)),
                 reverse("admin:api_category_recover", args=(obj.id,))
             )
@@ -484,6 +484,7 @@ class ViewerAdmin(admin.ModelAdmin):
     search_fields = ('viewer__user_id', 'article__topic')
     search_help_text = "Enter the article's topic or user id"
     list_filter = (('timestamp', admin.DateFieldListFilter),)
+    empty_value_display = "(unknow user)"
     
     def has_add_permission(self, request, obj=None):
         return False
@@ -492,10 +493,11 @@ class ViewerAdmin(admin.ModelAdmin):
         return False
     
     def lookup_user(self, obj):
-        url = (
-            reverse("admin:user_newuser_change", args=(obj.viewer.uuid,))
-        )
-        return format_html('<a href="{}">{}</a>', url, obj.viewer)
+        if obj.viewer is not None:
+            url = (
+                reverse("admin:user_newuser_change", args=(obj.viewer.uuid,))
+            )
+            return format_html('<a href="{}">{}</a>', url, obj.viewer)
         
     lookup_user.short_description = 'viewer'
     
