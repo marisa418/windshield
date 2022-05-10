@@ -35,7 +35,7 @@ class FinancialTypeAdmin(admin.ModelAdmin):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_filter = ('isDeleted', 'ftype')
-    list_display = ('id', 'name', 'ftype', 'lookup_user', 'used_count', 'isDeleted', 'action_box')
+    list_display = ('id', 'name', 'ftype', 'lookup_user', 'used_count', 'change_is_deleted', 'action_box')
     search_fields = ('name', 'user_id__user_id')
     search_help_text = "Enter the category's name or user id"
     fieldsets = (
@@ -100,20 +100,31 @@ class CategoryAdmin(admin.ModelAdmin):
     def action_box (self, obj):
         if obj.isDeleted:
             return format_html(
-                '<a class="button" href="{}">obiterate</a>&nbsp;'
-                '<a class="button" href="{}">recover</a>',
+                '<a class="deletelink button" href="{}">obiterate</a>&nbsp;'
+                '<a class="recoverlink button" href="{}">recover</a>',
                 reverse("admin:api_category_delete", args=(obj.id,)),
                 reverse("admin:api_category_recover", args=(obj.id,))
             )
         else:
             return format_html(
-                '<a class="deletelink" href="{}">delete</a>',
+                '<a class="deletelink button" href="{}">delete</a>',
                 reverse("admin:api_category_deactivate", args=(obj.id,))
             )
     
     action_box.short_description = 'Action'
     recover_selected.short_description = 'Recover seleted categories'
     lookup_user.short_description = 'user'
+    
+    def change_is_deleted(self, obj):
+        yes_icon = '<img src="/static/admin/icon/circle-check-solid.svg" alt="True" >'
+        no_icon = '<img src="/static/admin/icon/circle-xmark-solid.svg" alt="False" >'
+        
+        if obj.isDeleted:
+            return format_html(yes_icon)
+        else:
+            return format_html(no_icon)
+    
+    change_is_deleted.short_description = "is deleted"
 
 @admin.register(DefaultCategory) 
 class DefaultCategoryAdmin(admin.ModelAdmin):
@@ -210,9 +221,6 @@ class BalanceSheetLogAdmin(admin.ModelAdmin):
     
     def has_change_permission(self, request, obj=None):
         return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
     
     def lookup_owner(self, obj):
         url = (
@@ -232,9 +240,6 @@ class BalanceSheetAdmin(admin.ModelAdmin):
         return False
     
     def has_change_permission(self, request, obj=None):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
         return False
 
     def lookup_user(self, obj):
@@ -312,7 +317,7 @@ class BudgetAdmin(admin.ModelAdmin):
 
 @admin.register(FinancialStatementPlan)
 class FinancialStatementPlanAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'lookup_user', 'start', 'end', 'chosen', 'lookup_budgets')
+    list_display = ('id', 'name', 'lookup_user', 'start', 'end', 'change_is_active', 'lookup_budgets')
     search_fields = ('owner_id__user_id', 'name')
     search_help_text = "Enter the statement plan's name or user id"
     list_filter = ('chosen', ('start', admin.DateFieldListFilter), ('end', admin.DateFieldListFilter),)
@@ -342,6 +347,17 @@ class FinancialStatementPlanAdmin(admin.ModelAdmin):
     lookup_user.short_description = 'owner'
     lookup_budgets.short_description = 'budgets'
     
+    def change_is_active(self, obj):
+        yes_icon = '<img src="/static/admin/icon/circle-check-solid.svg" alt="True" >'
+        no_icon = '<img src="/static/admin/icon/circle-xmark-solid.svg" alt="False" >'
+        
+        if obj.chosen:
+            return format_html(yes_icon)
+        else:
+            return format_html(no_icon)
+    
+    change_is_active.short_description = "is active"
+    
 @admin.register(Method)
 class MethodAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'icon', 'lookup_user', 'delete_action')
@@ -362,7 +378,7 @@ class MethodAdmin(admin.ModelAdmin):
         url = (
             reverse("admin:api_method_delete", args=(obj.id,))
         )
-        return format_html('<a class="deletelink" href="{}">delete</a>', url)
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
     
     delete_action.short_description = "Delete"
     
@@ -468,6 +484,7 @@ class ViewerAdmin(admin.ModelAdmin):
     search_fields = ('viewer__user_id', 'article__topic')
     search_help_text = "Enter the article's topic or user id"
     list_filter = (('timestamp', admin.DateFieldListFilter),)
+    empty_value_display = "(unknow user)"
     
     def has_add_permission(self, request, obj=None):
         return False
@@ -475,14 +492,12 @@ class ViewerAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
     
-    def has_delete_permission(self, request, obj=None):
-        return False
-    
     def lookup_user(self, obj):
-        url = (
-            reverse("admin:user_newuser_change", args=(obj.viewer.uuid,))
-        )
-        return format_html('<a href="{}">{}</a>', url, obj.viewer)
+        if obj.viewer is not None:
+            url = (
+                reverse("admin:user_newuser_change", args=(obj.viewer.uuid,))
+            )
+            return format_html('<a href="{}">{}</a>', url, obj.viewer)
         
     lookup_user.short_description = 'viewer'
     
@@ -505,9 +520,6 @@ class LikerAdmin(admin.ModelAdmin):
         return False
     
     def has_change_permission(self, request, obj=None):
-        return False
-    
-    def has_delete_permission(self, request, obj=None):
         return False
     
     def lookup_user(self, obj):
@@ -562,7 +574,7 @@ class KnowledgeAritcleAdmin(admin.ModelAdmin):
         url = (
             reverse("admin:api_knowledgearticle_delete", args=(obj.id,))
         )
-        return format_html('<a class="deletelink" href="{}">delete</a>', url)
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
     
     def lookup_view(self, obj):
         queryset = Viewer.objects.filter(article__id=obj.id)

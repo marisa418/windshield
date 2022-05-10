@@ -544,7 +544,7 @@ class KnowledgeArticle(models.Model):
 class Viewer(models.Model):
     id = models.AutoField(primary_key=True)
     timestamp = models.DateTimeField(default=now)
-    viewer = models.ForeignKey(NewUser, on_delete=CASCADE)
+    viewer = models.ForeignKey(NewUser, on_delete=SET_NULL, null=True)
     article = models.ForeignKey(KnowledgeArticle, on_delete=CASCADE)
     
     class Meta:
