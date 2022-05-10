@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
-from django.db.models.deletion import CASCADE
+from django.db.models.deletion import CASCADE, SET_NULL
 import uuid
 
 class Province(models.Model):
@@ -75,7 +75,7 @@ class NewUser(AbstractBaseUser, PermissionsMixin):
     #
 
     born_year = models.IntegerField(null=True)
-    province = models.ForeignKey(Province, on_delete=CASCADE, null=True)
+    province = models.ForeignKey(Province, on_delete=SET_NULL, null=True)
     family = models.PositiveSmallIntegerField(null=True)
     points = models.PositiveIntegerField(default=0)
 

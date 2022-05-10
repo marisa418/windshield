@@ -8,10 +8,6 @@ from django.urls import re_path
 from django.contrib import messages
 from django.utils.translation import ngettext
 from django.http import HttpResponseRedirect
-from django.template.response import TemplateResponse
-
-
-# Register your models here.
 
 @admin.register(FinancialType)
 class FinancialTypeAdmin(admin.ModelAdmin):
@@ -20,6 +16,9 @@ class FinancialTypeAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('name', 'domain')}),
     )
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
     
     def get_queryset(self, request):
         queryset = FinancialType.objects.all()
@@ -128,7 +127,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(DefaultCategory) 
 class DefaultCategoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'ftype', 'icon')
+    list_display = ('id', 'name', 'ftype', 'icon', 'delete_action')
     list_filter = ('ftype',)
     search_fields = ('name',)
     search_help_text = "Enter category's name"
@@ -136,10 +135,18 @@ class DefaultCategoryAdmin(admin.ModelAdmin):
         (None, {'fields': ('name', 'ftype', 'icon')}),
     )
     ordering = ('id',)
+    
+    def delete_action(self, obj):
+        url = (
+            reverse("admin:api_defaultcategory_delete", args=(obj.id,))
+        )
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
+    
+    delete_action.short_description = "delete"
   
 @admin.register(Asset)
 class AssetAdmin(admin.ModelAdmin):
-    list_display = ('id', 'lookup_category', 'lookup_owner', 'source', 'recent_value')
+    list_display = ('id', 'lookup_category', 'lookup_owner', 'source', 'recent_value', 'delete_action')
     search_fields = ('bsheet_id__owner_id__user_id', 'cat_id__name')
     search_help_text = "Enter the category's name or user id"
     fieldsets = (
@@ -148,6 +155,14 @@ class AssetAdmin(admin.ModelAdmin):
     
     def has_add_permission(self, request, obj=None):
         return False
+    
+    def delete_action(self, obj):
+        url = (
+            reverse("admin:api_asset_delete", args=(obj.id,))
+        )
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
+    
+    delete_action.short_description = "delete"
     
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -175,7 +190,7 @@ class AssetAdmin(admin.ModelAdmin):
     
 @admin.register(Debt)
 class DebtAdmin(admin.ModelAdmin):
-    list_display = ('id', 'lookup_category', 'lookup_owner', 'creditor', 'balance')
+    list_display = ('id', 'lookup_category', 'lookup_owner', 'creditor', 'balance', 'delete_action')
     search_fields = ('bsheet_id__owner_id__user_id', 'cat_id__name')
     search_help_text = "Enter the category's name or user id"
     fieldsets = (
@@ -184,6 +199,14 @@ class DebtAdmin(admin.ModelAdmin):
     
     def has_add_permission(self, request, obj=None):
         return False
+    
+    def delete_action(self, obj):
+        url = (
+            reverse("admin:api_debt_delete", args=(obj.id,))
+        )
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
+    
+    delete_action.short_description = "delete"
     
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -222,6 +245,9 @@ class BalanceSheetLogAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
     
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
     def lookup_owner(self, obj):
         url = (
             reverse("admin:api_balancesheet_change", args=(obj.bsheet_id.id,))
@@ -240,6 +266,9 @@ class BalanceSheetAdmin(admin.ModelAdmin):
         return False
     
     def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
         return False
 
     def lookup_user(self, obj):
@@ -284,7 +313,7 @@ class BalanceSheetAdmin(admin.ModelAdmin):
 
 @admin.register(Budget)
 class BudgetAdmin(admin.ModelAdmin):
-    list_display = ('id', 'lookup_category', 'lookup_plan', 'start_plan', 'end_plan', 'total_budget',)
+    list_display = ('id', 'lookup_category', 'lookup_plan', 'start_plan', 'end_plan', 'total_budget', 'delete_action',)
     search_fields = ('cat_id__name', 'fplan__owner_id__user_id', 'fplan__id')
     search_help_text = "Enter category's name or user id or statement plan id"
     fieldsets = (
@@ -293,6 +322,14 @@ class BudgetAdmin(admin.ModelAdmin):
     
     def has_add_permission(self, request, obj=None):
         return False
+    
+    def delete_action(self, obj):
+        url = (
+            reverse("admin:api_budget_delete", args=(obj.id,))
+        )
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
+    
+    delete_action.short_description = "delete"
     
     def lookup_plan(self, obj):
         url = (
@@ -329,6 +366,12 @@ class FinancialStatementPlanAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
 
+    def has_delete_permission(self, request, obj=None):
+        if obj is None or obj.chosen:
+            return False
+        else:
+            return True
+
     def lookup_user(self, obj):
         url = (
             reverse("admin:user_newuser_change", args=(obj.owner_id.uuid,))
@@ -360,10 +403,13 @@ class FinancialStatementPlanAdmin(admin.ModelAdmin):
     
 @admin.register(Method)
 class MethodAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'icon', 'lookup_user', 'delete_action')
+    list_display = ('id', 'name', 'icon', 'lookup_user')
     fieldsets = (
         (None, {'fields': ('name', 'icon', 'user_id')}),
     )
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
     
     def lookup_user(self, obj):
         if obj.user_id:
@@ -374,27 +420,27 @@ class MethodAdmin(admin.ModelAdmin):
         
     lookup_user.short_description = 'owner'
     
-    def delete_action(self, obj):
-        url = (
-            reverse("admin:api_method_delete", args=(obj.id,))
-        )
-        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
-    
-    delete_action.short_description = "Delete"
-    
 @admin.register(DailyFlow)
 class DailyFlowAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'lookup_category', 'lookup_dfsheet', 'value', 'method')
+    list_display = ('id', 'name', 'lookup_category', 'lookup_dfsheet', 'value', 'method', 'delete_action')
     search_fields = ('category__name', 'name', 'df_id__owner_id__user_id')
     search_help_text = "Enter the flow's name or category's name or user id"
     list_filter = (('df_id__date', admin.DateFieldListFilter), 'method')
     ordering = ('-df_id__date',)
+    fieldsets = (
+        (None, {'fields': ('name', 'value', 'method')}),
+    )
     
     def has_add_permission(self, request, obj=None):
         return False
     
-    def has_change_permission(self, request, obj=None):
-        return False
+    def delete_action(self, obj):
+        url = (
+            reverse("admin:api_dailyflow_delete", args=(obj.id,))
+        )
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
+    
+    delete_action.short_description = "delete"
     
     def lookup_category(self, obj):
         url = (
@@ -415,7 +461,7 @@ class DailyFlowAdmin(admin.ModelAdmin):
 
 @admin.register(DailyFlowSheet)
 class DailyFlowSheetAdmin(admin.ModelAdmin):
-    list_display = ('id', 'lookup_user', 'date', 'lookup_flows')
+    list_display = ('id', 'lookup_user', 'date', 'lookup_flows', 'delete_action')
     search_fields = ('owner_id__user_id',)
     search_help_text = "Enter the user id"
     list_filter = (('date', admin.DateFieldListFilter),)
@@ -426,6 +472,14 @@ class DailyFlowSheetAdmin(admin.ModelAdmin):
     
     def has_change_permission(self, request, obj=None):
         return False
+    
+    def delete_action(self, obj):
+        url = (
+            reverse("admin:api_dailyflowsheet_delete", args=(obj.id,))
+        )
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
+    
+    delete_action.short_description = "delete"
     
     def lookup_user(self, obj):
         url = (
@@ -448,16 +502,24 @@ class DailyFlowSheetAdmin(admin.ModelAdmin):
     
 @admin.register(FinancialGoal)
 class FinancialGoalAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'lookup_category', 'lookup_user', 'progress', 'start', 'goal_date')
+    list_display = ('id', 'name', 'lookup_category', 'lookup_user', 'progress', 'start', 'goal_date', 'delete_action')
     search_fields = ('user_id__user_id', 'category_id__name')
     search_help_text = "Enter the category's name or user id"
     ordering = ('-start',)
+    fieldsets = (
+        (None, {'fields': ('name', 'icon', 'goal', 'start', 'goal_date', 'progress_per_period', 'period_term', 'reward')}),
+    )
     
     def has_add_permission(self, request, obj=None):
         return False
     
-    def has_change_permission(self, request, obj=None):
-        return False
+    def delete_action(self, obj):
+        url = (
+            reverse("admin:api_financialgoal_delete", args=(obj.id,))
+        )
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
+    
+    delete_action.short_description = "delete"
     
     def lookup_user(self, obj):
         url = (
@@ -492,6 +554,12 @@ class ViewerAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
     
+    def has_delete_permission(self, request, obj=None):
+        if obj is None or obj.viewer is not None:
+            return False
+        else:
+            return True
+    
     def lookup_user(self, obj):
         if obj.viewer is not None:
             url = (
@@ -522,6 +590,9 @@ class LikerAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
     
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
     def lookup_user(self, obj):
         url = (
             reverse("admin:user_newuser_change", args=(obj.liker.uuid,))
@@ -540,9 +611,17 @@ class LikerAdmin(admin.ModelAdmin):
     
 @admin.register(ExclusiveArticleOwner)
 class ExclusiveArticleOwnerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'lookup_user', 'lookup_article')
+    list_display = ('id', 'lookup_user', 'lookup_article', 'delete_action')
     search_fields = ('liker__user_id', 'article__topic')
     search_help_text = "Enter the article's topic or user id"
+    
+    def delete_action(self, obj):
+        url = (
+            reverse("admin:api_exclusivearticleowner_delete", args=(obj.id,))
+        )
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
+    
+    delete_action.short_description = 'delete'
     
     def lookup_user(self, obj):
         url = (
@@ -606,6 +685,11 @@ class KnowledgeAritcleAdmin(admin.ModelAdmin):
         )
         return format_html('<a href="{}">{} Owner</a>', url, count)
     
+    def get_deleted_objects(self, objs, request):
+        deleted_objects, model_count, perms_needed, protected = \
+            super().get_deleted_objects(objs, request)
+        return deleted_objects, model_count, set(), protected
+    
     delete_action.short_description = 'delete'
     lookup_view.short_description = 'views'
     lookup_like.short_description = 'likes'
@@ -614,6 +698,15 @@ class KnowledgeAritcleAdmin(admin.ModelAdmin):
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'articles')
+    
+    def has_delete_permission(self, request, obj=None):
+        if obj is None:
+            return False
+        queryset = KnowledgeArticle.objects.filter(subject__id=obj.id).distinct()
+        count = queryset.count()
+        if count != 0:
+            return False
+        return True
     
     def articles(self, obj):
         queryset = KnowledgeArticle.objects.filter(subject__id=obj.id).distinct()

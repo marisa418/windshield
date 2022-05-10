@@ -18,8 +18,9 @@ class UserAdminConfig(UserAdmin):
     list_filter = ('is_active', 'is_verify', 'is_staff',)
     ordering = ('user_id',)
     list_display = ('user_id', 'uuid', 'change_is_active', 'change_is_staff', 'change_is_verify', 'points', 'delete_action')
+    readonly_fields = ('user_id', 'email', 'uuid')
     fieldsets = (
-        (None, {'fields': ('user_id', 'email',)}),
+        (None, {'fields': ('uuid', 'user_id', 'email',)}),
         ('Permissions', {'fields': ('is_staff', 'is_active', 'is_verify')}),
         ('Personal', {'fields': ('born_year', 'pin', 'tel', 'occu_type','status', 'province', 'family', 'points')}),
     )
@@ -82,12 +83,17 @@ class UserAdminConfig(UserAdmin):
             return format_html(no_icon)
     
     change_is_verify.short_description = "is verify"
+    
+    def get_deleted_objects(self, objs, request):
+        deleted_objects, model_count, perms_needed, protected = \
+            super().get_deleted_objects(objs, request)
+        return deleted_objects, model_count, set(), protected
 
 admin.site.register(NewUser, UserAdminConfig)
 
 @admin.register(VerifyCodeLog)
 class VerifyCodeLogAdmin(NumericFilterModelAdmin):
-    list_display = ('id', 'ref_code', 'lookup_user', 'show_email', 'code', 'change_is_used', 'count','send_at')
+    list_display = ('id', 'ref_code', 'lookup_user', 'show_email', 'code', 'change_is_used', 'count', 'send_at')
     search_fields = ('ref_code' ,'user__email',)
     search_help_text = "Enter ref code or email"
     list_filter = ('is_used', ('send_at', admin.DateFieldListFilter), ('count', RangeNumericFilter))
@@ -96,6 +102,9 @@ class VerifyCodeLogAdmin(NumericFilterModelAdmin):
         return False
     
     def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
         return False
     
     def show_email(self, obj):
@@ -134,6 +143,9 @@ class VerifyTokenLogAdmin(NumericFilterModelAdmin):
     def has_change_permission(self, request, obj=None):
         return False
     
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
     def show_ref_code(self, obj):
         return obj.code_log.ref_code
     
@@ -162,10 +174,30 @@ class VerifyTokenLogAdmin(NumericFilterModelAdmin):
 
 @admin.register(Province)
 class ProvinceAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name_in_thai', 'name_in_eng')
+    list_display = ('code', 'name_in_thai', 'name_in_eng', 'lookup_user', 'delete_action')
     search_fields = ('code', 'name_in_thai', 'name_in_eng')
     search_help_text = "Enter code of name"
     ordering = ('code',)
+    
+    def lookup_user(self, obj):
+        queryset = NewUser.objects.filter(province__code=obj.code)
+        count = queryset.count()
+        url = (
+            reverse("admin:user_newuser_changelist")
+            + "?"
+            + urlencode({"province": f"{obj.id}"})
+        )
+        return format_html('<a href="{}">{} Users</a>', url, count)
+    
+    lookup_user.short_description = "user"
+    
+    def delete_action(self, obj):
+        url = (
+            reverse("admin:user_province_delete", args=(obj.code,))
+        )
+        return format_html('<a class="deletelink button" href="{}">delete</a>', url)
+    
+    delete_action.short_description = "Delete"
 
 admin.site.unregister(Group)
 
