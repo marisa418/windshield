@@ -152,7 +152,7 @@ class _TestFormState extends ConsumerState<Test2Form> {
                                 HelperIcons.getIconData(
                                     ref.watch(provCat).icon),
                                 color: Colors.white,
-                                size: 40,
+                                size: 30,
                               ),
                             ),
                             onTap: () {
@@ -195,7 +195,9 @@ class _TestFormState extends ConsumerState<Test2Form> {
                               Expanded(child: Container()),
                               //บันทึกลงฟอร์ม
                               SizedBox(
-                                width: MediaQuery.of(context).size.width - 50,
+                                height: 50,
+                                width: 360,
+                                //width: MediaQuery.of(context).size.width - 50,
                                 child: ElevatedButton(
                                   onPressed: () async {
                                     //ref.read(provCat).setIcon();
@@ -246,7 +248,7 @@ class _TestFormState extends ConsumerState<Test2Form> {
                                         RoundedRectangleBorder>(
                                       RoundedRectangleBorder(
                                         borderRadius:
-                                            BorderRadius.circular(18.0),
+                                            BorderRadius.circular(32.0),
                                       ),
                                     ),
                                   ),
@@ -254,10 +256,15 @@ class _TestFormState extends ConsumerState<Test2Form> {
                                       style: MyTheme.whiteTextTheme.headline3),
                                 ),
                               ),
+                              SizedBox(
+                                height: 18.0,
+                              ),
                               //ลบออก
                               if (ref.watch(provCat.select((e) => !e.isAdd)))
                                 SizedBox(
-                                  width: MediaQuery.of(context).size.width - 50,
+                                  height: 50,
+                                  width: 360,
+                                  //width: MediaQuery.of(context).size.width - 50,
                                   child: ElevatedButton(
                                     onPressed: () async {
                                       final asset = await ref
@@ -277,7 +284,7 @@ class _TestFormState extends ConsumerState<Test2Form> {
                                           RoundedRectangleBorder>(
                                         RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(18.0),
+                                              BorderRadius.circular(32.0),
                                         ),
                                       ),
                                     ),
@@ -326,7 +333,7 @@ class ChooseIcons extends ConsumerWidget {
                     child: Icon(
                       HelperIcons.getIconData(helpericons[i].toString()),
                       color: Colors.white,
-                      size: 40,
+                      size: 25,
                     ),
                   )),
               onTap: () {
