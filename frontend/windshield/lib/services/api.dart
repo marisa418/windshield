@@ -158,8 +158,8 @@ class Api extends ChangeNotifier {
       if (_user?.isVerify == false) return 2;
       if (_user?.pin == null) return 3;
       if (_user?.family == null) return 4;
-      _isLoggedIn = true;
-      notifyListeners();
+      // _isLoggedIn = true;
+      // notifyListeners();
       return 1;
     } catch (e) {
       return 0;

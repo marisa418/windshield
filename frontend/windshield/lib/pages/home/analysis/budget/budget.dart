@@ -390,11 +390,34 @@ class Progress extends StatelessWidget {
               ftype,
               style: MyTheme.textTheme.bodyText1,
             ),
-            Text(
-              'ดูเพิ่มเติม ',
-              style: TextStyle(
-                fontSize: 12,
-                color: MyTheme.primaryMajor,
+            RichText(
+              text: TextSpan(
+                children: <TextSpan>[
+                  TextSpan(
+                    text: HelperNumber.format(flow),
+                    style: TextStyle(
+                      color: color[0],
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "/${HelperNumber.format(bud)} ",
+                    style: TextStyle(
+                      color: color[1],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "บ.",
+                    style: TextStyle(
+                      color: color[1],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -407,42 +430,42 @@ class Progress extends StatelessWidget {
           backgroundColor: color[1],
           progressColor: color[0],
           padding: const EdgeInsets.all(0),
-          center: Padding(
-            padding: const EdgeInsets.only(left: 4.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: RichText(
-                text: TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: HelperNumber.format(flow),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextSpan(
-                      text: "/${HelperNumber.format(bud)} ",
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                    const TextSpan(
-                      text: "บ.",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          // center: Padding(
+          //   padding: const EdgeInsets.only(left: 4.0),
+          //   child: Align(
+          //     alignment: Alignment.centerLeft,
+          //     child: RichText(
+          //       text: TextSpan(
+          //         children: <TextSpan>[
+          //           TextSpan(
+          //             text: HelperNumber.format(flow),
+          //             style: const TextStyle(
+          //               color: Colors.white,
+          //               fontSize: 12,
+          //               fontWeight: FontWeight.bold,
+          //             ),
+          //           ),
+          //           TextSpan(
+          //             text: "/${HelperNumber.format(bud)} ",
+          //             style: TextStyle(
+          //               color: Colors.white.withOpacity(0.8),
+          //               fontWeight: FontWeight.bold,
+          //               fontSize: 12,
+          //             ),
+          //           ),
+          //           const TextSpan(
+          //             text: "บ.",
+          //             style: TextStyle(
+          //               color: Colors.white,
+          //               fontWeight: FontWeight.bold,
+          //               fontSize: 12,
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
           barRadius: const Radius.circular(20),
         ),
       ],
