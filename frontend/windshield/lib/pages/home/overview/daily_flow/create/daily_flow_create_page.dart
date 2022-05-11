@@ -663,7 +663,9 @@ class _CalculatorState extends ConsumerState<Calculator> {
                                 ref.read(provDFlow).flowMethod,
                               );
                           if (flow.id != '') {
-                            ref.read(provDFlow).editFlow(flow);
+                            final one =
+                                await ref.read(apiProvider).getOneFlow(flow.id);
+                            ref.read(provDFlow).editFlow(one);
                             ref.read(provDFlow).setNeedFetchAPI();
                             ref.read(provOverFlow).setNeedFetchAPI();
                             ref.refresh(apiDateChange);

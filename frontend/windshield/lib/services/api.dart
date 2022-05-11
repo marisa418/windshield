@@ -593,16 +593,10 @@ class Api extends ChangeNotifier {
     }
   }
 
-  Future<DFlowFlow> editFlow(
-      String id, String name, double value, int method) async {
+  Future<DFlowFlow> getOneFlow(String id) async {
     try {
-      final res = await dio.patch(
+      final res = await dio.get(
         '/api/daily-flow/$id/',
-        data: {
-          "name": name,
-          "value": value,
-          "method": method,
-        },
       );
       final data = DFlowFlow.fromJson(res.data);
       return data;
@@ -616,6 +610,24 @@ class Api extends ChangeNotifier {
         dfId: '',
         cat: Cat(id: '', name: '', usedCount: 0, icon: '', ftype: ''),
       );
+    }
+  }
+
+  Future<DFlowEdit> editFlow(
+      String id, String name, double value, int method) async {
+    try {
+      final res = await dio.patch(
+        '/api/daily-flow/$id/',
+        data: {
+          "name": name,
+          "value": value,
+          "method": method,
+        },
+      );
+      final data = DFlowEdit.fromJson(res.data);
+      return data;
+    } catch (e) {
+      return DFlowEdit(id: '');
     }
   }
 
