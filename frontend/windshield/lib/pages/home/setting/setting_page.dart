@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -6,6 +7,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:windshield/main.dart';
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/routes/app_router.dart';
+import 'package:windshield/utility/icon_convertor.dart';
+
+import '../../../utility/icon_convertor.dart';
+import '../../../utility/icon_convertor.dart';
 
 class SettingPage extends ConsumerWidget {
   const SettingPage({Key? key}) : super(key: key);
@@ -18,9 +23,9 @@ class SettingPage extends ConsumerWidget {
         SettingInfo(),
         ChangePassword(),
         ResetPin(),
-        // SetNotificate(),
-        // IssueInfo(),
-        // GuideInfo(),
+        //SetNotificate(),
+        //IssueInfo(),
+        //GuideInfo(),
         LogoutBt(),
       ],
     );
@@ -49,6 +54,7 @@ class SettingHeader extends ConsumerWidget {
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
@@ -57,6 +63,33 @@ class SettingHeader extends ConsumerWidget {
                   style: MyTheme.whiteTextTheme.headline2,
                 ),
               ),
+              //โชว์คะแนน
+              Padding(
+                padding: const EdgeInsets.only(right: 20.0, top: 20),
+                child: Container(
+                  height: 30,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(
+                      color: Colors.white,
+                    ),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Points : '+'${user?.points}',
+                      
+                      maxLines: 1,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(color: MyTheme.primaryMajor,fontSize:12),
+                      
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ],
