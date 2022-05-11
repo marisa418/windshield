@@ -75,65 +75,81 @@ class _PinState extends ConsumerState<Pin> {
         ),
       ),
       child: Column(
-        // mainAxisSize: MainAxisSize.min,
+        // mainAxisSize: MainAxisSize.min,,
         children: [
-          Container(
-            height: 200,
-            margin: const EdgeInsets.all(20.0),
-            padding: const EdgeInsets.all(20.0),
-            child: Pinput(
-              useNativeKeyboard: false,
-              length: 6,
-              followingPinTheme: PinTheme(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.0),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(.5),
-                  ),
-                ),
+          Flexible(
+            flex: 15,
+            fit: FlexFit.tight,
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Text(
+                'เข้าสู่ระบบ',
+                style: MyTheme.whiteTextTheme.headline3,
               ),
-              focusedPinTheme: PinTheme(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5.0),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(.5),
-                  ),
-                  color: Colors.white.withOpacity(.5),
-                ),
-              ),
-              submittedPinTheme: PinTheme(
-                width: 40,
-                height: 40,
-                textStyle: MyTheme.whiteTextTheme.headline4,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5.0),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(.5),
-                  ),
-                ),
-              ),
-              focusNode: focusNode,
-              controller: pinController,
-              onCompleted: (text) async {
-                showLoading(context);
-                final api = ref.read(apiProvider);
-                if (text.length > 4 && await api.loginByPin(text)) {
-                  // AutoRouter.of(context).push(const RegisterInfoRoute());
-                } else {
-                  AutoRouter.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('เกิดข้อผิดพลาด')),
-                  );
-                }
-              },
             ),
           ),
-          Expanded(
-            // flex: 4,
+          Flexible(
+            flex: 25,
+            fit: FlexFit.tight,
+            child: Container(
+              // margin: const EdgeInsets.all(20.0),
+              // padding: const EdgeInsets.all(20.0),
+              child: Pinput(
+                obscureText: true,
+                useNativeKeyboard: false,
+                length: 6,
+                followingPinTheme: PinTheme(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20.0),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(.5),
+                    ),
+                  ),
+                ),
+                focusedPinTheme: PinTheme(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5.0),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(.5),
+                    ),
+                    color: Colors.white.withOpacity(.5),
+                  ),
+                ),
+                submittedPinTheme: PinTheme(
+                  width: 40,
+                  height: 40,
+                  textStyle: MyTheme.whiteTextTheme.headline4,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5.0),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(.5),
+                    ),
+                  ),
+                ),
+                focusNode: focusNode,
+                controller: pinController,
+                onCompleted: (text) async {
+                  showLoading(context);
+                  final api = ref.read(apiProvider);
+                  if (text.length > 4 && await api.loginByPin(text)) {
+                    // AutoRouter.of(context).push(const RegisterInfoRoute());
+                  } else {
+                    AutoRouter.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('เกิดข้อผิดพลาด')),
+                    );
+                  }
+                },
+              ),
+            ),
+          ),
+          Flexible(
+            flex: 50,
+            fit: FlexFit.tight,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -176,8 +192,9 @@ class _PinState extends ConsumerState<Pin> {
               ],
             ),
           ),
-          SizedBox(
-            height: 100,
+          Flexible(
+            flex: 10,
+            fit: FlexFit.tight,
             child: Align(
               alignment: Alignment.bottomRight,
               child: GestureDetector(
@@ -192,6 +209,7 @@ class _PinState extends ConsumerState<Pin> {
               ),
             ),
           ),
+          const SizedBox(height: 10),
         ],
       ),
     );

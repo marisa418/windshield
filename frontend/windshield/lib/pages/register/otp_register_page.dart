@@ -66,22 +66,32 @@ class _OTPRegisterPageState extends ConsumerState<OTPRegisterPage> {
                 const SizedBox(height: 15),
                 SizedBox(
                   width: MediaQuery.of(context).size.width - 150,
-                  child: TextFormField(
-                    onChanged: (value) => setState(() => {_otp = value}),
-                    style: MyTheme.whiteTextTheme.headline4,
-                    cursorColor: Colors.white,
-                    decoration: InputDecoration(
-                      labelText: 'โปรดกรอก OTP',
-                      labelStyle: MyTheme.whiteTextTheme.headline4,
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        borderSide: const BorderSide(color: Colors.white),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      TextFormField(
+                        onChanged: (value) => setState(() => {_otp = value}),
+                        style: MyTheme.whiteTextTheme.headline4,
+                        cursorColor: Colors.white,
+                        decoration: InputDecoration(
+                          labelText: 'กรอก OTP',
+                          labelStyle: MyTheme.whiteTextTheme.headline4,
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.white),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                            borderSide: const BorderSide(color: Colors.white),
+                          ),
+                        ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(25.0),
-                        borderSide: const BorderSide(color: Colors.white),
+                      const SizedBox(height: 10),
+                      Text(
+                        'OTP มีเวลา 5 นาที',
+                        style: MyTheme.whiteTextTheme.bodyText1,
                       ),
-                    ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 50),
