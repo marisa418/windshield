@@ -113,10 +113,11 @@ class _AnalysisState extends ConsumerState<Analysis>
                                 ),
                               ),
                               child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
                                     string,
-                                    style: MyTheme.textTheme.headline1!.merge(
+                                    style: MyTheme.textTheme.headline3!.merge(
                                       TextStyle(color: color),
                                     ),
                                   ),

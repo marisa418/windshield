@@ -30,6 +30,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
     final isIncome = ref.watch(provDFlow.select((e) => e.colorBackground));
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Container(
           color: Colors.white,
           child: Column(
@@ -416,9 +417,7 @@ class _CalculatorState extends ConsumerState<Calculator> {
   Widget build(BuildContext context) {
     final flowValue = ref.watch(provDFlow.select((e) => e.flowValue));
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+      padding: EdgeInsets.all(0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

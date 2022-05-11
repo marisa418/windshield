@@ -154,10 +154,11 @@ class Overview extends ConsumerWidget {
                                       ),
                                     ),
                                     child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
                                           string,
-                                          style: MyTheme.textTheme.headline1!
+                                          style: MyTheme.textTheme.headline3!
                                               .merge(
                                             TextStyle(color: color),
                                           ),

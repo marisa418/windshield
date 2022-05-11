@@ -56,36 +56,45 @@ class SettingHeader extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-                child: Text(
-                  'คุณ ${user?.userId}',
-                  style: MyTheme.whiteTextTheme.headline2,
+              Flexible(
+                flex: 7,
+                fit: FlexFit.tight,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
+                  child: AutoSizeText(
+                    'คุณ ${user?.userId}',
+                    style: MyTheme.whiteTextTheme.headline2,
+                    minFontSize: 0,
+                    maxLines: 1,
+                  ),
                 ),
               ),
               //โชว์คะแนน
-              Padding(
-                padding: const EdgeInsets.only(right: 20.0, top: 20),
-                child: Container(
-                  height: 30,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
+              Flexible(
+                flex: 3,
+                fit: FlexFit.tight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 20.0, top: 20),
+                  child: Container(
+                    height: 30,
+                    // width: 80,
+                    decoration: BoxDecoration(
                       color: Colors.white,
+                      border: Border.all(
+                        color: Colors.white,
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(20),
+                      ),
                     ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(20),
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Points : '+'${user?.points}',
-                      
-                      maxLines: 1,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(color: MyTheme.primaryMajor,fontSize:12),
-                      
+                    child: Center(
+                      child: AutoSizeText(
+                        'Points : ${user?.points}',
+                        maxLines: 1,
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                            color: MyTheme.primaryMajor, fontSize: 12),
+                      ),
                     ),
                   ),
                 ),
@@ -112,40 +121,43 @@ class SettingInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
-      height: 70,
-      child: Row(
-        children: const [
-          Flexible(
-            flex: 2,
-            fit: FlexFit.tight,
-            child: Icon(
-              Icons.edit,
-              color: Colors.grey,
-              size: 30,
+    return GestureDetector(
+      onTap: () => AutoRouter.of(context).push(const UserEditRoute()),
+      child: SizedBox(
+        height: 70,
+        child: Row(
+          children: const [
+            Flexible(
+              flex: 2,
+              fit: FlexFit.tight,
+              child: Icon(
+                Icons.edit,
+                color: Colors.grey,
+                size: 30,
+              ),
             ),
-          ),
-          Flexible(
-            flex: 7,
-            fit: FlexFit.tight,
-            child: Text(
-              'แก้ไขข้อมูลผู้ใช้',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 25,
-                  decoration: TextDecoration.none),
+            Flexible(
+              flex: 7,
+              fit: FlexFit.tight,
+              child: Text(
+                'แก้ไขข้อมูลผู้ใช้',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 25,
+                    decoration: TextDecoration.none),
+              ),
             ),
-          ),
-          Flexible(
-            flex: 1,
-            fit: FlexFit.tight,
-            child: Icon(
-              Icons.chevron_right_outlined,
-              color: Colors.grey,
-              size: 30,
+            Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
+              child: Icon(
+                Icons.chevron_right_outlined,
+                color: Colors.grey,
+                size: 30,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

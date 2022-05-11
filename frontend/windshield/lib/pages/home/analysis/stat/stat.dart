@@ -137,8 +137,10 @@ class StatTab extends ConsumerWidget {
                         context: context,
                         builder: (context) => const CriteriaInfo(
                           title: 'ความมั่งคั่งสุทธิ',
-                          equation: '(สินทรัพย์ - หนี้สิน) /  ((อายุผู้ใช้ x รายรับต่อปี )/ 10',
-                          desc: 'แสดงถึงมูลค่าส่วนที่เป็นสินทรัพย์ของเราอย่างแท้จริง',
+                          equation:
+                              '(สินทรัพย์ - หนี้สิน) /  ((อายุผู้ใช้ x รายรับต่อปี )/ 10',
+                          desc:
+                              'แสดงถึงมูลค่าส่วนที่เป็นสินทรัพย์ของเราอย่างแท้จริง',
                           good: 'มากกว่า 1.5 เท่า',
                           medium: '1 - 1.5 เท่า',
                           fair: '0.5 - 1 เท่า',
@@ -167,7 +169,7 @@ class StatTab extends ConsumerWidget {
                             AutoSizeText(
                               stat.netWorth == null
                                   ? 'ข้อมูลไม่เพียงพอ'
-                                  : '${HelperNumber.format(stat.netWorth!)} บ.',
+                                  : '${HelperNumber.format(stat.netWorth!)}',
                               style: MyTheme.whiteTextTheme.headline3,
                               minFontSize: 0,
                               maxLines: 1,
@@ -187,7 +189,8 @@ class StatTab extends ConsumerWidget {
                         builder: (context) => const CriteriaInfo(
                           title: 'กระแสเงินสดสุทธิ',
                           equation: '(รายรับ - รายจ่าย) / รายจ่าย',
-                          desc: 'เงินสดสุทธิหมายถึงจำนวนเงินที่เหลืออยู่หลังจากหักค่าใช้จ่ายหนี้สินและกระแสเงินสดอื่น ๆ ทั้งหมด',
+                          desc:
+                              'เงินสดสุทธิหมายถึงจำนวนเงินที่เหลืออยู่หลังจากหักค่าใช้จ่ายหนี้สินและกระแสเงินสดอื่น ๆ ทั้งหมด',
                           good: 'มากกว่า 1 เท่า',
                           medium: '0.5 - 1 เท่า',
                           fair: '0.25 - 0.5 เท่า',
@@ -217,7 +220,7 @@ class StatTab extends ConsumerWidget {
                             AutoSizeText(
                               stat.netCashFlow == null
                                   ? 'ข้อมูลไม่เพียงพอ'
-                                  : '${HelperNumber.format(stat.netCashFlow!)} บ.',
+                                  : '${HelperNumber.format(stat.netCashFlow!)}',
                               style: MyTheme.whiteTextTheme.headline3,
                               minFontSize: 0,
                               maxLines: 1,
@@ -241,7 +244,8 @@ class StatTab extends ConsumerWidget {
                         builder: (context) => const CriteriaInfo(
                           title: 'อัตราส่วนความมั่งคั่ง',
                           equation: 'รายรับการลงทุน / รายจ่าย',
-                          desc: 'แสดงถึงเรามีรายได้จากสินทรัพย์มากเพียงพอต่อค่าใช้จ่ายหรือไม่',
+                          desc:
+                              'แสดงถึงเรามีรายได้จากสินทรัพย์มากเพียงพอต่อค่าใช้จ่ายหรือไม่',
                           good: 'มากกว่า 1.5 เท่า',
                           medium: '1 - 1.5 เท่า',
                           fair: '0.8 - 1 เท่า',
@@ -272,7 +276,7 @@ class StatTab extends ConsumerWidget {
                             AutoSizeText(
                               stat.wealthRatio == null
                                   ? 'ข้อมูลไม่เพียงพอ'
-                                  : '${HelperNumber.format(stat.wealthRatio!)} บ.',
+                                  : '${HelperNumber.format(stat.wealthRatio!)}',
                               style: MyTheme.whiteTextTheme.headline3,
                               minFontSize: 0,
                               maxLines: 1,
@@ -291,8 +295,10 @@ class StatTab extends ConsumerWidget {
                         context: context,
                         builder: (context) => const CriteriaInfo(
                           title: 'อัตราส่วนความอยู่รอด',
-                          equation: '(รายได้จากการทำงาน และ รายได้จากการลงทุน) / รายจ่าย',
-                          desc: 'แสดงถึงรายได้ทั้งหมดของเราเพียงพอต่อค่าใช้จ่ายหรือไม่',
+                          equation:
+                              '(รายได้จากการทำงาน และ รายได้จากการลงทุน) / รายจ่าย',
+                          desc:
+                              'แสดงถึงรายได้ทั้งหมดของเราเพียงพอต่อค่าใช้จ่ายหรือไม่',
                           good: 'มากกว่า 1.5 เท่า',
                           medium: '1 - 1.5 เท่า',
                           fair: '0.7 - 1 เท่า',
@@ -323,7 +329,7 @@ class StatTab extends ConsumerWidget {
                             AutoSizeText(
                               stat.survivalRatio == null
                                   ? 'ข้อมูลไม่เพียงพอ'
-                                  : '${HelperNumber.format(stat.survivalRatio!)} บ.',
+                                  : '${HelperNumber.format(stat.survivalRatio!)}',
                               style: MyTheme.whiteTextTheme.headline3,
                               minFontSize: 0,
                               maxLines: 1,
@@ -355,7 +361,8 @@ class StatTab extends ConsumerWidget {
                         builder: (context) => const CriteriaInfo(
                           title: 'อัตราส่วนสภาพคล่องพื้นฐาน',
                           equation: 'สินทรัพย์สภาพคล่อง / รายจ่าย',
-                          desc: 'แสดงถึงความสามารถในการนำสินทรัพย์สภาพคล่องมาใช้จ่ายในชีวิตประจำวัน',
+                          desc:
+                              'แสดงถึงความสามารถในการนำสินทรัพย์สภาพคล่องมาใช้จ่ายในชีวิตประจำวัน',
                           good: 'มากกว่า 1.5 เท่า',
                           medium: '1 - 1.5 เท่า',
                           fair: '0.7 - 1 เท่า',
@@ -386,7 +393,7 @@ class StatTab extends ConsumerWidget {
                             AutoSizeText(
                               stat.basicLiquidRatio == null
                                   ? 'ข้อมูลไม่เพียงพอ'
-                                  : '${HelperNumber.format(stat.basicLiquidRatio!)} บ.',
+                                  : '${HelperNumber.format(stat.basicLiquidRatio!)}',
                               style: MyTheme.whiteTextTheme.headline3,
                               minFontSize: 0,
                               maxLines: 1,
@@ -406,7 +413,8 @@ class StatTab extends ConsumerWidget {
                         builder: (context) => const CriteriaInfo(
                           title: 'อัตราส่วนการชำระหนี้สินจากสินทรัพย์',
                           equation: 'รายจ่ายจากหนี้สิน / รายรับ',
-                          desc: 'เป็นการวัดความสามารถในการชำระหนี้สินทั้งหมดว่าสามารถชำระหนี้ได้หรือไม่หากไม่มีรายได้ใหม่เข้ามา',
+                          desc:
+                              'เป็นการวัดความสามารถในการชำระหนี้สินทั้งหมดว่าสามารถชำระหนี้ได้หรือไม่หากไม่มีรายได้ใหม่เข้ามา',
                           good: 'น้อยกว่า 0.36 เท่า',
                           medium: '0.36 - 0.42 เท่า',
                           fair: '0.42 - 0.49 เท่า',
@@ -437,7 +445,7 @@ class StatTab extends ConsumerWidget {
                             AutoSizeText(
                               stat.debtServiceRatio == null
                                   ? 'ข้อมูลไม่เพียงพอ'
-                                  : '${HelperNumber.format(stat.debtServiceRatio!)} บ.',
+                                  : '${HelperNumber.format(stat.debtServiceRatio!)}',
                               style: MyTheme.whiteTextTheme.headline3,
                               minFontSize: 0,
                               maxLines: 1,
@@ -468,7 +476,8 @@ class StatTab extends ConsumerWidget {
                         builder: (context) => const CriteriaInfo(
                           title: 'อัตราส่วนการออม',
                           equation: 'รายจ่ายการออมและการลงทุน / รายรับ',
-                          desc: 'การแบ่งสัดส่วนการออมจากรายรับทั้งหมด หากมีการแบ่งออมมากกว่า 10% ของรายรับถือว่าดี',
+                          desc:
+                              'การแบ่งสัดส่วนการออมจากรายรับทั้งหมด หากมีการแบ่งออมมากกว่า 10% ของรายรับถือว่าดี',
                           good: 'มากกว่า 0.1 เท่า',
                           medium: '0.05 - 0.1 เท่า',
                           fair: '0.02 - 0.05 เท่า',
@@ -499,7 +508,7 @@ class StatTab extends ConsumerWidget {
                             AutoSizeText(
                               stat.savingRatio == null
                                   ? 'ข้อมูลไม่เพียงพอ'
-                                  : '${HelperNumber.format(stat.savingRatio!)} บ.',
+                                  : '${HelperNumber.format(stat.savingRatio!)}',
                               style: MyTheme.whiteTextTheme.headline3,
                               minFontSize: 0,
                               maxLines: 1,
@@ -519,7 +528,8 @@ class StatTab extends ConsumerWidget {
                         builder: (context) => const CriteriaInfo(
                           title: 'อัตราส่วนการลงทุน',
                           equation: 'สินทรัพย์ / (สินทรัพย์ - หนี้สิน)',
-                          desc: 'การแบ่งเงินออมมาลงทุนควรแบ่งมาไม่เกิน 50% ของเงินออม',
+                          desc:
+                              'การแบ่งเงินออมมาลงทุนควรแบ่งมาไม่เกิน 50% ของเงินออม',
                           good: '0 - 0.25 เท่า',
                           medium: '0.25 - 0.5 เท่า',
                           fair: '0.5 - 0.75 เท่า',
@@ -550,7 +560,7 @@ class StatTab extends ConsumerWidget {
                             AutoSizeText(
                               stat.investRatio == null
                                   ? 'ข้อมูลไม่เพียงพอ'
-                                  : '${HelperNumber.format(stat.investRatio!)} บ.',
+                                  : '${HelperNumber.format(stat.investRatio!)}',
                               style: MyTheme.whiteTextTheme.headline3,
                               minFontSize: 0,
                               maxLines: 1,
@@ -702,7 +712,7 @@ class CriteriaInfo extends StatelessWidget {
                     ),
                     Text(
                       good,
-                      style: MyTheme.textTheme.bodyText1,
+                      style: MyTheme.textTheme.bodyText2,
                     ),
                   ],
                 ),
@@ -722,7 +732,7 @@ class CriteriaInfo extends StatelessWidget {
                     ),
                     Text(
                       medium,
-                      style: MyTheme.textTheme.bodyText1,
+                      style: MyTheme.textTheme.bodyText2,
                     ),
                   ],
                 ),
@@ -748,7 +758,7 @@ class CriteriaInfo extends StatelessWidget {
                     ),
                     Text(
                       fair,
-                      style: MyTheme.textTheme.bodyText1,
+                      style: MyTheme.textTheme.bodyText2,
                     ),
                   ],
                 ),
@@ -768,7 +778,7 @@ class CriteriaInfo extends StatelessWidget {
                     ),
                     Text(
                       bad,
-                      style: MyTheme.textTheme.bodyText1,
+                      style: MyTheme.textTheme.bodyText2,
                     ),
                   ],
                 ),

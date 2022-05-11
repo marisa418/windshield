@@ -374,11 +374,12 @@ class DailyFlow(models.Model):
         if cat is None:
             raise ValidationError("category is not exist")
         if not self.id:
-            prefix = str(cat.id)[-4:] + "F" + str(self.df_id)[3:]
+            prefix = str(cat.id)[-4:] + str(self.df_id)[3:]
             last_id = DailyFlow.objects.filter(id__startswith=prefix).last()
             if last_id == None: no_id = 0
             else: no_id = int(last_id.id[-2:]) + 1
             self.id = prefix + str("00" + str(no_id))[-3:]
+            
             change = self.value - 0
             cat.used_count += 1
             cat.save()

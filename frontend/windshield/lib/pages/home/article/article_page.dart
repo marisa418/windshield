@@ -795,6 +795,9 @@ class ArticleItem extends ConsumerWidget {
                       height: double.infinity,
                       width: double.infinity,
                       fit: BoxFit.fill,
+                      errorBuilder: (context, exception, stackTrace) {
+                        return Container();
+                      },
                     ),
                   ),
                   if (article.price > 0)

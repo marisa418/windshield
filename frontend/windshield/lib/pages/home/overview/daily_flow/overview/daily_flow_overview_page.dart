@@ -487,11 +487,13 @@ class ExpenseIncome extends ConsumerWidget {
                           'รายรับรวม ',
                           style: MyTheme.textTheme.headline4,
                         ),
-                        Text(
+                        AutoSizeText(
                           '+$incTotal บ.',
                           style: MyTheme.whiteTextTheme.headline2!.merge(
                             TextStyle(color: MyTheme.positiveMajor),
                           ),
+                          minFontSize: 0,
+                          maxLines: 1,
                         ),
                         Container(
                           height: 75, //height of button
@@ -616,11 +618,13 @@ class ExpenseIncome extends ConsumerWidget {
                           'รายจ่ายรวม ',
                           style: MyTheme.textTheme.headline4,
                         ),
-                        Text(
+                        AutoSizeText(
                           '-$expTotal บ.',
                           style: MyTheme.whiteTextTheme.headline2!.merge(
                             TextStyle(color: MyTheme.negativeMajor),
                           ),
+                          minFontSize: 0,
+                          maxLines: 1,
                         ),
                         Container(
                           height: 75, //height of button

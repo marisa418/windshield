@@ -11,6 +11,10 @@ from django.http import HttpResponseRedirect
 from django.db.models import IntegerField
 from django.db.models.functions import Cast
 
+@admin.register(Month)
+class MonthAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'days')
+
 @admin.register(FinancialType)
 class FinancialTypeAdmin(admin.ModelAdmin):
     list_display = ('show_id_uint', 'name', 'domain')
