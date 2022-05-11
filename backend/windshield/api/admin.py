@@ -16,7 +16,7 @@ class FinancialTypeAdmin(admin.ModelAdmin):
     list_display = ('show_id_uint', 'name', 'domain')
     list_filter = ('domain',)
     fieldsets = (
-        (None, {'fields': ('name', 'domain')}),
+        (None, {'fields': ( 'id', 'name', 'domain',)}),
     )
     
     def has_delete_permission(self, request, obj=None):

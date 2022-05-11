@@ -83,22 +83,22 @@ WSGI_APPLICATION = 'windshield.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'd267s7iuuo84q7',
-        'USER': 'elpbmqaglhevjk',
-        'PASSWORD': 'bb8f020929628eb6ed9aedbd6e253ff5fa5c24afa37d05cdfb2eb4a1e13cf93d',
-        'HOST': 'ec2-3-217-251-77.compute-1.amazonaws.com',
-        'PORT': '5432'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'd267s7iuuo84q7',
+#         'USER': 'elpbmqaglhevjk',
+#         'PASSWORD': 'bb8f020929628eb6ed9aedbd6e253ff5fa5c24afa37d05cdfb2eb4a1e13cf93d',
+#         'HOST': 'ec2-3-217-251-77.compute-1.amazonaws.com',
+#         'PORT': '5432'
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
