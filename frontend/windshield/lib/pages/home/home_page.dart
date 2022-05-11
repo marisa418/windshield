@@ -56,7 +56,7 @@ class _HomeState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(provHome.select((e) => e.needFetchAPI));
+    // ref.watch(provHome.select((e) => e.needFetchAPI));
 
     return WillPopScope(
       onWillPop: () async => await showDialog(
@@ -66,7 +66,7 @@ class _HomeState extends ConsumerState<HomePage> {
           title: Text('ออกจากแอป?', style: MyTheme.textTheme.headline3),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context, false), // passing false
+              onPressed: () => Navigator.pop(context, false),
               child: Text(
                 'ไม่',
                 style: MyTheme.textTheme.headline4!.merge(
@@ -75,7 +75,7 @@ class _HomeState extends ConsumerState<HomePage> {
               ),
             ),
             TextButton(
-              onPressed: () => Navigator.pop(context, true), // passing true
+              onPressed: () => Navigator.pop(context, true),
               child: Text('ใช่', style: MyTheme.textTheme.headline4),
             ),
           ],

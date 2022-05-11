@@ -9,6 +9,7 @@ import '../pages/register/otp_register_page.dart';
 import '../pages/register/pin_page.dart';
 import '../pages/register/register_info_page.dart';
 import '../pages/register/forget_password_page.dart';
+import '../pages/register/forget_pin_page.dart';
 
 import '../pages/home/overview/statement/statement_page.dart';
 import '../pages/home/overview/statement/info/statement_info_page.dart';
@@ -29,6 +30,7 @@ import '../pages/home/overview/category/category_page.dart';
 import '../pages/home/article/article_read_page.dart';
 
 import '../pages/home/setting/otp_page.dart';
+import '../pages/home/setting/user_edit_page.dart';
 
 part 'app_router.gr.dart';
 
@@ -45,6 +47,7 @@ part 'app_router.gr.dart';
         AutoRoute(page: PinPage),
         AutoRoute(page: RegisterInfoPage),
         AutoRoute(page: ForgetPasswordPage),
+        AutoRoute(page: ForgetPinPage),
       ],
     ),
     AutoRoute(
@@ -66,6 +69,7 @@ part 'app_router.gr.dart';
         AutoRoute(page: CategoryPage),
         AutoRoute(page: ArticleReadPage),
         AutoRoute(page: OTPPage),
+        AutoRoute(page: UserEditPage),
       ],
     ),
   ],

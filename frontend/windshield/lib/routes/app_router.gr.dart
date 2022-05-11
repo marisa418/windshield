@@ -49,6 +49,10 @@ class _$AppRouter extends RootStackRouter {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const ForgetPasswordPage());
     },
+    ForgetPinRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const ForgetPinPage());
+    },
     HomeRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const HomePage());
@@ -109,6 +113,10 @@ class _$AppRouter extends RootStackRouter {
       final args = routeData.argsAs<OTPRouteArgs>();
       return MaterialPageX<dynamic>(
           routeData: routeData, child: OTPPage(type: args.type, key: args.key));
+    },
+    UserEditRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const UserEditPage());
     }
   };
 
@@ -125,7 +133,9 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(RegisterInfoRoute.name,
               path: 'register-info-page', parent: AppStackRoute.name),
           RouteConfig(ForgetPasswordRoute.name,
-              path: 'forget-password-page', parent: AppStackRoute.name)
+              path: 'forget-password-page', parent: AppStackRoute.name),
+          RouteConfig(ForgetPinRoute.name,
+              path: 'forget-pin-page', parent: AppStackRoute.name)
         ]),
         RouteConfig(EmptyRouterRoute.name, path: '/', children: [
           RouteConfig(HomeRoute.name, path: '', parent: EmptyRouterRoute.name),
@@ -156,7 +166,9 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(ArticleReadRoute.name,
               path: 'article-read-page', parent: EmptyRouterRoute.name),
           RouteConfig(OTPRoute.name,
-              path: 'o-tp-page', parent: EmptyRouterRoute.name)
+              path: 'o-tp-page', parent: EmptyRouterRoute.name),
+          RouteConfig(UserEditRoute.name,
+              path: 'user-edit-page', parent: EmptyRouterRoute.name)
         ])
       ];
 }
@@ -228,6 +240,14 @@ class ForgetPasswordRoute extends PageRouteInfo<void> {
       : super(ForgetPasswordRoute.name, path: 'forget-password-page');
 
   static const String name = 'ForgetPasswordRoute';
+}
+
+/// generated route for
+/// [ForgetPinPage]
+class ForgetPinRoute extends PageRouteInfo<void> {
+  const ForgetPinRoute() : super(ForgetPinRoute.name, path: 'forget-pin-page');
+
+  static const String name = 'ForgetPinRoute';
 }
 
 /// generated route for
@@ -373,4 +393,12 @@ class OTPRouteArgs {
   String toString() {
     return 'OTPRouteArgs{type: $type, key: $key}';
   }
+}
+
+/// generated route for
+/// [UserEditPage]
+class UserEditRoute extends PageRouteInfo<void> {
+  const UserEditRoute() : super(UserEditRoute.name, path: 'user-edit-page');
+
+  static const String name = 'UserEditRoute';
 }
