@@ -8,6 +8,8 @@ from django.urls import re_path
 from django.contrib import messages
 from django.utils.translation import ngettext
 from django.http import HttpResponseRedirect
+from django.db.models import IntegerField
+from django.db.models.functions import Cast
 
 @admin.register(FinancialType)
 class FinancialTypeAdmin(admin.ModelAdmin):
@@ -22,7 +24,7 @@ class FinancialTypeAdmin(admin.ModelAdmin):
     
     def get_queryset(self, request):
         queryset = FinancialType.objects.all()
-        queryset = queryset.extra({'id_uint': "CAST(id as UNSIGNED)"}).order_by('id_uint')
+        queryset = queryset.annotate(id_uint=Cast('id', IntegerField())).order_by('id_uint')
         return queryset
     
     def show_id_uint(self, obj):
