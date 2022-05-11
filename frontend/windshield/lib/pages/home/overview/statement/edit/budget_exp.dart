@@ -4,6 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 
 import 'package:windshield/styles/theme.dart';
 import 'package:windshield/utility/icon_convertor.dart';
+import 'package:windshield/utility/number_formatter.dart';
 import 'statement_edit_page.dart';
 import 'budget_inc.dart';
 
@@ -67,9 +68,11 @@ class ExpenseInconsistTab extends ConsumerWidget {
                           color: Colors.white,
                         ),
                         if (expInconsist[i].total > 0)
-                          Text(
-                            expInconsist[i].total.toString(),
+                          AutoSizeText(
+                            HelperNumber.format(expInconsist[i].total),
                             style: MyTheme.whiteTextTheme.bodyText2,
+                            maxLines: 1,
+                            minFontSize: 0,
                           ),
                       ],
                     ),
@@ -157,9 +160,11 @@ class ExpenseConsistTab extends ConsumerWidget {
                           color: Colors.white,
                         ),
                         if (expConsist[i].total > 0)
-                          Text(
-                            expConsist[i].total.toString(),
+                          AutoSizeText(
+                            HelperNumber.format(expConsist[i].total),
                             style: MyTheme.whiteTextTheme.bodyText2,
+                            maxLines: 1,
+                            minFontSize: 0,
                           ),
                       ],
                     ),
@@ -247,9 +252,11 @@ class SavingInvestTab extends ConsumerWidget {
                           color: Colors.white,
                         ),
                         if (savingInvest[i].total > 0)
-                          Text(
-                            savingInvest[i].total.toString(),
+                          AutoSizeText(
+                            HelperNumber.format(savingInvest[i].total),
                             style: MyTheme.whiteTextTheme.bodyText2,
+                            maxLines: 1,
+                            minFontSize: 0,
                           ),
                       ],
                     ),

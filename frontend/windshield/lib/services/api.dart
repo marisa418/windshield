@@ -773,7 +773,7 @@ class Api extends ChangeNotifier {
         '/api/categories/',
         data: {
           "name": name,
-          "icon": icon,
+          "icon": icon == '' ? 'briefcase' : icon,
           "ftype": ftype,
         },
       );
@@ -794,7 +794,7 @@ class Api extends ChangeNotifier {
         '/api/category/$id/',
         data: {
           "name": name,
-          "icon": icon,
+          "icon": icon == '' ? 'briefcase' : icon,
           //"ftype":ftype,
         },
       );

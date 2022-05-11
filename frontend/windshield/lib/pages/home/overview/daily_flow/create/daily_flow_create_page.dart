@@ -380,7 +380,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
   String getMethod(int value) {
     if (value == 2) return 'เงินสด';
     if (value == 3) return 'โอน';
-    return 'บัตรเครดิต';
+    return 'บัตร';
   }
 }
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:windshield/styles/theme.dart';
+import 'package:windshield/utility/number_formatter.dart';
+import 'package:windshield/utility/progress.dart';
 import '../../statement_page.dart';
 import '../statement_create_page.dart';
 
@@ -85,11 +87,11 @@ class IncomeExpenseButton extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${budget.incTotal} บ.',
+                          '${HelperNumber.format(budget.incTotal)} บ.',
                           style: MyTheme.whiteTextTheme.headline4,
                         ),
                         Text(
-                          '${(budget.incTotal / (budget.incTotal + budget.expTotal) * 100).toStringAsFixed(2)}%',
+                          '${HelperNumber.format((HelperProgress.getPercent(budget.incTotal, (budget.incTotal + budget.expTotal)) * 100))}%',
                           style: MyTheme.whiteTextTheme.bodyText1,
                         ),
                       ],
@@ -129,11 +131,11 @@ class IncomeExpenseButton extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${budget.expTotal} บ.',
+                          '${HelperNumber.format(budget.expTotal)} บ.',
                           style: MyTheme.whiteTextTheme.headline4,
                         ),
                         Text(
-                          '${(budget.expTotal / (budget.incTotal + budget.expTotal) * 100).toStringAsFixed(2)}%',
+                          '${HelperNumber.format((HelperProgress.getPercent(budget.expTotal, (budget.incTotal + budget.expTotal)) * 100))}%',
                           style: MyTheme.whiteTextTheme.bodyText1,
                         ),
                       ],
@@ -171,7 +173,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '${budget.incWorkingTotal} บ.',
+                      '${HelperNumber.format(budget.incWorkingTotal)} บ.',
                       style: Theme.of(context).textTheme.headline4!.merge(
                             TextStyle(
                               color: MyTheme.incomeWorking[0],
@@ -190,7 +192,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '${budget.expInconsistTotal} บ.',
+                      '${HelperNumber.format(budget.expInconsistTotal)} บ.',
                       style: Theme.of(context).textTheme.headline4!.merge(
                             TextStyle(
                               color: MyTheme.expenseInconsist[0],
@@ -214,7 +216,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '${budget.incAssetTotal} บ.',
+                      '${HelperNumber.format(budget.incAssetTotal)} บ.',
                       style: Theme.of(context).textTheme.headline4!.merge(
                             TextStyle(
                               color: MyTheme.incomeAsset[0],
@@ -233,7 +235,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '${budget.expConsistTotal} บ.',
+                      '${HelperNumber.format(budget.expConsistTotal)} บ.',
                       style: Theme.of(context).textTheme.headline4!.merge(
                             TextStyle(
                               color: MyTheme.expenseConsist[0],
@@ -257,7 +259,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '${budget.incOtherTotal} บ.',
+                      '${HelperNumber.format(budget.incOtherTotal)} บ.',
                       style: Theme.of(context).textTheme.headline4!.merge(
                             TextStyle(
                               color: MyTheme.incomeOther[0],
@@ -276,7 +278,7 @@ class IncomeExpenseSummary extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyText1,
                     ),
                     Text(
-                      '${budget.savingInvestTotal} บ.',
+                      '${HelperNumber.format(budget.savingInvestTotal)} บ.',
                       style: Theme.of(context).textTheme.headline4!.merge(
                             TextStyle(
                               color: MyTheme.savingAndInvest[0],

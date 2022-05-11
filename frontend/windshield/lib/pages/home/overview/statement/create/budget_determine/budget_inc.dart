@@ -68,9 +68,11 @@ class IncomeWorkingTab extends ConsumerWidget {
                           color: Colors.white,
                         ),
                         if (budget.incWorkingTab[i].total > 0)
-                          Text(
-                            budget.incWorkingTab[i].total.toString(),
+                          AutoSizeText(
+                            HelperNumber.format(budget.incWorkingTab[i].total),
                             style: MyTheme.whiteTextTheme.bodyText2,
+                            maxLines: 1,
+                            minFontSize: 0,
                           ),
                       ],
                     ),
@@ -155,9 +157,11 @@ class IncomeAssetTab extends ConsumerWidget {
                           color: Colors.white,
                         ),
                         if (budget.incAssetTab[i].total > 0)
-                          Text(
-                            budget.incAssetTab[i].total.toString(),
+                          AutoSizeText(
+                            HelperNumber.format(budget.incAssetTab[i].total),
                             style: MyTheme.whiteTextTheme.bodyText2,
+                            maxLines: 1,
+                            minFontSize: 0,
                           ),
                       ],
                     ),
@@ -242,9 +246,11 @@ class IncomeOtherTab extends ConsumerWidget {
                           color: Colors.white,
                         ),
                         if (budget.incOtherTab[i].total > 0)
-                          Text(
-                            budget.incOtherTab[i].total.toString(),
+                          AutoSizeText(
+                            HelperNumber.format(budget.incOtherTab[i].total),
                             style: MyTheme.whiteTextTheme.bodyText2,
+                            maxLines: 1,
+                            minFontSize: 0,
                           ),
                       ],
                     ),

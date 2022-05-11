@@ -31,58 +31,60 @@ class CategoryPage extends ConsumerWidget {
       error: (error, stackTrace) => Text(stackTrace.toString()),
       loading: () => const Center(child: CircularProgressIndicator()),
       data: (_) {
-        return Scaffold(
-          body: Column(
-            children: [
-              Container(
-                child: Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: Text('จัดการหมวดหมู่',
-                      style: MyTheme.whiteTextTheme.headline1),
-                ),
-                height: 90,
-                width: 500,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        Color.fromARGB(255, 82, 54, 255),
-                        Color.fromARGB(255, 117, 161, 227),
-                      ]),
-                  //borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              Body(),
-
-              //ปุ่มย้อนกลับ
-              SizedBox(
-                height: 75,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    label: Text(
-                      'ย้อนกลับ  ',
-                      style: MyTheme.whiteTextTheme.headline3,
-                    ),
-                    icon: const Icon(
-                      Icons.arrow_left,
-                      color: Colors.white,
-                    ),
-                    style: TextButton.styleFrom(
-                      backgroundColor: MyTheme.primaryMajor,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(20),
-                          bottomRight: Radius.circular(20),
-                        ),
-                      ),
-                    ),
-                    onPressed: () => AutoRouter.of(context).pop(),
+        return SafeArea(
+          child: Scaffold(
+            body: Column(
+              children: [
+                Container(
+                  child: Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: Text('จัดการหมวดหมู่',
+                        style: MyTheme.whiteTextTheme.headline1),
+                  ),
+                  height: 90,
+                  width: 500,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [
+                          Color.fromARGB(255, 82, 54, 255),
+                          Color.fromARGB(255, 117, 161, 227),
+                        ]),
+                    //borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-              ),
-            ],
+                Body(),
+
+                //ปุ่มย้อนกลับ
+                SizedBox(
+                  height: 75,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      label: Text(
+                        'ย้อนกลับ  ',
+                        style: MyTheme.whiteTextTheme.headline3,
+                      ),
+                      icon: const Icon(
+                        Icons.arrow_left,
+                        color: Colors.white,
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: MyTheme.primaryMajor,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
+                        ),
+                      ),
+                      onPressed: () => AutoRouter.of(context).pop(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -123,7 +125,6 @@ class IncWorking extends ConsumerWidget {
           child: Text('รายได้จากการทำงาน', style: MyTheme.textTheme.headline3),
         ),
       ),
-
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
@@ -188,7 +189,6 @@ class IncWorking extends ConsumerWidget {
               );
             }
             return SizedBox(
-              
               height: 100,
               width: 110,
               child: Column(
@@ -263,7 +263,6 @@ class IncAsset extends ConsumerWidget {
           child: Text('รายได้จากทรัพย์สิน', style: MyTheme.textTheme.headline3),
         ),
       ),
-
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
@@ -328,7 +327,6 @@ class IncAsset extends ConsumerWidget {
               );
             }
             return SizedBox(
-              
               height: 100,
               width: 110,
               child: Column(
@@ -403,7 +401,6 @@ class IncOther extends ConsumerWidget {
           child: Text('รายได้อื่นๆ', style: MyTheme.textTheme.headline3),
         ),
       ),
-
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
@@ -468,7 +465,6 @@ class IncOther extends ConsumerWidget {
               );
             }
             return SizedBox(
-              
               height: 100,
               width: 110,
               child: Column(
@@ -543,7 +539,6 @@ class ExpInconsist extends ConsumerWidget {
           child: Text('รายจ่ายไม่คงที่', style: MyTheme.textTheme.headline3),
         ),
       ),
-
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
@@ -608,7 +603,6 @@ class ExpInconsist extends ConsumerWidget {
               );
             }
             return SizedBox(
-              
               height: 100,
               width: 110,
               child: Column(
@@ -644,8 +638,8 @@ class ExpInconsist extends ConsumerWidget {
                             //elevation: 0.0,
                             //shadowColor: Colors
                             //    .transparent, //remove shadow on button
-                            primary:
-                                HelperColor.getFtColor(expInconsist[i].ftype, 0),
+                            primary: HelperColor.getFtColor(
+                                expInconsist[i].ftype, 0),
                             textStyle: MyTheme.textTheme.headline4,
                             padding: const EdgeInsets.all(10),
 
@@ -683,7 +677,6 @@ class ExpConsist extends ConsumerWidget {
           child: Text('รายจ่ายคงที่', style: MyTheme.textTheme.headline3),
         ),
       ),
-
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
@@ -748,7 +741,6 @@ class ExpConsist extends ConsumerWidget {
               );
             }
             return SizedBox(
-              
               height: 100,
               width: 110,
               child: Column(
@@ -815,7 +807,7 @@ class SavInv extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final savInv = ref.watch(provCat.select((e) => e.savInvList));
 
-      return Column(children: [
+    return Column(children: [
       Align(
         alignment: Alignment.centerLeft,
         child: Padding(
@@ -823,7 +815,6 @@ class SavInv extends ConsumerWidget {
           child: Text('การออมและการลงทุน', style: MyTheme.textTheme.headline3),
         ),
       ),
-
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
@@ -888,7 +879,6 @@ class SavInv extends ConsumerWidget {
               );
             }
             return SizedBox(
-              
               height: 100,
               width: 110,
               child: Column(
@@ -924,8 +914,7 @@ class SavInv extends ConsumerWidget {
                             //elevation: 0.0,
                             //shadowColor: Colors
                             //    .transparent, //remove shadow on button
-                            primary:
-                                HelperColor.getFtColor(savInv[i].ftype, 0),
+                            primary: HelperColor.getFtColor(savInv[i].ftype, 0),
                             textStyle: MyTheme.textTheme.headline4,
                             padding: const EdgeInsets.all(10),
 
@@ -963,7 +952,6 @@ class GoalList extends ConsumerWidget {
           child: Text('เป้าหมายทางการเงิน', style: MyTheme.textTheme.headline3),
         ),
       ),
-
       GridView.builder(
           physics: const ScrollPhysics(),
           shrinkWrap: true,
@@ -1028,7 +1016,6 @@ class GoalList extends ConsumerWidget {
               );
             }
             return SizedBox(
-              
               height: 100,
               width: 110,
               child: Column(
@@ -1087,5 +1074,3 @@ class GoalList extends ConsumerWidget {
     ]);
   }
 }
-
-

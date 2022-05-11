@@ -458,7 +458,7 @@ class Statement extends ConsumerWidget {
                                         ),
                                       ),
                                       Text(
-                                        '${perc[0].toStringAsFixed(2)}%',
+                                        '${HelperNumber.format(perc[0])}%',
                                         style: MyTheme.whiteTextTheme.bodyText1,
                                       ),
                                     ],
@@ -505,7 +505,7 @@ class Statement extends ConsumerWidget {
                                         ),
                                       ),
                                       Text(
-                                        '${perc[1].toStringAsFixed(2)}%',
+                                        '${HelperNumber.format(perc[1])}%',
                                         style: MyTheme.whiteTextTheme.bodyText1,
                                       ),
                                     ],
