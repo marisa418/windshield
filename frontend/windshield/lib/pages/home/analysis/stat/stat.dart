@@ -139,10 +139,10 @@ class StatTab extends ConsumerWidget {
                           title: 'ความมั่งคั่งสุทธิ',
                           equation: '1 + 1 != 2',
                           desc: 'afmgamkfgdfkmgbdfkmgkdfgmdfogmdfogodmgfdkogm',
-                          good: 'มากกว่า XX',
-                          medium: 'มากกว่า XX',
-                          fair: 'มากกว่า XX',
-                          bad: 'มากกว่า XX',
+                          good: 'มากกว่า 1.5 เท่า',
+                          medium: '1 - 1.5 เท่า',
+                          fair: '0.5 - 1 เท่า',
+                          bad: 'น้อยกว่า 0.5 เท่า',
                         ),
                       ),
                       child: Container(
@@ -188,10 +188,10 @@ class StatTab extends ConsumerWidget {
                           title: 'กระแสเงินสดสุทธิ',
                           equation: '1 + 1 != 2',
                           desc: 'afmgamkfgdfkmgbdfkmgkdfgmdfogmdfogodmgfdkogm',
-                          good: 'มากกว่า XX',
-                          medium: 'มากกว่า XX',
-                          fair: 'มากกว่า XX',
-                          bad: 'มากกว่า XX',
+                          good: 'มากกว่า 1 เท่า',
+                          medium: '0.5 - 1 เท่า',
+                          fair: '0.25 - 0.5 เท่า',
+                          bad: 'น้อยกว่า 0.25 เท่า',
                         ),
                       ),
                       child: Container(
@@ -242,9 +242,9 @@ class StatTab extends ConsumerWidget {
                           title: 'อัตราส่วนความมั่งคั่ง',
                           equation: '1 + 1 != 2',
                           desc: 'afmgamkfgdfkmgbdfkmgkdfgmdfogmdfogodmgfdkogm',
-                          good: 'มากกว่า 1.5',
-                          medium: 'มากกว่า 1',
-                          fair: 'มากกว่า 0.8',
+                          good: 'มากกว่า 1.5 เท่า',
+                          medium: '1 - 1.5 เท่า',
+                          fair: '0.8 - 1 เท่า',
                           bad: 'น้อยกว่า 0.8',
                         ),
                       ),
@@ -293,10 +293,10 @@ class StatTab extends ConsumerWidget {
                           title: 'อัตราส่วนความอยู่รอด',
                           equation: '1 + 1 != 2',
                           desc: 'afmgamkfgdfkmgbdfkmgkdfgmdfogmdfogodmgfdkogm',
-                          good: 'มากกว่า 1.5',
-                          medium: 'มากกว่า 1',
-                          fair: 'มากกว่า 0.7',
-                          bad: 'น้อยกว่า 0.7',
+                          good: 'มากกว่า 1.5 เท่า',
+                          medium: '1 - 1.5 เท่า',
+                          fair: '0.7 - 1 เท่า',
+                          bad: 'น้อยกว่า 0.7 เท่า',
                         ),
                       ),
                       child: Container(
@@ -356,10 +356,10 @@ class StatTab extends ConsumerWidget {
                           title: 'อัตราส่วนสภาพคล่องพื้นฐาน',
                           equation: '1 + 1 != 2',
                           desc: 'afmgamkfgdfkmgbdfkmgkdfgmdfogmdfogodmgfdkogm',
-                          good: 'มากกว่า 1.5',
-                          medium: 'มากกว่า 1',
-                          fair: 'มากกว่า 0.7',
-                          bad: 'น้อยกว่า 0.7',
+                          good: 'มากกว่า 1.5 เท่า',
+                          medium: '1 - 1.5 เท่า',
+                          fair: '0.7 - 1 เท่า',
+                          bad: 'น้อยกว่า 0.7 เท่า',
                         ),
                       ),
                       child: Container(
@@ -407,10 +407,10 @@ class StatTab extends ConsumerWidget {
                           title: 'อัตราส่วนการชำระหนี้สินจากสินทรัพย์',
                           equation: '1 + 1 != 2',
                           desc: 'afmgamkfgdfkmgbdfkmgkdfgmdfogmdfogodmgfdkogm',
-                          good: 'น้อยกว่า 0.36',
-                          medium: 'น้อยกว่า 0.42',
-                          fair: 'น้อยกว่า 0.49',
-                          bad: 'มากกว่า 0.49',
+                          good: 'น้อยกว่า 0.36 เท่า',
+                          medium: '0.36 - 0.42 เท่า',
+                          fair: '0.42 - 0.49 เท่า',
+                          bad: 'มากกว่า 0.49 เท่า',
                         ),
                       ),
                       child: Container(
@@ -469,10 +469,10 @@ class StatTab extends ConsumerWidget {
                           title: 'อัตราส่วนการออม',
                           equation: '1 + 1 != 2',
                           desc: 'afmgamkfgdfkmgbdfkmgkdfgmdfogmdfogodmgfdkogm',
-                          good: 'มากกว่า 0.1',
-                          medium: 'มากกว่า 0.5',
-                          fair: 'มากกว่า 0.2',
-                          bad: 'น้อยกว่า 0.2',
+                          good: 'มากกว่า 0.1 เท่า',
+                          medium: '0.05 - 0.1 เท่า',
+                          fair: '0.02 - 0.05 เท่า',
+                          bad: 'น้อยกว่า 0.02 เท่า',
                         ),
                       ),
                       child: Container(
@@ -520,10 +520,10 @@ class StatTab extends ConsumerWidget {
                           title: 'อัตราส่วนการลงทุน',
                           equation: '1 + 1 != 2',
                           desc: 'afmgamkfgdfkmgbdfkmgkdfgmdfogmdfogodmgfdkogm',
-                          good: 'น้อยกว่า 25',
-                          medium: 'มากกว่า 25',
-                          fair: 'มากกว่า 50',
-                          bad: 'มากกว่า 75',
+                          good: '0 - 0.25 เท่า',
+                          medium: '0.25 - 0.5 เท่า',
+                          fair: '0.5 - 0.75 เท่า',
+                          bad: 'มากกว่า 0.75 เท่า',
                         ),
                       ),
                       child: Container(
@@ -572,6 +572,18 @@ class StatTab extends ConsumerWidget {
 
   Color getCriteriaColor(double? value, String type) {
     if (value != null) {
+      if (type.contains('netWorth')) {
+        if (value > 1.5) return MyTheme.positiveMajor;
+        if (value <= 1.5 && value > 1) return MyTheme.assetPersonal[0];
+        if (value <= 1 && value > 0.5) return MyTheme.expenseConsist[0];
+        return MyTheme.negativeMajor;
+      }
+      if (type.contains('netCashFlow')) {
+        if (value > 1) return MyTheme.positiveMajor;
+        if (value <= 1 && value > 0.5) return MyTheme.assetPersonal[0];
+        if (value <= 0.5 && value > 0.25) return MyTheme.expenseConsist[0];
+        return MyTheme.negativeMajor;
+      }
       if (type.contains('wealthRatio')) {
         // มากกว่า 1.5 ดีมาก/ 1- 1.5 ดี / 0.8-1 พอใช้ / 0.8 ลงไป แย่
         if (value > 1.5) return MyTheme.positiveMajor;
@@ -603,19 +615,18 @@ class StatTab extends ConsumerWidget {
       if (type.contains('savingRatio')) {
         // <2 แย่ / 2-5 พอใช้ / 5-10 ปานกลาง / > 10 ดี
         if (value > 0.1) return MyTheme.positiveMajor;
-        if (value <= 0.1 && value > 0.5) return MyTheme.assetPersonal[0];
-        if (value <= 0.5 && value > 0.2) return MyTheme.expenseConsist[0];
+        if (value <= 0.1 && value > 0.05) return MyTheme.assetPersonal[0];
+        if (value <= 0.05 && value > 0.02) return MyTheme.expenseConsist[0];
         return MyTheme.negativeMajor;
       }
       if (type.contains('investRatio')) {
         // >=75 แย่ / >=50 พอใช้ / >=25 ปานกลาง / >=0 ดี
-        if (value >= 0 && value < 25) return MyTheme.positiveMajor;
-        if (value >= 25 && value < 50) return MyTheme.assetPersonal[0];
-        if (value >= 50 && value < 75) return MyTheme.expenseConsist[0];
+        if (value >= 0 && value < 0.25) return MyTheme.positiveMajor;
+        if (value >= 0.25 && value < 0.50) return MyTheme.assetPersonal[0];
+        if (value >= 0.50 && value < 0.75) return MyTheme.expenseConsist[0];
         return MyTheme.negativeMajor;
       }
     }
-
     return Colors.grey;
   }
 }

@@ -11,50 +11,38 @@ class RegisterInfoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [
-              Color.fromARGB(255, 82, 84, 255),
-              Color.fromARGB(255, 117, 161, 227),
-            ],
+    return SafeArea(
+      child: Scaffold(
+        body: Container(
+          padding: const EdgeInsets.only(left: 30, right: 30),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: MyTheme.majorBackground,
+            ),
           ),
-        ),
-        child: Stack(
-          children: [
-            Container(
-              padding: const EdgeInsets.only(left: 30, right: 30),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 50),
-                  Wrap(
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: <Widget>[
-                      const Icon(Icons.shield_sharp,
-                          size: 25, color: Colors.white),
-                      Text(
-                        ' WINDSHIELD',
-                        style: MyTheme.whiteTextTheme.headline2,
-                      ),
-                    ],
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 30),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: <Widget>[
+                  const Icon(Icons.shield_sharp, size: 25, color: Colors.white),
                   Text(
-                    'ข้อมูลส่วนตัว',
+                    ' WINDSHIELD',
                     style: MyTheme.whiteTextTheme.headline2,
-                  ),
-                  const Expanded(
-                    child: SingleChildScrollView(
-                      child: FormInfo(),
-                    ),
                   ),
                 ],
               ),
-            ),
-          ],
+              Text(
+                'ข้อมูลส่วนตัว',
+                style: MyTheme.whiteTextTheme.headline2,
+              ),
+              const Expanded(
+                child: FormInfo(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -70,10 +58,12 @@ class FormInfo extends ConsumerStatefulWidget {
 
 class _FormInfoState extends ConsumerState {
   final _formKey = GlobalKey<FormState>();
+  final now = DateTime.now().year;
   String _province = '1';
   String _status = '';
   String _occuType = '';
   int _family = 0;
+  int _year = DateTime.now().year;
 
   _updateStatus(String val) {
     _status = val;
@@ -98,21 +88,86 @@ class _FormInfoState extends ConsumerState {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FutureBuilder<List<Province>?>(
-              // future: ref.read(apiProvider).getProvinces(),
-              future: provFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                }
-                if (snapshot.data == null) {
-                  return const Text('Error');
-                } else {
-                  return Theme(
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.tight,
+                  child: Text(
+                    'จังหวัด',
+                    style: MyTheme.whiteTextTheme.headline4,
+                  ),
+                ),
+                Flexible(
+                  flex: 8,
+                  child: FutureBuilder<List<Province>?>(
+                    // future: ref.read(apiProvider).getProvinces(),
+                    future: provFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      }
+                      if (snapshot.data == null) {
+                        return const Text('Error');
+                      } else {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            canvasColor: const Color.fromARGB(255, 82, 84, 255),
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            style: MyTheme.whiteTextTheme.headline4,
+                            decoration: const InputDecoration(
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                            ),
+                            icon: const Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.white,
+                            ),
+                            items: snapshot.data!
+                                .map((prov) => DropdownMenuItem<String>(
+                                      child: Text(
+                                        prov.name,
+                                      ),
+                                      value: prov.id,
+                                    ))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _province = value!;
+                              });
+                            },
+                            value: _province,
+                            isExpanded: false,
+                            hint: const Text('จังหวัด'),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Flexible(
+                  flex: 2,
+                  fit: FlexFit.tight,
+                  child: Text(
+                    'ปีเกิด',
+                    style: MyTheme.whiteTextTheme.headline4,
+                  ),
+                ),
+                Flexible(
+                  flex: 8,
+                  child: Theme(
                     data: Theme.of(context).copyWith(
                       canvasColor: const Color.fromARGB(255, 82, 84, 255),
                     ),
-                    child: DropdownButtonFormField<String>(
+                    child: DropdownButtonFormField<int>(
                       style: MyTheme.whiteTextTheme.headline4,
                       decoration: const InputDecoration(
                         enabledBorder: UnderlineInputBorder(
@@ -123,28 +178,27 @@ class _FormInfoState extends ConsumerState {
                         Icons.arrow_drop_down,
                         color: Colors.white,
                       ),
-                      items: snapshot.data!
-                          .map((prov) => DropdownMenuItem<String>(
+                      items: List.generate(100, (i) => now - i)
+                          .map((year) => DropdownMenuItem<int>(
                                 child: Text(
-                                  prov.name,
+                                  year.toString(),
                                 ),
-                                value: prov.id,
+                                value: year,
                               ))
                           .toList(),
                       onChanged: (value) {
                         setState(() {
-                          _province = value!;
+                          _year = value!;
                         });
                       },
-                      value: _province,
+                      value: _year,
                       isExpanded: false,
-                      hint: const Text('จังหวัด'),
+                      hint: const Text('ปีเกิด'),
                     ),
-                  );
-                }
-              },
+                  ),
+                ),
+              ],
             ),
-            const YearBorn(),
             const SizedBox(height: 20),
             StatusChoices(onSelected: _updateStatus),
             const SizedBox(height: 20),
@@ -200,10 +254,13 @@ class _FormInfoState extends ConsumerState {
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-
-                      final res = await ref
-                          .read(apiProvider)
-                          .updateUser(_province, _status, _occuType, _family);
+                      final res = await ref.read(apiProvider).updateUser(
+                            _province,
+                            _status,
+                            _occuType,
+                            _family,
+                            _year,
+                          );
                       if (!res) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('เกิดข้อผิดพลาด')),
@@ -218,88 +275,6 @@ class _FormInfoState extends ConsumerState {
           ],
         ),
       ),
-    );
-  }
-}
-
-class YearBorn extends StatefulWidget {
-  const YearBorn({Key? key}) : super(key: key);
-
-  @override
-  _YearBornState createState() => _YearBornState();
-}
-
-class _YearBornState extends State<YearBorn> {
-  // Initial Selected Value
-  String dropdownvalue = '2022';
-
-  // List of items in our dropdown menu
-  var items = [
-    '1990',
-    '1991',
-    '1992',
-    '1993',
-    '1994',
-    '1995',
-    '1996',
-    '1997',
-    '1998',
-    '1999',
-    '2000',
-    '2001',
-    '2002',
-    '2003',
-    '2004',
-    '2005',
-    '2006',
-    '2007',
-    '2008',
-    '2009',
-    '2010',
-    '2011',
-    '2012',
-    '2013',
-    '2014',
-    '2015',
-    '2016',
-    '2017',
-    '2018',
-    '2019',
-    '2020',
-    '2021',
-    '2022',
-  ];
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        DropdownButton(
-          // Initial Value
-          value: dropdownvalue,
-          dropdownColor: MyTheme.primaryMajor,
-          // Down Arrow Icon
-          icon: const Icon(
-            Icons.arrow_drop_down,
-            color: Colors.white,
-          ),
-
-          // Array list of items
-          items: items.map((String items) {
-            return DropdownMenuItem(
-              value: items,
-              child: Text(items, style: const TextStyle(color: Colors.white)),
-            );
-          }).toList(),
-          // After selecting the desired option,it will
-          // change button value to selected value
-          onChanged: (String? newValue) {
-            setState(() {
-              dropdownvalue = newValue!;
-            });
-          },
-        ),
-      ],
     );
   }
 }

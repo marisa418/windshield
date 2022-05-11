@@ -7,6 +7,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/providers/financial_goal_provider.dart';
@@ -100,272 +101,355 @@ class Overview extends ConsumerWidget {
               ref.refresh(apiHomeStat);
             },
             child: SingleChildScrollView(
-              child: Column(
+              child: Stack(
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: MyTheme.majorBackground,
-                      ),
-                    ),
-                    height: 210,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const FaIcon(
-                                FontAwesomeIcons.shieldAlt,
-                                color: Colors.white,
-                              ),
-                              Text(
-                                DateFormat('E d MMM y').format(DateTime.now()),
-                                style: MyTheme.whiteTextTheme.headline4,
-                              ),
-                              const FaIcon(
-                                FontAwesomeIcons.user,
-                                color: Colors.white,
-                              ),
-                            ],
+                  Column(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: MyTheme.majorBackground,
                           ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        height: 210,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              width: 225,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(100),
-                                  topRight: Radius.circular(100),
-                                ),
-                              ),
-                              child: Column(
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 20, left: 20, right: 20),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
-                                    string,
-                                    style: MyTheme.textTheme.headline1!.merge(
-                                      TextStyle(color: color),
-                                    ),
+                                  const FaIcon(
+                                    FontAwesomeIcons.shieldAlt,
+                                    color: Colors.white,
                                   ),
-                                  if (string == '?')
-                                    Text(
-                                      'ไม่มีข้อมูล',
-                                      style: MyTheme.textTheme.headline3!.merge(
-                                        TextStyle(color: color),
+                                  Text(
+                                    DateFormat('E d MMM y')
+                                        .format(DateTime.now()),
+                                    style: MyTheme.whiteTextTheme.headline4,
+                                  ),
+                                  const FaIcon(
+                                    FontAwesomeIcons.user,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 150,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 300,
+                                    padding: const EdgeInsets.only(top: 30),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(150),
+                                        topRight: Radius.circular(150),
                                       ),
-                                    )
-                                  else
-                                    RichText(
-                                      text: TextSpan(
-                                        children: <TextSpan>[
-                                          TextSpan(
-                                            text:
-                                                '${stat.financialHealth!.floor()}',
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          string,
+                                          style: MyTheme.textTheme.headline1!
+                                              .merge(
+                                            TextStyle(color: color),
+                                          ),
+                                        ),
+                                        if (string == '?')
+                                          Text(
+                                            'ข้อมูลไม่พอ',
                                             style: MyTheme.textTheme.headline3!
                                                 .merge(
                                               TextStyle(color: color),
                                             ),
-                                          ),
-                                          TextSpan(
-                                            text: '/100',
-                                            style: MyTheme.textTheme.headline3!
-                                                .merge(
-                                              const TextStyle(
-                                                color: Colors.black,
-                                              ),
+                                          )
+                                        else
+                                          RichText(
+                                            text: TextSpan(
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                  text:
+                                                      '${stat.financialHealth!.floor()}',
+                                                  style: MyTheme
+                                                      .textTheme.headline3!
+                                                      .merge(
+                                                    TextStyle(color: color),
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text: '/100',
+                                                  style: MyTheme
+                                                      .textTheme.headline3!
+                                                      .merge(
+                                                    const TextStyle(
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ],
-                                      ),
+                                        Text(
+                                          'สุขภาพทางการเงิน',
+                                          style: MyTheme.textTheme.headline4,
+                                        ),
+                                      ],
                                     ),
-                                  Text(
-                                    'สุขภาพทางการเงิน',
-                                    style: MyTheme.textTheme.headline4,
                                   ),
                                 ],
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.only(top: 20, left: 30, right: 30),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        const IncExp(),
-                        const SizedBox(height: 20),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ),
+                      Container(
+                        padding:
+                            const EdgeInsets.only(top: 20, left: 30, right: 30),
+                        child: Column(
                           children: [
-                            Column(
+                            const SizedBox(height: 20),
+                            const IncExp(),
+                            const SizedBox(height: 20),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    AutoRouter.of(context)
-                                        .push(const StatementRoute());
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    height: 60,
-                                    child: FaIcon(
-                                      FontAwesomeIcons.chartPie,
-                                      size: 30,
-                                      color: Theme.of(context).primaryColor,
+                                Column(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        AutoRouter.of(context)
+                                            .push(const StatementRoute());
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 60,
+                                        child: FaIcon(
+                                          FontAwesomeIcons.chartPie,
+                                          size: 30,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        primary: MyTheme.kToDark[50],
+                                      ),
                                     ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    primary: MyTheme.kToDark[50],
-                                  ),
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      'แผนงบการเงิน',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  'แผนงบการเงิน',
-                                  textAlign: TextAlign.center,
+                                Column(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        AutoRouter.of(context)
+                                            .push(const BalanceSheetRoute());
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 60,
+                                        child: FaIcon(
+                                          FontAwesomeIcons.balanceScale,
+                                          size: 30,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        primary: MyTheme.kToDark[50],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      'งบดุลการเงิน',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        AutoRouter.of(context)
+                                            .push(const FinancialGoalRoute());
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 60,
+                                        child: FaIcon(
+                                          FontAwesomeIcons.solidFlag,
+                                          size: 30,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        primary: MyTheme.kToDark[50],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      'เป้าหมาย\nทางการเงิน',
+                                      textAlign: TextAlign.center,
+                                    )
+                                  ],
+                                ),
+                                Column(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        AutoRouter.of(context)
+                                            .push(const CategoryRoute());
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        height: 60,
+                                        child: FaIcon(
+                                          FontAwesomeIcons.percentage,
+                                          size: 30,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        primary: MyTheme.kToDark[50],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      'จัดการ\nหมวดหมู่',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
                                 ),
                               ],
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(30, 30, 30, 20),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                "เป้าหมายของคุณ",
+                                style: MyTheme.textTheme.headline4,
+                                textAlign: TextAlign.left,
+                              ),
                             ),
-                            Column(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    AutoRouter.of(context)
-                                        .push(const BalanceSheetRoute());
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    height: 60,
-                                    child: FaIcon(
-                                      FontAwesomeIcons.balanceScale,
-                                      size: 30,
-                                      color: Theme.of(context).primaryColor,
+                            Expanded(
+                                flex: 1,
+                                child: Container(
+                                  width: 150,
+                                  height: 30,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0x1A5236FF),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(32),
                                     ),
                                   ),
-                                  style: ElevatedButton.styleFrom(
-                                    primary: MyTheme.kToDark[50],
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  'งบดุลการเงิน',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    AutoRouter.of(context)
-                                        .push(const FinancialGoalRoute());
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    height: 60,
-                                    child: FaIcon(
-                                      FontAwesomeIcons.solidFlag,
-                                      size: 30,
-                                      color: Theme.of(context).primaryColor,
+                                  child: FlatButton(
+                                    child: Text(
+                                      "ดูทั้งหมด",
+                                      style: MyTheme.whiteTextTheme.headline4!
+                                          .merge(
+                                        const TextStyle(
+                                            color: Color(0xFF5236FF)),
+                                      ),
+                                      textAlign: TextAlign.right,
                                     ),
+                                    onPressed: () {
+                                      AutoRouter.of(context)
+                                          .push(const FinancialGoalRoute());
+                                    },
                                   ),
-                                  style: ElevatedButton.styleFrom(
-                                    primary: MyTheme.kToDark[50],
+                                )),
+                          ],
+                        ),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 30, right: 30),
+                        child: FinancialGoalList(),
+                      ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 27),
+                      child: Container(
+                        height: 225,
+                        child: SfRadialGauge(
+                          animationDuration: 2500,
+                          axes: <RadialAxis>[
+                            RadialAxis(
+                              showLabels: false,
+                              showTicks: false,
+                              startAngle: 180,
+                              endAngle: 0,
+                              radiusFactor: 0.9,
+                              canScaleToFit: true,
+                              axisLineStyle: AxisLineStyle(
+                                thickness: 0.1,
+                                thicknessUnit: GaugeSizeUnit.factor,
+                                color: Color(0xFFECECEC),
+                                cornerStyle: CornerStyle.startCurve,
+                              ),
+                              pointers: <GaugePointer>[
+                                RangePointer(
+                                  value: stat.financialHealth ?? 0,
+                                  width: 0.1,
+                                  sizeUnit: GaugeSizeUnit.factor,
+                                  gradient: SweepGradient(
+                                    colors:
+                                        (stat.financialHealth?.floor() ?? 0) <=
+                                                50
+                                            ? const <Color>[
+                                                Color(0xFFFF0000),
+                                                Color(0xFFFFC700),
+                                              ]
+                                            : (stat.financialHealth?.floor() ??
+                                                        0) <=
+                                                    75
+                                                ? const <Color>[
+                                                    Color(0xFFFF0000),
+                                                    Color(0xFFFFC700),
+                                                    Color(0xFF00FF23),
+                                                  ]
+                                                : const <Color>[
+                                                    Color(0xFFFF0000),
+                                                    Color(0xFF00FF23),
+                                                    Color(0xFFFFC700),
+                                                    Color(0xFF00FFD1),
+                                                  ],
                                   ),
                                 ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  'เป้าหมาย\nทางการเงิน',
-                                  textAlign: TextAlign.center,
+                                MarkerPointer(
+                                  markerHeight: 20,
+                                  markerWidth: 20,
+                                  value:
+                                      stat.financialHealth?.floorToDouble() ??
+                                          0, //stat.floor(),
+                                  markerType: MarkerType.circle,
+                                  color: Color(0xFF94DF0F),
                                 )
                               ],
-                            ),
-                            Column(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    AutoRouter.of(context)
-                                        .push(const CategoryRoute());
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    height: 60,
-                                    child: FaIcon(
-                                      FontAwesomeIcons.percentage,
-                                      size: 30,
-                                      color: Theme.of(context).primaryColor,
-                                    ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    primary: MyTheme.kToDark[50],
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  'จัดการ\nหมวดหมู่',
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
+                            )
                           ],
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 30, 30, 20),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: Text(
-                            "เป้าหมายของคุณ",
-                            style: MyTheme.textTheme.headline4,
-                            textAlign: TextAlign.left,
-                          ),
                         ),
-                        Expanded(
-                            flex: 1,
-                            child: Container(
-                              width: 150,
-                              height: 30,
-                              decoration: const BoxDecoration(
-                                color: Color(0x1A5236FF),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(32),
-                                ),
-                              ),
-                              child: FlatButton(
-                                child: Text(
-                                  "ดูทั้งหมด",
-                                  style:
-                                      MyTheme.whiteTextTheme.headline4!.merge(
-                                    const TextStyle(color: Color(0xFF5236FF)),
-                                  ),
-                                  textAlign: TextAlign.right,
-                                ),
-                                onPressed: () {
-                                  AutoRouter.of(context)
-                                      .push(const FinancialGoalRoute());
-                                },
-                              ),
-                            )),
-                      ],
+                      ),
                     ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 30, right: 30),
-                    child: FinancialGoalList(),
-                  ),
-                  const SizedBox(height: 40),
                 ],
               ),
             ),

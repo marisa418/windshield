@@ -59,6 +59,7 @@ dependencies:
   input_calculator: ^2.0.0
   awesome_notifications: ^0.6.21
   flutter_html: ^2.2.1
+  syncfusion_flutter_gauges: ^20.1.52
 
 dev_dependencies:
   flutter_test:
