@@ -876,7 +876,7 @@ class FinancialStatus(APIView):
         if cash_flow is not None:
             income = cash_flow["working inc"] + cash_flow["investment inc"] + cash_flow["other inc"]
             expense = cash_flow["inconsistance exp"] + cash_flow["consistance exp"] + cash_flow["other exp"]
-            if income != 0 or expense != 0:
+            if expense != 0:
                 return (income - expense) / expense
         return None
     

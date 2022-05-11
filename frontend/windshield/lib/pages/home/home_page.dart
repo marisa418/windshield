@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:windshield/components/fab_bottom_appbar.dart';
 import 'package:windshield/routes/app_router.dart';
+import 'package:windshield/styles/theme.dart';
 
 import 'overview/overview_page.dart';
 import 'analysis/analysis_page.dart';
@@ -57,47 +58,71 @@ class _HomeState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     ref.watch(provHome.select((e) => e.needFetchAPI));
 
-    return SafeArea(
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        // body: IndexedStack(
-        //   index: _selectedIndex,
-        //   children: _pageList,
-        // ),
-        body: PageStorage(
-          bucket: _bucket,
-          child: _pageList[_selectedIndex],
-        ),
-        drawer: const Drawer(
-          child: FilterDialog(),
-        ),
-        onDrawerChanged: (isOpen) => isOpen ? null : ref.refresh(apiArticle),
-        bottomNavigationBar: FABBottomAppBar(
-          onTabSelected: _updateIndex,
-          centerItemText: 'บัญชีรายรับ-รายจ่าย',
-          items: [
-            FABBottomAppBarItem(iconData: Icons.home, text: 'ภาพรวม'),
-            FABBottomAppBarItem(
-                iconData: Icons.graphic_eq, text: 'วิเคราะห์ผล'),
-            FABBottomAppBarItem(iconData: Icons.menu_book, text: 'ความรู้'),
-            FABBottomAppBarItem(iconData: Icons.settings, text: 'ตั้งค่า'),
+    return WillPopScope(
+      onWillPop: () async => await showDialog(
+        useRootNavigator: false,
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('ออกจากแอป?', style: MyTheme.textTheme.headline3),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false), // passing false
+              child: Text(
+                'ไม่',
+                style: MyTheme.textTheme.headline4!.merge(
+                  const TextStyle(color: Colors.grey),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true), // passing true
+              child: Text('ใช่', style: MyTheme.textTheme.headline4),
+            ),
           ],
         ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(right: 5, bottom: 20),
-          child: SizedBox(
-            height: 70,
-            width: 70,
-            child: FloatingActionButton(
-              onPressed: () {
-                AutoRouter.of(context).push(const DailyFlowOverviewRoute());
-              },
-              tooltip: 'Income Expense',
-              child: const Icon(Icons.book),
+      ),
+      child: SafeArea(
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          // body: IndexedStack(
+          //   index: _selectedIndex,
+          //   children: _pageList,
+          // ),
+          body: PageStorage(
+            bucket: _bucket,
+            child: _pageList[_selectedIndex],
+          ),
+          drawer: const Drawer(
+            child: FilterDialog(),
+          ),
+          onDrawerChanged: (isOpen) => isOpen ? null : ref.refresh(apiArticle),
+          bottomNavigationBar: FABBottomAppBar(
+            onTabSelected: _updateIndex,
+            centerItemText: 'บัญชีรายรับ-รายจ่าย',
+            items: [
+              FABBottomAppBarItem(iconData: Icons.home, text: 'ภาพรวม'),
+              FABBottomAppBarItem(
+                  iconData: Icons.graphic_eq, text: 'วิเคราะห์ผล'),
+              FABBottomAppBarItem(iconData: Icons.menu_book, text: 'ความรู้'),
+              FABBottomAppBarItem(iconData: Icons.settings, text: 'ตั้งค่า'),
+            ],
+          ),
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(right: 5, bottom: 20),
+            child: SizedBox(
+              height: 70,
+              width: 70,
+              child: FloatingActionButton(
+                onPressed: () {
+                  AutoRouter.of(context).push(const DailyFlowOverviewRoute());
+                },
+                tooltip: 'Income Expense',
+                child: const Icon(Icons.book),
+              ),
             ),
           ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       ),
     );
   }

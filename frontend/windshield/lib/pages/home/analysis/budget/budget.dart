@@ -126,7 +126,12 @@ class StatementItem extends ConsumerWidget {
                   text: TextSpan(
                     children: <TextSpan>[
                       TextSpan(
-                        text: "-120",
+                        text: HelperNumber.format((state.incWorkingFlow +
+                                state.incAssetFlow +
+                                state.incOtherFlow) -
+                            (state.expInConsistFlow +
+                                state.expConsistFlow +
+                                state.savInvFlow)),
                         style: MyTheme.textTheme.headline3!.merge(
                           TextStyle(
                             color: MyTheme.negativeMajor,
@@ -135,7 +140,8 @@ class StatementItem extends ConsumerWidget {
                         ),
                       ),
                       TextSpan(
-                        text: "/-420 ",
+                        text:
+                            "/${HelperNumber.format((state.incWorkingBud + state.incAssetBud + state.incOtherBud) - (state.expInConsistBud + state.expConsistBud + state.savInvBud))}",
                         style: MyTheme.textTheme.headline3!.merge(
                           TextStyle(
                             color: MyTheme.negativeMajor.withOpacity(.3),
@@ -215,21 +221,21 @@ class StatementItem extends ConsumerWidget {
             bud: state.incWorkingBud,
             flow: state.incWorkingFlow,
             ftype: 'รายรับจากการทำงาน',
-            color: MyTheme.incomeWorking[0],
+            color: MyTheme.incomeWorking,
           ),
           const SizedBox(height: 10),
           Progress(
             bud: state.incAssetBud,
             flow: state.incAssetFlow,
             ftype: 'รายรับจากสินทรัพย์',
-            color: MyTheme.incomeAsset[0],
+            color: MyTheme.incomeAsset,
           ),
           const SizedBox(height: 10),
           Progress(
             bud: state.incOtherBud,
             flow: state.incOtherFlow,
             ftype: 'รายรับอื่นๆ',
-            color: MyTheme.incomeOther[0],
+            color: MyTheme.incomeOther,
           ),
           const SizedBox(height: 20),
           Row(
@@ -289,21 +295,21 @@ class StatementItem extends ConsumerWidget {
             bud: state.expInConsistBud,
             flow: state.expInConsistFlow,
             ftype: 'รายจ่ายไม่คงที่',
-            color: MyTheme.expenseInconsist[0],
+            color: MyTheme.expenseInconsist,
           ),
           const SizedBox(height: 10),
           Progress(
             bud: state.expConsistBud,
             flow: state.expConsistFlow,
             ftype: 'รายจ่ายคงที่',
-            color: MyTheme.expenseConsist[0],
+            color: MyTheme.expenseConsist,
           ),
           const SizedBox(height: 10),
           Progress(
             bud: state.savInvBud,
             flow: state.savInvFlow,
             ftype: 'การออมและการลงทุน',
-            color: MyTheme.savingAndInvest[0],
+            color: MyTheme.savingAndInvest,
           ),
           const SizedBox(height: 20),
           Text(
@@ -369,7 +375,7 @@ class Progress extends StatelessWidget {
   }) : super(key: key);
 
   final String ftype;
-  final Color color;
+  final List<Color> color;
   final double bud;
   final double flow;
 
@@ -398,8 +404,8 @@ class Progress extends StatelessWidget {
           percent: HelperProgress.getPercent(flow, bud),
           animation: true,
           animationDuration: 2500,
-          backgroundColor: Colors.grey[300],
-          progressColor: color,
+          backgroundColor: color[1],
+          progressColor: color[0],
           padding: const EdgeInsets.all(0),
           center: Padding(
             padding: const EdgeInsets.only(left: 4.0),
