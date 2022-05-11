@@ -1248,7 +1248,7 @@ class Articles(generics.ListAPIView):
                     )))
         
         page = self.request.query_params.get("page", None)
-        limit = int(self.request.query_params.get("limit", 5))
+        limit = int(self.request.query_params.get("limit", 4))
         total_page = math.ceil(float(queryset.count()) / limit)
         if page:
             page = int(page)
