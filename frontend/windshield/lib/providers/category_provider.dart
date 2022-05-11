@@ -23,30 +23,30 @@ class CategoryProvider extends ChangeNotifier {
   // ftype = 6 /
   final List<StmntCategory> _savInvList = [];
   List<StmntCategory> get savInvList => _savInvList;
-  // ftype = 7 /
-  final List<StmntCategory> _assLiquidList = [];
-  List<StmntCategory> get assLiquidList => _assLiquidList;
-  // 8
+  // // ftype = 7 /
+  // final List<StmntCategory> _assLiquidList = [];
+  // List<StmntCategory> get assLiquidList => _assLiquidList;
+  // // 8
 
-  final List<StmntCategory> _assInvestList = [];
-  List<StmntCategory> get assInvestList => _assInvestList;
-  // 9
+  // final List<StmntCategory> _assInvestList = [];
+  // List<StmntCategory> get assInvestList => _assInvestList;
+  // // 9
 
-  final List<StmntCategory> _assPrivateList = [];
-  List<StmntCategory> get assPrivateList => _assPrivateList;
-  // 10
+  // final List<StmntCategory> _assPrivateList = [];
+  // List<StmntCategory> get assPrivateList => _assPrivateList;
+  // // 10
 
-  final List<StmntCategory> _debtShortList = [];
-  List<StmntCategory> get debtShortList => _debtShortList;
-  // 11
+  // final List<StmntCategory> _debtShortList = [];
+  // List<StmntCategory> get debtShortList => _debtShortList;
+  // // 11
 
-  final List<StmntCategory> _debtLongList = [];
-  List<StmntCategory> get debtLongList => _debtLongList;
+  // final List<StmntCategory> _debtLongList = [];
+  // List<StmntCategory> get debtLongList => _debtLongList;
 
-  // 12 เป้าหมาย
+  // // 12 เป้าหมาย
 
-  final List<StmntCategory> _goalList = [];
-  List<StmntCategory> get goalList => _goalList;
+  // final List<StmntCategory> _goalList = [];
+  // List<StmntCategory> get goalList => _goalList;
 
   bool _isAdd = true;
   bool get isAdd => _isAdd;
@@ -90,12 +90,12 @@ class CategoryProvider extends ChangeNotifier {
     _expInconsistList.clear();
     _expConsistList.clear();
     _savInvList.clear();
-    _assLiquidList.clear();
-    _assInvestList.clear();
-    _assPrivateList.clear();
-    _debtShortList.clear();
-    _debtLongList.clear();
-    _goalList.clear();
+    // _assLiquidList.clear();
+    // _assInvestList.clear();
+    // _assPrivateList.clear();
+    // _debtShortList.clear();
+    // _debtLongList.clear();
+    // _goalList.clear();
     for (var item in _cat) {
       if (item.ftype == '1') {
         _incWorkingList.add(item);
