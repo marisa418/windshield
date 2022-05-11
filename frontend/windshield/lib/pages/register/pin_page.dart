@@ -137,6 +137,7 @@ class _PinFieldState extends ConsumerState {
             // padding: const EdgeInsets.all(20.0),
             child: Pinput(
               useNativeKeyboard: false,
+              obscureText: true,
               length: 6,
               followingPinTheme: PinTheme(
                 width: 40,
