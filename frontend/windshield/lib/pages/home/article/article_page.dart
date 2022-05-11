@@ -693,6 +693,7 @@ class ArticleItem extends ConsumerWidget {
                             AutoRouter.of(context)
                                 .push(const ArticleReadRoute());
                             ref.refresh(apiArticle);
+                            await ref.read(apiProvider).getUserInfo();
                           }
                         }
                       : null,
