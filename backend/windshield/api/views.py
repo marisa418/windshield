@@ -99,6 +99,15 @@ class DailyFlow(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.DailyFlowSerializer
     queryset = models.DailyFlow.objects.all()
     
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        self.object = self.get_object()
+        serializer = serializers.DailyFlowCreateSerializer(self.object, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        serializer = self.get_serializer(self.object)
+        return Response(serializer.data)
+    
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         serializer = self.get_serializer(self.object)
@@ -1248,7 +1257,7 @@ class Articles(generics.ListAPIView):
                     )))
         
         page = self.request.query_params.get("page", None)
-        limit = int(self.request.query_params.get("limit", 5))
+        limit = int(self.request.query_params.get("limit", 4))
         total_page = math.ceil(float(queryset.count()) / limit)
         if page:
             page = int(page)

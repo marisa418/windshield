@@ -52,6 +52,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
                     CircularPercentIndicator(
                       radius: 35,
                       progressColor: Colors.white,
+                      backgroundColor: Colors.white.withOpacity(.4),
                       percent: HelperProgress.getPercent(
                         currCat.flows.map((e) => e.value).sum,
                         currCat.budgets.map((e) => e.total).sum,
@@ -78,7 +79,7 @@ class DailyFlowCreatePage extends ConsumerWidget {
                             maxLines: 1,
                           ),
                           Text(
-                            '${isIncome == 'income' ? '+' : '-'}${_loopFlow(currCat.flows)} บ.',
+                            '${isIncome == 'income' ? '+' : ''}${_loopFlow(currCat.flows)} บ.',
                             style: MyTheme.whiteTextTheme.headline3,
                           ),
                         ],
@@ -244,44 +245,55 @@ class DailyFlowCreatePage extends ConsumerWidget {
                                       children: [
                                         Row(
                                           children: [
-                                            Text(
-                                              currCat.flows[index].name,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
+                                            Flexible(
+                                              flex: 7,
+                                              fit: FlexFit.tight,
+                                              child: AutoSizeText(
+                                                currCat.flows[index].name,
+                                                minFontSize: 0,
+                                                maxLines: 1,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
                                             const SizedBox(width: 10),
-                                            Wrap(
-                                              crossAxisAlignment:
-                                                  WrapCrossAlignment.center,
-                                              spacing: 10,
-                                              children: [
-                                                Icon(
-                                                  getIcon(currCat
-                                                      .flows[index].method.id),
-                                                  size: 15,
-                                                  color: HelperColor.getFtColor(
-                                                    currCat.ftype,
-                                                    0,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  getMethod(currCat
-                                                      .flows[index].method.id),
-                                                  style: TextStyle(
+                                            Flexible(
+                                              flex: 3,
+                                              fit: FlexFit.tight,
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  Icon(
+                                                    getIcon(currCat.flows[index]
+                                                        .method.id),
+                                                    size: 15,
                                                     color:
                                                         HelperColor.getFtColor(
                                                       currCat.ftype,
                                                       0,
                                                     ),
                                                   ),
-                                                ),
-                                              ],
+                                                  Text(
+                                                    '  ${getMethod(currCat.flows[index].method.id)}',
+                                                    style: TextStyle(
+                                                      color: HelperColor
+                                                          .getFtColor(
+                                                        currCat.ftype,
+                                                        0,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ],
                                         ),
-                                        Text(
-                                          '${currCat.flows[index].value.toString()} บ.',
+                                        AutoSizeText(
+                                          '${HelperNumber.format(currCat.flows[index].value)} บ.',
+                                          minFontSize: 0,
+                                          maxLines: 1,
                                           style: MyTheme.textTheme.headline2!
                                               .merge(
                                             TextStyle(
@@ -377,7 +389,7 @@ String _loopFlow(List<DFlowFlow> value) {
   for (var e in value) {
     sum += e.value;
   }
-  return sum.toString();
+  return HelperNumber.format(sum);
 }
 
 class Calculator extends ConsumerStatefulWidget {
@@ -651,7 +663,9 @@ class _CalculatorState extends ConsumerState<Calculator> {
                                 ref.read(provDFlow).flowMethod,
                               );
                           if (flow.id != '') {
-                            ref.read(provDFlow).editFlow(flow);
+                            final one =
+                                await ref.read(apiProvider).getOneFlow(flow.id);
+                            ref.read(provDFlow).editFlow(one);
                             ref.read(provDFlow).setNeedFetchAPI();
                             ref.read(provOverFlow).setNeedFetchAPI();
                             ref.refresh(apiDateChange);

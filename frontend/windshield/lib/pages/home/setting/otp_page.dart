@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pinput/pinput.dart';
 import 'package:windshield/components/loading.dart';
 import 'package:windshield/main.dart';
-import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/styles/theme.dart';
 
 final apiOtp = FutureProvider.autoDispose<String>((ref) async {
@@ -163,9 +162,29 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Flexible(
-                    flex: 30,
+                    flex: widget.type == 1 ? 10 : 15,
+                    fit: FlexFit.tight,
+                    child: widget.type == 1
+                        ? Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Text(
+                              'ตั้งค่า Pin ใหม่',
+                              style: MyTheme.whiteTextTheme.headline3,
+                            ),
+                          )
+                        : Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Text(
+                              'ยืนยันตัวตนด้วย Pin',
+                              style: MyTheme.whiteTextTheme.headline3,
+                            ),
+                          ),
+                  ),
+                  Flexible(
+                    flex: widget.type == 1 ? 15 : 20,
                     fit: FlexFit.tight,
                     child: Pinput(
+                      obscureText: true,
                       useNativeKeyboard: false,
                       length: 6,
                       followingPinTheme: PinTheme(
@@ -209,6 +228,12 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                             setState(() {
                               _nextPage = true;
                             });
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('กรุณากรอก Pin ที่ถูกต้อง'),
+                              ),
+                            );
                           }
                         }
                       },
@@ -287,11 +312,11 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                       ),
                     ),
                   ),
-                  Flexible(
-                    flex: 15,
-                    fit: FlexFit.loose,
-                    child: widget.type == 1
-                        ? SizedBox(
+                  widget.type == 1
+                      ? Flexible(
+                          flex: 20,
+                          fit: FlexFit.loose,
+                          child: SizedBox(
                             height: 80,
                             width: MediaQuery.of(context).size.width - 100,
                             child: Padding(
@@ -352,9 +377,9 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                                 ),
                               ),
                             ),
-                          )
-                        : Container(),
-                  ),
+                          ),
+                        )
+                      : Container(),
                 ],
               );
             } else {

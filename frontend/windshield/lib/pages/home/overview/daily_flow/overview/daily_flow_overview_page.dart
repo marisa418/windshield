@@ -454,7 +454,7 @@ class ExpenseIncome extends ConsumerWidget {
     final api = ref.watch(apiDateChange);
     return Container(
       height: 280,
-      width: double.infinity,
+      width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.all(15),
       color: Colors.white,
       child: api.when(
@@ -473,12 +473,12 @@ class ExpenseIncome extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    ref.read(provOverFlow).setPageIdx(0);
-                    AutoRouter.of(context).push(const DailyFlowRoute());
-                  },
-                  child: Expanded(
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      ref.read(provOverFlow).setPageIdx(0);
+                      AutoRouter.of(context).push(const DailyFlowRoute());
+                    },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -495,7 +495,8 @@ class ExpenseIncome extends ConsumerWidget {
                         ),
                         Container(
                           height: 75, //height of button
-                          width: 160,
+                          // width: 160,
+
                           decoration: const BoxDecoration(
                             boxShadow: [
                               BoxShadow(
@@ -565,7 +566,6 @@ class ExpenseIncome extends ConsumerWidget {
                           ),
                         ),
                         Container(
-                          width: 160,
                           padding: const EdgeInsets.only(top: 8),
                           child: TextButton.icon(
                             style: TextButton.styleFrom(
@@ -588,22 +588,26 @@ class ExpenseIncome extends ConsumerWidget {
                               color: MyTheme.positiveMajor,
                               size: 15,
                             ),
-                            label: Text('เพิ่มรายการใหม่ด้วยเสียง',
-                                style: TextStyle(
-                                    color: MyTheme.positiveMajor,
-                                    fontSize: 10)),
+                            label: Text(
+                              'เพิ่มรายการใหม่ด้วยเสียง',
+                              style: TextStyle(
+                                color: MyTheme.positiveMajor,
+                                fontSize: 10,
+                              ),
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    ref.read(provOverFlow).setPageIdx(1);
-                    AutoRouter.of(context).push(const DailyFlowRoute());
-                  },
-                  child: Expanded(
+                const SizedBox(width: 15),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      ref.read(provOverFlow).setPageIdx(1);
+                      AutoRouter.of(context).push(const DailyFlowRoute());
+                    },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -620,7 +624,7 @@ class ExpenseIncome extends ConsumerWidget {
                         ),
                         Container(
                           height: 75, //height of button
-                          width: 160,
+                          // width: 160,
                           decoration: const BoxDecoration(
                             boxShadow: [
                               BoxShadow(
@@ -690,7 +694,6 @@ class ExpenseIncome extends ConsumerWidget {
                           ),
                         ),
                         Container(
-                          width: 160,
                           padding: const EdgeInsets.only(top: 8),
                           child: TextButton.icon(
                             style: TextButton.styleFrom(
@@ -713,10 +716,13 @@ class ExpenseIncome extends ConsumerWidget {
                               color: MyTheme.negativeMajor,
                               size: 15,
                             ),
-                            label: Text('เพิ่มรายการใหม่ด้วยเสียง',
-                                style: TextStyle(
-                                    color: MyTheme.negativeMajor,
-                                    fontSize: 10)),
+                            label: Text(
+                              'เพิ่มรายการใหม่ด้วยเสียง',
+                              style: TextStyle(
+                                color: MyTheme.negativeMajor,
+                                fontSize: 10,
+                              ),
+                            ),
                           ),
                         ),
                       ],

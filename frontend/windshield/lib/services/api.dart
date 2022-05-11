@@ -34,8 +34,8 @@ class Api extends ChangeNotifier {
 
   final _storage = const FlutterSecureStorage();
 
-  //final url = 'http://192.168.1.9:8000';
-  final url = 'https://windshield-server.herokuapp.com';
+  final url = 'http://192.168.1.9:8000';
+  //final url = 'https://windshield-server.herokuapp.com';
 
   Api() {
     dio.interceptors.add(InterceptorsWrapper(
@@ -59,9 +59,12 @@ class Api extends ChangeNotifier {
       },
       onError: (DioError error, handler) async {
         print(error.response);
-        if (error.requestOptions.path.contains('token/refresh')) {
+        if (error.requestOptions.path.contains('token/refresh') ||
+            (error.response?.data is! String &&
+                error.response?.data.containsKey('detail') &&
+                error.response?.data['detail'] == 'User not found')) {
           _accessToken = null;
-          await _storage.deleteAll();
+          await _storage.delete(key: 'refreshToken');
           _isLoggedIn = false;
           notifyListeners();
           return handler.reject(error);
@@ -69,7 +72,7 @@ class Api extends ChangeNotifier {
         // if (error.requestOptions.path.contains('token/refresh') ||
         //     error.requestOptions.path.contains('user/')) {
         //   _accessToken = null;
-        //   await _storage.deleteAll();
+        //   await _storage.delete(key: 'refreshToken');
         //   _isLoggedIn = false;
         //   notifyListeners();
         //   return handler.reject(error);
@@ -78,11 +81,10 @@ class Api extends ChangeNotifier {
         if (error.response?.statusCode == 401 &&
             error.response?.statusMessage == 'Unauthorized') {
           final refresh = await _storage.read(key: 'refreshToken');
-
           if (refresh != null) {
             if (Jwt.isExpired(refresh)) {
               _accessToken = null;
-              await _storage.deleteAll();
+              await _storage.delete(key: 'refreshToken');
               _isLoggedIn = false;
               notifyListeners();
               return handler.reject(error);
@@ -96,7 +98,7 @@ class Api extends ChangeNotifier {
             }
           } else {
             _accessToken = null;
-            await _storage.deleteAll();
+            await _storage.delete(key: 'refreshToken');
             _isLoggedIn = false;
             notifyListeners();
             return handler.reject(error);
@@ -124,8 +126,10 @@ class Api extends ChangeNotifier {
 
   Future<void> refreshToken() async {
     final refreshToken = await _storage.read(key: 'refreshToken');
-    final response =
-        await dio.post('/token/refresh/', data: {'refresh': refreshToken});
+    final response = await dio.post(
+      '/token/refresh/',
+      data: {'refresh': refreshToken},
+    );
     if (response.statusCode == 200) {
       _accessToken = response.data['access'];
       await _storage.write(
@@ -154,8 +158,8 @@ class Api extends ChangeNotifier {
       if (_user?.isVerify == false) return 2;
       if (_user?.pin == null) return 3;
       if (_user?.family == null) return 4;
-      _isLoggedIn = true;
-      notifyListeners();
+      // _isLoggedIn = true;
+      // notifyListeners();
       return 1;
     } catch (e) {
       return 0;
@@ -183,7 +187,7 @@ class Api extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    await _storage.deleteAll();
+    await _storage.delete(key: 'refreshToken');
     _user = User();
     _accessToken = null;
     _isLoggedIn = false;
@@ -589,16 +593,10 @@ class Api extends ChangeNotifier {
     }
   }
 
-  Future<DFlowFlow> editFlow(
-      String id, String name, double value, int method) async {
+  Future<DFlowFlow> getOneFlow(String id) async {
     try {
-      final res = await dio.patch(
+      final res = await dio.get(
         '/api/daily-flow/$id/',
-        data: {
-          "name": name,
-          "value": value,
-          "method": method,
-        },
       );
       final data = DFlowFlow.fromJson(res.data);
       return data;
@@ -612,6 +610,24 @@ class Api extends ChangeNotifier {
         dfId: '',
         cat: Cat(id: '', name: '', usedCount: 0, icon: '', ftype: ''),
       );
+    }
+  }
+
+  Future<DFlowEdit> editFlow(
+      String id, String name, double value, int method) async {
+    try {
+      final res = await dio.patch(
+        '/api/daily-flow/$id/',
+        data: {
+          "name": name,
+          "value": value,
+          "method": method,
+        },
+      );
+      final data = DFlowEdit.fromJson(res.data);
+      return data;
+    } catch (e) {
+      return DFlowEdit(id: '');
     }
   }
 

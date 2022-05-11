@@ -34,7 +34,7 @@ class DailyFlowCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class DailyFlowSerializer(serializers.ModelSerializer):
-    method = MethodSerializer(read_only=True)
+    method = MethodSerializer()
     category = CategorySerializer()
     
     class Meta:

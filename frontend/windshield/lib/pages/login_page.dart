@@ -195,18 +195,29 @@ class _PinState extends ConsumerState<Pin> {
           Flexible(
             flex: 10,
             fit: FlexFit.tight,
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: GestureDetector(
-                onTap: () {
-                  ref.read(apiProvider).logout();
-                  ref.refresh(refreshAlive);
-                },
-                child: Text(
-                  'ออกจากระบบ   ',
-                  style: MyTheme.whiteTextTheme.headline4,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    AutoRouter.of(context).push(const ForgetPinRoute());
+                  },
+                  child: Text(
+                    '   ฉันลืม Pin',
+                    style: MyTheme.whiteTextTheme.headline4,
+                  ),
                 ),
-              ),
+                GestureDetector(
+                  onTap: () {
+                    ref.read(apiProvider).logout();
+                    ref.refresh(refreshAlive);
+                  },
+                  child: Text(
+                    'ออกจากระบบ   ',
+                    style: MyTheme.whiteTextTheme.headline4,
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 10),
@@ -367,7 +378,9 @@ class _CredentialState extends ConsumerState<Credential> {
                         final res = await ref
                             .read(apiProvider)
                             .login(_username, _password);
-                        if (res == 2) {
+                        if (res == 1) {
+                          ref.refresh(refreshAlive);
+                        } else if (res == 2) {
                           AutoRouter.of(context).push(const OTPRegisterRoute());
                         } else if (res == 3) {
                           AutoRouter.of(context).push(const PinRoute());

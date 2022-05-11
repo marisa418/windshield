@@ -180,7 +180,7 @@ class DailyList extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '+$incTotal บ.',
+                              '+${HelperNumber.format(incTotal)} บ.',
                               style: MyTheme.whiteTextTheme.headline2,
                             ),
                             ElevatedButton(
@@ -208,7 +208,7 @@ class DailyList extends ConsumerWidget {
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
-                                      'รายจ่าย\n-$expTotal บ.',
+                                      'รายจ่าย\n-${HelperNumber.format(expTotal)} บ.',
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w700,
@@ -330,7 +330,7 @@ class DailyList extends ConsumerWidget {
                                       'รายรับจากการทำงาน',
                                     ),
                                     Text(
-                                      '$incWorking บ.',
+                                      '${HelperNumber.format(incWorking)} บ.',
                                       style: TextStyle(
                                         color: MyTheme.positiveMajor,
                                       ),
@@ -346,7 +346,7 @@ class DailyList extends ConsumerWidget {
                                       'รายรับจากสินทรัพย์',
                                     ),
                                     Text(
-                                      '$incAsset บ.',
+                                      '${HelperNumber.format(incAsset)} บ.',
                                       style: TextStyle(
                                         color: MyTheme.positiveMajor,
                                       ),
@@ -362,7 +362,7 @@ class DailyList extends ConsumerWidget {
                                       'รายรับจากแหล่งอื่นๆ',
                                     ),
                                     Text(
-                                      '$incOther บ.',
+                                      '${HelperNumber.format(incOther)} บ.',
                                       style: TextStyle(
                                         color: MyTheme.positiveMajor,
                                       ),
@@ -452,7 +452,7 @@ class DailyList extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '-$expTotal บ.',
+                          '-${HelperNumber.format(expTotal)} บ.',
                           style: MyTheme.whiteTextTheme.headline2,
                         ),
                         ElevatedButton(
@@ -480,7 +480,7 @@ class DailyList extends ConsumerWidget {
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  'รายรับ\n+$incTotal บ.',
+                                  'รายรับ\n+${HelperNumber.format(incTotal)} บ.',
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
@@ -600,7 +600,7 @@ class DailyList extends ConsumerWidget {
                                       'รายจ่ายไม่คงที่',
                                     ),
                                     Text(
-                                      '$expIncon บ.',
+                                      '${HelperNumber.format(expIncon)} บ.',
                                       style: TextStyle(
                                         color: MyTheme.negativeMajor,
                                       ),
@@ -616,7 +616,7 @@ class DailyList extends ConsumerWidget {
                                       'รายจ่ายคงที่',
                                     ),
                                     Text(
-                                      '$expCon บ.',
+                                      '${HelperNumber.format(expCon)} บ.',
                                       style: TextStyle(
                                         color: MyTheme.negativeMajor,
                                       ),
@@ -632,7 +632,7 @@ class DailyList extends ConsumerWidget {
                                       'การออมและการลงทุน',
                                     ),
                                     Text(
-                                      '$savInv บ.',
+                                      '${HelperNumber.format(savInv)} บ.',
                                       style: TextStyle(
                                         color: MyTheme.negativeMajor,
                                       ),

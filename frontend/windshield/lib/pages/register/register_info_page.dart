@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:windshield/components/loading.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/models/provinces.dart';
@@ -253,6 +254,7 @@ class _FormInfoState extends ConsumerState {
                   ),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      showLoading(context);
                       _formKey.currentState!.save();
                       final res = await ref.read(apiProvider).updateUser(
                             _province,
@@ -262,6 +264,7 @@ class _FormInfoState extends ConsumerState {
                             _year,
                           );
                       if (!res) {
+                        AutoRouter.of(context).pop();
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('เกิดข้อผิดพลาด')),
                         );

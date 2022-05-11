@@ -1,24 +1,11 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:windshield/utility/icon_convertor.dart';
+import 'package:auto_route/auto_route.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/styles/theme.dart';
-import 'package:auto_route/auto_route.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:windshield/main.dart';
-import 'package:windshield/models/balance_sheet/balance_sheet.dart';
-import 'package:windshield/models/daily_flow/flow.dart';
-import 'package:windshield/pages/home/overview/balance_sheet/create_balance.dart';
-import 'package:windshield/styles/theme.dart';
-import 'package:percent_indicator/percent_indicator.dart';
-import 'package:badges/badges.dart';
 import 'package:windshield/routes/app_router.dart';
 import 'package:windshield/utility/icon_convertor.dart';
 
