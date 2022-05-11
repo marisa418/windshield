@@ -10,17 +10,17 @@ class HomeProvider extends ChangeNotifier {
   List<FlowSheet> _flowSheetList = [];
   List<FlowSheet> get flowSheetList => _flowSheetList;
 
-  final List<double> _incWorking = [0, 0];
+  List<double> _incWorking = [0, 0];
   List<double> get incWorking => _incWorking;
-  final List<double> _incAsset = [0, 0];
+  List<double> _incAsset = [0, 0];
   List<double> get incAsset => _incAsset;
-  final List<double> _incOther = [0, 0];
+  List<double> _incOther = [0, 0];
   List<double> get incOther => _incOther;
-  final List<double> _expIncon = [0, 0];
+  List<double> _expIncon = [0, 0];
   List<double> get expIncon => _expIncon;
-  final List<double> _expCon = [0, 0];
+  List<double> _expCon = [0, 0];
   List<double> get expCon => _expCon;
-  final List<double> _savInv = [0, 0];
+  List<double> _savInv = [0, 0];
   List<double> get savInv => _savInv;
 
   bool _needFetchAPI = false;
@@ -32,6 +32,12 @@ class HomeProvider extends ChangeNotifier {
   }
 
   void setFlowSheetList(List<FlowSheet> value) {
+    _incWorking = [0, 0];
+    _incAsset = [0, 0];
+    _incOther = [0, 0];
+    _expIncon = [0, 0];
+    _expCon = [0, 0];
+    _savInv = [0, 0];
     _flowSheetList = value;
     for (var sheet in _flowSheetList) {
       for (var flow in sheet.flows) {

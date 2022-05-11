@@ -270,7 +270,7 @@ class FilterDialog extends ConsumerWidget {
                     style: MyTheme.textTheme.bodyText1!.merge(
                       const TextStyle(color: Colors.black),
                     ),
-                    // value: ref.watch(provArticle.select((e) => e.currSort)),
+                    value: ref.watch(provArticle.select((e) => e.currSort)),
                     onChanged: (String? e) {
                       ref.read(provArticle).setCurrSort(e!);
                     },
@@ -311,7 +311,7 @@ class FilterDialog extends ConsumerWidget {
                     style: MyTheme.textTheme.bodyText1!.merge(
                       const TextStyle(color: Colors.black),
                     ),
-                    // value: ref.watch(provArticle.select((e) => e.isAscend)),
+                    value: ref.watch(provArticle.select((e) => e.isAscend)),
                     onChanged: (bool? e) {
                       ref.read(provArticle).setIsAscend(e!);
                     },
@@ -692,6 +692,7 @@ class ArticleItem extends ConsumerWidget {
                             Navigator.of(context).pop();
                             AutoRouter.of(context)
                                 .push(const ArticleReadRoute());
+                            ref.refresh(apiArticle);
                           }
                         }
                       : null,

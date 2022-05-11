@@ -189,8 +189,6 @@ class ShowBottomPageOne extends ConsumerWidget {
                               ),
                             ),
                             onTap: () {
-                              print(ref.watch(provFGoal).icon);
-                              print(ref.watch(provFGoal).goal);
                               showModalBottomSheet(
                                 backgroundColor: Colors.transparent,
                                 context: context,
@@ -451,13 +449,13 @@ class ShowBottomPageOne extends ConsumerWidget {
         Padding(padding: EdgeInsets.all(0)),
         SizedBox(
           height: 50,
-          width: 300,
+          width: 360,
           child: RaisedButton(
             color: goal == 0 || progPerPeriod == 0
                 ? Color(0xFFECECEC)
                 : Color(0xFF5236FF),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18.0),
+              borderRadius: BorderRadius.circular(32.0),
             ),
             child: Text(
               "บันทึก",
@@ -701,7 +699,7 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
         atleast = (goal / (dateDiff / 365).ceil()).ceilToDouble();
       }
       return Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
         child: Column(
           children: [
             TextFormField(
@@ -757,7 +755,7 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
         atleast = (goal / (dateDiff / 30).ceil()).ceilToDouble();
       }
       return Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
         child: Column(
           children: [
             TextFormField(
@@ -813,7 +811,7 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
         atleast = (goal / (dateDiff / 7).ceil()).ceilToDouble();
       }
       return Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
         child: Column(
           children: [
             TextFormField(
@@ -869,7 +867,7 @@ class BottomPageTwoBodyState extends ConsumerState<BottomPageTwoBody> {
         atleast = (goal / dateDiff).ceilToDouble();
       }
       return Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
         child: Column(
           children: [
             TextFormField(
@@ -938,13 +936,13 @@ class Botton extends ConsumerWidget {
 
     return SizedBox(
       height: 50,
-      width: 300,
+      width: 360,
       child: RaisedButton(
           color: ref.watch(provFGoal).progPerPeriod == 0
               ? Color(0xFFECECEC)
               : Color(0xFF5236FF),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18.0),
+            borderRadius: BorderRadius.circular(32.0),
           ),
           child: Text("บันทึก",
               style: MyTheme.whiteTextTheme.headline3!.merge(
@@ -1037,8 +1035,6 @@ class ChooseIcons extends ConsumerWidget {
                     ),
                   )),
               onTap: () {
-                print(icons[i].toString());
-                print(ref.watch(provFGoal).icon);
                 ref.read(provFGoal).setIcon(icons[i].toString());
                 Navigator.pop(context);
               },

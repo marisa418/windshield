@@ -5,9 +5,10 @@ import 'package:windshield/pages/home/overview/daily_flow/%E0%B9%8Cnotification/
 import '../pages/login_page.dart';
 import '../pages/home/home_page.dart';
 import '../pages/register/register_page.dart';
-import '../pages/register/otp_page.dart';
-import '../pages/pin_page.dart';
+import '../pages/register/otp_register_page.dart';
+import '../pages/register/pin_page.dart';
 import '../pages/register/register_info_page.dart';
+import '../pages/register/forget_password_page.dart';
 
 import '../pages/home/overview/statement/statement_page.dart';
 import '../pages/home/overview/statement/info/statement_info_page.dart';
@@ -27,6 +28,8 @@ import '../pages/home/overview/category/category_page.dart';
 
 import '../pages/home/article/article_read_page.dart';
 
+import '../pages/home/setting/otp_page.dart';
+
 part 'app_router.gr.dart';
 
 @MaterialAutoRouter(
@@ -41,6 +44,7 @@ part 'app_router.gr.dart';
         AutoRoute(page: OTPRegisterPage),
         AutoRoute(page: PinPage),
         AutoRoute(page: RegisterInfoPage),
+        AutoRoute(page: ForgetPasswordPage),
       ],
     ),
     AutoRoute(
@@ -61,6 +65,7 @@ part 'app_router.gr.dart';
         AutoRoute(page: NotificationPage),
         AutoRoute(page: CategoryPage),
         AutoRoute(page: ArticleReadPage),
+        AutoRoute(page: OTPPage),
       ],
     ),
   ],

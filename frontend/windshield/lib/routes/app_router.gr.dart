@@ -45,6 +45,10 @@ class _$AppRouter extends RootStackRouter {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const RegisterInfoPage());
     },
+    ForgetPasswordRoute.name: (routeData) {
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: const ForgetPasswordPage());
+    },
     HomeRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const HomePage());
@@ -100,6 +104,11 @@ class _$AppRouter extends RootStackRouter {
     ArticleReadRoute.name: (routeData) {
       return MaterialPageX<dynamic>(
           routeData: routeData, child: const ArticleReadPage());
+    },
+    OTPRoute.name: (routeData) {
+      final args = routeData.argsAs<OTPRouteArgs>();
+      return MaterialPageX<dynamic>(
+          routeData: routeData, child: OTPPage(type: args.type, key: args.key));
     }
   };
 
@@ -114,7 +123,9 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(PinRoute.name,
               path: 'pin-page', parent: AppStackRoute.name),
           RouteConfig(RegisterInfoRoute.name,
-              path: 'register-info-page', parent: AppStackRoute.name)
+              path: 'register-info-page', parent: AppStackRoute.name),
+          RouteConfig(ForgetPasswordRoute.name,
+              path: 'forget-password-page', parent: AppStackRoute.name)
         ]),
         RouteConfig(EmptyRouterRoute.name, path: '/', children: [
           RouteConfig(HomeRoute.name, path: '', parent: EmptyRouterRoute.name),
@@ -143,7 +154,9 @@ class _$AppRouter extends RootStackRouter {
           RouteConfig(CategoryRoute.name,
               path: 'category-page', parent: EmptyRouterRoute.name),
           RouteConfig(ArticleReadRoute.name,
-              path: 'article-read-page', parent: EmptyRouterRoute.name)
+              path: 'article-read-page', parent: EmptyRouterRoute.name),
+          RouteConfig(OTPRoute.name,
+              path: 'o-tp-page', parent: EmptyRouterRoute.name)
         ])
       ];
 }
@@ -206,6 +219,15 @@ class RegisterInfoRoute extends PageRouteInfo<void> {
       : super(RegisterInfoRoute.name, path: 'register-info-page');
 
   static const String name = 'RegisterInfoRoute';
+}
+
+/// generated route for
+/// [ForgetPasswordPage]
+class ForgetPasswordRoute extends PageRouteInfo<void> {
+  const ForgetPasswordRoute()
+      : super(ForgetPasswordRoute.name, path: 'forget-password-page');
+
+  static const String name = 'ForgetPasswordRoute';
 }
 
 /// generated route for
@@ -328,4 +350,27 @@ class ArticleReadRoute extends PageRouteInfo<void> {
       : super(ArticleReadRoute.name, path: 'article-read-page');
 
   static const String name = 'ArticleReadRoute';
+}
+
+/// generated route for
+/// [OTPPage]
+class OTPRoute extends PageRouteInfo<OTPRouteArgs> {
+  OTPRoute({required int type, Key? key})
+      : super(OTPRoute.name,
+            path: 'o-tp-page', args: OTPRouteArgs(type: type, key: key));
+
+  static const String name = 'OTPRoute';
+}
+
+class OTPRouteArgs {
+  const OTPRouteArgs({required this.type, this.key});
+
+  final int type;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'OTPRouteArgs{type: $type, key: $key}';
+  }
 }

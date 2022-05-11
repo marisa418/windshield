@@ -4,10 +4,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:windshield/main.dart';
 import 'package:windshield/routes/app_router.dart';
 import 'package:pinput/pinput.dart';
-import 'package:windshield/styles/theme.dart';
 
-import '../main.dart';
-import '../models/user.dart';
+import 'package:windshield/styles/theme.dart';
+import 'package:windshield/models/user.dart';
 
 class PinPage extends ConsumerStatefulWidget {
   const PinPage({Key? key}) : super(key: key);
