@@ -99,9 +99,17 @@ class DailyFlow(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.DailyFlowSerializer
     queryset = models.DailyFlow.objects.all()
     
+    def retrieve(self, request, pk=None):
+        self.serializer_class = serializers.DailyFlowSerializer
+        return super().retrieve(request)
+    
+    def update(self, request, *args, **kwargs):
+        self.serializer_class = serializers.DailyFlowCreateSerializer
+        return super().update(request, *args, **kwargs)
+    
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        serializer = self.get_serializer(self.object)
+        serializer = serializers.DailyFlowSerializer(self.object)
         data = serializer.data
         self.object.delete()
         return Response(data, status=status.HTTP_202_ACCEPTED)
