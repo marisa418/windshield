@@ -29,8 +29,8 @@ final provOverFlow =
 final apiOverFlow = FutureProvider.autoDispose<void>((ref) async {
   ref.watch(provOverFlow.select((value) => value.needFetchAPI));
   final now = DateTime.now();
-  final data = await ref.read(apiProvider).getAllCategoriesWithBudgetFlows(now);
   final id = await ref.read(apiProvider).getTodayDFId(now);
+  final data = await ref.read(apiProvider).getAllCategoriesWithBudgetFlows(now);
   ref.read(provOverFlow).setDfId(id);
   ref.read(provOverFlow).setCatList(data);
   ref.read(provOverFlow).setCatType();
@@ -39,9 +39,9 @@ final apiOverFlow = FutureProvider.autoDispose<void>((ref) async {
 
 final apiDateChange = FutureProvider.autoDispose<void>((ref) async {
   final date = ref.read(provOverFlow).date;
+  final id = await ref.read(apiProvider).getTodayDFId(date);
   final data =
       await ref.read(apiProvider).getAllCategoriesWithBudgetFlows(date);
-  final id = await ref.read(apiProvider).getTodayDFId(date);
   ref.read(provOverFlow).setDfId(id);
   ref.read(provOverFlow).setCatList(data);
   ref.read(provOverFlow).setCatType();
@@ -454,6 +454,7 @@ class ExpenseIncome extends ConsumerWidget {
     final api = ref.watch(apiDateChange);
     return Container(
       height: 280,
+      width: MediaQuery.of(context).size.width,
       padding: const EdgeInsets.all(15),
       color: Colors.white,
       child: api.when(
@@ -472,246 +473,264 @@ class ExpenseIncome extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    ref.read(provOverFlow).setPageIdx(0);
-                    AutoRouter.of(context).push(const DailyFlowRoute());
-                  },
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'รายรับรวม ',
-                        style: MyTheme.textTheme.headline4,
-                      ),
-                      Text(
-                        '+$incTotal บ.',
-                        style: MyTheme.whiteTextTheme.headline2!.merge(
-                          TextStyle(color: MyTheme.positiveMajor),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      ref.read(provOverFlow).setPageIdx(0);
+                      AutoRouter.of(context).push(const DailyFlowRoute());
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'รายรับรวม ',
+                          style: MyTheme.textTheme.headline4,
                         ),
-                      ),
-                      Container(
-                        height: 75, //height of button
-                        width: 160,
-                        decoration: const BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black26,
-                                offset: Offset(0, 4),
-                                blurRadius: 5.0)
-                          ],
-                        ),
-                        //width of button
-                        child: ElevatedButton(
-                          onPressed: () {
-                            ref.read(provOverFlow).setPageIdx(0);
-                            AutoRouter.of(context).push(const DailyFlowRoute());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-
-                            elevation: 0.0,
-                            //remove shadow on button
-                            primary: MyTheme.positiveMajor,
-
-                            textStyle: const TextStyle(fontSize: 12),
-                            padding: const EdgeInsets.all(6),
-
-                            //shape: const CircleBorder(),
+                        AutoSizeText(
+                          '+$incTotal บ.',
+                          style: MyTheme.whiteTextTheme.headline2!.merge(
+                            TextStyle(color: MyTheme.positiveMajor),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Icon(
-                                HelperIcons.getIconData('hand-holding-usd'),
-                                color: Colors.white,
-                                size: 25,
-                              ),
-                              Expanded(
-                                child: Column(
-                                  //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(2, 8, 0, 0),
-                                      child: Text(
-                                        'บัญชีรายรับ',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          decoration: TextDecoration.none,
-                                          color: Colors.white.withAlpha(200),
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                    AutoSizeText(
-                                      incLength.toString() + ' รายการ',
-                                      minFontSize: 0,
-                                      maxLines: 1,
-                                      style: MyTheme.whiteTextTheme.headline3,
-                                    ),
-                                  ],
-                                ),
-                              ),
+                          minFontSize: 0,
+                          maxLines: 1,
+                        ),
+                        Container(
+                          height: 75, //height of button
+                          // width: 160,
+
+                          decoration: const BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.black26,
+                                  offset: Offset(0, 4),
+                                  blurRadius: 5.0)
                             ],
                           ),
-                        ),
-                      ),
-                      Container(
-                        width: 160,
-                        padding: const EdgeInsets.only(top: 8),
-                        child: TextButton.icon(
-                          style: TextButton.styleFrom(
-                            textStyle:
-                                const TextStyle(fontWeight: FontWeight.w700),
-                            backgroundColor: MyTheme.positiveMinor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24.0),
+                          //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              ref.read(provOverFlow).setPageIdx(0);
+                              AutoRouter.of(context)
+                                  .push(const DailyFlowRoute());
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+
+                              elevation: 0.0,
+                              //remove shadow on button
+                              primary: MyTheme.positiveMajor,
+
+                              textStyle: const TextStyle(fontSize: 12),
+                              padding: const EdgeInsets.all(6),
+
+                              //shape: const CircleBorder(),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Icon(
+                                  HelperIcons.getIconData('hand-holding-usd'),
+                                  color: Colors.white,
+                                  size: 25,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    //mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            2, 8, 0, 0),
+                                        child: Text(
+                                          'บัญชีรายรับ',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            decoration: TextDecoration.none,
+                                            color: Colors.white.withAlpha(200),
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                      AutoSizeText(
+                                        incLength.toString() + ' รายการ',
+                                        minFontSize: 0,
+                                        maxLines: 1,
+                                        style: MyTheme.whiteTextTheme.headline3,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          onPressed: () {
-                            ref.read(provOverFlow).setPageIdx(0);
-                            AutoRouter.of(context).pushAll(const [
-                              DailyFlowRoute(),
-                              SpeechToTextRoute(),
-                            ]);
-                          },
-                          icon: Icon(
-                            Icons.mic,
-                            color: MyTheme.positiveMajor,
-                            size: 15,
-                          ),
-                          label: Text('เพิ่มรายการใหม่ด้วยเสียง',
-                              style: TextStyle(
-                                  color: MyTheme.positiveMajor, fontSize: 10)),
                         ),
-                      ),
-                    ],
+                        Container(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: TextButton.icon(
+                            style: TextButton.styleFrom(
+                              textStyle:
+                                  const TextStyle(fontWeight: FontWeight.w700),
+                              backgroundColor: MyTheme.positiveMinor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24.0),
+                              ),
+                            ),
+                            onPressed: () {
+                              ref.read(provOverFlow).setPageIdx(0);
+                              AutoRouter.of(context).pushAll(const [
+                                DailyFlowRoute(),
+                                SpeechToTextRoute(),
+                              ]);
+                            },
+                            icon: Icon(
+                              Icons.mic,
+                              color: MyTheme.positiveMajor,
+                              size: 15,
+                            ),
+                            label: Text(
+                              'เพิ่มรายการใหม่ด้วยเสียง',
+                              style: TextStyle(
+                                color: MyTheme.positiveMajor,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    ref.read(provOverFlow).setPageIdx(1);
-                    AutoRouter.of(context).push(const DailyFlowRoute());
-                  },
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'รายจ่ายรวม ',
-                        style: MyTheme.textTheme.headline4,
-                      ),
-                      Text(
-                        '-$expTotal บ.',
-                        style: MyTheme.whiteTextTheme.headline2!.merge(
-                          TextStyle(color: MyTheme.negativeMajor),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      ref.read(provOverFlow).setPageIdx(1);
+                      AutoRouter.of(context).push(const DailyFlowRoute());
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'รายจ่ายรวม ',
+                          style: MyTheme.textTheme.headline4,
                         ),
-                      ),
-                      Container(
-                        height: 75, //height of button
-                        width: 160,
-                        decoration: const BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.black26,
-                                offset: Offset(0, 4),
-                                blurRadius: 5.0)
-                          ],
-                        ), //width of button
-                        child: ElevatedButton(
-                          onPressed: () {
-                            ref.read(provOverFlow).setPageIdx(1);
-                            AutoRouter.of(context).push(const DailyFlowRoute());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            elevation: 0.0,
-                            primary: MyTheme.negativeMajor,
-
-                            textStyle: const TextStyle(fontSize: 15),
-                            padding: const EdgeInsets.all(6),
-
-                            //shape: const CircleBorder(),
+                        AutoSizeText(
+                          '-$expTotal บ.',
+                          style: MyTheme.whiteTextTheme.headline2!.merge(
+                            TextStyle(color: MyTheme.negativeMajor),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              const Icon(
-                                Icons.receipt,
-                                color: Colors.white,
-                                size: 30,
+                          minFontSize: 0,
+                          maxLines: 1,
+                        ),
+                        Container(
+                          height: 75, //height of button
+                          // width: 160,
+                          decoration: const BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.black26,
+                                  offset: Offset(0, 4),
+                                  blurRadius: 5.0)
+                            ],
+                          ), //width of button
+                          child: ElevatedButton(
+                            onPressed: () {
+                              ref.read(provOverFlow).setPageIdx(1);
+                              AutoRouter.of(context)
+                                  .push(const DailyFlowRoute());
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
                               ),
+                              elevation: 0.0,
+                              primary: MyTheme.negativeMajor,
 
-                              // const Text(
-                              Expanded(
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(2, 8, 2, 0),
-                                      child: Text(
-                                        'บัญชีรายจ่าย',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          decoration: TextDecoration.none,
-                                          color: Colors.white.withAlpha(200),
-                                          fontWeight: FontWeight.w700,
+                              textStyle: const TextStyle(fontSize: 15),
+                              padding: const EdgeInsets.all(6),
+
+                              //shape: const CircleBorder(),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                const Icon(
+                                  Icons.receipt,
+                                  color: Colors.white,
+                                  size: 30,
+                                ),
+
+                                // const Text(
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            2, 8, 2, 0),
+                                        child: Text(
+                                          'บัญชีรายจ่าย',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            decoration: TextDecoration.none,
+                                            color: Colors.white.withAlpha(200),
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    AutoSizeText(
-                                      expLength.toString() + ' รายการ',
-                                      minFontSize: 0,
-                                      maxLines: 1,
-                                      style: MyTheme.whiteTextTheme.headline3,
-                                    ),
-                                  ],
+                                      AutoSizeText(
+                                        expLength.toString() + ' รายการ',
+                                        minFontSize: 0,
+                                        maxLines: 1,
+                                        style: MyTheme.whiteTextTheme.headline3,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 160,
-                        padding: const EdgeInsets.only(top: 8),
-                        child: TextButton.icon(
-                          style: TextButton.styleFrom(
-                            textStyle:
-                                const TextStyle(fontWeight: FontWeight.w700),
-                            backgroundColor: MyTheme.negativeMinor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24.0),
+                              ],
                             ),
                           ),
-                          onPressed: () {
-                            ref.read(provOverFlow).setPageIdx(1);
-                            AutoRouter.of(context).pushAll(const [
-                              DailyFlowRoute(),
-                              SpeechToTextRoute(),
-                            ]);
-                          },
-                          icon: Icon(
-                            Icons.mic,
-                            color: MyTheme.negativeMajor,
-                            size: 15,
-                          ),
-                          label: Text('เพิ่มรายการใหม่ด้วยเสียง',
-                              style: TextStyle(
-                                  color: MyTheme.negativeMajor, fontSize: 10)),
                         ),
-                      ),
-                    ],
+                        Container(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: TextButton.icon(
+                            style: TextButton.styleFrom(
+                              textStyle:
+                                  const TextStyle(fontWeight: FontWeight.w700),
+                              backgroundColor: MyTheme.negativeMinor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24.0),
+                              ),
+                            ),
+                            onPressed: () {
+                              ref.read(provOverFlow).setPageIdx(1);
+                              AutoRouter.of(context).pushAll(const [
+                                DailyFlowRoute(),
+                                SpeechToTextRoute(),
+                              ]);
+                            },
+                            icon: Icon(
+                              Icons.mic,
+                              color: MyTheme.negativeMajor,
+                              size: 15,
+                            ),
+                            label: Text(
+                              'เพิ่มรายการใหม่ด้วยเสียง',
+                              style: TextStyle(
+                                color: MyTheme.negativeMajor,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

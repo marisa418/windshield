@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:windshield/models/statement/category.dart';
 
-class CategoryProvider extends ChangeNotifier {  
+class CategoryProvider extends ChangeNotifier {
   List<StmntCategory> _cat = [];
   List<StmntCategory> get cat => _cat;
-  
+
   // ftype = 1 /
   final List<StmntCategory> _incWorkingList = [];
   List<StmntCategory> get incWorkingList => _incWorkingList;
@@ -23,41 +23,41 @@ class CategoryProvider extends ChangeNotifier {
   // ftype = 6 /
   final List<StmntCategory> _savInvList = [];
   List<StmntCategory> get savInvList => _savInvList;
-  // ftype = 7 /
-  final List<StmntCategory> _assLiquidList = [];
-  List<StmntCategory> get assLiquidList => _assLiquidList;
-  // 8
-  
-  final List<StmntCategory> _assInvestList = [];
-  List<StmntCategory> get assInvestList => _assInvestList;
-  // 9
-  
-  final List<StmntCategory> _assPrivateList = [];
-  List<StmntCategory> get assPrivateList => _assPrivateList;
-  // 10
-  
-  final List<StmntCategory> _debtShortList = [];
-  List<StmntCategory> get debtShortList => _debtShortList;
-  // 11
-  
-  final List<StmntCategory> _debtLongList = [];
-  List<StmntCategory> get debtLongList => _debtLongList;
+  // // ftype = 7 /
+  // final List<StmntCategory> _assLiquidList = [];
+  // List<StmntCategory> get assLiquidList => _assLiquidList;
+  // // 8
 
-  // 12 เป้าหมาย
-  
-  final List<StmntCategory> _goalList = [];
-  List<StmntCategory> get goalList => _goalList;
+  // final List<StmntCategory> _assInvestList = [];
+  // List<StmntCategory> get assInvestList => _assInvestList;
+  // // 9
+
+  // final List<StmntCategory> _assPrivateList = [];
+  // List<StmntCategory> get assPrivateList => _assPrivateList;
+  // // 10
+
+  // final List<StmntCategory> _debtShortList = [];
+  // List<StmntCategory> get debtShortList => _debtShortList;
+  // // 11
+
+  // final List<StmntCategory> _debtLongList = [];
+  // List<StmntCategory> get debtLongList => _debtLongList;
+
+  // // 12 เป้าหมาย
+
+  // final List<StmntCategory> _goalList = [];
+  // List<StmntCategory> get goalList => _goalList;
 
   bool _isAdd = true;
   bool get isAdd => _isAdd;
-  
+
   String _id = '';
   String get id => _id;
-  String _name ='';
+  String _name = '';
   String get name => _name;
-  String _icon ='';
+  String _icon = '';
   String get icon => _icon;
-  String _ftype ='';
+  String _ftype = '';
   String get ftype => _ftype;
 
   StmntCategory _currCat =
@@ -75,18 +75,14 @@ class CategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   void setCurftype(String value) {
     _curFtype = value;
-    
   }
 
   void setCat(List<StmntCategory> value) {
     _cat = value;
-    
   }
-  
-  
+
   void setCatType() {
     _incWorkingList.clear();
     _incAssetList.clear();
@@ -94,12 +90,12 @@ class CategoryProvider extends ChangeNotifier {
     _expInconsistList.clear();
     _expConsistList.clear();
     _savInvList.clear();
-    _assLiquidList.clear();
-    _assInvestList.clear();
-    _assPrivateList.clear();
-    _debtShortList.clear();
-    _debtLongList.clear();
-    _goalList.clear();
+    // _assLiquidList.clear();
+    // _assInvestList.clear();
+    // _assPrivateList.clear();
+    // _debtShortList.clear();
+    // _debtLongList.clear();
+    // _goalList.clear();
     for (var item in _cat) {
       if (item.ftype == '1') {
         _incWorkingList.add(item);
@@ -113,21 +109,9 @@ class CategoryProvider extends ChangeNotifier {
         _expConsistList.add(item);
       } else if (item.ftype == '6') {
         _savInvList.add(item);
-      } else if (item.ftype == '7') {
-        _assLiquidList.add(item);
-      } else if (item.ftype == '8') {
-        _assInvestList.add(item);
-      } else if (item.ftype == '9') {
-        _assPrivateList.add(item);
-      } else if (item.ftype == '10') {
-        _debtShortList.add(item);
-      } else if (item.ftype == '11') {
-        _debtLongList.add(item);
-      } else if (item.ftype == '12') {
-        _goalList.add(item);
       }
     }
-    
+
     notifyListeners();
   }
 
@@ -135,27 +119,29 @@ class CategoryProvider extends ChangeNotifier {
     _id = value;
     notifyListeners();
   }
+
   void setName(String value) {
     _name = value;
     notifyListeners();
   }
+
   void setIcon(String value) {
     _icon = value;
     notifyListeners();
   }
+
   void setCurrCat(StmntCategory value) {
     _currCat = value;
     notifyListeners();
   }
+
   void setFtype(String value) {
     _ftype = value;
     notifyListeners();
   }
-  
 
   void setNeedFetchAPI() {
     _needFetchAPI = !_needFetchAPI;
     notifyListeners();
   }
-
 }

@@ -142,11 +142,11 @@ class Header extends ConsumerWidget {
                     animationDuration: 1,
                     lineWidth: 7,
                     center: Text(
-                      '${(HelperProgress.getPercent(
+                      '${HelperNumber.format(HelperProgress.getPercent(
                             (incWorking[0] + incAsset[0] + incOther[0]) -
                                 (expIncon[0] + expCon[0] + savInv[0]),
                             incWorking[0] + incAsset[0] + incOther[0],
-                          ) * 100).toStringAsFixed(2)}%',
+                          ) * 100)}%',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
@@ -399,7 +399,7 @@ class ActiveStatements extends ConsumerWidget {
                                 style: MyTheme.whiteTextTheme.headline4,
                               ),
                               Text(
-                                '${perc[0].toStringAsFixed(2)}%',
+                                '${HelperNumber.format(perc[0])}%',
                                 style: MyTheme.whiteTextTheme.bodyText1,
                               ),
                             ],
@@ -440,7 +440,7 @@ class ActiveStatements extends ConsumerWidget {
                                 style: MyTheme.whiteTextTheme.headline4,
                               ),
                               Text(
-                                '${perc[1].toStringAsFixed(2)}%',
+                                '${HelperNumber.format(perc[1])}%',
                                 style: MyTheme.whiteTextTheme.bodyText1,
                               ),
                             ],

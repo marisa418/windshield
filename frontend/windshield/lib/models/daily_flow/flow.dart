@@ -41,6 +41,18 @@ class DFlowFlow {
       };
 }
 
+class DFlowEdit {
+  String id;
+
+  DFlowEdit({
+    required this.id,
+  });
+
+  factory DFlowEdit.fromJson(Map<String, dynamic> json) => DFlowEdit(
+        id: json['id'],
+      );
+}
+
 class Method {
   int id;
   String name;

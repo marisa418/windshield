@@ -11,6 +11,7 @@ class User {
   int? age;
   int? family;
   int? points;
+  int? year;
 
   bool? isVerify;
 
@@ -27,6 +28,7 @@ class User {
     this.family,
     this.points,
     this.isVerify,
+    this.year,
   });
 
   List<Object?> get props => [
@@ -42,6 +44,7 @@ class User {
         family,
         points,
         isVerify,
+        year,
       ];
 
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -57,6 +60,7 @@ class User {
         points: json['points'],
         province: json['province'],
         isVerify: json['is_verify'],
+        year: json['born_year'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -72,5 +76,6 @@ class User {
         'points': points,
         'province': province,
         'is_verify': isVerify,
+        'born_year': year,
       };
 }

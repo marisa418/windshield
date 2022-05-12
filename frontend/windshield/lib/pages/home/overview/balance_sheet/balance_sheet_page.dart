@@ -235,8 +235,8 @@ class Assettable extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final assTotal = ref.watch(provBSheet.select((e) => e.assTotal));
     final debtTotal = ref.watch(provBSheet.select((e) => e.debtTotal));
-    double asspercent = ((assTotal/(assTotal+debtTotal))*100).roundToDouble();
-    
+    double asspercent =
+        ((assTotal / (assTotal + debtTotal)) * 100).roundToDouble();
 
     return Expanded(
       child: GestureDetector(
@@ -257,12 +257,16 @@ class Assettable extends ConsumerWidget {
               CircularPercentIndicator(
                 radius: 25,
                 progressColor: Colors.white,
-                percent: asspercent/100,
+                percent: asspercent / 100,
                 animation: true,
                 animationDuration: 2000,
                 lineWidth: 6.5,
-                center:  Text('$asspercent'+' %',
-                    style: TextStyle(color: Colors.white, fontSize: 11)),
+                center: AutoSizeText(
+                  '${HelperNumber.format(asspercent)}%',
+                  style: MyTheme.whiteTextTheme.bodyText2,
+                  minFontSize: 0,
+                  maxLines: 1,
+                ),
                 backgroundColor: const Color(0x80ffffff),
               ),
               Column(
@@ -298,8 +302,8 @@ class Depttable extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final debtTotal = ref.watch(provBSheet.select((e) => e.debtTotal));
     final assTotal = ref.watch(provBSheet.select((e) => e.assTotal));
-    double debtpercent = ((debtTotal/(assTotal+debtTotal))*100).roundToDouble();
-
+    double debtpercent =
+        ((debtTotal / (assTotal + debtTotal)) * 100).roundToDouble();
 
     return Expanded(
       child: GestureDetector(
@@ -320,12 +324,16 @@ class Depttable extends ConsumerWidget {
               CircularPercentIndicator(
                 radius: 25,
                 progressColor: Colors.white,
-                percent: debtpercent/100,
+                percent: debtpercent / 100,
                 animation: true,
                 animationDuration: 2000,
                 lineWidth: 6.5,
-                center: Text('$debtpercent'+' %',
-                    style: TextStyle(color: Colors.white, fontSize: 11)),
+                center: AutoSizeText(
+                  '${HelperNumber.format(debtpercent)}%',
+                  style: MyTheme.whiteTextTheme.bodyText2,
+                  minFontSize: 0,
+                  maxLines: 1,
+                ),
                 backgroundColor: const Color(0x80ffffff),
               ),
               Column(
@@ -505,6 +513,8 @@ class LiqAssetTab extends ConsumerWidget {
                               ? ""
                               : assLiquidList[i - 1].source,
                           style: MyTheme.textTheme.bodyText1,
+                          minFontSize: 0,
+                          maxLines: 1,
                         ),
                       ],
                     ),
@@ -669,6 +679,8 @@ class InvestAssetTab extends ConsumerWidget {
                               ? ""
                               : assInvestList[i - 1].source,
                           style: MyTheme.textTheme.bodyText1,
+                          minFontSize: 0,
+                          maxLines: 1,
                         ),
                       ],
                     ),
@@ -836,6 +848,8 @@ class PrivateAssetTab extends ConsumerWidget {
                               ? ""
                               : assPrivateList[i - 1].source,
                           style: MyTheme.textTheme.bodyText1,
+                          minFontSize: 0,
+                          maxLines: 1,
                         ),
                       ],
                     ),
@@ -1007,6 +1021,8 @@ class DebtShortTab extends ConsumerWidget {
                               ? ""
                               : debtShortList[i - 1].creditor,
                           style: MyTheme.textTheme.bodyText1,
+                          minFontSize: 0,
+                          maxLines: 1,
                         ),
                       ],
                     ),
@@ -1178,6 +1194,8 @@ class DebtLongTab extends ConsumerWidget {
                               ? ""
                               : debtLongList[i - 1].creditor,
                           style: MyTheme.textTheme.bodyText1,
+                          minFontSize: 0,
+                          maxLines: 1,
                         ),
                       ],
                     ),

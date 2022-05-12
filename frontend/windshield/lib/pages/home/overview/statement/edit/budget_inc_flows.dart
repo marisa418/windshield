@@ -267,11 +267,21 @@ class CircularProgress extends StatelessWidget {
             ),
             color: Colors.white,
           ),
-          if (flowTotal != 0)
-            Text(
+          if (flowTotal != 0) ...[
+            AutoSizeText(
               HelperNumber.format(budget.total - flowTotal),
               style: MyTheme.whiteTextTheme.bodyText2,
-            ),
+              minFontSize: 0,
+              maxLines: 1,
+            )
+          ] else if (budget.total != 0 && flowTotal == 0) ...[
+            AutoSizeText(
+              HelperNumber.format(budget.total),
+              style: MyTheme.whiteTextTheme.bodyText2,
+              minFontSize: 0,
+              maxLines: 1,
+            )
+          ]
         ],
       ),
     );

@@ -9,7 +9,6 @@ from django.apps import apps
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.html import format_html
-from admin_numeric_filter.admin import NumericFilterModelAdmin, RangeNumericFilter
 
 class UserAdminConfig(UserAdmin):
     model = NewUser
@@ -18,7 +17,7 @@ class UserAdminConfig(UserAdmin):
     list_filter = ('is_active', 'is_verify', 'is_staff',)
     ordering = ('user_id',)
     list_display = ('user_id', 'uuid', 'change_is_active', 'change_is_staff', 'change_is_verify', 'points', 'delete_action')
-    readonly_fields = ('user_id', 'email', 'uuid')
+    readonly_fields = ('uuid',)
     fieldsets = (
         (None, {'fields': ('uuid', 'user_id', 'email',)}),
         ('Permissions', {'fields': ('is_staff', 'is_active', 'is_verify')}),
@@ -92,11 +91,11 @@ class UserAdminConfig(UserAdmin):
 admin.site.register(NewUser, UserAdminConfig)
 
 @admin.register(VerifyCodeLog)
-class VerifyCodeLogAdmin(NumericFilterModelAdmin):
+class VerifyCodeLogAdmin(admin.ModelAdmin):
     list_display = ('id', 'ref_code', 'lookup_user', 'show_email', 'code', 'change_is_used', 'count', 'send_at')
     search_fields = ('ref_code' ,'user__email',)
     search_help_text = "Enter ref code or email"
-    list_filter = ('is_used', ('send_at', admin.DateFieldListFilter), ('count', RangeNumericFilter))
+    list_filter = ('is_used', ('send_at', admin.DateFieldListFilter),)
     
     def has_add_permission(self, request, obj=None):
         return False
@@ -131,11 +130,11 @@ class VerifyCodeLogAdmin(NumericFilterModelAdmin):
     change_is_used.short_description = "is used"
 
 @admin.register(VerifyTokenLog)
-class VerifyTokenLogAdmin(NumericFilterModelAdmin):
+class VerifyTokenLogAdmin(admin.ModelAdmin):
     list_display = ('id', 'lookup_code_log', 'show_email', 'token', 'create_at', 'change_is_used', 'count')
     search_fields = ('code_log__ref_code', 'code_log__user__email',)
     search_help_text = "Enter ref code of email"
-    list_filter = ('is_used', ('create_at', admin.DateFieldListFilter), ('count', RangeNumericFilter))
+    list_filter = ('is_used', ('create_at', admin.DateFieldListFilter),)
     
     def has_add_permission(self, request, obj=None):
         return False

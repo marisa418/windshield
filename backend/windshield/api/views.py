@@ -99,6 +99,15 @@ class DailyFlow(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.DailyFlowSerializer
     queryset = models.DailyFlow.objects.all()
     
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        self.object = self.get_object()
+        serializer = serializers.DailyFlowCreateSerializer(self.object, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        serializer = self.get_serializer(self.object)
+        return Response(serializer.data)
+    
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         serializer = self.get_serializer(self.object)
@@ -167,7 +176,6 @@ class DailyFlowSheet(generics.RetrieveAPIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             dfsheet = models.DailyFlowSheet.objects.get(owner_id = uuid, date=date)
-            dfsheet = dfsheet.prefetch_related(Prefetch('flows'))
         return dfsheet
 
 class DailyFlowSheetList(generics.ListAPIView):
@@ -766,7 +774,7 @@ class FinancialGoals(generics.ListCreateAPIView):
         
 class FinancialStatus(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    past_days = 30
+    past_days = 31
     
     def __balance_sheet__(self):
         try:
@@ -867,7 +875,8 @@ class FinancialStatus(APIView):
                 return None
             age = recent_year - self.request.user.born_year
             annual_income = (cash_flow["working inc"] + cash_flow["investment inc"])
-            proper_net_worth = age * annual_income * 1.2
+            annual_income = (365 / self.past_days) * annual_income
+            proper_net_worth = age * annual_income / 10
             if proper_net_worth != 0:
                 return net_worth / proper_net_worth
         return None
@@ -876,7 +885,7 @@ class FinancialStatus(APIView):
         if cash_flow is not None:
             income = cash_flow["working inc"] + cash_flow["investment inc"] + cash_flow["other inc"]
             expense = cash_flow["inconsistance exp"] + cash_flow["consistance exp"] + cash_flow["other exp"]
-            if income != 0 or expense != 0:
+            if expense != 0:
                 return (income - expense) / expense
         return None
     
@@ -931,30 +940,29 @@ class FinancialStatus(APIView):
             return min
         return value
     
-    def score_ratio(self, value, excellent, bad, normal = 1):
+    def score_ratio(self, value, excellent, bad, normal = 1, scobe = 100):
         c = 1
         if excellent < bad:
             c = -1
         value = float(value)
-        score = (value - (normal - 0.5 * c*(excellent - bad))) / c*(excellent - bad) * 100
+        score = (value - (normal - 0.5 * c*(excellent - bad))) / c*(excellent - bad) * scobe
         if c == -1:
-            return 100 - score
+            return scobe - score
         else:
             return score
     
     def __financial_health_score__(self, finstatus, criterion):
         score = 0
-        n = 0
+        weight_sum = 0
         for k, v in criterion.items():
             if finstatus[k] is None: # total expense or income is 0
                 return None
-            score += self.scale(self.score_ratio(finstatus[k], v[0], v[1], v[2]))
-            n += 1
-        return score / n
-            
+            score += self.scale(self.score_ratio(finstatus[k], v[0], v[1], v[2])) * v[3]
+            weight_sum += v[3]
+        return score / weight_sum
     
     def get(self, request):
-        self.past_days = int(request.query_params.get("days", 30))
+        self.past_days = int(request.query_params.get("days", self.past_days))
         cash_flow = self.__cash_flow__()
         balance = self.__balance_sheet__()
         asset = self.__asset__()
@@ -968,15 +976,15 @@ class FinancialStatus(APIView):
             "Saving Ratio": self.__saving_ratio__(cash_flow),
             "Investment Ratio": self.__investment_ratio__(asset, balance),
             }
-        criterion = {
-            "Net Worth": (1.5, 0.5, 1),
-            "Net Cashflow": (1, 0.25, 0.5),
-            "Survival Ratio": (1.5, 0.8, 1),
-            "Wealth Ratio": (1.5, 0.7, 1),
-            "Basic Liquidity Ratio": (1.5, 0.7, 1),
-            "Debt Service Ratio": (3.6, 0.5, 0.42),
-            "Saving Ratio": (0.02, 0.1, 0.5),
-            "Investment Ratio": (0.25, 0.75, 0.5)
+        criterion = { #(upper, lower, middle, weight)
+            "Net Worth": (1.5, 0.5, 1, 20),
+            "Net Cashflow": (1, 0.25, 0.5, 10),
+            "Survival Ratio": (1.5, 0.8, 1, 20),
+            "Wealth Ratio": (1.5, 0.7, 1, 5),
+            "Basic Liquidity Ratio": (1.5, 0.7, 1, 5),
+            "Debt Service Ratio": (3.6, 0.5, 0.42, 15),
+            "Saving Ratio": (0.02, 0.1, 0.5, 15),
+            "Investment Ratio": (0.25, 0.75, 0.5, 10)
         }
         finstatus["Financial Health"] = self.__financial_health_score__(finstatus, criterion)
         return Response(finstatus)
@@ -1249,7 +1257,7 @@ class Articles(generics.ListAPIView):
                     )))
         
         page = self.request.query_params.get("page", None)
-        limit = int(self.request.query_params.get("limit", 5))
+        limit = int(self.request.query_params.get("limit", 4))
         total_page = math.ceil(float(queryset.count()) / limit)
         if page:
             page = int(page)

@@ -197,11 +197,11 @@ class Header extends ConsumerWidget {
                     animationDuration: 1,
                     lineWidth: 7,
                     center: Text(
-                      '${(HelperProgress.getPercent(
+                      '${HelperNumber.format(HelperProgress.getPercent(
                             (incWorking[0] + incAsset[0] + incOther[0]) -
                                 (expIncon[0] + expCon[0] + savInv[0]),
                             incWorking[0] + incAsset[0] + incOther[0],
-                          ) * 100).toStringAsFixed(2)}%',
+                          ) * 100)}%',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,

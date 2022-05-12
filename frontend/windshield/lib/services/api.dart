@@ -34,7 +34,8 @@ class Api extends ChangeNotifier {
 
   final _storage = const FlutterSecureStorage();
 
-  final url = 'http://192.168.1.9:8000';
+  // final url = 'http://192.168.1.9:8000';
+  final url = 'https://windshield-server.herokuapp.com';
 
   Api() {
     dio.interceptors.add(InterceptorsWrapper(
@@ -46,7 +47,10 @@ class Api extends ChangeNotifier {
         if (options.path.contains('/user/register/') ||
             options.path.contains('/token/') ||
             options.path.contains('/token/refresh/') ||
-            options.path.contains('/user/verify-code/?email=')) {
+            options.path.contains('/user/verify-code/?email=') ||
+            options.path.contains('/user/reset-password/') ||
+            (options.path.contains('/user/verify-code/') &&
+                options.data.containsKey('email'))) {
           options.headers['Authorization'] = '';
         }
         // print(options.path + ' | ' + _accessToken.toString());
@@ -55,9 +59,12 @@ class Api extends ChangeNotifier {
       },
       onError: (DioError error, handler) async {
         print(error.response);
-        if (error.requestOptions.path.contains('token/refresh')) {
+        if (error.requestOptions.path.contains('token/refresh') ||
+            (error.response?.data is! String &&
+                error.response?.data.containsKey('detail') &&
+                error.response?.data['detail'] == 'User not found')) {
           _accessToken = null;
-          await _storage.deleteAll();
+          await _storage.delete(key: 'refreshToken');
           _isLoggedIn = false;
           notifyListeners();
           return handler.reject(error);
@@ -65,7 +72,7 @@ class Api extends ChangeNotifier {
         // if (error.requestOptions.path.contains('token/refresh') ||
         //     error.requestOptions.path.contains('user/')) {
         //   _accessToken = null;
-        //   await _storage.deleteAll();
+        //   await _storage.delete(key: 'refreshToken');
         //   _isLoggedIn = false;
         //   notifyListeners();
         //   return handler.reject(error);
@@ -74,11 +81,10 @@ class Api extends ChangeNotifier {
         if (error.response?.statusCode == 401 &&
             error.response?.statusMessage == 'Unauthorized') {
           final refresh = await _storage.read(key: 'refreshToken');
-
           if (refresh != null) {
             if (Jwt.isExpired(refresh)) {
               _accessToken = null;
-              await _storage.deleteAll();
+              await _storage.delete(key: 'refreshToken');
               _isLoggedIn = false;
               notifyListeners();
               return handler.reject(error);
@@ -92,7 +98,7 @@ class Api extends ChangeNotifier {
             }
           } else {
             _accessToken = null;
-            await _storage.deleteAll();
+            await _storage.delete(key: 'refreshToken');
             _isLoggedIn = false;
             notifyListeners();
             return handler.reject(error);
@@ -120,8 +126,10 @@ class Api extends ChangeNotifier {
 
   Future<void> refreshToken() async {
     final refreshToken = await _storage.read(key: 'refreshToken');
-    final response =
-        await dio.post('/token/refresh/', data: {'refresh': refreshToken});
+    final response = await dio.post(
+      '/token/refresh/',
+      data: {'refresh': refreshToken},
+    );
     if (response.statusCode == 200) {
       _accessToken = response.data['access'];
       await _storage.write(
@@ -150,8 +158,8 @@ class Api extends ChangeNotifier {
       if (_user?.isVerify == false) return 2;
       if (_user?.pin == null) return 3;
       if (_user?.family == null) return 4;
-      _isLoggedIn = true;
-      notifyListeners();
+      // _isLoggedIn = true;
+      // notifyListeners();
       return 1;
     } catch (e) {
       return 0;
@@ -179,7 +187,7 @@ class Api extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    await _storage.deleteAll();
+    await _storage.delete(key: 'refreshToken');
     _user = User();
     _accessToken = null;
     _isLoggedIn = false;
@@ -260,12 +268,64 @@ class Api extends ChangeNotifier {
     }
   }
 
+  Future<String> requestAnonOTP(String email) async {
+    try {
+      final res = await dio.get(
+        '/user/verify-code/?email=$email',
+        options: Options(
+          headers: {'Authorization': ''},
+        ),
+      );
+      return res.data['ref_code'];
+    } catch (e) {
+      return '';
+    }
+  }
+
+  Future<String> verifyAnonOTP(String email, String otp, String ref) async {
+    try {
+      final res = await dio.post(
+        '/user/verify-code/',
+        data: {
+          'email': email,
+          'otp': otp,
+          'ref': ref,
+        },
+        options: Options(
+          headers: {'Authorization': ''},
+        ),
+      );
+      return res.data['verify'];
+    } catch (e) {
+      return '';
+    }
+  }
+
   Future<bool> verifyUser(String token, String ref) async {
     try {
       await dio.post(
         '/user/verify-user/',
         options: Options(
           headers: {
+            'X-VERIFY-TOKEN': token,
+            'X-REF-CODE': ref,
+          },
+        ),
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> resetPassword(String token, String ref, String password) async {
+    try {
+      await dio.post(
+        '/user/reset-password/',
+        data: {"new_password": password},
+        options: Options(
+          headers: {
+            'Authorization': '',
             'X-VERIFY-TOKEN': token,
             'X-REF-CODE': ref,
           },
@@ -303,16 +363,17 @@ class Api extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateUser(
-      String province, String status, String occuType, int family) async {
+  Future<bool> updateUser(String province, String status, String occuType,
+      int family, int year) async {
     try {
       await dio.patch(
         '/user/${_user?.uuid}/',
         data: {
           "province": province,
           "status": status,
-          "family": family.toString(),
+          "family": family,
           "occu_type": occuType,
+          "born_year": year,
         },
       );
       _isLoggedIn = true;
@@ -532,16 +593,10 @@ class Api extends ChangeNotifier {
     }
   }
 
-  Future<DFlowFlow> editFlow(
-      String id, String name, double value, int method) async {
+  Future<DFlowFlow> getOneFlow(String id) async {
     try {
-      final res = await dio.patch(
+      final res = await dio.get(
         '/api/daily-flow/$id/',
-        data: {
-          "name": name,
-          "value": value,
-          "method": method,
-        },
       );
       final data = DFlowFlow.fromJson(res.data);
       return data;
@@ -555,6 +610,24 @@ class Api extends ChangeNotifier {
         dfId: '',
         cat: Cat(id: '', name: '', usedCount: 0, icon: '', ftype: ''),
       );
+    }
+  }
+
+  Future<DFlowEdit> editFlow(
+      String id, String name, double value, int method) async {
+    try {
+      final res = await dio.patch(
+        '/api/daily-flow/$id/',
+        data: {
+          "name": name,
+          "value": value,
+          "method": method,
+        },
+      );
+      final data = DFlowEdit.fromJson(res.data);
+      return data;
+    } catch (e) {
+      return DFlowEdit(id: '');
     }
   }
 
@@ -700,7 +773,7 @@ class Api extends ChangeNotifier {
         '/api/categories/',
         data: {
           "name": name,
-          "icon": icon,
+          "icon": icon == '' ? 'briefcase' : icon,
           "ftype": ftype,
         },
       );
@@ -721,7 +794,7 @@ class Api extends ChangeNotifier {
         '/api/category/$id/',
         data: {
           "name": name,
-          "icon": icon,
+          "icon": icon == '' ? 'briefcase' : icon,
           //"ftype":ftype,
         },
       );

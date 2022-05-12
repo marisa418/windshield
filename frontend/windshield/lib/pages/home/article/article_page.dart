@@ -596,23 +596,23 @@ class Body extends ConsumerWidget {
     }
     return Column(
       children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: articles.articles.length,
-              separatorBuilder: (_, i) => const SizedBox(
-                height: 25,
-              ),
-              itemBuilder: (_, i) => ArticleItem(
-                i: i,
-              ),
+        Flexible(
+          fit: FlexFit.tight,
+          flex: 9,
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: articles.articles.length,
+            separatorBuilder: (_, i) => const SizedBox(
+              height: 25,
+            ),
+            itemBuilder: (_, i) => ArticleItem(
+              i: i,
             ),
           ),
         ),
-        SizedBox(
-          height: 100,
+        Flexible(
+          fit: FlexFit.tight,
+          flex: 1,
           child: Center(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -692,6 +692,8 @@ class ArticleItem extends ConsumerWidget {
                             Navigator.of(context).pop();
                             AutoRouter.of(context)
                                 .push(const ArticleReadRoute());
+                            ref.refresh(apiArticle);
+                            await ref.read(apiProvider).getUserInfo();
                           }
                         }
                       : null,
@@ -707,6 +709,11 @@ class ArticleItem extends ConsumerWidget {
       },
       child: Container(
         height: 100,
+        margin: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: i == 0 ? 20 : 0,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -789,6 +796,9 @@ class ArticleItem extends ConsumerWidget {
                       height: double.infinity,
                       width: double.infinity,
                       fit: BoxFit.fill,
+                      errorBuilder: (context, exception, stackTrace) {
+                        return Container();
+                      },
                     ),
                   ),
                   if (article.price > 0)

@@ -1,24 +1,16 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:windshield/utility/icon_convertor.dart';
+import 'package:auto_route/auto_route.dart';
 
 import 'package:windshield/main.dart';
 import 'package:windshield/styles/theme.dart';
-import 'package:auto_route/auto_route.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:windshield/main.dart';
-import 'package:windshield/models/balance_sheet/balance_sheet.dart';
-import 'package:windshield/models/daily_flow/flow.dart';
-import 'package:windshield/pages/home/overview/balance_sheet/create_balance.dart';
-import 'package:windshield/styles/theme.dart';
-import 'package:percent_indicator/percent_indicator.dart';
-import 'package:badges/badges.dart';
 import 'package:windshield/routes/app_router.dart';
+import 'package:windshield/utility/icon_convertor.dart';
+
+import '../../../utility/icon_convertor.dart';
+import '../../../utility/icon_convertor.dart';
 
 class SettingPage extends ConsumerWidget {
   const SettingPage({Key? key}) : super(key: key);
@@ -31,9 +23,9 @@ class SettingPage extends ConsumerWidget {
         SettingInfo(),
         ChangePassword(),
         ResetPin(),
-        SetNotificate(),
-        IssueInfo(),
-        GuideInfo(),
+        //SetNotificate(),
+        //IssueInfo(),
+        //GuideInfo(),
         LogoutBt(),
       ],
     );
@@ -62,14 +54,51 @@ class SettingHeader extends ConsumerWidget {
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
-                child: Text(
-                  'คุณ ${user?.userId}',
-                  style: MyTheme.whiteTextTheme.headline2,
+              Flexible(
+                flex: 7,
+                fit: FlexFit.tight,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(25.0, 20.0, 0.0, 0.0),
+                  child: AutoSizeText(
+                    'คุณ ${user?.userId}',
+                    style: MyTheme.whiteTextTheme.headline2,
+                    minFontSize: 0,
+                    maxLines: 1,
+                  ),
                 ),
               ),
+              //โชว์คะแนน
+              Flexible(
+                flex: 3,
+                fit: FlexFit.tight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 20.0, top: 20),
+                  child: Container(
+                    height: 30,
+                    // width: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: Colors.white,
+                      ),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(20),
+                      ),
+                    ),
+                    child: Center(
+                      child: AutoSizeText(
+                        'Points : ${user?.points}',
+                        maxLines: 1,
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                            color: MyTheme.primaryMajor, fontSize: 12),
+                      ),
+                    ),
+                  ),
+                ),
+              )
             ],
           ),
         ],
@@ -92,40 +121,43 @@ class SettingInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
-      height: 70,
-      child: Row(
-        children: const [
-          Flexible(
-            flex: 2,
-            fit: FlexFit.tight,
-            child: Icon(
-              Icons.edit,
-              color: Colors.grey,
-              size: 30,
+    return GestureDetector(
+      onTap: () => AutoRouter.of(context).push(const UserEditRoute()),
+      child: SizedBox(
+        height: 70,
+        child: Row(
+          children: const [
+            Flexible(
+              flex: 2,
+              fit: FlexFit.tight,
+              child: Icon(
+                Icons.edit,
+                color: Colors.grey,
+                size: 30,
+              ),
             ),
-          ),
-          Flexible(
-            flex: 7,
-            fit: FlexFit.tight,
-            child: Text(
-              'แก้ไขข้อมูลผู้ใช้',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 25,
-                  decoration: TextDecoration.none),
+            Flexible(
+              flex: 7,
+              fit: FlexFit.tight,
+              child: Text(
+                'แก้ไขข้อมูลผู้ใช้',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 25,
+                    decoration: TextDecoration.none),
+              ),
             ),
-          ),
-          Flexible(
-            flex: 1,
-            fit: FlexFit.tight,
-            child: Icon(
-              Icons.chevron_right_outlined,
-              color: Colors.grey,
-              size: 30,
+            Flexible(
+              flex: 1,
+              fit: FlexFit.tight,
+              child: Icon(
+                Icons.chevron_right_outlined,
+                color: Colors.grey,
+                size: 30,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
