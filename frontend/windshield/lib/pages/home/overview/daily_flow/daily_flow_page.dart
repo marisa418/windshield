@@ -250,7 +250,7 @@ class DailyList extends ConsumerWidget {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(right: 15),
+                          padding: const EdgeInsets.only(right: 22),
                           child: GestureDetector(
                             onTap: () {
                               showDialog(
@@ -268,7 +268,7 @@ class DailyList extends ConsumerWidget {
                                   color: MyTheme.positiveMajor,
                                 ),
                                 Text(
-                                  'เหมือนวันก่อน',
+                                  'สัดส่วนเหมือนวันก่อน',
                                   style: TextStyle(
                                     color: MyTheme.positiveMajor,
                                   ),
@@ -538,7 +538,7 @@ class DailyList extends ConsumerWidget {
                                   color: MyTheme.negativeMajor,
                                 ),
                                 Text(
-                                  'เหมือนวันก่อน',
+                                  'สัดส่วนเหมือนวันก่อน',
                                   style: TextStyle(
                                     color: MyTheme.negativeMajor,
                                   ),
@@ -693,7 +693,7 @@ class IncWorkingTab extends ConsumerWidget {
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
                       Text(
-                        'เหมือนวันก่อน',
+                        'รายรับเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.positiveMajor),
                       ),
                     ],
@@ -847,7 +847,7 @@ class IncAssetTab extends ConsumerWidget {
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
                       Text(
-                        'เหมือนวันก่อน',
+                        'รายรับเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.positiveMajor),
                       ),
                     ],
@@ -997,7 +997,7 @@ class IncOtherTab extends ConsumerWidget {
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
                       Text(
-                        'เหมือนวันก่อน',
+                        'รายรับเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.positiveMajor),
                       ),
                     ],
@@ -1147,7 +1147,7 @@ class ExpNonConTab extends ConsumerWidget {
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
                       Text(
-                        'เหมือนวันก่อน',
+                        'รายจ่ายเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.negativeMajor),
                       ),
                     ],
@@ -1300,7 +1300,7 @@ class ExpConTab extends ConsumerWidget {
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
                       Text(
-                        'เหมือนวันก่อน',
+                        'รายจ่ายเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.negativeMajor),
                       ),
                     ],
@@ -1448,7 +1448,7 @@ class SavAndInvTab extends ConsumerWidget {
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
                       Text(
-                        'เหมือนวันก่อน',
+                        'รายจ่ายเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.negativeMajor),
                       ),
                     ],

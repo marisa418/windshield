@@ -22,8 +22,8 @@ Future<void> createReminderNotification(
     content: NotificationContent(
       id: 0,
       channelKey: 'daiy_flow_channel',
-      title: '${Emojis.money_money_bag} ถึงเวลาทำรายรับ-จ่ายเเล้วนะ!!!',
-      body: 'จะมาทำดีๆ หรือจะมาทำด้วยน้ำตาา',
+      title: '${Emojis.money_money_bag} ถึงเวลาทำรายรับ-จ่ายเเล้วนะคะ',
+      body: 'ทำรายรับ-รายจ่ายทุกวันเพื่อสุขภาพทางการเงินที่ดี',
       notificationLayout: NotificationLayout.Default,
     ),
     actionButtons: [
