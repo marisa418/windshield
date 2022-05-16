@@ -42,10 +42,18 @@ class BudgetTab extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              for (var i = 0; i < statementList.length; i++) ...[
-                StatementItem(i: i),
-                const SizedBox(height: 20),
-              ],
+              if (statementList.isEmpty)
+                Center(
+                  child: Text(
+                    'ไม่มีรายการ',
+                    style: MyTheme.textTheme.headline4,
+                  ),
+                )
+              else
+                for (var i = 0; i < statementList.length; i++) ...[
+                  StatementItem(i: i),
+                  const SizedBox(height: 20),
+                ],
               const SizedBox(height: 50),
             ],
           ),

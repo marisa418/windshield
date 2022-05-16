@@ -44,6 +44,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoggedIn = ref.watch(apiProvider.select((e) => e.isLoggedIn));
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       routerDelegate: AutoRouterDelegate.declarative(
         _appRouter,
         routes: (_) => [

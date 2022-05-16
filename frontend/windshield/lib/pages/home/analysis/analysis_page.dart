@@ -1,9 +1,12 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'package:windshield/routes/app_router.dart';
 
 import 'package:windshield/styles/theme.dart';
 
@@ -90,9 +93,13 @@ class _AnalysisState extends ConsumerState<Analysis>
                               DateFormat('E d MMM y').format(DateTime.now()),
                               style: MyTheme.whiteTextTheme.headline4,
                             ),
-                            const FaIcon(
-                              FontAwesomeIcons.user,
-                              color: Colors.white,
+                            GestureDetector(
+                              onTap: () => AutoRouter.of(context)
+                                  .push(const UserEditRoute()),
+                              child: const FaIcon(
+                                FontAwesomeIcons.user,
+                                color: Colors.white,
+                              ),
                             ),
                           ],
                         ),
@@ -321,7 +328,10 @@ class _AnalysisState extends ConsumerState<Analysis>
                             value: stat.financialHealth?.floorToDouble() ??
                                 0, //stat.floor(),
                             markerType: MarkerType.circle,
-                            color: Color(0xFF94DF0F),
+                            color: Colors.white,
+                            borderColor: Colors.black,
+                            borderWidth: .3,
+                            elevation: 3,
                           )
                         ],
                       )

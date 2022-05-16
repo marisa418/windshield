@@ -131,9 +131,13 @@ class Overview extends ConsumerWidget {
                                         .format(DateTime.now()),
                                     style: MyTheme.whiteTextTheme.headline4,
                                   ),
-                                  const FaIcon(
-                                    FontAwesomeIcons.user,
-                                    color: Colors.white,
+                                  GestureDetector(
+                                    onTap: () => AutoRouter.of(context)
+                                        .push(const UserEditRoute()),
+                                    child: const FaIcon(
+                                      FontAwesomeIcons.user,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -222,113 +226,193 @@ class Overview extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Column(
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        AutoRouter.of(context)
-                                            .push(const StatementRoute());
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        height: 60,
-                                        child: FaIcon(
-                                          FontAwesomeIcons.chartPie,
-                                          size: 30,
-                                          color: Theme.of(context).primaryColor,
+                                SizedBox(
+                                  height: 110,
+                                  width: 60,
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          AutoRouter.of(context)
+                                              .push(const StatementRoute());
+                                        },
+                                        child: Container(
+                                          height: 60,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color: MyTheme.kToDark[50],
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(.4),
+                                                spreadRadius: .3,
+                                                blurRadius: .5,
+                                                offset: const Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                          child: FaIcon(
+                                            FontAwesomeIcons.chartPie,
+                                            size: 30,
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                          ),
                                         ),
                                       ),
-                                      style: ElevatedButton.styleFrom(
-                                        primary: MyTheme.kToDark[50],
+                                      const SizedBox(height: 10),
+                                      const AutoSizeText(
+                                        'แผนงบการเงิน',
+                                        minFontSize: 0,
+                                        maxLines: 2,
+                                        textAlign: TextAlign.center,
                                       ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    const Text(
-                                      'แผนงบการเงิน',
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                                Column(
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        AutoRouter.of(context)
-                                            .push(const BalanceSheetRoute());
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        height: 60,
-                                        child: FaIcon(
-                                          FontAwesomeIcons.balanceScale,
-                                          size: 30,
-                                          color: Theme.of(context).primaryColor,
+                                SizedBox(
+                                  height: 110,
+                                  width: 60,
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          AutoRouter.of(context)
+                                              .push(const BalanceSheetRoute());
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            color: MyTheme.kToDark[50],
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(.4),
+                                                spreadRadius: .3,
+                                                blurRadius: .5,
+                                                offset: const Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                          child: FaIcon(
+                                            FontAwesomeIcons.balanceScale,
+                                            size: 30,
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                          ),
                                         ),
                                       ),
-                                      style: ElevatedButton.styleFrom(
-                                        primary: MyTheme.kToDark[50],
+                                      const SizedBox(height: 10),
+                                      const AutoSizeText(
+                                        'งบดุลการเงิน',
+                                        minFontSize: 0,
+                                        maxLines: 2,
+                                        textAlign: TextAlign.center,
                                       ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    const Text(
-                                      'งบดุลการเงิน',
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                                Column(
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        AutoRouter.of(context)
-                                            .push(const FinancialGoalRoute());
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        height: 60,
-                                        child: FaIcon(
-                                          FontAwesomeIcons.solidFlag,
-                                          size: 30,
-                                          color: Theme.of(context).primaryColor,
+                                SizedBox(
+                                  height: 110,
+                                  width: 60,
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          AutoRouter.of(context)
+                                              .push(const FinancialGoalRoute());
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            color: MyTheme.kToDark[50],
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(.4),
+                                                spreadRadius: .3,
+                                                blurRadius: .5,
+                                                offset: const Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                          child: FaIcon(
+                                            FontAwesomeIcons.solidFlag,
+                                            size: 30,
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                          ),
                                         ),
                                       ),
-                                      style: ElevatedButton.styleFrom(
-                                        primary: MyTheme.kToDark[50],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    const Text(
-                                      'เป้าหมาย\nทางการเงิน',
-                                      textAlign: TextAlign.center,
-                                    )
-                                  ],
+                                      const SizedBox(height: 10),
+                                      const AutoSizeText(
+                                        'เป้าหมายทางการเงิน',
+                                        minFontSize: 0,
+                                        maxLines: 2,
+                                        textAlign: TextAlign.center,
+                                      )
+                                    ],
+                                  ),
                                 ),
-                                Column(
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        AutoRouter.of(context)
-                                            .push(const CategoryRoute());
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        height: 60,
-                                        child: FaIcon(
-                                          FontAwesomeIcons.percentage,
-                                          size: 30,
-                                          color: Theme.of(context).primaryColor,
+                                SizedBox(
+                                  height: 110,
+                                  width: 60,
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          AutoRouter.of(context)
+                                              .push(const CategoryRoute());
+                                        },
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            color: MyTheme.kToDark[50],
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black
+                                                    .withOpacity(.4),
+                                                spreadRadius: .3,
+                                                blurRadius: .5,
+                                                offset: const Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                          child: FaIcon(
+                                            FontAwesomeIcons.percentage,
+                                            size: 30,
+                                            color:
+                                                Theme.of(context).primaryColor,
+                                          ),
                                         ),
                                       ),
-                                      style: ElevatedButton.styleFrom(
-                                        primary: MyTheme.kToDark[50],
+                                      const SizedBox(height: 10),
+                                      const AutoSizeText(
+                                        'จัดการหมวดหมู่',
+                                        minFontSize: 0,
+                                        maxLines: 2,
+                                        textAlign: TextAlign.center,
                                       ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    const Text(
-                                      'จัดการ\nหมวดหมู่',
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ],
                             )
@@ -442,7 +526,10 @@ class Overview extends ConsumerWidget {
                                       stat.financialHealth?.floorToDouble() ??
                                           0, //stat.floor(),
                                   markerType: MarkerType.circle,
-                                  color: Color(0xFF94DF0F),
+                                  color: Colors.white,
+                                  borderColor: Colors.black,
+                                  borderWidth: .3,
+                                  elevation: 3,
                                 )
                               ],
                             )

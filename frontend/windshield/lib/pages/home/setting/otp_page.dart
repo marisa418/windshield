@@ -64,6 +64,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                       onChanged: (value) => setState(() => {_old = value}),
                       style: MyTheme.whiteTextTheme.headline4,
                       cursorColor: Colors.white,
+                      obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'โปรดกรอกรหัสผ่านเก่า',
                         labelStyle: MyTheme.whiteTextTheme.headline4,
@@ -85,6 +86,7 @@ class _OTPPageState extends ConsumerState<OTPPage> {
                       onChanged: (value) => setState(() => {_new = value}),
                       style: MyTheme.whiteTextTheme.headline4,
                       cursorColor: Colors.white,
+                      obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'โปรดกรอกรหัสผ่านใหม่',
                         labelStyle: MyTheme.whiteTextTheme.headline4,

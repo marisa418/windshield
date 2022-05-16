@@ -711,7 +711,7 @@ class PrivateAssetTab extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
-              'สินทรัพย์สภาพคล่อง',
+              'สินทรัพย์ส่วนตัว',
               style: MyTheme.textTheme.headline3,
             ),
           ),

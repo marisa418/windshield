@@ -267,11 +267,13 @@ class DailyList extends ConsumerWidget {
                                   Icons.refresh_rounded,
                                   color: MyTheme.positiveMajor,
                                 ),
-                                Text(
+                                AutoSizeText(
                                   'สัดส่วนเหมือนวันก่อน',
                                   style: TextStyle(
                                     color: MyTheme.positiveMajor,
                                   ),
+                                  minFontSize: 0,
+                                  maxLines: 1,
                                 ),
                               ],
                             ),
@@ -537,11 +539,13 @@ class DailyList extends ConsumerWidget {
                                   Icons.refresh_rounded,
                                   color: MyTheme.negativeMajor,
                                 ),
-                                Text(
+                                AutoSizeText(
                                   'สัดส่วนเหมือนวันก่อน',
                                   style: TextStyle(
                                     color: MyTheme.negativeMajor,
                                   ),
+                                  minFontSize: 0,
+                                  maxLines: 1,
                                 ),
                               ],
                             ),
@@ -692,9 +696,11 @@ class IncWorkingTab extends ConsumerWidget {
                   child: Row(
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
-                      Text(
+                      AutoSizeText(
                         'รายรับเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.positiveMajor),
+                        minFontSize: 0,
+                        maxLines: 1,
                       ),
                     ],
                   ),
@@ -846,9 +852,11 @@ class IncAssetTab extends ConsumerWidget {
                   child: Row(
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
-                      Text(
+                      AutoSizeText(
                         'รายรับเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.positiveMajor),
+                        minFontSize: 0,
+                        maxLines: 1,
                       ),
                     ],
                   ),
@@ -996,9 +1004,11 @@ class IncOtherTab extends ConsumerWidget {
                   child: Row(
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.positiveMajor),
-                      Text(
+                      AutoSizeText(
                         'รายรับเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.positiveMajor),
+                        minFontSize: 0,
+                        maxLines: 1,
                       ),
                     ],
                   ),
@@ -1146,9 +1156,11 @@ class ExpNonConTab extends ConsumerWidget {
                   child: Row(
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
-                      Text(
+                      AutoSizeText(
                         'รายจ่ายเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.negativeMajor),
+                        minFontSize: 0,
+                        maxLines: 1,
                       ),
                     ],
                   ),
@@ -1299,9 +1311,11 @@ class ExpConTab extends ConsumerWidget {
                   child: Row(
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
-                      Text(
+                      AutoSizeText(
                         'รายจ่ายเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.negativeMajor),
+                        minFontSize: 0,
+                        maxLines: 1,
                       ),
                     ],
                   ),
@@ -1447,9 +1461,11 @@ class SavAndInvTab extends ConsumerWidget {
                   child: Row(
                     children: [
                       Icon(Icons.refresh_rounded, color: MyTheme.negativeMajor),
-                      Text(
+                      AutoSizeText(
                         'รายจ่ายเหมือนวันก่อน',
                         style: TextStyle(color: MyTheme.negativeMajor),
+                        minFontSize: 0,
+                        maxLines: 1,
                       ),
                     ],
                   ),
