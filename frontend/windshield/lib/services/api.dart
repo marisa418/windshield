@@ -34,7 +34,7 @@ class Api extends ChangeNotifier {
 
   final _storage = const FlutterSecureStorage();
 
-  // final url = 'http://192.168.1.9:8000';
+  // final url = 'http://192.168.1.33:8000';
   final url = 'https://windshield-server.herokuapp.com';
 
   Api() {
